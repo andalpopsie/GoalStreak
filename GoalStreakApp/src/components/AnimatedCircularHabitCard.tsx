@@ -248,7 +248,7 @@ export default function AnimatedCircularHabitCard({
             >
               <Ionicons 
                 name="checkmark-circle" 
-                size={24} 
+                size={32} 
                 color={Colors.accent1} // Orange for visibility
               />
             </Animated.View>
@@ -349,11 +349,11 @@ const styles = StyleSheet.create({
   },
   completionBadge: {
     position: 'absolute',
-    bottom: -8,
-    right: 15,
+    bottom: -10,
+    right: 12,
     backgroundColor: Colors.background,
-    borderRadius: 15,
-    padding: 2,
+    borderRadius: 18,
+    padding: 3,
     shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
