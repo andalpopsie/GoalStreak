@@ -7,7 +7,9 @@ import Animated, {
   withSpring, 
   withTiming,
   interpolate,
-  runOnJS
+  runOnJS,
+  FadeIn,
+  FadeOut,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { Colors, Typography, Spacing } from '../constants/theme';
@@ -221,7 +223,12 @@ export default function AnimatedCircularHabitCard({
               {isLoading ? (
                 <Ionicons name="hourglass" size={80} color={Colors.primaryText} />
               ) : isCompleted ? (
-                <Ionicons name="checkmark" size={80} color={Colors.white} />
+                // Show regular icon when completed (no checkmark inside)
+                <Ionicons
+                  name={CATEGORY_ICONS[habit.category] as any}
+                  size={80}
+                  color={Colors.primaryText}
+                />
               ) : (
                 <Ionicons
                   name={CATEGORY_ICONS[habit.category] as any}
@@ -231,6 +238,21 @@ export default function AnimatedCircularHabitCard({
               )}
             </Animated.View>
           </View>
+          
+          {/* Completion Badge - Small check beside circle */}
+          {isCompleted && (
+            <Animated.View 
+              style={styles.completionBadge}
+              entering={FadeIn.duration(300)}
+              exiting={FadeOut.duration(200)}
+            >
+              <Ionicons 
+                name="checkmark-circle" 
+                size={24} 
+                color={Colors.accent1} // Orange for visibility
+              />
+            </Animated.View>
+          )}
         </View>
 
         {/* Habit Text */}
@@ -314,5 +336,28 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.bold,
     color: Colors.accent1,
     marginLeft: 2,
+  },
+  checkmarkContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    // Add subtle drop shadow for extra visibility
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  completionBadge: {
+    position: 'absolute',
+    bottom: -8,
+    right: 15,
+    backgroundColor: Colors.background,
+    borderRadius: 15,
+    padding: 2,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
 });
