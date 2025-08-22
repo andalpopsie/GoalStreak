@@ -10,7 +10,8 @@ import { RootStackParamList, MainTabParamList, AuthStackParamList } from '../typ
 // Import screens
 import CleanHomeScreen from '../screens/CleanHomeScreen';
 import HabitsScreen from '../screens/HabitsScreen';
-import FeedScreen from '../screens/FeedScreen';
+import SocialScreen from '../screens/SocialScreen';
+import AnalyticsScreen from '../screens/AnalyticsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
@@ -52,8 +53,10 @@ function MainTabNavigator() {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Habits') {
             iconName = focused ? 'checkmark-circle' : 'checkmark-circle-outline';
-          } else if (route.name === 'Feed') {
+          } else if (route.name === 'Social') {
             iconName = focused ? 'people' : 'people-outline';
+          } else if (route.name === 'Analytics') {
+            iconName = focused ? 'bar-chart' : 'bar-chart-outline';
           } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
           } else {
@@ -91,9 +94,14 @@ function MainTabNavigator() {
         options={{ title: 'My Habits' }}
       />
       <Tab.Screen 
-        name="Feed" 
-        component={FeedScreen}
-        options={{ title: 'Activity Feed' }}
+        name="Social" 
+        component={SocialScreen}
+        options={{ title: 'Social' }}
+      />
+      <Tab.Screen 
+        name="Analytics" 
+        component={AnalyticsScreen}
+        options={{ title: 'Analytics' }}
       />
       <Tab.Screen 
         name="Profile" 

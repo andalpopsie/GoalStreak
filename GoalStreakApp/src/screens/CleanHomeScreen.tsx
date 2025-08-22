@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
-import { useHabits } from '../hooks/useHabits';
+import { useHabitsWithSocial } from '../hooks/useHabitsWithSocial';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import SkeletonHabitCard from '../components/SkeletonHabitCard';
 import AnimatedCircularHabitCard from '../components/AnimatedCircularHabitCard';
@@ -31,7 +31,7 @@ export default function CleanHomeScreen({ navigation }: any) {
     isHabitCompletedToday,
     getHabitStreak,
     refreshHabits,
-  } = useHabits();
+  } = useHabitsWithSocial();
   const networkStatus = useNetworkStatus();
 
   const todayHabits = habits.filter(habit => habit.frequency === 'daily');
