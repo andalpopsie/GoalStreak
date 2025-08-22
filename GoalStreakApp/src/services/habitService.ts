@@ -1,4 +1,4 @@
-// Habit Service - Firestore operations for habits
+// Habit Service - Firestore operations for habits with retry logic
 import { 
   collection, 
   doc, 
@@ -16,6 +16,7 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { db } from './firebase';
+import { withRetry, RETRY_CONFIGS } from './retryService';
 import { Habit, HabitCompletion, Streak, CreateHabitForm } from '../types';
 
 // Collection references
@@ -27,7 +28,7 @@ const STREAKS_COLLECTION = 'streaks';
 export const habitService = {
   // Create a new habit
   async createHabit(userId: string, habitData: CreateHabitForm): Promise<string> {
-    try {
+    return withRetry(async () => {
       const habit: Omit<Habit, 'id'> = {
         userId,
         name: habitData.name.trim(),
@@ -47,10 +48,7 @@ export const habitService = {
       await this.initializeStreak(docRef.id);
       
       return docRef.id;
-    } catch (error) {
-      console.error('Error creating habit:', error);
-      throw new Error(`Failed to create habit: ${(error as any)?.message || 'Unknown error'}`);
-    }
+    }, RETRY_CONFIGS.habitCreation);
   },
 
   // Get user's habits

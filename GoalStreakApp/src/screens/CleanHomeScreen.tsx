@@ -14,8 +14,11 @@ import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
 import { useHabits } from '../hooks/useHabits';
+import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import SkeletonHabitCard from '../components/SkeletonHabitCard';
 import AnimatedCircularHabitCard from '../components/AnimatedCircularHabitCard';
+import OfflineBanner from '../components/OfflineBanner';
+import EmptyHabitsState from '../components/EmptyHabitsState';
 
 export default function CleanHomeScreen({ navigation }: any) {
   const { user } = useAuth();
@@ -29,6 +32,7 @@ export default function CleanHomeScreen({ navigation }: any) {
     getHabitStreak,
     refreshHabits,
   } = useHabits();
+  const networkStatus = useNetworkStatus();
 
   const todayHabits = habits.filter(habit => habit.frequency === 'daily');
   
@@ -49,13 +53,6 @@ export default function CleanHomeScreen({ navigation }: any) {
   }, [todayHabits]);
   
   const completedToday = uniqueHabits.filter(habit => isHabitCompletedToday(habit.id));
-
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
-  };
 
   const handleToggleHabit = async (habitId: string) => {
     try {
@@ -78,7 +75,10 @@ export default function CleanHomeScreen({ navigation }: any) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+      {/* Offline Banner - integrated into layout */}
+      {!networkStatus.isConnected && <OfflineBanner isVisible={true} />}
+      
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.content}
@@ -87,12 +87,6 @@ export default function CleanHomeScreen({ navigation }: any) {
         }
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.greeting}>{getGreeting()}</Text>
-          <Text style={styles.userName}>{user?.name || 'User'}</Text>
-        </View>
-
         {/* Today's Progress */}
         {uniqueHabits.length > 0 && (
           <View style={styles.progressSection}>
@@ -110,6 +104,9 @@ export default function CleanHomeScreen({ navigation }: any) {
               <SkeletonHabitCard key={index} />
             ))}
           </View>
+        ) : uniqueHabits.length === 0 ? (
+          /* Show empty state when no habits */
+          <EmptyHabitsState onCreateHabit={navigateToCreateHabit} />
         ) : (
           <Animated.View style={styles.habitsGrid} entering={FadeIn.duration(600)}>
             {/* Show all habits once, regardless of completion status */}
@@ -172,20 +169,6 @@ const styles = StyleSheet.create({
   content: {
     padding: Spacing.lg,
     paddingBottom: 100,
-  },
-  header: {
-    marginBottom: Spacing.xl,
-  },
-  greeting: {
-    fontSize: Typography.fontSize.lg,
-    color: Colors.gray.dark,
-    marginBottom: Spacing.xs,
-  },
-  userName: {
-    fontSize: Typography.fontSize['2xl'],
-    fontWeight: Typography.fontWeight.semibold,
-    fontFamily: Typography.fontFamily.semibold,  // Montserrat_600SemiBold - cleaner look
-    color: Colors.primaryText,
   },
   progressSection: {
     alignItems: 'center',

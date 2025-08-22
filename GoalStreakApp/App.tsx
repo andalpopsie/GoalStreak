@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { View, Text } from 'react-native';
 import { AuthProvider } from './src/hooks/useAuth';
 import AppNavigator from './src/navigation/AppNavigator';
+import ErrorBoundary from './src/components/ErrorBoundary';
 import { Colors } from './src/constants/theme';
 import { useAppFonts } from './src/hooks/useFonts';
 
@@ -19,9 +20,11 @@ export default function App() {
   }
 
   return (
-    <AuthProvider>
-      <AppNavigator />
-      <StatusBar style="dark" backgroundColor={Colors.background} />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppNavigator />
+        <StatusBar style="dark" backgroundColor={Colors.background} />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }

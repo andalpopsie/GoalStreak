@@ -26,13 +26,53 @@ export interface Habit {
 }
 
 export type HabitCategory = 
+  // Fitness & Workout
   | 'fitness'
+  | 'workout'
+  | 'running'
+  | 'yoga'
+  | 'cycling'
+  | 'swimming'
+  
+  // Health & Wellness
   | 'wellness'
+  | 'health'
+  | 'sleep'
+  | 'meditation'
+  | 'breathing'
+  
+  // Nutrition
   | 'nutrition'
+  | 'water'
+  | 'diet'
+  | 'vitamins'
+  
+  // Productivity & Learning
   | 'productivity'
-  | 'mindfulness'
-  | 'social'
   | 'learning'
+  | 'writing'
+  | 'coding'
+  
+  // Social & Personal
+  | 'social'
+  | 'family'
+  | 'friends'
+  
+  // Creative & Hobbies
+  | 'creative'
+  | 'music'
+  | 'art'
+  | 'photography'
+  
+  // Daily Habits
+  | 'hygiene'
+  | 'cleaning'
+  | 'skincare'
+  
+  // Legacy (for backward compatibility)
+  | 'mindfulness'
+  
+  // Default
   | 'other';
 
 export type HabitFrequency = 'daily' | 'weekly' | 'monthly';

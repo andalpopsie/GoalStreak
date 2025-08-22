@@ -20,53 +20,109 @@ interface CreateHabitScreenNewProps {
 }
 
 const HABIT_TEMPLATES = [
+  // Fitness & Workout Templates
   {
-    id: 'exercise',
-    name: 'Exercise',
-    icon: 'fitness',
+    id: 'workout',
+    name: 'Workout',
+    icon: 'barbell-outline',
     category: 'fitness' as HabitCategory,
-    description: 'Daily workout or physical activity',
+    description: 'Strength training or gym session',
+    targetValue: 45,
+    unit: 'minutes',
+  },
+  {
+    id: 'running',
+    name: 'Running',
+    icon: 'walk-outline',
+    category: 'running' as HabitCategory,
+    description: 'Daily run or cardio exercise',
     targetValue: 30,
     unit: 'minutes',
   },
   {
-    id: 'meditation',
-    name: 'Meditation',
-    icon: 'leaf',
-    category: 'mindfulness' as HabitCategory,
-    description: 'Daily mindfulness practice',
-    targetValue: 10,
-    unit: 'minutes',
-  },
-  {
-    id: 'reading',
-    name: 'Reading',
-    icon: 'book',
-    category: 'learning' as HabitCategory,
-    description: 'Daily reading habit',
+    id: 'yoga',
+    name: 'Yoga',
+    icon: 'flower-outline',
+    category: 'yoga' as HabitCategory,
+    description: 'Yoga practice and stretching',
     targetValue: 20,
     unit: 'minutes',
   },
   {
+    id: 'cycling',
+    name: 'Cycling',
+    icon: 'bicycle-outline',
+    category: 'cycling' as HabitCategory,
+    description: 'Bike ride or cycling workout',
+    targetValue: 45,
+    unit: 'minutes',
+  },
+  
+  // Health & Wellness Templates
+  {
     id: 'water',
     name: 'Drink Water',
-    icon: 'water',
-    category: 'wellness' as HabitCategory,
+    icon: 'water-outline',
+    category: 'water' as HabitCategory,
     description: 'Stay hydrated throughout the day',
     targetValue: 8,
     unit: 'glasses',
   },
   {
     id: 'sleep',
-    name: 'Sleep Early',
-    icon: 'bed',
-    category: 'wellness' as HabitCategory,
-    description: 'Get to bed before 10 PM',
+    name: 'Sleep',
+    icon: 'moon-outline',
+    category: 'sleep' as HabitCategory,
+    description: 'Get quality sleep each night',
+    targetValue: 8,
+    unit: 'hours',
   },
+  {
+    id: 'meditation',
+    name: 'Meditation',
+    icon: 'leaf-outline',
+    category: 'meditation' as HabitCategory,
+    description: 'Daily mindfulness practice',
+    targetValue: 10,
+    unit: 'minutes',
+  },
+  
+  // Nutrition Templates
+  {
+    id: 'healthy-eating',
+    name: 'Healthy Eating',
+    icon: 'nutrition-outline',
+    category: 'nutrition' as HabitCategory,
+    description: 'Eat nutritious meals',
+    targetValue: 3,
+    unit: 'meals',
+  },
+  
+  // Productivity Templates
+  {
+    id: 'reading',
+    name: 'Reading',
+    icon: 'library-outline',
+    category: 'learning' as HabitCategory,
+    description: 'Daily reading habit',
+    targetValue: 20,
+    unit: 'minutes',
+  },
+  {
+    id: 'journaling',
+    name: 'Journaling',
+    icon: 'create-outline',
+    category: 'writing' as HabitCategory,
+    description: 'Write in your journal',
+    targetValue: 10,
+    unit: 'minutes',
+  },
+  
+  // Custom Option
   {
     id: 'custom',
     name: 'Custom Habit',
-    icon: 'add',
+    icon: 'add-circle-outline',
     category: 'other' as HabitCategory,
     description: 'Create your own habit',
   },
@@ -129,14 +185,27 @@ export default function CreateHabitScreenNew({ navigation }: CreateHabitScreenNe
 
   const getIconName = (iconType: string) => {
     const iconMap: Record<string, string> = {
-      fitness: 'fitness',
-      leaf: 'leaf',
-      book: 'book',
-      water: 'water',
-      bed: 'bed',
-      add: 'add',
+      // New aesthetic icons
+      'barbell-outline': 'barbell-outline',
+      'walk-outline': 'walk-outline',
+      'flower-outline': 'flower-outline',
+      'bicycle-outline': 'bicycle-outline',
+      'water-outline': 'water-outline',
+      'moon-outline': 'moon-outline',
+      'leaf-outline': 'leaf-outline',
+      'nutrition-outline': 'nutrition-outline',
+      'library-outline': 'library-outline',
+      'create-outline': 'create-outline',
+      
+      // Legacy icons (for backward compatibility)
+      fitness: 'barbell-outline',
+      leaf: 'leaf-outline',
+      book: 'library-outline',
+      water: 'water-outline',
+      bed: 'moon-outline',
+      add: 'add-circle-outline',
     };
-    return iconMap[iconType] || 'ellipse';
+    return iconMap[iconType] || 'ellipse-outline';
   };
 
   return (

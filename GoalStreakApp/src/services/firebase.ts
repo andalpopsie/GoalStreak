@@ -5,6 +5,16 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Suppress Firebase BloomFilter warnings (known issue, safe to ignore)
+const originalWarn = console.warn;
+console.warn = (...args) => {
+  if (args[0]?.includes?.('BloomFilter error') || 
+      args[0]?.includes?.('@firebase/firestore')) {
+    return; // Suppress Firebase internal warnings
+  }
+  originalWarn(...args);
+};
+
 // Firebase config - Production configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCvIcGr7R1NB8hT7jZ3M5771w5anY1KMtU",
