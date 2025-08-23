@@ -14,6 +14,7 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { Habit, Streak } from '../types';
+import { getCategoryIcon, getCategoryColor } from '../utils/categoryIcons';
 
 interface AnimatedCircularHabitCardProps {
   habit: Habit;
@@ -69,6 +70,12 @@ const CATEGORY_ICONS: Record<string, string> = {
   
   // Default
   other: 'ellipse-outline',             // Other/miscellaneous
+};
+
+// Helper function to get icon with fallback
+const getHabitIcon = (category: string): string => {
+  const normalizedCategory = category?.toLowerCase() || 'other';
+  return CATEGORY_ICONS[normalizedCategory] || CATEGORY_ICONS.other || 'checkmark-circle-outline';
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -189,7 +196,7 @@ export default function AnimatedCircularHabitCard({
     backgroundColor: interpolate(
       completionProgress.value,
       [0, 1],
-      [Colors.white, Colors.accent3],
+      [Colors.white, getCategoryColor(habit.category)],
       'clamp'
     ),
   }));
@@ -225,13 +232,13 @@ export default function AnimatedCircularHabitCard({
               ) : isCompleted ? (
                 // Show regular icon when completed (no checkmark inside)
                 <Ionicons
-                  name={CATEGORY_ICONS[habit.category] as any}
+                  name={getCategoryIcon(habit.category) as any}
                   size={80}
                   color={Colors.primaryText}
                 />
               ) : (
                 <Ionicons
-                  name={CATEGORY_ICONS[habit.category] as any}
+                  name={getCategoryIcon(habit.category) as any}
                   size={80}
                   color={Colors.primaryText}
                 />

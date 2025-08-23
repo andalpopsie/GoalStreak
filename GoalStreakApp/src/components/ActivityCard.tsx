@@ -4,6 +4,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { SocialActivity } from '../types/social';
+import { getCategoryIcon } from '../utils/categoryIcons';
 
 interface ActivityCardProps {
   activity: SocialActivity;
@@ -86,33 +87,6 @@ export default function ActivityCard({ activity }: ActivityCardProps) {
     
     const diffInWeeks = Math.floor(diffInDays / 7);
     return `${diffInWeeks}w ago`;
-  };
-
-  const getCategoryIcon = (category: string) => {
-    // Map habit categories to icons (using the same mapping as habit cards)
-    const categoryIcons: Record<string, string> = {
-      fitness: 'barbell-outline',
-      workout: 'fitness-outline',
-      running: 'walk-outline',
-      yoga: 'flower-outline',
-      cycling: 'bicycle-outline',
-      swimming: 'water-outline',
-      wellness: 'heart-outline',
-      health: 'medical-outline',
-      sleep: 'moon-outline',
-      meditation: 'leaf-outline',
-      nutrition: 'nutrition-outline',
-      water: 'water-outline',
-      productivity: 'briefcase-outline',
-      learning: 'library-outline',
-      writing: 'create-outline',
-      social: 'people-outline',
-      creative: 'color-palette-outline',
-      music: 'musical-notes-outline',
-      other: 'ellipse-outline',
-    };
-    
-    return categoryIcons[category] || 'ellipse-outline';
   };
 
   const getInitials = (name: string) => {
