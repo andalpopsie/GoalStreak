@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius } from '../constants/theme';
 import { Habit, Streak } from '../types';
+import { getCategoryIcon, getCategoryColor } from '../utils/categoryIcons';
 
 interface HabitCardProps {
   habit: Habit;
@@ -14,17 +15,6 @@ interface HabitCardProps {
   onEdit?: () => void;
   onDelete?: () => void;
 }
-
-const CATEGORY_ICONS: Record<string, string> = {
-  fitness: 'fitness',
-  wellness: 'heart',
-  nutrition: 'restaurant',
-  productivity: 'briefcase',
-  mindfulness: 'leaf',
-  social: 'people',
-  learning: 'book',
-  other: 'ellipsis-horizontal',
-};
 
 export default function HabitCard({
   habit,
@@ -90,9 +80,9 @@ export default function HabitCard({
         <View style={styles.habitInfo}>
           <View style={styles.categoryIcon}>
             <Ionicons
-              name={CATEGORY_ICONS[habit.category] as any}
+              name={getCategoryIcon(habit.category, habit.name, habit.icon) as any}
               size={20}
-              color={Colors.accent1}
+              color={getCategoryColor(habit.category)}
             />
           </View>
           <View style={styles.habitDetails}>

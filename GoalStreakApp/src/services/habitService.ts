@@ -29,18 +29,29 @@ export const habitService = {
   // Create a new habit
   async createHabit(userId: string, habitData: CreateHabitForm): Promise<string> {
     return withRetry(async () => {
-      const habit: Omit<Habit, 'id'> = {
+      const habit: any = {
         userId,
         name: habitData.name.trim(),
-        description: habitData.description?.trim(),
         category: habitData.category,
         frequency: habitData.frequency,
-        targetValue: habitData.targetValue,
-        unit: habitData.unit?.trim(),
         isPublic: habitData.isPublic,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
+
+      // Only add optional fields if they have values (avoid undefined)
+      if (habitData.description) {
+        habit.description = habitData.description.trim();
+      }
+      if (habitData.targetValue !== undefined && habitData.targetValue !== null) {
+        habit.targetValue = habitData.targetValue;
+      }
+      if (habitData.unit) {
+        habit.unit = habitData.unit.trim();
+      }
+      if (habitData.icon) {
+        habit.icon = habitData.icon;
+      }
 
       const docRef = await addDoc(collection(db, HABITS_COLLECTION), habit);
       

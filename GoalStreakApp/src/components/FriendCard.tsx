@@ -27,28 +27,33 @@ export default function FriendCard({
   isLoading = false
 }: FriendCardProps) {
   const getName = () => {
-    if (friend) return friend.friendName;
+    if (friend) return friend.friendName || 'Unknown User';
     if (friendRequest) {
-      return type === 'pending' ? friendRequest.fromUserName : friendRequest.toUserEmail;
+      return type === 'pending' 
+        ? (friendRequest.fromUserName || 'Unknown User')
+        : (friendRequest.toUserEmail || 'Unknown User');
     }
-    return 'Unknown';
+    return 'Unknown User';
   };
 
   const getEmail = () => {
-    if (friend) return friend.friendEmail;
+    if (friend) return friend.friendEmail || '';
     if (friendRequest) {
-      return type === 'pending' ? friendRequest.fromUserEmail : friendRequest.toUserEmail;
+      return type === 'pending' 
+        ? (friendRequest.fromUserEmail || '')
+        : (friendRequest.toUserEmail || '');
     }
     return '';
   };
 
   const getInitials = (name: string) => {
+    if (!name || typeof name !== 'string') return 'U';
     return name
       .split(' ')
       .map(word => word.charAt(0))
       .join('')
       .toUpperCase()
-      .slice(0, 2);
+      .slice(0, 2) || 'U';
   };
 
   const renderActions = () => {

@@ -15,6 +15,7 @@ import { Colors, Typography, Spacing, BorderRadius } from '../constants/theme';
 import { useHabits } from '../hooks/useHabits';
 import Button from '../components/Button';
 import SimpleInput from '../components/SimpleInput';
+import IconPicker from '../components/IconPicker';
 import { CreateHabitForm, HabitCategory, HabitFrequency } from '../types';
 
 interface CreateHabitScreenProps {
@@ -48,10 +49,14 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
     frequency: 'daily',
     targetValue: undefined,
     unit: '',
+    icon: 'checkmark-circle', // Default icon
     isPublic: false,
   });
   
   const [errors, setErrors] = useState<Partial<CreateHabitForm>>({});
+  
+  // Icon picker state
+  const [showIconPicker, setShowIconPicker] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<CreateHabitForm> = {};
@@ -82,6 +87,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
 
     try {
       await createHabit(form);
+      
       Alert.alert('Success', 'Habit created successfully!', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
@@ -139,6 +145,21 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
               multiline
               error={errors.description}
             />
+          </View>
+
+          {/* Icon Selection */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Choose an Icon</Text>
+            <TouchableOpacity 
+              style={styles.iconSelector}
+              onPress={() => setShowIconPicker(true)}
+            >
+              <View style={styles.selectedIconContainer}>
+                <Ionicons name={form.icon as any} size={32} color={Colors.accent1} />
+              </View>
+              <Text style={styles.iconSelectorText}>Tap to change icon</Text>
+              <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+            </TouchableOpacity>
           </View>
 
           {/* Category Selection */}
@@ -261,6 +282,18 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      
+      {/* Icon Picker Modal */}
+      {showIconPicker && (
+        <IconPicker
+          selectedIcon={form.icon}
+          onIconSelect={(iconName) => {
+            setForm({ ...form, icon: iconName });
+            setShowIconPicker(false);
+          }}
+          onClose={() => setShowIconPicker(false)}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -412,5 +445,36 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: Spacing.lg,
     marginBottom: Spacing.xl,
+  },
+  // Icon Selection Styles
+  iconSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.accent2 + '30',
+  },
+  selectedIconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.md,
+    shadowColor: Colors.primaryText,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  iconSelectorText: {
+    flex: 1,
+    fontSize: Typography.fontSize.md,
+    color: Colors.primaryText,
+    fontWeight: Typography.fontWeight.medium,
   },
 });

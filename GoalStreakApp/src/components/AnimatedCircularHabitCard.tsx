@@ -24,111 +24,6 @@ interface AnimatedCircularHabitCardProps {
   onToggle: () => void;
 }
 
-const CATEGORY_ICONS: Record<string, string> = {
-  // Fitness & Workout - More specific and aesthetic
-  fitness: 'barbell-outline',           // Weightlifting/strength training
-  workout: 'fitness-outline',           // General workout
-  running: 'walk-outline',              // Running/cardio
-  yoga: 'flower-outline',               // Yoga/stretching
-  cycling: 'bicycle-outline',           // Cycling
-  swimming: 'water-outline',            // Swimming
-  
-  // Health & Wellness - Beautiful and clear
-  wellness: 'heart-outline',            // General wellness
-  health: 'medical-outline',            // Health tracking
-  sleep: 'moon-outline',                // Sleep habits
-  meditation: 'leaf-outline',           // Meditation/mindfulness
-  breathing: 'sunny-outline',           // Breathing exercises
-  
-  // Nutrition - Food and drink related
-  nutrition: 'nutrition-outline',       // General nutrition
-  water: 'water-outline',               // Water intake
-  diet: 'restaurant-outline',           // Diet/eating habits
-  vitamins: 'medical-outline',          // Supplements/vitamins
-  
-  // Productivity & Learning - Clean and professional
-  productivity: 'briefcase-outline',    // Work/productivity
-  learning: 'library-outline',          // Learning/reading
-  writing: 'create-outline',            // Writing/journaling
-  coding: 'code-slash-outline',         // Programming
-  
-  // Social & Personal - Warm and inviting
-  social: 'people-outline',             // Social activities
-  family: 'home-outline',               // Family time
-  friends: 'happy-outline',             // Friends/social
-  
-  // Creative & Hobbies - Artistic and fun
-  creative: 'color-palette-outline',    // Creative activities
-  music: 'musical-notes-outline',       // Music practice
-  art: 'brush-outline',                 // Art/drawing
-  photography: 'camera-outline',        // Photography
-  
-  // Daily Habits - Essential and clear
-  hygiene: 'water-outline',             // Personal hygiene
-  cleaning: 'home-outline',             // Cleaning/organizing
-  skincare: 'flower-outline',           // Skincare routine
-  
-  // Default
-  other: 'ellipse-outline',             // Other/miscellaneous
-};
-
-// Helper function to get icon with fallback
-const getHabitIcon = (category: string): string => {
-  const normalizedCategory = category?.toLowerCase() || 'other';
-  return CATEGORY_ICONS[normalizedCategory] || CATEGORY_ICONS.other || 'checkmark-circle-outline';
-};
-
-const CATEGORY_COLORS: Record<string, string> = {
-  // Fitness & Workout - Energetic colors
-  fitness: Colors.accent1,              // Warm orange
-  workout: Colors.accent1,              // Warm orange
-  running: Colors.accent1,              // Warm orange
-  yoga: Colors.accent3,                 // Teal for calm
-  cycling: Colors.accent1,              // Warm orange
-  swimming: Colors.accent3,             // Teal for water
-  
-  // Health & Wellness - Calming colors
-  wellness: Colors.accent3,             // Teal
-  health: Colors.accent3,               // Teal
-  sleep: Colors.primaryText,            // Dark blue for night
-  meditation: Colors.accent3,           // Teal for calm
-  breathing: Colors.accent3,            // Teal for calm
-  
-  // Nutrition - Natural colors
-  nutrition: Colors.accent1,            // Warm orange
-  water: Colors.accent3,                // Teal for water
-  diet: Colors.accent1,                 // Warm orange
-  vitamins: Colors.accent3,             // Teal
-  
-  // Productivity & Learning - Professional colors
-  productivity: Colors.primaryText,     // Dark blue
-  learning: Colors.primaryText,         // Dark blue
-  writing: Colors.primaryText,          // Dark blue
-  coding: Colors.primaryText,           // Dark blue
-  
-  // Social & Personal - Warm colors
-  social: Colors.accent1,               // Warm orange
-  family: Colors.accent1,               // Warm orange
-  friends: Colors.accent1,              // Warm orange
-  
-  // Creative & Hobbies - Vibrant colors
-  creative: Colors.accent1,             // Warm orange
-  music: Colors.accent1,                // Warm orange
-  art: Colors.accent1,                  // Warm orange
-  photography: Colors.primaryText,      // Dark blue
-  
-  // Daily Habits - Neutral colors
-  hygiene: Colors.accent3,              // Teal
-  cleaning: Colors.primaryText,         // Dark blue
-  skincare: Colors.accent3,             // Teal
-  
-  // Legacy categories (for backward compatibility)
-  mindfulness: Colors.accent3,          // Teal
-  
-  // Default
-  other: Colors.primaryText,            // Dark blue
-};
-
 export default function AnimatedCircularHabitCard({
   habit,
   streak,
@@ -144,14 +39,19 @@ export default function AnimatedCircularHabitCard({
 
   // Update animations when completion state changes
   useEffect(() => {
-    completionProgress.value = withSpring(isCompleted ? 1 : 0, {
-      damping: 15,
-      stiffness: 150,
-    });
-    
-    // Animate progress ring
-    const targetRotation = getProgressPercentage() * 3.6; // Convert percentage to degrees
-    progressRotation.value = withTiming(targetRotation, { duration: 800 });
+    try {
+      completionProgress.value = withSpring(isCompleted ? 1 : 0, {
+        damping: 15,
+        stiffness: 150,
+      });
+      
+      // Animate progress ring with null safety
+      const progressPercentage = getProgressPercentage();
+      const targetRotation = progressPercentage * 3.6; // Convert percentage to degrees
+      progressRotation.value = withTiming(targetRotation, { duration: 800 });
+    } catch (error) {
+      console.warn('Animation error:', error);
+    }
   }, [isCompleted, streak?.currentStreak]);
 
   const triggerHapticFeedback = () => {
@@ -159,16 +59,22 @@ export default function AnimatedCircularHabitCard({
   };
 
   const handlePress = () => {
-    // Scale animation
-    scale.value = withSpring(0.95, { damping: 15, stiffness: 300 }, () => {
-      scale.value = withSpring(1, { damping: 15, stiffness: 300 });
-    });
-    
-    // Haptic feedback
-    runOnJS(triggerHapticFeedback)();
-    
-    // Call the toggle function
-    runOnJS(onToggle)();
+    try {
+      // Scale animation
+      scale.value = withSpring(0.95, { damping: 15, stiffness: 300 }, () => {
+        scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+      });
+      
+      // Haptic feedback
+      runOnJS(triggerHapticFeedback)();
+      
+      // Call the toggle function
+      runOnJS(onToggle)();
+    } catch (error) {
+      console.warn('Press handler error:', error);
+      // Fallback to direct call
+      onToggle();
+    }
   };
 
   const getHabitText = () => {
@@ -179,31 +85,56 @@ export default function AnimatedCircularHabitCard({
   };
 
   const getCircleColor = () => {
-    return CATEGORY_COLORS[habit.category] || Colors.accent1;
+    return getCategoryColor(habit.category);
   };
 
   const getProgressPercentage = () => {
-    if (!streak?.currentStreak) return 0;
-    return Math.min((streak.currentStreak / 30) * 100, 100);
+    if (!streak?.currentStreak || streak.currentStreak <= 0) return 0;
+    const percentage = Math.min((streak.currentStreak / 30) * 100, 100);
+    return isNaN(percentage) ? 0 : percentage;
   };
 
   // Animated styles
-  const animatedContainerStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
+  const animatedContainerStyle = useAnimatedStyle(() => {
+    try {
+      return {
+        transform: [{ scale: scale.value }],
+      };
+    } catch (error) {
+      return {
+        transform: [{ scale: 1 }],
+      };
+    }
+  });
 
-  const animatedInnerCircleStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolate(
-      completionProgress.value,
-      [0, 1],
-      [Colors.white, getCategoryColor(habit.category)],
-      'clamp'
-    ),
-  }));
+  const animatedInnerCircleStyle = useAnimatedStyle(() => {
+    try {
+      return {
+        backgroundColor: interpolate(
+          completionProgress.value,
+          [0, 1],
+          [Colors.white, getCategoryColor(habit.category)],
+          'clamp'
+        ),
+      };
+    } catch (error) {
+      return {
+        backgroundColor: Colors.white,
+      };
+    }
+  });
 
-  const animatedProgressStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${progressRotation.value}deg` }],
-  }));
+  const animatedProgressStyle = useAnimatedStyle(() => {
+    try {
+      return {
+        transform: [{ rotate: `${progressRotation.value}deg` }],
+      };
+    } catch (error) {
+      return {
+        transform: [{ rotate: '0deg' }],
+      };
+    }
+  });
 
   return (
     <Animated.View style={[styles.container, animatedContainerStyle]}>
@@ -232,15 +163,15 @@ export default function AnimatedCircularHabitCard({
               ) : isCompleted ? (
                 // Show regular icon when completed (no checkmark inside)
                 <Ionicons
-                  name={getCategoryIcon(habit.category) as any}
+                  name={getCategoryIcon(habit.category, habit.name, habit.icon) as any}
                   size={80}
-                  color={Colors.primaryText}
+                  color={getCategoryColor(habit.category)}
                 />
               ) : (
                 <Ionicons
-                  name={getCategoryIcon(habit.category) as any}
+                  name={getCategoryIcon(habit.category, habit.name, habit.icon) as any}
                   size={80}
-                  color={Colors.primaryText}
+                  color={getCategoryColor(habit.category)}
                 />
               )}
             </Animated.View>

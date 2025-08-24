@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { Habit, Streak } from '../types';
+import { getCategoryIcon, getCategoryColor } from '../utils/categoryIcons';
 
 interface CircularHabitCardProps {
   habit: Habit;
@@ -11,23 +12,6 @@ interface CircularHabitCardProps {
   isLoading?: boolean;
   onToggle: () => void;
 }
-
-const CATEGORY_ICONS: Record<string, string> = {
-  fitness: 'fitness',
-  wellness: 'heart',
-  nutrition: 'restaurant',
-  productivity: 'briefcase',
-  mindfulness: 'leaf',
-  social: 'people',
-  learning: 'book',
-  other: 'ellipsis-horizontal',
-};
-
-const CATEGORY_COLORS: Record<string, string> = {
-  fitness: Colors.accent1,      // Orange
-  wellness: Colors.accent2,     // Blue  
-  nutrition: Colors.accent3,    // Teal
-  productivity: Colors.primaryText, // Navy
   mindfulness: Colors.accent3,  // Teal
   social: Colors.accent2,       // Blue
   learning: Colors.primaryText, // Navy
@@ -88,9 +72,9 @@ export default function CircularHabitCard({
               <Ionicons name="checkmark" size={32} color={Colors.white} />
             ) : (
               <Ionicons
-                name={CATEGORY_ICONS[habit.category] as any}
+                name={getCategoryIcon(habit.category, habit.name, habit.icon) as any}
                 size={32}
-                color={Colors.primaryText}
+                color={getCategoryColor(habit.category)}
               />
             )}
           </View>

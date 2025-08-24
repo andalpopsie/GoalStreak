@@ -48,27 +48,33 @@ export default function ActivityCard({ activity }: ActivityCardProps) {
   const getActivityText = () => {
     const { userName, habitName, type, streakCount, milestone } = activity;
     
+    // Ensure all values are strings
+    const safeUserName = userName || 'Someone';
+    const safeHabitName = habitName || 'a habit';
+    const safeStreakCount = streakCount || 0;
+    const safeMilestone = milestone || 'milestone';
+    
     switch (type) {
       case 'habit_completed':
-        if (streakCount && streakCount > 1) {
-          return `${userName} completed "${habitName}" (${streakCount} day streak!)`;
+        if (safeStreakCount > 1) {
+          return `${safeUserName} completed "${safeHabitName}" (${safeStreakCount} day streak!)`;
         }
-        return `${userName} completed "${habitName}"`;
+        return `${safeUserName} completed "${safeHabitName}"`;
       
       case 'streak_milestone':
-        return `${userName} reached a ${milestone} streak with "${habitName}"! 🔥`;
+        return `${safeUserName} reached a ${safeMilestone} streak with "${safeHabitName}"! 🔥`;
       
       case 'habit_created':
-        return `${userName} started tracking "${habitName}"`;
+        return `${safeUserName} started tracking "${safeHabitName}"`;
       
       case 'goal_achieved':
-        return `${userName} achieved their goal with "${habitName}"!`;
+        return `${safeUserName} achieved their goal with "${safeHabitName}"!`;
       
       case 'weekly_goal_met':
-        return `${userName} met their weekly goal for "${habitName}"`;
+        return `${safeUserName} met their weekly goal for "${safeHabitName}"`;
       
       default:
-        return `${userName} updated "${habitName}"`;
+        return `${safeUserName} updated "${safeHabitName}"`;
     }
   };
 

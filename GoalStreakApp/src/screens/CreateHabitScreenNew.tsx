@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius } from '../constants/theme';
 import { useHabits } from '../hooks/useHabits';
 import Button from '../components/Button';
+import IconPicker from '../components/IconPicker';
 import { CreateHabitForm, HabitCategory, HabitFrequency } from '../types';
 
 interface CreateHabitScreenNewProps {
@@ -24,7 +25,7 @@ const HABIT_TEMPLATES = [
   {
     id: 'workout',
     name: 'Workout',
-    icon: 'barbell-outline',
+    icon: 'fitness',
     category: 'fitness' as HabitCategory,
     description: 'Strength training or gym session',
     targetValue: 45,
@@ -133,14 +134,25 @@ export default function CreateHabitScreenNew({ navigation }: CreateHabitScreenNe
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [customHabitName, setCustomHabitName] = useState('');
   const [showCustomForm, setShowCustomForm] = useState(false);
+  
+  // Icon picker state
+  const [selectedIcon, setSelectedIcon] = useState<string>('checkmark-circle');
+  const [showIconPicker, setShowIconPicker] = useState(false);
 
   const handleTemplateSelect = (templateId: string) => {
     if (templateId === 'custom') {
       setShowCustomForm(true);
       setSelectedTemplate(templateId);
+      setSelectedIcon('checkmark-circle'); // Default icon for custom habits
     } else {
       setSelectedTemplate(templateId);
       setShowCustomForm(false);
+      
+      // Set default icon based on template
+      const template = HABIT_TEMPLATES.find(t => t.id === templateId);
+      if (template && template.icon) {
+        setSelectedIcon(template.icon);
+      }
     }
   };
 
@@ -162,15 +174,25 @@ export default function CreateHabitScreenNew({ navigation }: CreateHabitScreenNe
       habitName = customHabitName.trim();
     }
 
+    // Create habit data, filtering out undefined values
     const habitData: CreateHabitForm = {
       name: habitName,
-      description: template.description,
       category: template.category,
       frequency: 'daily',
-      targetValue: template.targetValue,
-      unit: template.unit,
+      icon: selectedIcon, // Include user-selected icon
       isPublic: true,
     };
+
+    // Only add optional fields if they have values
+    if (template.description) {
+      habitData.description = template.description;
+    }
+    if (template.targetValue !== undefined && template.targetValue !== null) {
+      habitData.targetValue = template.targetValue;
+    }
+    if (template.unit) {
+      habitData.unit = template.unit;
+    }
 
     try {
       await createHabit(habitData);
@@ -184,28 +206,33 @@ export default function CreateHabitScreenNew({ navigation }: CreateHabitScreenNe
   };
 
   const getIconName = (iconType: string) => {
-    const iconMap: Record<string, string> = {
-      // New aesthetic icons
-      'barbell-outline': 'barbell-outline',
-      'walk-outline': 'walk-outline',
-      'flower-outline': 'flower-outline',
-      'bicycle-outline': 'bicycle-outline',
-      'water-outline': 'water-outline',
-      'moon-outline': 'moon-outline',
-      'leaf-outline': 'leaf-outline',
-      'nutrition-outline': 'nutrition-outline',
-      'library-outline': 'library-outline',
-      'create-outline': 'create-outline',
+    // Import the centralized icon system
+    const { getCategoryIcon } = require('../utils/categoryIcons');
+    
+    // Map old icon names to categories for backward compatibility
+    const iconToCategoryMap: Record<string, string> = {
+      'barbell-outline': 'fitness',
+      'walk-outline': 'running', 
+      'flower-outline': 'yoga',
+      'bicycle-outline': 'cycling',
+      'water-outline': 'water',
+      'moon-outline': 'sleep',
+      'leaf-outline': 'meditation',
+      'nutrition-outline': 'nutrition',
+      'library-outline': 'learning',
+      'create-outline': 'writing',
       
-      // Legacy icons (for backward compatibility)
-      fitness: 'barbell-outline',
-      leaf: 'leaf-outline',
-      book: 'library-outline',
-      water: 'water-outline',
-      bed: 'moon-outline',
-      add: 'add-circle-outline',
+      // Legacy mappings
+      fitness: 'fitness',
+      leaf: 'meditation',
+      book: 'learning',
+      water: 'water',
+      bed: 'sleep',
+      add: 'other',
     };
-    return iconMap[iconType] || 'ellipse-outline';
+    
+    const category = iconToCategoryMap[iconType] || 'other';
+    return getCategoryIcon(category);
   };
 
   return (
@@ -268,6 +295,23 @@ export default function CreateHabitScreenNew({ navigation }: CreateHabitScreenNe
           </View>
         )}
 
+        {/* Icon Selection */}
+        {selectedTemplate && (
+          <View style={styles.iconSection}>
+            <Text style={styles.sectionTitle}>Choose an Icon</Text>
+            <TouchableOpacity 
+              style={styles.iconSelector}
+              onPress={() => setShowIconPicker(true)}
+            >
+              <View style={styles.selectedIconContainer}>
+                <Ionicons name={selectedIcon as any} size={32} color={Colors.accent1} />
+              </View>
+              <Text style={styles.iconSelectorText}>Tap to change icon</Text>
+              <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Create Button */}
         <View style={styles.buttonContainer}>
           <Button
@@ -278,6 +322,18 @@ export default function CreateHabitScreenNew({ navigation }: CreateHabitScreenNe
           />
         </View>
       </ScrollView>
+      
+      {/* Icon Picker Modal */}
+      {showIconPicker && (
+        <IconPicker
+          selectedIcon={selectedIcon}
+          onIconSelect={(iconName) => {
+            setSelectedIcon(iconName);
+            setShowIconPicker(false);
+          }}
+          onClose={() => setShowIconPicker(false)}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -406,5 +462,48 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: Spacing.lg,
+  },
+  // Icon Selection Styles
+  iconSection: {
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.lg,
+    shadowColor: Colors.primaryText,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  iconSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.accent2 + '30',
+  },
+  selectedIconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.md,
+    shadowColor: Colors.primaryText,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  iconSelectorText: {
+    flex: 1,
+    fontSize: Typography.fontSize.md,
+    color: Colors.primaryText,
+    fontWeight: Typography.fontWeight.medium,
   },
 });

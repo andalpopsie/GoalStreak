@@ -20,6 +20,7 @@ export interface Habit {
   frequency: HabitFrequency;
   targetValue?: number;
   unit?: string;
+  icon?: string; // User-selected icon name
   isPublic: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -190,6 +191,7 @@ export interface CreateHabitForm {
   frequency: HabitFrequency;
   targetValue?: number;
   unit?: string;
+  icon?: string; // User-selected icon name
   isPublic: boolean;
 }
 
