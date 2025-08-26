@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { habitService, completionService, streakService } from '../services/habitService';
 import { useAuth } from './useAuth';
 import { Habit, HabitCompletion, Streak, CreateHabitForm } from '../types';
+import { LIMITS } from '../constants/limits';
 
 interface UseHabitsReturn {
   // Data
@@ -21,6 +22,7 @@ interface UseHabitsReturn {
   completeHabit: (habitId: string, value?: number, notes?: string) => Promise<void>;
   uncompleteHabit: (habitId: string) => Promise<void>;
   refreshHabits: () => Promise<void>;
+  clearAllHabits: () => Promise<void>; // TEMPORARY: For testing
   
   // Utilities
   isHabitCompletedToday: (habitId: string) => boolean;
@@ -108,6 +110,11 @@ export function useHabits(): UseHabitsReturn {
       throw new Error('User not authenticated');
     }
 
+    // Check habit limit (6 habits for initial launch)
+    if (habits.length >= LIMITS.MAX_HABITS) {
+      throw new Error(`You can create up to ${LIMITS.MAX_HABITS} habits. This helps you stay focused on what matters most!`);
+    }
+
     try {
       setIsCreating(true);
       const habitId = await habitService.createHabit(user.id, habitData);
@@ -118,7 +125,7 @@ export function useHabits(): UseHabitsReturn {
     } finally {
       setIsCreating(false);
     }
-  }, [user, loadHabits]);
+  }, [user, loadHabits, habits.length]);
 
   // Update habit
   const updateHabit = useCallback(async (habitId: string, updates: Partial<Habit>) => {
@@ -214,6 +221,21 @@ export function useHabits(): UseHabitsReturn {
     await loadHabits();
   }, [loadHabits]);
 
+  // TEMPORARY: Clear all habits (for testing)
+  const clearAllHabits = useCallback(async () => {
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    try {
+      await habitService.clearAllHabits(user.id);
+      await loadHabits(); // Refresh to show empty state
+    } catch (error) {
+      console.error('Error clearing all habits:', error);
+      throw error;
+    }
+  }, [user, loadHabits]);
+
   // Utility functions
   const isHabitCompletedToday = useCallback((habitId: string) => {
     return habitId in todayCompletions;
@@ -241,6 +263,7 @@ export function useHabits(): UseHabitsReturn {
     completeHabit,
     uncompleteHabit,
     refreshHabits,
+    clearAllHabits, // TEMPORARY: For testing
     
     // Utilities
     isHabitCompletedToday,

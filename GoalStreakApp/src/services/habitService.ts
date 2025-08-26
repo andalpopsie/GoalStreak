@@ -262,6 +262,28 @@ export const habitService = {
       throw new Error('Failed to update streak');
     }
   },
+
+  // TEMPORARY: Clear all habits for a user (for testing)
+  async clearAllHabits(userId: string): Promise<void> {
+    try {
+      console.log('Clearing all habits for user:', userId);
+      
+      // Get all user habits
+      const habits = await this.getUserHabits(userId);
+      console.log('Found habits to delete:', habits.length);
+      
+      // Delete each habit (this will also delete completions and streaks)
+      for (const habit of habits) {
+        console.log('Deleting habit:', habit.name);
+        await this.deleteHabit(habit.id);
+      }
+      
+      console.log('All habits cleared successfully');
+    } catch (error) {
+      console.error('Error clearing all habits:', error);
+      throw new Error('Failed to clear all habits');
+    }
+  },
 };
 
 // Habit Completion Operations

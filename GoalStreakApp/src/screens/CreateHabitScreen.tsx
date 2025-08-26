@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius } from '../constants/theme';
+import { LIMITS } from '../constants/limits';
 import { useHabits } from '../hooks/useHabits';
 import Button from '../components/Button';
 import SimpleInput from '../components/SimpleInput';
@@ -40,7 +41,7 @@ const HABIT_FREQUENCIES: { value: HabitFrequency; label: string }[] = [
 ];
 
 export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps) {
-  const { createHabit, isCreating } = useHabits();
+  const { createHabit, isCreating, habits } = useHabits();
   
   const [form, setForm] = useState<CreateHabitForm>({
     name: '',
@@ -57,6 +58,9 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
   
   // Icon picker state
   const [showIconPicker, setShowIconPicker] = useState(false);
+  
+  // Category dropdown state
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<CreateHabitForm> = {};
@@ -120,10 +124,28 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
           <View style={styles.placeholder} />
         </View>
 
+        {/* Habit Counter */}
+        <View style={styles.habitCounterSection}>
+          <Text style={styles.habitCounterText}>
+            Creating habit {habits.length + 1} of {LIMITS.MAX_HABITS}
+          </Text>
+          {habits.length >= LIMITS.MAX_HABITS - 1 && (
+            <Text style={styles.habitCounterWarning}>
+              {habits.length === LIMITS.MAX_HABITS - 1 ? 'This will be your last habit!' : 'Habit limit reached'}
+            </Text>
+          )}
+          {habits.length < LIMITS.MAX_HABITS - 1 && (
+            <Text style={styles.habitCounterSubtext}>
+              {LIMITS.MAX_HABITS - 1 - habits.length} more habits available after this
+            </Text>
+          )}
+        </View>
+
         <ScrollView 
           style={styles.scrollView}
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
+          onScrollBeginDrag={() => setShowCategoryDropdown(false)}
         >
           {/* Basic Information */}
           <View style={styles.section}>
@@ -165,30 +187,59 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
           {/* Category Selection */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Category</Text>
-            <View style={styles.categoriesGrid}>
-              {HABIT_CATEGORIES.map((category) => (
-                <TouchableOpacity
-                  key={category.value}
-                  style={[
-                    styles.categoryCard,
-                    form.category === category.value && styles.categoryCardSelected
-                  ]}
-                  onPress={() => handleCategorySelect(category.value)}
-                >
-                  <Ionicons
-                    name={category.icon as any}
-                    size={24}
-                    color={form.category === category.value ? Colors.white : Colors.primaryText}
-                  />
-                  <Text style={[
-                    styles.categoryText,
-                    form.category === category.value && styles.categoryTextSelected
-                  ]}>
-                    {category.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            <TouchableOpacity 
+              style={styles.dropdownButton}
+              onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
+            >
+              <View style={styles.dropdownContent}>
+                <Ionicons
+                  name={HABIT_CATEGORIES.find(c => c.value === form.category)?.icon as any}
+                  size={20}
+                  color={Colors.primaryText}
+                />
+                <Text style={styles.dropdownText}>
+                  {HABIT_CATEGORIES.find(c => c.value === form.category)?.label}
+                </Text>
+              </View>
+              <Ionicons
+                name={showCategoryDropdown ? "chevron-up" : "chevron-down"}
+                size={20}
+                color={Colors.accent2}
+              />
+            </TouchableOpacity>
+            
+            {showCategoryDropdown && (
+              <View style={styles.dropdownMenu}>
+                {HABIT_CATEGORIES.map((category) => (
+                  <TouchableOpacity
+                    key={category.value}
+                    style={[
+                      styles.dropdownItem,
+                      form.category === category.value && styles.dropdownItemSelected
+                    ]}
+                    onPress={() => {
+                      handleCategorySelect(category.value);
+                      setShowCategoryDropdown(false);
+                    }}
+                  >
+                    <Ionicons
+                      name={category.icon as any}
+                      size={20}
+                      color={form.category === category.value ? Colors.accent1 : Colors.primaryText}
+                    />
+                    <Text style={[
+                      styles.dropdownItemText,
+                      form.category === category.value && styles.dropdownItemTextSelected
+                    ]}>
+                      {category.label}
+                    </Text>
+                    {form.category === category.value && (
+                      <Ionicons name="checkmark" size={16} color={Colors.accent1} />
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           </View>
 
           {/* Frequency Selection */}
@@ -325,6 +376,30 @@ const styles = StyleSheet.create({
   placeholder: {
     width: 40,
   },
+  habitCounterSection: {
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    backgroundColor: Colors.background,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.accent2 + '20',
+  },
+  habitCounterText: {
+    fontSize: Typography.fontSize.md,
+    color: Colors.primaryText,
+    fontWeight: Typography.fontWeight.medium,
+  },
+  habitCounterSubtext: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.accent2,
+    marginTop: 2,
+  },
+  habitCounterWarning: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.accent1,
+    marginTop: 2,
+    fontWeight: Typography.fontWeight.medium,
+  },
   scrollView: {
     flex: 1,
   },
@@ -345,33 +420,62 @@ const styles = StyleSheet.create({
     color: Colors.gray.dark,
     marginBottom: Spacing.md,
   },
-  categoriesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  categoryCard: {
-    width: '48%',
+  dropdownButton: {
     backgroundColor: Colors.white,
-    padding: Spacing.md,
     borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Spacing.sm,
-    borderWidth: 2,
-    borderColor: 'transparent',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: Colors.accent2 + '30',
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
-  categoryCardSelected: {
-    backgroundColor: Colors.accent1,
-    borderColor: Colors.accent1,
+  dropdownContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  categoryText: {
-    fontSize: Typography.fontSize.sm,
+  dropdownText: {
+    fontSize: Typography.fontSize.base,
     color: Colors.primaryText,
-    marginTop: Spacing.xs,
-    textAlign: 'center',
+    marginLeft: Spacing.sm,
+    fontWeight: Typography.fontWeight.medium,
   },
-  categoryTextSelected: {
-    color: Colors.white,
+  dropdownMenu: {
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.md,
+    marginTop: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Colors.accent2 + '30',
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.accent2 + '20',
+  },
+  dropdownItemSelected: {
+    backgroundColor: Colors.accent1 + '10',
+  },
+  dropdownItemText: {
+    fontSize: Typography.fontSize.base,
+    color: Colors.primaryText,
+    marginLeft: Spacing.sm,
+    flex: 1,
+  },
+  dropdownItemTextSelected: {
+    color: Colors.accent1,
+    fontWeight: Typography.fontWeight.medium,
   },
   frequencyContainer: {
     flexDirection: 'row',

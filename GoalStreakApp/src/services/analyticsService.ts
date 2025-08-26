@@ -67,10 +67,15 @@ class AnalyticsService {
         orderBy('createdAt', 'desc')
       );
       const habitsSnapshot = await getDocs(habitsQuery);
-      const habits = habitsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Habit[];
+      const habits = habitsSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+          updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt,
+        };
+      }) as Habit[];
 
       // Get all completions for analysis
       const completionsQuery = query(
@@ -79,10 +84,14 @@ class AnalyticsService {
         orderBy('completedAt', 'desc')
       );
       const completionsSnapshot = await getDocs(completionsQuery);
-      const completions = completionsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as HabitCompletion[];
+      const completions = completionsSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          completedAt: data.completedAt?.toDate ? data.completedAt.toDate() : data.completedAt,
+        };
+      }) as HabitCompletion[];
 
       // Get all streaks
       const streaksQuery = query(
@@ -169,10 +178,14 @@ class AnalyticsService {
         orderBy('completedAt', 'desc')
       );
       const completionsSnapshot = await getDocs(completionsQuery);
-      const completions = completionsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as HabitCompletion[];
+      const completions = completionsSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          completedAt: data.completedAt?.toDate ? data.completedAt.toDate() : data.completedAt,
+        };
+      }) as HabitCompletion[];
 
       // Get habits for category analysis
       const habitsQuery = query(
@@ -180,10 +193,15 @@ class AnalyticsService {
         where('userId', '==', userId)
       );
       const habitsSnapshot = await getDocs(habitsQuery);
-      const habits = habitsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Habit[];
+      const habits = habitsSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+          updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt,
+        };
+      }) as Habit[];
 
       // Calculate metrics
       const totalCompletions = completions.length;
@@ -195,8 +213,10 @@ class AnalyticsService {
       // Find most active day
       const dayCompletions: Record<string, number> = {};
       completions.forEach(completion => {
-        const day = completion.completedAt.toLocaleDateString('en-US', { weekday: 'long' });
-        dayCompletions[day] = (dayCompletions[day] || 0) + 1;
+        if (completion.completedAt && typeof completion.completedAt.toLocaleDateString === 'function') {
+          const day = completion.completedAt.toLocaleDateString('en-US', { weekday: 'long' });
+          dayCompletions[day] = (dayCompletions[day] || 0) + 1;
+        }
       });
       const mostActiveDay = Object.entries(dayCompletions)
         .sort(([,a], [,b]) => b - a)[0]?.[0] || 'No data';
@@ -251,10 +271,15 @@ class AnalyticsService {
         orderBy('completedAt', 'asc')
       );
       const completionsSnapshot = await getDocs(completionsQuery);
-      const completions = completionsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as HabitCompletion[];
+      
+      const completions = completionsSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          completedAt: data.completedAt?.toDate ? data.completedAt.toDate() : data.completedAt,
+        };
+      }) as HabitCompletion[];
 
       // Group completions by date
       const dailyData: Record<string, { completions: number; habits: Set<string> }> = {};
@@ -276,11 +301,13 @@ class AnalyticsService {
       });
 
       // Convert to array format
-      return Object.entries(dailyData).map(([dateStr, data]) => ({
+      const result = Object.entries(dailyData).map(([dateStr, data]) => ({
         date: new Date(dateStr),
         completions: data.completions,
         habits: Array.from(data.habits)
       }));
+      
+      return result;
     } catch (error) {
       console.error('Error getting trend data:', error);
       throw error;

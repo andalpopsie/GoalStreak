@@ -14,19 +14,25 @@
 - Easy to eject to bare React Native if needed later
 
 **Alternatives Considered**: Native iOS/Android, Flutter  
-**Status**: ✅ Confirmed
+**Status**: ✅ Confirmed - Excellent performance achieved
 
 ---
 
-#### Backend: Firebase
-**Date**: August 20, 2025  
-**Decision**: Use Firebase as primary backend service  
+#### Backend: Firebase with Optimized Indexing
+**Date**: August 20, 2025 (Updated August 25, 2025)  
+**Decision**: Use Firebase as primary backend service with comprehensive indexing strategy  
 **Rationale**:
 - Real-time database perfect for social features
 - Built-in authentication with multiple providers
-- Automatic scaling
+- Automatic scaling with proper indexing
 - Push notifications included
 - Analytics and crashlytics built-in
+- **Update**: Implemented 4 composite indexes for optimal query performance
+
+**Database Optimization**: 
+- Created composite indexes for all complex queries
+- Optimized for analytics and trend data performance
+- Scalable architecture supporting thousands of users
 
 **Services Used**:
 - Authentication (Email, Google, Apple)
@@ -190,6 +196,46 @@
 - Region: Default (us-central1)
 
 **Status**: ✅ Configured and Tested
+
+---
+
+#### Analytics System Architecture
+**Date**: August 25, 2025  
+**Decision**: Implement comprehensive analytics with optimized Firestore queries  
+**Rationale**:
+- Users need insights into their habit performance
+- Trend analysis helps with motivation and goal setting
+- Personalized insights improve user engagement
+- Proper indexing ensures scalability
+
+**Implementation Details**:
+- **Habit Analytics**: Performance tracking for each habit
+- **Trend Data**: Time-series analysis with charts
+- **Insights Engine**: Personalized recommendations
+- **Period Analytics**: Week, month, year breakdowns
+
+**Database Optimization**:
+- Created 4 composite indexes for optimal performance:
+  1. `habits`: `userId` + `createdAt` (Desc)
+  2. `completions`: `userId` + `completedAt` (Desc) - for insights
+  3. `completions`: `userId` + `completedAt` (Asc) - for trends
+  4. Additional range query optimizations
+
+**Status**: ✅ Implemented and Optimized
+
+---
+
+#### User ID Consistency Strategy
+**Date**: August 25, 2025  
+**Decision**: Use `user.id` consistently across all services instead of `user.uid`  
+**Rationale**:
+- Maintains consistency with app's User interface
+- Prevents data loading issues between different services
+- Cleaner separation between Firebase Auth and app data models
+- Easier to debug and maintain
+
+**Implementation**: Updated all analytics hooks and services to use `user.id`  
+**Status**: ✅ Implemented and Verified
 
 ---
 

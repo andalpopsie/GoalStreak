@@ -7,11 +7,13 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 import { Colors, Typography, Spacing } from '../constants/theme';
+import { LIMITS } from '../constants/limits';
 import { useAuth } from '../hooks/useAuth';
 import { useHabitsWithSocial } from '../hooks/useHabitsWithSocial';
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
@@ -31,6 +33,7 @@ export default function CleanHomeScreen({ navigation }: any) {
     isHabitCompletedToday,
     getHabitStreak,
     refreshHabits,
+    clearAllHabits, // TEMPORARY: For testing
   } = useHabitsWithSocial();
   const networkStatus = useNetworkStatus();
 
@@ -67,6 +70,16 @@ export default function CleanHomeScreen({ navigation }: any) {
   };
 
   const navigateToCreateHabit = () => {
+    // Check habit limit before navigation
+    if (uniqueHabits.length >= LIMITS.MAX_HABITS) {
+      Alert.alert(
+        'Habit Limit Reached',
+        `You can create up to ${LIMITS.MAX_HABITS} habits to help you stay focused on what matters most! Consider completing your current habits consistently before adding new ones.`,
+        [{ text: 'OK', style: 'default' }]
+      );
+      return;
+    }
+
     try {
       navigation.navigate('CreateHabit');
     } catch (error) {
@@ -78,6 +91,53 @@ export default function CleanHomeScreen({ navigation }: any) {
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       {/* Offline Banner - integrated into layout */}
       {!networkStatus.isConnected && <OfflineBanner isVisible={true} />}
+      
+      {/* Habit Counter */}
+      <View style={styles.habitCounterSection}>
+        <Text style={styles.habitCounterText}>
+          {uniqueHabits.length} of {LIMITS.MAX_HABITS} habits created
+        </Text>
+        {uniqueHabits.length < LIMITS.MAX_HABITS && (
+          <Text style={styles.habitCounterSubtext}>
+            {LIMITS.MAX_HABITS - uniqueHabits.length} more habits available
+          </Text>
+        )}
+        {uniqueHabits.length >= LIMITS.MAX_HABITS && (
+          <Text style={styles.habitCounterLimitText}>
+            Habit limit reached - stay focused! 🎯
+          </Text>
+        )}
+        
+        {/* TEMPORARY: Clear All Habits Button (for testing) */}
+        {uniqueHabits.length > 0 && (
+          <TouchableOpacity 
+            style={styles.clearAllButton}
+            onPress={() => {
+              Alert.alert(
+                'Clear All Habits',
+                'This will delete all your habits and their data. This is for testing the 6-habit limit. Are you sure?',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { 
+                    text: 'Clear All', 
+                    style: 'destructive',
+                    onPress: async () => {
+                      try {
+                        await clearAllHabits();
+                        Alert.alert('Success', 'All habits cleared! You can now test the limit from 0 habits.');
+                      } catch (error) {
+                        Alert.alert('Error', 'Failed to clear habits. Please try again.');
+                      }
+                    }
+                  }
+                ]
+              );
+            }}
+          >
+            <Text style={styles.clearAllButtonText}>🗑️ Clear All (Test)</Text>
+          </TouchableOpacity>
+        )}
+      </View>
       
       <ScrollView
         style={styles.scrollView}
@@ -126,32 +186,37 @@ export default function CleanHomeScreen({ navigation }: any) {
               </Animated.View>
             ))}
             
-            {/* Add Habit Button */}
-            <Animated.View 
-              entering={FadeInUp.delay(uniqueHabits.length * 100).duration(500)}
-              style={styles.habitCardContainer}
-            >
-              <TouchableOpacity style={styles.addHabitCard} onPress={navigateToCreateHabit}>
-                <View style={styles.addHabitCircle}>
-                  <Ionicons name="add" size={80} color={Colors.primaryText} />
+            {/* Add Habit Button - only show if under limit */}
+            {uniqueHabits.length < LIMITS.MAX_HABITS && (
+              <Animated.View 
+                entering={FadeInUp.delay(uniqueHabits.length * 100).duration(500)}
+                style={styles.habitCardContainer}
+              >
+                <TouchableOpacity style={styles.addHabitCard} onPress={navigateToCreateHabit}>
+                  <View style={styles.addHabitCircle}>
+                    <Ionicons name="add" size={80} color={Colors.primaryText} />
+                  </View>
+                  <Text style={styles.addHabitText}>Add Habit</Text>
+                </TouchableOpacity>
+              </Animated.View>
+            )}
+            
+            {/* Habit Limit Reached Message */}
+            {uniqueHabits.length >= LIMITS.MAX_HABITS && (
+              <Animated.View 
+                entering={FadeInUp.delay(uniqueHabits.length * 100).duration(500)}
+                style={styles.habitCardContainer}
+              >
+                <View style={styles.limitReachedCard}>
+                  <View style={styles.limitReachedCircle}>
+                    <Ionicons name="checkmark-done" size={60} color={Colors.accent1} />
+                  </View>
+                  <Text style={styles.limitReachedText}>All Set! 🎯</Text>
+                  <Text style={styles.limitReachedSubtext}>Focus on your {LIMITS.MAX_HABITS} habits</Text>
                 </View>
-                <Text style={styles.addHabitText}>ADD A HABIT</Text>
-              </TouchableOpacity>
-            </Animated.View>
+              </Animated.View>
+            )}
           </Animated.View>
-        )}
-
-        {/* Empty State */}
-        {uniqueHabits.length === 0 && (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyTitle}>Start Your Journey</Text>
-            <Text style={styles.emptySubtitle}>
-              Create your first habit to begin building streaks
-            </Text>
-            <TouchableOpacity style={styles.createFirstButton} onPress={navigateToCreateHabit}>
-              <Text style={styles.createFirstButtonText}>Create Your First Habit</Text>
-            </TouchableOpacity>
-          </View>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -162,6 +227,43 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  habitCounterSection: {
+    alignItems: 'center',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    backgroundColor: Colors.background,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.accent2 + '20',
+  },
+  habitCounterText: {
+    fontSize: Typography.fontSize.md,
+    color: Colors.primaryText,
+    fontWeight: Typography.fontWeight.medium,
+  },
+  habitCounterSubtext: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.accent2,
+    marginTop: 2,
+  },
+  habitCounterLimitText: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.accent1,
+    marginTop: 2,
+    fontWeight: Typography.fontWeight.medium,
+  },
+  clearAllButton: {
+    marginTop: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    backgroundColor: '#FF6B6B',
+    borderRadius: 6,
+  },
+  clearAllButtonText: {
+    fontSize: Typography.fontSize.xs,
+    color: Colors.white,
+    fontWeight: Typography.fontWeight.medium,
+    textAlign: 'center',
   },
   scrollView: {
     flex: 1,
@@ -216,32 +318,38 @@ const styles = StyleSheet.create({
     color: Colors.primaryText,
     textAlign: 'center',
   },
-  emptyState: {
+  limitReachedCard: {
+    aspectRatio: 1,
     alignItems: 'center',
-    paddingVertical: Spacing['3xl'],
+    justifyContent: 'center',
   },
-  emptyTitle: {
-    fontSize: Typography.fontSize['2xl'],
-    fontWeight: Typography.fontWeight.bold,
-    color: Colors.primaryText,
-    marginBottom: Spacing.sm,
+  limitReachedCircle: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: Colors.white,
+    borderWidth: 12,
+    borderColor: Colors.accent1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.md,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  emptySubtitle: {
-    fontSize: Typography.fontSize.base,
-    color: Colors.gray.dark,
-    textAlign: 'center',
-    marginBottom: Spacing.xl,
-    lineHeight: Typography.lineHeight.relaxed * Typography.fontSize.base,
-  },
-  createFirstButton: {
-    backgroundColor: Colors.accent1,
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.md,
-    borderRadius: 25,
-  },
-  createFirstButtonText: {
-    fontSize: Typography.fontSize.base,
+  limitReachedText: {
+    fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.semibold,
-    color: Colors.white,
+    fontFamily: Typography.fontFamily.semibold,
+    color: Colors.primaryText,
+    textAlign: 'center',
+  },
+  limitReachedSubtext: {
+    fontSize: Typography.fontSize.xs,
+    color: Colors.accent2,
+    textAlign: 'center',
+    marginTop: 2,
   },
 });

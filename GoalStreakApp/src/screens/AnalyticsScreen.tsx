@@ -50,8 +50,26 @@ export default function AnalyticsScreen() {
           <Ionicons name="bar-chart-outline" size={48} color={Colors.gray.medium} />
           <Text style={styles.emptyTitle}>No Analytics Yet</Text>
           <Text style={styles.emptyText}>
-            Complete some habits to see your detailed analytics and insights!
+            {isLoadingAnalytics 
+              ? 'Loading your habit analytics...' 
+              : 'Create and complete some habits to see your detailed analytics and insights!'
+            }
           </Text>
+          <TouchableOpacity 
+            style={styles.refreshButton}
+            onPress={handleRefresh}
+            disabled={isLoadingAnalytics}
+          >
+            <Ionicons 
+              name="refresh" 
+              size={16} 
+              color={Colors.white} 
+              style={{ marginRight: 8 }}
+            />
+            <Text style={styles.refreshButtonText}>
+              {isLoadingAnalytics ? 'Loading...' : 'Refresh Analytics'}
+            </Text>
+          </TouchableOpacity>
         </View>
       );
     }
@@ -336,6 +354,20 @@ const styles = StyleSheet.create({
     fontFamily: Typography.fontFamily.regular,
     textAlign: 'center',
     lineHeight: Typography.fontSize.md * 1.4,
+    marginBottom: Spacing.lg,
+  },
+  refreshButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.accent1,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderRadius: 8,
+  },
+  refreshButtonText: {
+    color: Colors.white,
+    fontSize: Typography.fontSize.md,
+    fontWeight: Typography.fontWeight.medium,
   },
   errorContainer: {
     alignItems: 'center',

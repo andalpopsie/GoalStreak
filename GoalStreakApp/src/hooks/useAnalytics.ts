@@ -56,13 +56,12 @@ export const useAnalytics = (): UseAnalyticsReturn => {
 
   // Load habit analytics
   const loadHabitAnalytics = useCallback(async () => {
-    if (!user?.uid) return;
+    if (!user?.id) return;
     
     setIsLoadingAnalytics(true);
-    setError(null);
     
     try {
-      const analytics = await analyticsService.getHabitAnalytics(user.uid);
+      const analytics = await analyticsService.getHabitAnalytics(user.id);
       setHabitAnalytics(analytics);
     } catch (err) {
       console.error('Error loading habit analytics:', err);
@@ -70,17 +69,17 @@ export const useAnalytics = (): UseAnalyticsReturn => {
     } finally {
       setIsLoadingAnalytics(false);
     }
-  }, [user?.uid]);
+  }, [user?.id]);
 
   // Load period analytics
   const loadPeriodAnalytics = useCallback(async () => {
-    if (!user?.uid) return;
+    if (!user?.id) return;
     
     try {
       const [week, month, year] = await Promise.all([
-        analyticsService.getPeriodAnalytics(user.uid, 'week'),
-        analyticsService.getPeriodAnalytics(user.uid, 'month'),
-        analyticsService.getPeriodAnalytics(user.uid, 'year')
+        analyticsService.getPeriodAnalytics(user.id, 'week'),
+        analyticsService.getPeriodAnalytics(user.id, 'month'),
+        analyticsService.getPeriodAnalytics(user.id, 'year')
       ]);
       
       setWeekAnalytics(week);
@@ -90,17 +89,16 @@ export const useAnalytics = (): UseAnalyticsReturn => {
       console.error('Error loading period analytics:', err);
       setError('Failed to load period analytics');
     }
-  }, [user?.uid]);
+  }, [user?.id]);
 
   // Load trend data
   const loadTrendData = useCallback(async (days: number = 30) => {
-    if (!user?.uid) return;
+    if (!user?.id) return;
     
     setIsLoadingTrends(true);
-    setError(null);
     
     try {
-      const trends = await analyticsService.getTrendData(user.uid, days);
+      const trends = await analyticsService.getTrendData(user.id, days);
       setTrendData(trends);
     } catch (err) {
       console.error('Error loading trend data:', err);
@@ -108,17 +106,16 @@ export const useAnalytics = (): UseAnalyticsReturn => {
     } finally {
       setIsLoadingTrends(false);
     }
-  }, [user?.uid]);
+  }, [user?.id]);
 
   // Load insights
   const loadInsights = useCallback(async () => {
-    if (!user?.uid) return;
+    if (!user?.id) return;
     
     setIsLoadingInsights(true);
-    setError(null);
     
     try {
-      const insightsData = await analyticsService.getInsights(user.uid);
+      const insightsData = await analyticsService.getInsights(user.id);
       setInsights(insightsData);
     } catch (err) {
       console.error('Error loading insights:', err);
@@ -126,10 +123,13 @@ export const useAnalytics = (): UseAnalyticsReturn => {
     } finally {
       setIsLoadingInsights(false);
     }
-  }, [user?.uid]);
+  }, [user?.id]);
 
   // Refresh functions
   const refreshAnalytics = useCallback(async () => {
+    // Clear any previous errors when refreshing
+    setError(null);
+    
     await Promise.all([
       loadHabitAnalytics(),
       loadPeriodAnalytics()
@@ -137,10 +137,14 @@ export const useAnalytics = (): UseAnalyticsReturn => {
   }, [loadHabitAnalytics, loadPeriodAnalytics]);
 
   const refreshTrends = useCallback(async (days?: number) => {
+    // Clear any previous errors when refreshing
+    setError(null);
     await loadTrendData(days);
   }, [loadTrendData]);
 
   const refreshInsights = useCallback(async () => {
+    // Clear any previous errors when refreshing
+    setError(null);
     await loadInsights();
   }, [loadInsights]);
 
@@ -160,12 +164,12 @@ export const useAnalytics = (): UseAnalyticsReturn => {
 
   // Initialize data on mount
   useEffect(() => {
-    if (user?.uid) {
+    if (user?.id) {
       refreshAnalytics();
       loadTrendData();
       loadInsights();
     }
-  }, [user?.uid, refreshAnalytics, loadTrendData, loadInsights]);
+  }, [user?.id, refreshAnalytics, loadTrendData, loadInsights]);
 
   return {
     // Data
