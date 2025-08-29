@@ -40,9 +40,6 @@ export const habitService = {
       };
 
       // Only add optional fields if they have values (avoid undefined)
-      if (habitData.description) {
-        habit.description = habitData.description.trim();
-      }
       if (habitData.targetValue !== undefined && habitData.targetValue !== null) {
         habit.targetValue = habitData.targetValue;
       }

@@ -33,7 +33,7 @@ export default function CleanHomeScreen({ navigation }: any) {
     isHabitCompletedToday,
     getHabitStreak,
     refreshHabits,
-    clearAllHabits, // TEMPORARY: For testing
+    deleteHabit,
   } = useHabitsWithSocial(); // Re-enabled social features with improved error handling
   const networkStatus = useNetworkStatus();
 
@@ -69,6 +69,16 @@ export default function CleanHomeScreen({ navigation }: any) {
     }
   };
 
+  const handleDeleteHabit = async (habitId: string) => {
+    try {
+      await deleteHabit(habitId);
+      await refreshHabits();
+    } catch (error) {
+      console.error('Error deleting habit:', error);
+      Alert.alert('Error', 'Failed to delete habit. Please try again.');
+    }
+  };
+
   const navigateToCreateHabit = () => {
     // Check habit limit before navigation
     if (uniqueHabits.length >= LIMITS.MAX_HABITS) {
@@ -91,53 +101,6 @@ export default function CleanHomeScreen({ navigation }: any) {
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       {/* Offline Banner - integrated into layout */}
       {!networkStatus.isConnected && <OfflineBanner isVisible={true} />}
-      
-      {/* Habit Counter */}
-      <View style={styles.habitCounterSection}>
-        <Text style={styles.habitCounterText}>
-          {uniqueHabits.length} of {LIMITS.MAX_HABITS} habits created
-        </Text>
-        {uniqueHabits.length < LIMITS.MAX_HABITS && (
-          <Text style={styles.habitCounterSubtext}>
-            {LIMITS.MAX_HABITS - uniqueHabits.length} more habits available
-          </Text>
-        )}
-        {uniqueHabits.length >= LIMITS.MAX_HABITS && (
-          <Text style={styles.habitCounterLimitText}>
-            Habit limit reached - stay focused! 🎯
-          </Text>
-        )}
-        
-        {/* TEMPORARY: Clear All Habits Button (for testing) */}
-        {uniqueHabits.length > 0 && (
-          <TouchableOpacity 
-            style={styles.clearAllButton}
-            onPress={() => {
-              Alert.alert(
-                'Clear All Habits',
-                'This will delete all your habits and their data. This is for testing the 6-habit limit. Are you sure?',
-                [
-                  { text: 'Cancel', style: 'cancel' },
-                  { 
-                    text: 'Clear All', 
-                    style: 'destructive',
-                    onPress: async () => {
-                      try {
-                        await clearAllHabits();
-                        Alert.alert('Success', 'All habits cleared! You can now test the limit from 0 habits.');
-                      } catch (error) {
-                        Alert.alert('Error', 'Failed to clear habits. Please try again.');
-                      }
-                    }
-                  }
-                ]
-              );
-            }}
-          >
-            <Text style={styles.clearAllButtonText}>🗑️ Clear All (Test)</Text>
-          </TouchableOpacity>
-        )}
-      </View>
       
       <ScrollView
         style={styles.scrollView}
@@ -182,6 +145,7 @@ export default function CleanHomeScreen({ navigation }: any) {
                   isCompleted={isHabitCompletedToday(habit.id)}
                   isLoading={isCompleting}
                   onToggle={() => handleToggleHabit(habit.id)}
+                  onDelete={() => handleDeleteHabit(habit.id)}
                 />
               </Animated.View>
             ))}
@@ -252,19 +216,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontWeight: Typography.fontWeight.medium,
   },
-  clearAllButton: {
-    marginTop: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
-    backgroundColor: '#FF6B6B',
-    borderRadius: 6,
-  },
-  clearAllButtonText: {
-    fontSize: Typography.fontSize.xs,
-    color: Colors.white,
-    fontWeight: Typography.fontWeight.medium,
-    textAlign: 'center',
-  },
   scrollView: {
     flex: 1,
   },
@@ -293,14 +244,15 @@ const styles = StyleSheet.create({
   addHabitCard: {
     aspectRatio: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: Spacing.sm,
   },
   addHabitCircle: {
     width: 140,
     height: 140,
     borderRadius: 70,
     backgroundColor: Colors.white,
-    borderWidth: 12,  // Increased from 8 to 12 for much thicker border
+    borderWidth: 12,
     borderColor: Colors.accent1,
     alignItems: 'center',
     justifyContent: 'center',
@@ -314,14 +266,15 @@ const styles = StyleSheet.create({
   addHabitText: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.semibold,
-    fontFamily: Typography.fontFamily.semibold,  // Montserrat_600SemiBold - matches your preference
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
     textAlign: 'center',
   },
   limitReachedCard: {
     aspectRatio: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: Spacing.sm,
   },
   limitReachedCircle: {
     width: 140,

@@ -9,7 +9,6 @@ import { RootStackParamList, MainTabParamList, AuthStackParamList } from '../typ
 
 // Import screens
 import CleanHomeScreen from '../screens/CleanHomeScreen';
-import HabitsScreen from '../screens/HabitsScreen';
 import SocialScreen from '../screens/SocialScreen';
 import AnalyticsScreen from '../screens/AnalyticsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
@@ -51,8 +50,6 @@ function MainTabNavigator() {
 
           if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Habits') {
-            iconName = focused ? 'checkmark-circle' : 'checkmark-circle-outline';
           } else if (route.name === 'Social') {
             iconName = focused ? 'people' : 'people-outline';
           } else if (route.name === 'Analytics') {
@@ -87,11 +84,6 @@ function MainTabNavigator() {
         name="Home" 
         component={CleanHomeScreen}
         options={{ title: 'Dashboard' }}
-      />
-      <Tab.Screen 
-        name="Habits" 
-        component={HabitsScreen}
-        options={{ title: 'My Habits' }}
       />
       <Tab.Screen 
         name="Social" 

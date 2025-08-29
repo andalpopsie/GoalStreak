@@ -45,7 +45,6 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
   
   const [form, setForm] = useState<CreateHabitForm>({
     name: '',
-    description: '',
     category: 'fitness',
     frequency: 'daily',
     targetValue: undefined,
@@ -147,69 +146,57 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
           keyboardShouldPersistTaps="handled"
           onScrollBeginDrag={() => setShowCategoryDropdown(false)}
         >
-          {/* Basic Information */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Basic Information</Text>
-            
+          {/* Habit Name */}
+          <View style={styles.inputSection}>
             <SimpleInput
-              label="Habit Name"
+              label="What habit do you want to build?"
               placeholder="e.g., Morning meditation, Daily run"
               value={form.name}
               onChangeText={(name) => setForm({ ...form, name })}
               error={errors.name}
             />
-
-            <SimpleInput
-              label="Description (Optional)"
-              placeholder="Add more details about your habit"
-              value={form.description || ''}
-              onChangeText={(description) => setForm({ ...form, description })}
-              multiline
-              error={errors.description}
-            />
           </View>
 
-          {/* Icon Selection */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Choose an Icon</Text>
-            <TouchableOpacity 
-              style={styles.iconSelector}
-              onPress={() => setShowIconPicker(true)}
-            >
-              <View style={styles.selectedIconContainer}>
-                <Ionicons name={form.icon as any} size={32} color={Colors.accent1} />
+          {/* Icon & Category Selection */}
+          <View style={styles.selectionSection}>
+            <Text style={styles.sectionTitle}>Customize Your Habit</Text>
+            
+            <View style={styles.iconCategoryRow}>
+              <View style={styles.iconContainer}>
+                <TouchableOpacity 
+                style={styles.categorySelector}
+                onPress={() => setShowIconPicker(true)}
+              >
+                <View style={styles.categoryContent}>
+                  <Ionicons name="happy-outline" size={24} color={Colors.accent1} />
+                  <Text style={styles.categoryText}>Icon</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={16} color={Colors.accent2} />
+              </TouchableOpacity>
               </View>
-              <Text style={styles.iconSelectorText}>Tap to change icon</Text>
-              <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
-            </TouchableOpacity>
-          </View>
 
-          {/* Category Selection */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Category</Text>
-            <TouchableOpacity 
-              style={styles.dropdownButton}
-              onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
-            >
-              <View style={styles.dropdownContent}>
+              <View style={styles.categoryContainer}>
+                <TouchableOpacity 
+                  style={styles.categorySelector}
+                  onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                >
+                <View style={styles.categoryContent}>
+                  <Ionicons name="grid-outline" size={24} color={Colors.accent1} />
+                  <Text style={styles.categoryText}>
+                    Category
+                  </Text>
+                </View>
                 <Ionicons
-                  name={HABIT_CATEGORIES.find(c => c.value === form.category)?.icon as any}
-                  size={20}
-                  color={Colors.primaryText}
+                  name={showCategoryDropdown ? "chevron-up" : "chevron-down"}
+                  size={16}
+                  color={Colors.accent2}
                 />
-                <Text style={styles.dropdownText}>
-                  {HABIT_CATEGORIES.find(c => c.value === form.category)?.label}
-                </Text>
+              </TouchableOpacity>
               </View>
-              <Ionicons
-                name={showCategoryDropdown ? "chevron-up" : "chevron-down"}
-                size={20}
-                color={Colors.accent2}
-              />
-            </TouchableOpacity>
+            </View>
             
             {showCategoryDropdown && (
-              <View style={styles.dropdownMenu}>
+              <View style={styles.categoryDropdown}>
                 {HABIT_CATEGORIES.map((category) => (
                   <TouchableOpacity
                     key={category.value}
@@ -409,6 +396,67 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: Spacing.xl,
   },
+  inputSection: {
+    marginBottom: Spacing.xl,
+  },
+  selectionSection: {
+    marginBottom: Spacing.xl,
+    position: 'relative',
+  },
+  iconCategoryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
+  },
+  iconContainer: {
+    flex: 1,
+  },
+  categoryContainer: {
+    flex: 1,
+  },
+  fieldLabel: {
+    fontSize: Typography.fontSize.sm,
+    fontWeight: Typography.fontWeight.medium,
+    color: Colors.primaryText,
+    marginBottom: Spacing.xs,
+  },
+  categorySelector: {
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: Colors.gray.light,
+  },
+  categoryContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  categoryText: {
+    fontSize: Typography.fontSize.base,
+    color: Colors.primaryText,
+  },
+  categoryDropdown: {
+    position: 'absolute',
+    top: 80,
+    right: 0,
+    width: '48%',
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.md,
+    marginTop: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Colors.gray.light,
+    maxHeight: 200,
+    zIndex: 1000,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  },
   sectionTitle: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
@@ -461,6 +509,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: Spacing.md,
+    backgroundColor: Colors.white,
     borderBottomWidth: 1,
     borderBottomColor: Colors.accent2 + '20',
   },
@@ -552,33 +601,26 @@ const styles = StyleSheet.create({
   },
   // Icon Selection Styles
   iconSelector: {
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.lg,
-    backgroundColor: Colors.background,
-    borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: Colors.accent2 + '30',
+    borderColor: Colors.gray.light,
   },
   selectedIconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: BorderRadius.md,
-    backgroundColor: Colors.white,
+    width: 40,
+    height: 40,
+    borderRadius: BorderRadius.sm,
+    backgroundColor: Colors.background,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: Spacing.md,
-    shadowColor: Colors.primaryText,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    marginRight: Spacing.sm,
   },
   iconSelectorText: {
     flex: 1,
-    fontSize: Typography.fontSize.md,
-    color: Colors.primaryText,
-    fontWeight: Typography.fontWeight.medium,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.gray.dark,
   },
 });

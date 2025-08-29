@@ -56,8 +56,8 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   label: {
-    fontSize: Typography.fontSize.base,
-    fontWeight: Typography.fontWeight.medium,
+    fontSize: Typography.fontSize.lg,
+    fontWeight: Typography.fontWeight.semibold,
     color: Colors.primaryText,
     marginBottom: Spacing.sm,
   },
@@ -68,9 +68,9 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.md,
-    fontSize: Typography.fontSize.base,
+    fontSize: Typography.fontSize.lg,
     color: Colors.primaryText,
-    minHeight: 44,
+    minHeight: 50,
   },
   multilineInput: {
     minHeight: 80,

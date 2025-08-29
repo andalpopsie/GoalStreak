@@ -186,7 +186,6 @@ export interface SignUpForm {
 
 export interface CreateHabitForm {
   name: string;
-  description?: string;
   category: HabitCategory;
   frequency: HabitFrequency;
   targetValue?: number;

@@ -282,23 +282,18 @@ export default function SocialScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Social</Text>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => setShowAddFriendModal(true)}
-        >
-          <Ionicons name="person-add" size={24} color={Colors.primaryText} />
-        </TouchableOpacity>
-      </View>
-
+    <SafeAreaView style={styles.container} edges={[]}>
       {/* Tab Navigation */}
       <View style={styles.tabContainer}>
         {renderTabButton('feed', 'Feed', 'newspaper-outline')}
         {renderTabButton('friends', 'Friends', 'people-outline')}
         {renderTabButton('requests', 'Requests', 'mail-outline')}
+        <TouchableOpacity
+          style={styles.addFriendTabButton}
+          onPress={() => setShowAddFriendModal(true)}
+        >
+          <Ionicons name="person-add" size={20} color={Colors.primaryText} />
+        </TouchableOpacity>
       </View>
 
       {/* Content */}
@@ -381,22 +376,29 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    paddingTop: 0,
+    paddingBottom: 8,
   },
   title: {
-    ...Typography.h2,
+    fontSize: 28,
+    fontWeight: '700',
     color: Colors.primaryText,
   },
   addButton: {
-    padding: 8,
+    padding: 2,
+  },
+  addFriendTabButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
   tabContainer: {
     flexDirection: 'row',
     backgroundColor: Colors.white,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
+    paddingTop: 16,
   },
   tabButton: {
     flex: 1,
@@ -414,7 +416,7 @@ const styles = StyleSheet.create({
     ...Typography.body,
     color: Colors.secondaryText,
     marginLeft: 4,
-    fontSize: 14,
+    fontSize: 16,
   },
   activeTabText: {
     color: Colors.primary,

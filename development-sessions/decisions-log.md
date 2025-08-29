@@ -1,5 +1,44 @@
 # GoalStreak Development Decisions Log
 
+---
+
+## UI/UX Design Decisions
+
+#### Layout Optimization Strategy
+**Date**: August 29, 2025  
+**Decision**: Prioritize content space over decorative elements  
+**Rationale**:
+- Remove habit counter section to maximize dashboard content area
+- Relocate Add Friend button to tab navigation for better accessibility
+- Use absolute positioning for dropdowns to prevent layout shifts
+- Maintain consistent styling across similar UI components
+
+**Implementation**: 
+- Dashboard: Removed "X of X habits created" section
+- Social: Moved Add Friend icon to tab bar, removed redundant headers
+- Create Habit: Fixed dropdown overlaps, added visual icons for better UX
+
+**Status**: ✅ Implemented - Significantly improved space utilization
+
+---
+
+#### Icon and Visual Enhancement Strategy
+**Date**: August 29, 2025  
+**Decision**: Add meaningful visual cues while maintaining minimalism  
+**Rationale**:
+- Visual icons help users understand functionality quickly
+- Consistent styling across similar components improves UX
+- Absolute positioning prevents layout disruption
+
+**Implementation**:
+- Added 😊 icon for Icon selector, 📋 icon for Category selector
+- Made Icon and Category selectors visually consistent
+- Fixed dropdown transparency issues with proper backgrounds
+
+**Status**: ✅ Implemented - Enhanced user experience without clutter
+
+---
+
 ## Technical Decisions
 
 ### Architecture Decisions

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { 
   useSharedValue, 
@@ -22,6 +22,7 @@ interface AnimatedCircularHabitCardProps {
   isCompleted: boolean;
   isLoading?: boolean;
   onToggle: () => void;
+  onDelete?: () => void;
 }
 
 export default function AnimatedCircularHabitCard({
@@ -30,6 +31,7 @@ export default function AnimatedCircularHabitCard({
   isCompleted,
   isLoading = false,
   onToggle,
+  onDelete,
 }: AnimatedCircularHabitCardProps) {
   
   // Animation values
@@ -74,6 +76,24 @@ export default function AnimatedCircularHabitCard({
       console.warn('Press handler error:', error);
       // Fallback to direct call
       onToggle();
+    }
+  };
+
+  const handleLongPress = () => {
+    if (onDelete) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      Alert.alert(
+        'Delete Habit',
+        `Are you sure you want to delete "${habit.name}"? This action cannot be undone.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Delete', 
+            style: 'destructive',
+            onPress: onDelete
+          }
+        ]
+      );
     }
   };
 
@@ -140,6 +160,7 @@ export default function AnimatedCircularHabitCard({
     <Animated.View style={[styles.container, animatedContainerStyle]}>
       <TouchableOpacity 
         onPress={handlePress}
+        onLongPress={handleLongPress}
         disabled={isLoading}
         activeOpacity={0.8}
         style={styles.touchable}
