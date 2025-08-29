@@ -331,7 +331,8 @@ export const completionService = {
     try {
       const completion = await this.getTodayCompletion(habitId, userId);
       if (!completion) {
-        throw new Error('No completion found for today');
+        console.log('No completion found for today, nothing to uncomplete');
+        return; // Gracefully handle - nothing to uncomplete
       }
       
       await deleteDoc(doc(db, COMPLETIONS_COLLECTION, completion.id));

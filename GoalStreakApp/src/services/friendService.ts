@@ -7,6 +7,7 @@ import {
   deleteDoc, 
   getDocs, 
   getDoc,
+  setDoc,
   query, 
   where, 
   orderBy, 
@@ -93,7 +94,7 @@ class FriendService {
         toUserEmail: toUserData.email,
         status: 'pending',
         createdAt: new Date(),
-        message
+        ...(message && { message })
       };
 
       const docRef = await addDoc(this.friendRequestsCollection, {
@@ -120,12 +121,19 @@ class FriendService {
 
       const request = requestDoc.data() as FriendRequest;
 
+      // Get user profiles for proper names
+      const fromUserDoc = await getDoc(doc(this.userProfilesCollection, request.fromUserId));
+      const toUserDoc = await getDoc(doc(this.userProfilesCollection, request.toUserId));
+      
+      const fromUserData = fromUserDoc.data() as UserProfile;
+      const toUserData = toUserDoc.data() as UserProfile;
+
       // Create friendship records for both users
       const friend1: Omit<Friend, 'id'> = {
         userId: request.fromUserId,
         friendId: request.toUserId,
         friendEmail: request.toUserEmail,
-        friendName: request.fromUserName,
+        friendName: toUserData.name,
         status: 'accepted',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -135,7 +143,7 @@ class FriendService {
         userId: request.toUserId,
         friendId: request.fromUserId,
         friendEmail: request.fromUserEmail,
-        friendName: request.toUserEmail,
+        friendName: fromUserData.name,
         status: 'accepted',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -280,13 +288,30 @@ class FriendService {
     additionalData?: { streakCount?: number; completionCount?: number; milestone?: string }
   ): Promise<string> {
     try {
-      // Get user profile for name
-      const userDoc = await getDoc(doc(this.userProfilesCollection, userId));
-      const userData = userDoc.data() as UserProfile;
+      // Get user profile for name with fallback
+      let userName = 'Unknown User';
+      try {
+        const userDoc = await getDoc(doc(this.userProfilesCollection, userId));
+        if (userDoc.exists()) {
+          const userData = userDoc.data() as UserProfile;
+          userName = userData?.name || userData?.email || 'Unknown User';
+        }
+      } catch (profileError) {
+        console.log('Could not fetch user profile, using fallback name');
+      }
+
+      // Validate required parameters
+      if (!habitName || typeof habitName !== 'string') {
+        throw new Error('Invalid habit name provided');
+      }
+
+      if (!habitCategory || typeof habitCategory !== 'string') {
+        throw new Error('Invalid habit category provided');
+      }
 
       const activity: Omit<SocialActivity, 'id'> = {
         userId,
-        userName: userData.name,
+        userName,
         type,
         habitId,
         habitName,
@@ -363,7 +388,7 @@ class FriendService {
         isPublic: true
       };
 
-      await updateDoc(doc(this.userProfilesCollection, userId), {
+      await setDoc(doc(this.userProfilesCollection, userId), {
         ...profile,
         joinedAt: serverTimestamp()
       });
@@ -399,7 +424,9 @@ class FriendService {
           updatedAt: new Date()
         };
 
-        await updateDoc(doc(this.socialSettingsCollection, userId), {
+        // Use setDoc instead of updateDoc for new documents
+        await setDoc(doc(this.socialSettingsCollection, userId), {
+          userId,
           ...defaultSettings,
           updatedAt: serverTimestamp()
         });

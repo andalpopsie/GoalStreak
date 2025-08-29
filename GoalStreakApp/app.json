@@ -1,32 +1,54 @@
 {
   "expo": {
-    "name": "GoalStreakApp",
-    "slug": "GoalStreakApp",
+    "name": "GoalStreak",
+    "slug": "goalstreak",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "description": "Build lasting habits with friends using streak tracking, social accountability, and powerful analytics. Your social habit companion for achieving goals together.",
+    "keywords": ["habits", "goals", "productivity", "tracking", "streaks", "motivation", "social", "friends", "accountability"],
+    "privacy": "public",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#4ECDC4"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.goalstreak.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSUserTrackingUsageDescription": "This app uses analytics to improve your experience and provide personalized insights.",
+        "NSCameraUsageDescription": "Camera access is used for profile pictures (optional).",
+        "NSPhotoLibraryUsageDescription": "Photo library access is used for profile pictures (optional)."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#4ECDC4"
       },
-      "edgeToEdgeEnabled": true
+      "package": "com.goalstreak.app",
+      "versionCode": 1,
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "assetBundlePatterns": [
       "**/*"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id-here"
+      }
+    }
   }
 }

@@ -82,14 +82,17 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
         <ScrollView 
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          bounces={false}
         >
           <View style={styles.header}>
             <View style={styles.logoContainer}>
@@ -108,6 +111,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
               autoCapitalize="words"
               autoComplete="name"
               error={errors.displayName}
+              returnKeyType="next"
             />
 
             <Input
@@ -119,6 +123,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
               autoCapitalize="none"
               autoComplete="email"
               error={errors.email}
+              returnKeyType="next"
             />
 
             <Input
@@ -129,6 +134,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
               secureTextEntry
               autoComplete="new-password"
               error={errors.password}
+              returnKeyType="next"
             />
 
             <Input
@@ -139,15 +145,18 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
               secureTextEntry
               autoComplete="new-password"
               error={errors.confirmPassword}
+              returnKeyType="done"
             />
 
-            <Button
-              title="Create Account"
-              onPress={handleSignUp}
-              loading={isLoading}
-              variant="primary"
-              size="lg"
-            />
+            <View style={styles.buttonContainer}>
+              <Button
+                title="Create Account"
+                onPress={handleSignUp}
+                loading={isLoading}
+                variant="primary"
+                size="lg"
+              />
+            </View>
           </View>
 
           <View style={styles.footer}>
@@ -182,11 +191,12 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     padding: Spacing.lg,
-    justifyContent: 'center',
+    paddingBottom: Spacing.xl, // Extra padding at bottom
   },
   header: {
     alignItems: 'center',
     marginBottom: Spacing.xl,
+    paddingTop: Spacing.md,
   },
   logoContainer: {
     width: 80,
@@ -216,6 +226,9 @@ const styles = StyleSheet.create({
   form: {
     marginBottom: Spacing.lg,
   },
+  buttonContainer: {
+    marginTop: Spacing.md,
+  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -233,6 +246,7 @@ const styles = StyleSheet.create({
   },
   terms: {
     paddingHorizontal: Spacing.md,
+    marginBottom: Spacing.xl, // Extra margin at bottom
   },
   termsText: {
     fontSize: Typography.fontSize.sm,

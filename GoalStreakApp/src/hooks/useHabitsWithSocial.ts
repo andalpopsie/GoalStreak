@@ -13,79 +13,50 @@ export const useHabitsWithSocial = () => {
     value?: number, 
     notes?: string
   ) => {
+    // Complete the habit first - this is the critical operation
+    await habitsHook.completeHabit(habitId, value, notes);
+    
+    // Try social sharing but don't let it break the main flow
     try {
-      // Complete the habit first
-      await habitsHook.completeHabit(habitId, value, notes);
-      
-      // Get habit details for sharing
-      const habit = habitsHook.habits.find(h => h.id === habitId);
+      if (!socialSettings?.shareHabitCompletions) return;
+
+      const habit = habitsHook.habits?.find(h => h?.id === habitId);
+      if (!habit?.name || !habit?.category) return;
+
       const streak = habitsHook.getHabitStreak(habitId);
-      
-      if (!habit) return;
 
-      // Share habit completion if enabled
-      if (socialSettings?.shareHabitCompletions) {
-        await shareHabitCompletion(
-          habitId,
-          habit.name,
-          habit.category,
-          streak?.currentStreak
-        );
-      }
+      // Share habit completion
+      await shareHabitCompletion(habitId, habit.name.trim(), habit.category, streak?.currentStreak || 0);
 
-      // Check for streak milestones and share if enabled
-      if (streak && socialSettings?.shareStreakMilestones) {
+      // Check for streak milestones
+      if (socialSettings?.shareStreakMilestones && streak?.currentStreak) {
         const streakCount = streak.currentStreak;
-        
-        // Share milestone for significant streaks
-        if (streakCount === 7 || streakCount === 30 || streakCount === 100 || 
-            (streakCount > 0 && streakCount % 50 === 0)) {
-          await shareStreakMilestone(
-            habitId,
-            habit.name,
-            habit.category,
-            streakCount
-          );
+        if (streakCount === 7 || streakCount === 30 || streakCount === 100 || (streakCount % 50 === 0)) {
+          await shareStreakMilestone(habitId, habit.name.trim(), habit.category, streakCount);
         }
       }
-    } catch (error) {
-      console.error('Error completing habit with social sharing:', error);
-      throw error;
+    } catch (socialError) {
+      // Social sharing failures are non-critical
+      console.log('Social sharing failed (non-critical):', socialError.message);
     }
-  }, [
-    habitsHook.completeHabit,
-    habitsHook.habits,
-    habitsHook.getHabitStreak,
-    shareHabitCompletion,
-    shareStreakMilestone,
-    socialSettings
-  ]);
+  }, [habitsHook.completeHabit, habitsHook.habits, habitsHook.getHabitStreak, shareHabitCompletion, shareStreakMilestone, socialSettings]);
 
   // Enhanced create habit with social sharing
   const createHabitWithSharing = useCallback(async (habitData: any) => {
-    try {
-      await habitsHook.createHabit(habitData);
-      
-      // Share new habit creation if enabled
-      if (socialSettings?.shareNewHabits) {
-        // Note: We'd need to get the created habit ID to share it
-        // For now, we'll skip this feature until we can get the created habit
-      }
-    } catch (error) {
-      console.error('Error creating habit with social sharing:', error);
-      throw error;
+    const newHabitId = await habitsHook.createHabit(habitData);
+    
+    // Social sharing for new habits (placeholder for future implementation)
+    if (socialSettings?.shareNewHabits && habitData?.name) {
+      console.log('New habit sharing feature coming soon');
     }
+    
+    return newHabitId;
   }, [habitsHook.createHabit, socialSettings]);
 
   return {
-    // All original habits functionality
     ...habitsHook,
-    
-    // Enhanced functions with social features
     completeHabit: completeHabitWithSharing,
     createHabit: createHabitWithSharing,
-    
-    // Social-specific data
     socialSettings,
   };
 };

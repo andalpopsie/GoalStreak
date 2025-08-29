@@ -11,6 +11,7 @@ import {
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from '../services/firebase';
 import { User as AppUser, AuthState } from '../types';
+import friendService from '../services/friendService';
 
 interface AuthContextType {
   user: AppUser | null;
@@ -116,6 +117,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
 
       await setDoc(doc(db, 'users', firebaseUser.uid), userData);
+
+      // Create user profile for social features
+      await friendService.createUserProfile(firebaseUser.uid, email, displayName);
     } catch (error: any) {
       throw new Error(error.message || 'Failed to create account');
     }

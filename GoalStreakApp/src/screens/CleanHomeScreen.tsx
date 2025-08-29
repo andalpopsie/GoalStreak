@@ -15,7 +15,7 @@ import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { LIMITS } from '../constants/limits';
 import { useAuth } from '../hooks/useAuth';
-import { useHabitsWithSocial } from '../hooks/useHabitsWithSocial';
+import { useHabitsWithSocial } from '../hooks/useHabitsWithSocial'; // Re-enabled social features with error handling
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import SkeletonHabitCard from '../components/SkeletonHabitCard';
 import AnimatedCircularHabitCard from '../components/AnimatedCircularHabitCard';
@@ -34,7 +34,7 @@ export default function CleanHomeScreen({ navigation }: any) {
     getHabitStreak,
     refreshHabits,
     clearAllHabits, // TEMPORARY: For testing
-  } = useHabitsWithSocial();
+  } = useHabitsWithSocial(); // Re-enabled social features with improved error handling
   const networkStatus = useNetworkStatus();
 
   const todayHabits = habits.filter(habit => habit.frequency === 'daily');

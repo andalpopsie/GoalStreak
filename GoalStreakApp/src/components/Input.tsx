@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius } from '../constants/theme';
@@ -17,22 +17,35 @@ export default function Input({
 }: InputProps & any) {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef<TextInput>(null);
 
   const showPassword = secureTextEntry && !isPasswordVisible;
   const showPasswordToggle = secureTextEntry;
+
+  // Handle container press to focus input
+  const handleContainerPress = () => {
+    if (inputRef.current && !disabled) {
+      inputRef.current.focus();
+    }
+  };
 
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
       
-      <View style={[
-        styles.inputContainer,
-        isFocused && styles.focused,
-        error && styles.error,
-        disabled && styles.disabled,
-        multiline && styles.multiline,
-      ]}>
+      <TouchableOpacity 
+        style={[
+          styles.inputContainer,
+          isFocused && styles.focused,
+          error && styles.error,
+          disabled && styles.disabled,
+          multiline && styles.multiline,
+        ]}
+        onPress={handleContainerPress}
+        activeOpacity={1}
+      >
         <TextInput
+          ref={inputRef}
           style={[
             styles.input, 
             showPasswordToggle && styles.inputWithIcon,
@@ -48,6 +61,10 @@ export default function Input({
           onBlur={() => setIsFocused(false)}
           multiline={multiline}
           textAlignVertical={multiline ? 'top' : 'center'}
+          autoCorrect={false}
+          spellCheck={false}
+          blurOnSubmit={!multiline}
+          returnKeyType={multiline ? 'default' : 'next'}
           {...props}
         />
         
@@ -63,7 +80,7 @@ export default function Input({
             />
           </TouchableOpacity>
         )}
-      </View>
+      </TouchableOpacity>
       
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
@@ -114,6 +131,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.base,
     color: Colors.primaryText,
     paddingVertical: Spacing.md,
+    minHeight: 44,
   },
   multilineInput: {
     paddingTop: Spacing.md,
