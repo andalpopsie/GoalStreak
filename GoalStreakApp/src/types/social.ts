@@ -25,6 +25,13 @@ export interface FriendRequest {
   message?: string;
 }
 
+// Reaction types
+export type ReactionType = 'heart' | 'flame' | 'medal';
+
+export interface Reactions {
+  [userId: string]: ReactionType[];
+}
+
 export interface SocialActivity {
   id: string;
   userId: string;
@@ -38,6 +45,7 @@ export interface SocialActivity {
   streakCount?: number;
   completionCount?: number;
   milestone?: string;
+  reactions?: Reactions;
 }
 
 export type ActivityType = 

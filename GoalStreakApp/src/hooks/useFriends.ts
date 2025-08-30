@@ -6,7 +6,8 @@ import {
   Friend, 
   FriendRequest, 
   SocialActivity, 
-  SocialSettings 
+  SocialSettings,
+  ReactionType
 } from '../types/social';
 
 interface UseFriendsReturn {
@@ -36,6 +37,9 @@ interface UseFriendsReturn {
   // Activity creation
   shareHabitCompletion: (habitId: string, habitName: string, habitCategory: string, streakCount?: number) => Promise<void>;
   shareStreakMilestone: (habitId: string, habitName: string, habitCategory: string, streakCount: number) => Promise<void>;
+  
+  // Reactions
+  addReaction: (activityId: string, reactionType: ReactionType) => Promise<void>;
   
   // Utility
   hasMoreActivities: boolean;
@@ -200,8 +204,28 @@ export const useFriends = (): UseFriendsReturn => {
     }
   }, [user?.id]);
 
+  // Real-time activity feed listener
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const unsubscribe = friendService.subscribeToActivityFeed(
+      user.id,
+      (activities) => {
+        setActivityFeed(activities);
+        setIsLoadingActivity(false);
+      },
+      (error) => {
+        console.error('Activity feed subscription error:', error);
+        setError('Failed to load activity feed');
+        setIsLoadingActivity(false);
+      }
+    );
+
+    return unsubscribe;
+  }, [user?.id]);
+
   const loadMoreActivities = useCallback(async () => {
-    console.log('Load more activities called');
+    // Load more activities functionality
   }, []);
 
   const updateSocialSettings = useCallback(async (settings: Partial<SocialSettings>) => {
@@ -263,6 +287,21 @@ export const useFriends = (): UseFriendsReturn => {
     }
   }, [user?.id, socialSettings]);
 
+  // Add reaction to activity (optimized)
+  const addReaction = useCallback(async (activityId: string, reactionType: ReactionType) => {
+    if (!user?.id) {
+      setError('User not authenticated');
+      return;
+    }
+    
+    try {
+      await friendService.addReaction(activityId, user.id, reactionType);
+    } catch (error) {
+      console.error('Error adding reaction:', error);
+      setError('Failed to add reaction');
+    }
+  }, [user?.id]);
+
   return {
     // State
     friends,
@@ -290,6 +329,9 @@ export const useFriends = (): UseFriendsReturn => {
     // Activity sharing
     shareHabitCompletion,
     shareStreakMilestone,
+    
+    // Reactions
+    addReaction,
     
     // Utility
     hasMoreActivities,

@@ -2,6 +2,63 @@
 
 ---
 
+## Social Features Architecture Decisions
+
+#### Real-time Social Feed Implementation
+**Date**: August 30, 2025  
+**Decision**: Use Firebase real-time listeners for live social feed updates  
+**Rationale**:
+- Provides instant updates without manual refresh
+- Scales well with multiple users
+- Maintains data consistency across all clients
+- Better user engagement with immediate feedback
+
+**Implementation**: 
+- Firebase onSnapshot listeners for activity feed
+- Real-time reaction system with toggle functionality
+- Optimized data structure for efficient queries
+
+**Status**: ✅ Implemented - Live social feed with real-time reactions
+
+---
+
+#### Social UI Design Pattern
+**Date**: August 30, 2025  
+**Decision**: Adopt Threads/Bluesky layout pattern for social feed  
+**Rationale**:
+- Users are familiar with this modern social media layout
+- Profile photo on left with stacked content provides clear hierarchy
+- Maximizes content readability and engagement
+- Industry standard for social applications
+
+**Implementation**: 
+- Profile photos with user initials in brand colors
+- Horizontal layout: photo + content column
+- Reaction icons with equal spacing and counts
+- Compressed layouts with subtle separators
+
+**Status**: ✅ Implemented - Modern social media experience
+
+---
+
+#### Performance Optimization Strategy
+**Date**: August 30, 2025  
+**Decision**: Implement React performance optimizations for social features  
+**Rationale**:
+- Real-time updates can cause excessive re-renders
+- Social feeds with many items need efficient rendering
+- Type safety prevents runtime errors in production
+
+**Implementation**: 
+- useCallback for memoized functions
+- useMemo for expensive computations
+- Reusable ReactionButton component
+- Proper TypeScript interfaces (ReactionType, Reactions)
+
+**Status**: ✅ Implemented - Optimized performance with type safety
+
+---
+
 ## UI/UX Design Decisions
 
 #### Layout Optimization Strategy

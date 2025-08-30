@@ -3,7 +3,7 @@
 export const Colors = {
   // Primary Colors - New Sophisticated Palette
   primaryText: '#154D71',      // New dark blue for text and icons
-  background: '#FEF9E1',       // New warm cream background
+  background: '#FDFDFD',       // New light gray background
   accent1: '#FF894F',          // New warm orange (was #FF7F3E)
   accent2: '#154D71',          // Dark blue for secondary accents
   accent3: '#4A90A4',          // Complementary teal for completed states

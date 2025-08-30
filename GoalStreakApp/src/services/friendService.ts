@@ -28,7 +28,9 @@ import {
   UserProfile,
   FriendsResponse,
   ActivityFeedResponse,
-  UserSearchResult
+  UserSearchResult,
+  ReactionType,
+  Reactions
 } from '../types/social';
 
 class FriendService {
@@ -490,6 +492,102 @@ class FriendService {
         console.error('Error in activity feed subscription:', error);
       }
     });
+  }
+
+  // Real-time activity feed subscription
+  subscribeToActivityFeed(
+    userId: string, 
+    callback: (activities: SocialActivity[]) => void,
+    errorCallback?: (error: any) => void
+  ): () => void {
+    const activitiesQuery = query(
+      this.activitiesCollection,
+      orderBy('timestamp', 'desc'),
+      limit(50)
+    );
+
+    return onSnapshot(
+      activitiesQuery, 
+      async () => {
+        try {
+          const feedData = await this.getActivityFeed(userId);
+          callback(feedData.activities);
+        } catch (error) {
+          console.error('Error in activity feed subscription:', error);
+          if (errorCallback) errorCallback(error);
+        }
+      },
+      (error) => {
+        console.error('Firestore subscription error:', error);
+        if (errorCallback) errorCallback(error);
+      }
+    );
+  }
+
+  // Add reaction to activity (optimized)
+  async addReaction(activityId: string, userId: string, reactionType: ReactionType): Promise<void> {
+    if (!activityId || !userId || !reactionType) {
+      throw new Error('Invalid parameters for adding reaction');
+    }
+
+    try {
+      const activityRef = doc(this.activitiesCollection, activityId);
+      const activityDoc = await getDoc(activityRef);
+      
+      if (!activityDoc.exists()) {
+        throw new Error('Activity not found');
+      }
+
+      const activityData = activityDoc.data();
+      const reactions: Reactions = activityData.reactions || {};
+      const userReactions = reactions[userId] || [];
+
+      // Toggle reaction - remove if exists, add if doesn't
+      const reactionIndex = userReactions.indexOf(reactionType);
+      if (reactionIndex > -1) {
+        userReactions.splice(reactionIndex, 1);
+      } else {
+        userReactions.push(reactionType);
+      }
+
+      // Clean up empty arrays
+      if (userReactions.length === 0) {
+        delete reactions[userId];
+      } else {
+        reactions[userId] = userReactions;
+      }
+
+      await updateDoc(activityRef, {
+        reactions,
+        updatedAt: new Date()
+      });
+    } catch (error) {
+      console.error('Error adding reaction:', error);
+      throw error;
+    }
+  }
+
+  // Get reaction counts for activity (optimized)
+  getReactionCounts(reactions?: Reactions): Record<ReactionType, number> {
+    const counts: Record<ReactionType, number> = { heart: 0, flame: 0, medal: 0 };
+    
+    if (!reactions) return counts;
+
+    Object.values(reactions).forEach((userReactions) => {
+      userReactions.forEach((reaction) => {
+        if (reaction in counts) {
+          counts[reaction]++;
+        }
+      });
+    });
+
+    return counts;
+  }
+
+  // Check if user has reacted with specific type (optimized)
+  hasUserReacted(reactions?: Reactions, userId?: string, reactionType?: ReactionType): boolean {
+    if (!reactions || !userId || !reactionType) return false;
+    return reactions[userId]?.includes(reactionType) ?? false;
   }
 }
 

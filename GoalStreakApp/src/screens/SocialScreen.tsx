@@ -1,5 +1,5 @@
 // SocialScreen - Social features with real backend integration
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -15,11 +15,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography } from '../constants/theme';
 import { useFriends } from '../hooks/useFriends';
+import { useAuth } from '../hooks/useAuth';
+import { SocialActivity, ReactionType } from '../types/social';
 import FriendCard from '../components/FriendCard';
 
 type TabType = 'feed' | 'friends' | 'requests';
 
 export default function SocialScreen() {
+  // Get user first
+  const { user } = useAuth();
+  
   // Real social data from useFriends hook
   const {
     friends,
@@ -38,6 +43,7 @@ export default function SocialScreen() {
     refreshActivityFeed,
     hasMoreActivities,
     error,
+    addReaction,
   } = useFriends();
 
   // UI state
@@ -45,6 +51,73 @@ export default function SocialScreen() {
   const [showAddFriendModal, setShowAddFriendModal] = useState(false);
   const [friendEmail, setFriendEmail] = useState('');
   const [friendMessage, setFriendMessage] = useState('');
+
+  const getRelativeTime = (timestamp: any) => {
+    const now = new Date();
+    const time = new Date(timestamp?.toDate?.() || timestamp);
+    const diffInSeconds = Math.floor((now.getTime() - time.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return `${diffInSeconds}s`;
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d`;
+    return time.toLocaleDateString();
+  };
+
+  // Get reaction count for specific type (optimized)
+  const getReactionCount = useCallback((item: SocialActivity, reactionType: ReactionType): number => {
+    if (!item.reactions) return 0;
+    let count = 0;
+    Object.values(item.reactions).forEach((userReactions) => {
+      if (userReactions.includes(reactionType)) {
+        count++;
+      }
+    });
+    return count;
+  }, []);
+
+  // Check if current user has reacted with specific type (optimized)
+  const hasUserReacted = useCallback((item: SocialActivity, reactionType: ReactionType): boolean => {
+    if (!item.reactions || !user?.id) return false;
+    const userReactions = item.reactions[user.id] || [];
+    return userReactions.includes(reactionType);
+  }, [user?.id]);
+
+  // Optimized reaction button handler
+  const handleReaction = useCallback((activityId: string, reactionType: ReactionType) => {
+    addReaction(activityId, reactionType);
+  }, [addReaction]);
+
+  // Reusable reaction button component
+  const ReactionButton = useMemo(() => ({ 
+    item, 
+    reactionType, 
+    iconName 
+  }: { 
+    item: SocialActivity; 
+    reactionType: ReactionType; 
+    iconName: string;
+  }) => {
+    const count = getReactionCount(item, reactionType);
+    
+    return (
+      <TouchableOpacity 
+        style={styles.reactionButton}
+        onPress={() => handleReaction(item.id, reactionType)}
+      >
+        <Ionicons 
+          name={iconName as any} 
+          size={22} 
+          color={Colors.accent3} 
+        />
+        {count > 0 && (
+          <Text style={styles.reactionCount}>
+            {count}
+          </Text>
+        )}
+      </TouchableOpacity>
+    );
+  }, [getReactionCount, handleReaction]);
 
   const handleSendFriendRequest = async () => {
     if (!friendEmail.trim()) {
@@ -121,11 +194,11 @@ export default function SocialScreen() {
       ]}>
         {title}
       </Text>
-      {badge && badge > 0 && (
+      {badge && badge > 0 ? (
         <View style={styles.badge}>
           <Text style={styles.badgeText}>{badge}</Text>
         </View>
-      )}
+      ) : null}
     </TouchableOpacity>
   );
 
@@ -199,20 +272,62 @@ export default function SocialScreen() {
           <>
             {activeTab === 'feed' && activityFeed.map((item, index) => (
               <View key={index} style={styles.activityCard}>
-                <View style={styles.activityHeader}>
-                  <Text style={styles.activityUser}>{item.userName}</Text>
-                  <Text style={styles.activityTime}>
-                    {new Date(item.timestamp?.toDate?.() || item.timestamp).toLocaleDateString()}
-                  </Text>
+                <View style={styles.postLayout}>
+                  <View style={styles.profilePhoto}>
+                    <Text style={styles.profileInitial}>
+                      {item.userName?.charAt(0)?.toUpperCase() || 'U'}
+                    </Text>
+                  </View>
+                  <View style={styles.postContent}>
+                    <View style={styles.postHeader}>
+                      <Text style={styles.activityUser}>{item.userName}</Text>
+                      <Text style={styles.activityTime}>
+                        {getRelativeTime(item.timestamp)}
+                      </Text>
+                    </View>
+                    <Text style={styles.activityText}>
+                      {item.type === 'habit_completed' ? `Completed "${item.habitName}"` :
+                       item.type === 'streak_milestone' ? `🔥 ${item.streakCount} day streak on "${item.habitName}"!` :
+                       item.type === 'habit_created' ? `Started tracking "${item.habitName}"` :
+                       'Activity update'}
+                    </Text>
+                    {item.streakCount && item.type === 'habit_completed' ? (
+                      <Text style={styles.activityStreak}>🔥 {item.streakCount} day streak</Text>
+                    ) : null}
+                    
+                    {/* Reaction Icons - Optimized */}
+                    <View style={styles.activityActions}>
+                      <ReactionButton 
+                        item={item} 
+                        reactionType="heart" 
+                        iconName="heart-outline" 
+                      />
+                      <ReactionButton 
+                        item={item} 
+                        reactionType="flame" 
+                        iconName="flame-outline" 
+                      />
+                      <ReactionButton 
+                        item={item} 
+                        reactionType="medal" 
+                        iconName="medal-outline" 
+                      />
+                      <TouchableOpacity 
+                        style={styles.reactionButton}
+                        onPress={() => {
+                          // TODO: Add message/comment functionality
+                        }}
+                      >
+                        <Ionicons 
+                          name="chatbubble-outline" 
+                          size={22} 
+                          color={Colors.accent3} 
+                        />
+                        {/* TODO: Add comment count */}
+                      </TouchableOpacity>
+                    </View>
+                  </View>
                 </View>
-                <Text style={styles.activityText}>
-                  {item.type === 'habit_completed' && `Completed "${item.habitName}"`}
-                  {item.type === 'streak_milestone' && `🔥 ${item.streakCount} day streak on "${item.habitName}"!`}
-                  {item.type === 'habit_created' && `Started tracking "${item.habitName}"`}
-                </Text>
-                {item.streakCount && item.type === 'habit_completed' && (
-                  <Text style={styles.activityStreak}>🔥 {item.streakCount} day streak</Text>
-                )}
               </View>
             ))}
 
@@ -592,23 +707,45 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   activityCard: {
-    backgroundColor: Colors.white,
-    padding: 16,
-    marginBottom: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+    marginHorizontal: -12,
+    paddingHorizontal: 12,
   },
-  activityHeader: {
+  postLayout: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+  },
+  profilePhoto: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.accent3,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginRight: 12,
+  },
+  profileInitial: {
+    color: Colors.white,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  postContent: {
+    flex: 1,
+  },
+  postHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
   },
   activityUser: {
     ...Typography.body,
+    fontSize: 16,
     fontWeight: '600',
     color: Colors.primaryText,
+    marginRight: 8,
   },
   activityTime: {
     ...Typography.caption,
@@ -616,6 +753,7 @@ const styles = StyleSheet.create({
   },
   activityText: {
     ...Typography.body,
+    fontSize: 16,
     color: Colors.primaryText,
     marginBottom: 4,
   },
@@ -623,5 +761,23 @@ const styles = StyleSheet.create({
     ...Typography.caption,
     color: Colors.primary,
     fontWeight: '600',
+  },
+  activityActions: {
+    flexDirection: 'row',
+    marginTop: 12,
+    justifyContent: 'space-between',
+    paddingRight: 60,
+  },
+  reactionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+  },
+  reactionCount: {
+    ...Typography.caption,
+    fontSize: 12,
+    color: Colors.secondaryText,
+    marginLeft: 4,
+    fontWeight: '500',
   },
 });
