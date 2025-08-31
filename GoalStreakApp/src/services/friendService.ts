@@ -40,6 +40,7 @@ class FriendService {
   private activitiesCollection = collection(db, 'activities');
   private socialSettingsCollection = collection(db, 'socialSettings');
   private userProfilesCollection = collection(db, 'userProfiles');
+  private usersCollection = collection(db, 'users');
 
   // Friend Management
   async sendFriendRequest(fromUserId: string, toUserEmail: string, message?: string): Promise<string> {
@@ -588,6 +589,60 @@ class FriendService {
   hasUserReacted(reactions?: Reactions, userId?: string, reactionType?: ReactionType): boolean {
     if (!reactions || !userId || !reactionType) return false;
     return reactions[userId]?.includes(reactionType) ?? false;
+  }
+
+  // Search for users by name or email
+  async searchUsers(searchQuery: string): Promise<UserSearchResult[]> {
+    try {
+      const usersQuery = query(
+        this.usersCollection,
+        where('email', '>=', searchQuery.toLowerCase()),
+        where('email', '<=', searchQuery.toLowerCase() + '\uf8ff'),
+        limit(10)
+      );
+      
+      const usersSnapshot = await getDocs(usersQuery);
+      const results: UserSearchResult[] = [];
+      
+      usersSnapshot.forEach((doc) => {
+        const userData = doc.data();
+        results.push({
+          id: doc.id,
+          name: userData.name || userData.displayName || userData.firstName || '',
+          email: userData.email || '',
+          profilePhoto: userData.profilePhoto || null
+        });
+      });
+
+      // Also search by name if query doesn't look like email
+      if (!searchQuery.includes('@')) {
+        const nameQuery = query(
+          this.usersCollection,
+          where('name', '>=', searchQuery),
+          where('name', '<=', searchQuery + '\uf8ff'),
+          limit(10)
+        );
+        
+        const nameSnapshot = await getDocs(nameQuery);
+        nameSnapshot.forEach((doc) => {
+          const userData = doc.data();
+          const existingResult = results.find(r => r.id === doc.id);
+          if (!existingResult) {
+            results.push({
+              id: doc.id,
+              name: userData.name || userData.displayName || userData.firstName || '',
+              email: userData.email || '',
+              profilePhoto: userData.profilePhoto || null
+            });
+          }
+        });
+      }
+
+      return results;
+    } catch (error) {
+      console.error('Error searching users:', error);
+      return [];
+    }
   }
 }
 

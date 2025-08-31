@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography } from '../constants/theme';
 import { useFriends } from '../hooks/useFriends';
@@ -45,15 +46,6 @@ export default function SocialScreen() {
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [sendingRequestTo, setSendingRequestTo] = useState<string | null>(null);
 
-  // Auto-load feed data when component mounts or tab changes
-  useEffect(() => {
-    if (activeTab === 'feed') {
-      refreshActivityFeed();
-    } else {
-      refreshFriends();
-    }
-  }, [activeTab, refreshActivityFeed, refreshFriends]);
-
   // Handle refresh
   const handleRefresh = useCallback(() => {
     if (activeTab === 'feed') {
@@ -65,38 +57,40 @@ export default function SocialScreen() {
 
   // Handle reaction
   const handleReaction = useCallback(async (activityId: string, reactionType: ReactionType) => {
-    if (!user?.id) return;
-    await addReaction(activityId, reactionType);
-  }, [user?.id, addReaction]);
+    if (!user?.uid) return;
+    try {
+      await addReaction(activityId, user.uid, reactionType);
+    } catch (error) {
+      console.error('Error adding reaction:', error);
+    }
+  }, [user?.uid, addReaction]);
 
+  // Send friend request from add modal
   const handleSendFriendRequest = async (email: string, message: string) => {
-    if (!user?.id) return;
+    if (!user?.uid) return;
     
     try {
-      await sendFriendRequest(email, message);
+      await sendFriendRequest(user.uid, email, message);
       Alert.alert('Success', 'Friend request sent successfully!');
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Failed to send friend request');
+      throw error;
     }
   };
 
   // Send friend request from search
   const handleSendFriendRequestFromSearch = async (toUser: UserSearchResult) => {
-    if (!user?.id || !toUser.email) return;
+    if (!user?.uid || !toUser.email) return;
 
     setSendingRequestTo(toUser.id);
     try {
       await sendFriendRequest(
+        user.uid, 
         toUser.email, 
         `Hi ${toUser.name || 'there'}! I'd like to connect with you on GoalStreak.`
       );
-      Alert.alert('Success', 'Friend request sent successfully!');
-    } catch (error: any) {
-      if (error.message?.includes('already sent')) {
-        Alert.alert('Info', 'Friend request already sent to this user.');
-      } else {
-        Alert.alert('Error', error.message || 'Failed to send friend request');
-      }
+    } catch (error) {
+      console.error('Error sending friend request:', error);
     } finally {
       setSendingRequestTo(null);
     }
@@ -148,7 +142,7 @@ export default function SocialScreen() {
     >
       <Ionicons
         name={icon as any}
-        size={22}
+        size={20}
         color={activeTab === tab ? Colors.primary : Colors.secondaryText}
       />
       <Text style={[
@@ -168,7 +162,12 @@ export default function SocialScreen() {
   const isLoading = activeTab === 'feed' ? isLoadingActivity : isLoadingFriends;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Social</Text>
+      </View>
+
       {/* Tab Navigation */}
       <View style={styles.tabContainer}>
         {renderTabButton('feed', 'Feed', 'newspaper-outline')}
@@ -177,13 +176,13 @@ export default function SocialScreen() {
           style={styles.searchTabButton}
           onPress={() => setShowSearchModal(true)}
         >
-          <Ionicons name="search" size={22} color={Colors.primaryText} />
+          <Ionicons name="search" size={20} color={Colors.primaryText} />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.addFriendTabButton}
           onPress={() => setShowAddFriendModal(true)}
         >
-          <Ionicons name="person-add" size={22} color={Colors.primaryText} />
+          <Ionicons name="person-add" size={20} color={Colors.primaryText} />
         </TouchableOpacity>
       </View>
 
@@ -199,15 +198,12 @@ export default function SocialScreen() {
         }
         showsVerticalScrollIndicator={false}
       >
-        <View style={[
-          styles.contentContainer,
-          activeTab === 'friends' && styles.contentContainerPadded
-        ]}>
+        <View style={styles.contentContainer}>
           {activeTab === 'feed' && (
             <ActivityFeedTab
               activityFeed={activityFeed}
               onReaction={handleReaction}
-              currentUserId={user?.id}
+              currentUserId={user?.uid}
             />
           )}
 
@@ -264,7 +260,7 @@ export default function SocialScreen() {
         onSendFriendRequest={handleSendFriendRequestFromSearch}
         sendingRequestTo={sendingRequestTo}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -272,28 +268,38 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
-    paddingTop: 0,
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  headerTitle: {
+    ...Typography.h2,
+    color: Colors.primaryText,
   },
   tabContainer: {
     flexDirection: 'row',
     backgroundColor: Colors.white,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
+    paddingTop: 16,
   },
   tabButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    gap: 8,
+    paddingVertical: 12,
+    gap: 6,
   },
   activeTabButton: {
     borderBottomWidth: 2,
     borderBottomColor: Colors.primary,
   },
   tabButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
     color: Colors.secondaryText,
   },
@@ -304,23 +310,19 @@ const styles = StyleSheet.create({
   searchTabButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
   addFriendTabButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
   content: {
     flex: 1,
   },
   contentContainer: {
-    paddingHorizontal: 0,
-    paddingTop: 0,
-  },
-  contentContainerPadded: {
     paddingHorizontal: 12,
     paddingTop: 8,
   },

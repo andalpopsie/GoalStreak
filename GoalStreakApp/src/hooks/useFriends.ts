@@ -296,11 +296,11 @@ export const useFriends = (): UseFriendsReturn => {
     
     try {
       await friendService.addReaction(activityId, user.id, reactionType);
+      await refreshActivityFeed();
     } catch (error) {
-      console.error('Error adding reaction:', error);
       setError('Failed to add reaction');
     }
-  }, [user?.id]);
+  }, [user?.id, refreshActivityFeed]);
 
   return {
     // State

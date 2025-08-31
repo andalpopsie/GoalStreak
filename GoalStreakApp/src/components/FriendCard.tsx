@@ -1,4 +1,4 @@
-// FriendCard Component - Simplified layout
+// FriendCard Component - Feed-style layout with profile photos
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -45,6 +45,15 @@ export default function FriendCard({
         : (friendRequest.toUserEmail || '');
     }
     return '';
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   const renderActions = () => {
@@ -98,20 +107,30 @@ export default function FriendCard({
 
   return (
     <View style={styles.container}>
-      <View style={styles.infoContainer}>
-        <Text style={styles.name} numberOfLines={1}>
-          {getName()}
+      {/* Profile Photo */}
+      <View style={styles.profilePhoto}>
+        <Text style={styles.initials}>
+          {getInitials(getName())}
         </Text>
-        <Text style={styles.email} numberOfLines={1}>
-          {getEmail()}
-        </Text>
-        {friendRequest?.message && (
-          <Text style={styles.message} numberOfLines={2}>
-            "{friendRequest.message}"
-          </Text>
-        )}
       </View>
-      {renderActions()}
+
+      {/* Content */}
+      <View style={styles.content}>
+        <View style={styles.infoContainer}>
+          <Text style={styles.name} numberOfLines={1}>
+            {getName()}
+          </Text>
+          <Text style={styles.email} numberOfLines={1}>
+            {getEmail()}
+          </Text>
+          {friendRequest?.message && (
+            <Text style={styles.message} numberOfLines={2}>
+              "{friendRequest.message}"
+            </Text>
+          )}
+        </View>
+        {renderActions()}
+      </View>
     </View>
   );
 }
@@ -119,14 +138,36 @@ export default function FriendCard({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+    marginHorizontal: -12,
+    paddingHorizontal: 12,
+  },
+  profilePhoto: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.accent3,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  initials: {
+    color: Colors.white,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  content: {
+    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 4,
   },
   infoContainer: {
     flex: 1,
-    marginRight: 12,
   },
   name: {
     fontSize: 16,
