@@ -1,0 +1,68 @@
+{
+  "unitTests": {
+    "executionTime": 1.671,
+    "target": 30,
+    "passed": false,
+    "error": "Command failed: npx jest src/__tests__/unit --passWithNoTests --silent\nFAIL src/__tests__/unit/basic.test.ts\n  ● Test suite failed to run\n\n    ReferenceError: You are trying to `import` a file outside of the scope of the test code.\n\n      at Runtime._execModule (node_modules/jest-runtime/build/index.js:1216:13)\n      at node_modules/expo/src/winter/runtime.native.ts:28:10\n      at node_modules/expo/src/winter/runtime.native.ts:15:29\n      at Object.getValue [as __ExpoImportMetaRegistry] (node_modules/react-native/Libraries/Utilities/defineLazyObjectProperty.js:16:16)\n\nFAIL src/__tests__/unit/setup.test.ts\n  ● Test suite failed to run\n\n    ReferenceError: You are trying to `import` a file outside of the scope of the test code.\n\n      at Runtime._execModule (node_modules/jest-runtime/build/index.js:1216:13)\n      at node_modules/expo/src/winter/runtime.native.ts:28:10\n      at node_modules/expo/src/winter/runtime.native.ts:15:29\n      at Object.getValue [as __ExpoImportMetaRegistry] (node_modules/react-native/Libraries/Utilities/defineLazyObjectProperty.js:16:16)\n\nFAIL src/__tests__/unit/authService.test.tsx\n  ● Test suite failed to run\n\n    ReferenceError: You are trying to `import` a file outside of the scope of the test code.\n\n      at Runtime._execModule (node_modules/jest-runtime/build/index.js:1216:13)\n      at node_modules/expo/src/winter/runtime.native.ts:28:10\n      at node_modules/expo/src/winter/runtime.native.ts:15:29\n      at Object.getValue [as __ExpoImportMetaRegistry] (node_modules/react-native/Libraries/Utilities/defineLazyObjectProperty.js:16:16)\n\nFAIL src/__tests__/unit/socialService.test.ts\n  ● Test suite failed to run\n\n    TypeError: (0 , _firestore.collection) is not a function\n\n      36 | class FriendService {\n      37 |   // Collections\n    > 38 |   private friendsCollection = collection(db, 'friends');\n         |                                         ^\n      39 |   private friendRequestsCollection = collection(db, 'friendRequests');\n      40 |   private activitiesCollection = collection(db, 'activities');\n      41 |   private socialSettingsCollection = collection(db, 'socialSettings');\n\n      at new FriendService (src/services/friendService.ts:38:41)\n      at Object.<anonymous> (src/services/friendService.ts:655:30)\n      at Object.require (src/__tests__/unit/socialService.test.ts:42:1)\n\nFAIL src/__tests__/unit/habitService.test.ts\n  ● Test suite failed to run\n\n    ReferenceError: You are trying to `import` a file outside of the scope of the test code.\n\n      at Runtime._execModule (node_modules/jest-runtime/build/index.js:1216:13)\n      at node_modules/expo/src/winter/runtime.native.ts:28:10\n      at node_modules/expo/src/winter/runtime.native.ts:15:29\n      at Object.getValue [as __ExpoImportMetaRegistry] (node_modules/react-native/Libraries/Utilities/defineLazyObjectProperty.js:16:16)\n\nTest Suites: 5 failed, 5 total\nTests:       0 total\nSnapshots:   0 total\nTime:        0.729 s\n",
+    "timedOut": false
+  },
+  "e2eTests": {
+    "executionTime": 0.59,
+    "target": 300,
+    "passed": true,
+    "configured": true,
+    "dryRun": true,
+    "output": "\n> goalstreakapp@1.0.0 test:e2e\n> detox test --dry-run\n\nE2E dry run completed\n"
+  },
+  "securityScan": {
+    "executionTime": 0.434,
+    "target": 60,
+    "passed": true,
+    "configured": true,
+    "criticalIssues": 0,
+    "totalIssues": 0,
+    "performanceTarget": true
+  },
+  "cicdIntegration": {
+    "passed": true,
+    "ciFiles": [
+      ".github/workflows/ci.yml",
+      ".github/workflows/test-reporting.yml"
+    ],
+    "ciScripts": [
+      "test:ci",
+      "test:coverage"
+    ],
+    "configured": true,
+    "scriptsConfigured": true
+  },
+  "reliability": {
+    "runs": 3,
+    "passedRuns": 0,
+    "passRate": 0,
+    "target": 95,
+    "passed": false,
+    "avgExecutionTime": 1.0653333333333332,
+    "results": [
+      {
+        "run": 1,
+        "passed": false,
+        "executionTime": 1.075,
+        "error": "Command failed: npx jest src/__tests__/unit/basic.test.ts --passWithNoTests --silent\nFAIL src/__tests__/unit/basic.test.ts\n  ● Test suite failed to run\n\n    ReferenceError: You are trying to `import` a file outside of the scope of the test code.\n\n      at Runtime._execModule (node_modules/jest-runtime/build/index.js:1216:13)\n      at node_modules/expo/src/winter/runtime.native.ts:28:10\n      at node_modules/expo/src/winter/runtime.native.ts:15:29\n      at Object.getValue [as __ExpoImportMetaRegistry] (node_modules/react-native/Libraries/Utilities/defineLazyObjectProperty.js:16:16)\n\nTest Suites: 1 failed, 1 total\nTests:       0 total\nSnapshots:   0 total\nTime:        0.193 s\n"
+      },
+      {
+        "run": 2,
+        "passed": false,
+        "executionTime": 1.07,
+        "error": "Command failed: npx jest src/__tests__/unit/basic.test.ts --passWithNoTests --silent\nFAIL src/__tests__/unit/basic.test.ts\n  ● Test suite failed to run\n\n    ReferenceError: You are trying to `import` a file outside of the scope of the test code.\n\n      at Runtime._execModule (node_modules/jest-runtime/build/index.js:1216:13)\n      at node_modules/expo/src/winter/runtime.native.ts:28:10\n      at node_modules/expo/src/winter/runtime.native.ts:15:29\n      at Object.getValue [as __ExpoImportMetaRegistry] (node_modules/react-native/Libraries/Utilities/defineLazyObjectProperty.js:16:16)\n\nTest Suites: 1 failed, 1 total\nTests:       0 total\nSnapshots:   0 total\nTime:        0.193 s\n"
+      },
+      {
+        "run": 3,
+        "passed": false,
+        "executionTime": 1.051,
+        "error": "Command failed: npx jest src/__tests__/unit/basic.test.ts --passWithNoTests --silent\nFAIL src/__tests__/unit/basic.test.ts\n  ● Test suite failed to run\n\n    ReferenceError: You are trying to `import` a file outside of the scope of the test code.\n\n      at Runtime._execModule (node_modules/jest-runtime/build/index.js:1216:13)\n      at node_modules/expo/src/winter/runtime.native.ts:28:10\n      at node_modules/expo/src/winter/runtime.native.ts:15:29\n      at Object.getValue [as __ExpoImportMetaRegistry] (node_modules/react-native/Libraries/Utilities/defineLazyObjectProperty.js:16:16)\n\nTest Suites: 1 failed, 1 total\nTests:       0 total\nSnapshots:   0 total\nTime:        0.191 s\n"
+      }
+    ]
+  },
+  "recommendations": []
+}

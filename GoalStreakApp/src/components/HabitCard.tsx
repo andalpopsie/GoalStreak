@@ -74,7 +74,10 @@ export default function HabitCard({
   };
 
   return (
-    <View style={[styles.container, isCompleted && styles.completedContainer]}>
+    <View 
+      style={[styles.container, isCompleted && styles.completedContainer]}
+      testID="habit-card-container"
+    >
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.habitInfo}>
@@ -104,12 +107,26 @@ export default function HabitCard({
         {/* Actions */}
         <View style={styles.actions}>
           {onEdit && (
-            <TouchableOpacity onPress={onEdit} style={styles.actionButton}>
+            <TouchableOpacity 
+              onPress={onEdit} 
+              style={styles.actionButton}
+              testID="edit-button"
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel={`Edit ${habit.name} habit`}
+            >
               <Ionicons name="pencil" size={16} color={Colors.accent2} />
             </TouchableOpacity>
           )}
           {onDelete && (
-            <TouchableOpacity onPress={handleDelete} style={styles.actionButton}>
+            <TouchableOpacity 
+              onPress={handleDelete} 
+              style={styles.actionButton}
+              testID="delete-button"
+              accessible={true}
+              accessibilityRole="button"
+              accessibilityLabel={`Delete ${habit.name} habit`}
+            >
               <Ionicons name="trash" size={16} color={Colors.error} />
             </TouchableOpacity>
           )}
@@ -150,6 +167,10 @@ export default function HabitCard({
         ]}
         onPress={handleToggleComplete}
         disabled={isLoading}
+        testID="complete-button"
+        accessible={true}
+        accessibilityRole="button"
+        accessibilityLabel={`${isCompleted ? 'Mark as incomplete' : 'Mark as complete'} ${habit.name} habit${isCompleted ? ', currently completed' : ''}`}
       >
         <View style={styles.completeButtonContent}>
           {isLoading ? (

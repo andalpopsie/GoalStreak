@@ -17,6 +17,12 @@ export const Colors = {
     dark: '#666666',
   },
   
+  // Legacy color names for backward compatibility
+  primary: '#154D71',          // Same as primaryText
+  secondaryText: '#666666',    // Same as gray.dark
+  border: '#E8E8E8',          // Same as gray.light
+  surface: '#FFFFFF',         // Same as white
+  
   // Semantic Colors
   success: '#4A90A4',          // Updated teal
   warning: '#FF894F',          // New warm orange
@@ -43,11 +49,44 @@ export const Typography = {
     xs: 12,
     sm: 14,
     base: 16,
+    md: 16,              // Added for backward compatibility
     lg: 18,
     xl: 20,
     '2xl': 24,
     '3xl': 30,
     '4xl': 36,
+  },
+  
+  // Typography styles for backward compatibility
+  h1: {
+    fontSize: 36,
+    fontWeight: '700',
+    lineHeight: 1.2,
+  },
+  h2: {
+    fontSize: 30,
+    fontWeight: '700',
+    lineHeight: 1.2,
+  },
+  h3: {
+    fontSize: 24,
+    fontWeight: '600',
+    lineHeight: 1.3,
+  },
+  h4: {
+    fontSize: 20,
+    fontWeight: '600',
+    lineHeight: 1.3,
+  },
+  body: {
+    fontSize: 16,
+    fontWeight: '400',
+    lineHeight: 1.4,
+  },
+  caption: {
+    fontSize: 14,
+    fontWeight: '400',
+    lineHeight: 1.4,
   },
   
   // Font Weights

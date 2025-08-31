@@ -193,7 +193,7 @@ export const useFriends = (): UseFriendsReturn => {
     setError(null);
     
     try {
-      const feedData = await friendService.getActivityFeed(user.id, 20);
+      const feedData = await friendService.getActivityFeed(user.id, undefined, 20);
       setActivityFeed(feedData.activities);
       setHasMoreActivities(feedData.hasMore);
     } catch (err: any) {
@@ -233,7 +233,7 @@ export const useFriends = (): UseFriendsReturn => {
     
     try {
       const updatedSettings = { ...socialSettings!, ...settings, updatedAt: new Date() };
-      await friendService.updateSocialSettings(updatedSettings);
+      await friendService.updateSocialSettings(user.id, updatedSettings);
       setSocialSettings(updatedSettings);
     } catch (err: any) {
       console.error('Error updating social settings:', err);

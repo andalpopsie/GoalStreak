@@ -164,6 +164,11 @@ export default function AnimatedCircularHabitCard({
         disabled={isLoading}
         activeOpacity={0.8}
         style={styles.touchable}
+        testID="habit-card-button"
+        accessible={true}
+        accessibilityRole="button"
+        accessibilityLabel={`${habit.name} habit${isCompleted ? ', completed' : ''}${isLoading ? ', loading' : ''}`}
+        accessibilityHint={isCompleted ? 'Double tap to mark as incomplete' : 'Double tap to mark as complete'}
       >
         {/* Progress Ring */}
         <View style={styles.progressContainer}>

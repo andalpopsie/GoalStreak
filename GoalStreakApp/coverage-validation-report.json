@@ -1,0 +1,134 @@
+{
+  "overall": {
+    "statements": 0,
+    "branches": 0,
+    "functions": 0,
+    "lines": 0
+  },
+  "critical": {
+    "src/services/": {
+      "coverage": 0,
+      "files": 4,
+      "totalStatements": 430,
+      "coveredStatements": 0
+    },
+    "src/hooks/": {
+      "coverage": 0,
+      "files": 7,
+      "totalStatements": 456,
+      "coveredStatements": 0
+    },
+    "src/utils/": {
+      "coverage": 0,
+      "files": 4,
+      "totalStatements": 247,
+      "coveredStatements": 0
+    },
+    "src/components/": {
+      "coverage": 0,
+      "files": 17,
+      "totalStatements": 312,
+      "coveredStatements": 0
+    }
+  },
+  "security": {
+    "src/utils/inputValidation.ts": {
+      "coverage": 0,
+      "exists": true,
+      "path": "/Users/popsieandal/Documents/GoalStreak/GoalStreakApp/src/utils/inputValidation.ts"
+    },
+    "src/services/firebase.ts": {
+      "coverage": 0,
+      "exists": true,
+      "path": "/Users/popsieandal/Documents/GoalStreak/GoalStreakApp/src/services/firebase.ts"
+    },
+    "src/hooks/useAuth.tsx": {
+      "coverage": 0,
+      "exists": true,
+      "path": "/Users/popsieandal/Documents/GoalStreak/GoalStreakApp/src/hooks/useAuth.tsx"
+    }
+  },
+  "recommendations": [
+    {
+      "type": "overall",
+      "priority": "high",
+      "metric": "statements",
+      "target": 80,
+      "actual": "0.00",
+      "message": "statements coverage (0.00%) is below target (80%)"
+    },
+    {
+      "type": "overall",
+      "priority": "high",
+      "metric": "branches",
+      "target": 80,
+      "actual": "0.00",
+      "message": "branches coverage (0.00%) is below target (80%)"
+    },
+    {
+      "type": "overall",
+      "priority": "high",
+      "metric": "functions",
+      "target": 80,
+      "actual": "0.00",
+      "message": "functions coverage (0.00%) is below target (80%)"
+    },
+    {
+      "type": "overall",
+      "priority": "high",
+      "metric": "lines",
+      "target": 80,
+      "actual": "0.00",
+      "message": "lines coverage (0.00%) is below target (80%)"
+    },
+    {
+      "type": "critical",
+      "priority": "high",
+      "path": "src/services/",
+      "coverage": "0.00",
+      "message": "Critical path src/services/ has low coverage (0.00%)"
+    },
+    {
+      "type": "critical",
+      "priority": "high",
+      "path": "src/hooks/",
+      "coverage": "0.00",
+      "message": "Critical path src/hooks/ has low coverage (0.00%)"
+    },
+    {
+      "type": "critical",
+      "priority": "high",
+      "path": "src/utils/",
+      "coverage": "0.00",
+      "message": "Critical path src/utils/ has low coverage (0.00%)"
+    },
+    {
+      "type": "critical",
+      "priority": "high",
+      "path": "src/components/",
+      "coverage": "0.00",
+      "message": "Critical path src/components/ has low coverage (0.00%)"
+    },
+    {
+      "type": "security",
+      "priority": "critical",
+      "file": "src/utils/inputValidation.ts",
+      "coverage": "0.00",
+      "message": "Security-critical file src/utils/inputValidation.ts has insufficient coverage (0.00%)"
+    },
+    {
+      "type": "security",
+      "priority": "critical",
+      "file": "src/services/firebase.ts",
+      "coverage": "0.00",
+      "message": "Security-critical file src/services/firebase.ts has insufficient coverage (0.00%)"
+    },
+    {
+      "type": "security",
+      "priority": "critical",
+      "file": "src/hooks/useAuth.tsx",
+      "coverage": "0.00",
+      "message": "Security-critical file src/hooks/useAuth.tsx has insufficient coverage (0.00%)"
+    }
+  ]
+}

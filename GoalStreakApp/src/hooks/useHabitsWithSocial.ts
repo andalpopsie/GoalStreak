@@ -37,7 +37,7 @@ export const useHabitsWithSocial = () => {
       }
     } catch (socialError) {
       // Social sharing failures are non-critical
-      console.log('Social sharing failed (non-critical):', socialError.message);
+      console.log('Social sharing failed (non-critical):', socialError instanceof Error ? socialError.message : String(socialError));
     }
   }, [habitsHook.completeHabit, habitsHook.habits, habitsHook.getHabitStreak, shareHabitCompletion, shareStreakMilestone, socialSettings]);
 

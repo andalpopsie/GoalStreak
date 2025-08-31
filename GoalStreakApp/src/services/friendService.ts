@@ -610,7 +610,10 @@ class FriendService {
           id: doc.id,
           name: userData.name || userData.displayName || userData.firstName || '',
           email: userData.email || '',
-          profilePhoto: userData.profilePhoto || null
+          avatar: userData.avatar || userData.profilePhoto || undefined,
+          mutualFriends: 0, // TODO: Calculate mutual friends
+          isFriend: false, // TODO: Check if already friends
+          hasPendingRequest: false // TODO: Check for pending requests
         });
       });
 
@@ -632,7 +635,10 @@ class FriendService {
               id: doc.id,
               name: userData.name || userData.displayName || userData.firstName || '',
               email: userData.email || '',
-              profilePhoto: userData.profilePhoto || null
+              avatar: userData.avatar || userData.profilePhoto || undefined,
+              mutualFriends: 0, // TODO: Calculate mutual friends
+              isFriend: false, // TODO: Check if already friends
+              hasPendingRequest: false // TODO: Check for pending requests
             });
           }
         });

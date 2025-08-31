@@ -160,6 +160,8 @@ export type MainTabParamList = {
   Home: undefined;
   Habits: undefined;
   Feed: undefined;
+  Social: undefined;
+  Analytics: undefined;
   Profile: undefined;
 };
 

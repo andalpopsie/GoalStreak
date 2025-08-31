@@ -53,7 +53,15 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
     isPublic: false,
   });
   
-  const [errors, setErrors] = useState<Partial<CreateHabitForm>>({});
+  const [errors, setErrors] = useState<{
+    name?: string;
+    category?: string;
+    frequency?: string;
+    targetValue?: string;
+    unit?: string;
+    icon?: string;
+    isPublic?: string;
+  }>({});
   
   // Icon picker state
   const [showIconPicker, setShowIconPicker] = useState(false);
@@ -78,7 +86,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
       newErrors.unit = 'Unit is required when target value is set';
     }
 
-    setErrors(newErrors);
+    setErrors(newErrors as any);
     return Object.keys(newErrors).length === 0;
   };
 

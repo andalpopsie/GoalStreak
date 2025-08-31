@@ -154,7 +154,7 @@ export default function HomeScreen() {
                 <HabitCard
                   key={habit.id}
                   habit={habit}
-                  streak={getHabitStreak(habit.id)}
+                  streak={getHabitStreak(habit.id) || undefined}
                   isCompleted={false}
                   isLoading={isCompleting}
                   onComplete={() => handleCompleteHabit(habit.id)}
@@ -167,7 +167,7 @@ export default function HomeScreen() {
                 <HabitCard
                   key={habit.id}
                   habit={habit}
-                  streak={getHabitStreak(habit.id)}
+                  streak={getHabitStreak(habit.id) || undefined}
                   isCompleted={true}
                   isLoading={isCompleting}
                   onComplete={() => handleCompleteHabit(habit.id)}

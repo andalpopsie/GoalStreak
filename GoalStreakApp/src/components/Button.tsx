@@ -37,11 +37,20 @@ export default function Button({
       onPress={handlePress}
       disabled={disabled || loading}
       activeOpacity={0.7}
+      testID="button"
+      accessible={true}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      accessibilityState={{
+        disabled: disabled || loading,
+        busy: loading,
+      }}
     >
       {loading ? (
         <ActivityIndicator 
           color={variant === 'primary' ? Colors.white : Colors.primaryText} 
-          size="small" 
+          size="small"
+          testID="loading-indicator"
         />
       ) : (
         <Text style={textStyle}>{title}</Text>

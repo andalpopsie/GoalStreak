@@ -12,10 +12,40 @@ interface CircularHabitCardProps {
   isLoading?: boolean;
   onToggle: () => void;
 }
+
+const CATEGORY_COLORS: Record<string, string> = {
+  fitness: Colors.accent1,      // Orange
   mindfulness: Colors.accent3,  // Teal
   social: Colors.accent2,       // Blue
   learning: Colors.primaryText, // Navy
   other: Colors.accent1,        // Orange
+  // Add all other categories with fallback
+  health: Colors.accent3,
+  wellness: Colors.accent3,
+  nutrition: Colors.accent1,
+  productivity: Colors.primaryText,
+  creative: Colors.accent2,
+  hygiene: Colors.accent3,
+  cleaning: Colors.accent2,
+  skincare: Colors.accent3,
+  workout: Colors.accent1,
+  running: Colors.accent1,
+  yoga: Colors.accent3,
+  cycling: Colors.accent1,
+  swimming: Colors.accent1,
+  sleep: Colors.accent3,
+  meditation: Colors.accent3,
+  breathing: Colors.accent3,
+  water: Colors.accent3,
+  diet: Colors.accent1,
+  vitamins: Colors.accent3,
+  writing: Colors.primaryText,
+  coding: Colors.primaryText,
+  family: Colors.accent2,
+  friends: Colors.accent2,
+  music: Colors.accent2,
+  art: Colors.accent2,
+  photography: Colors.accent2,
 };
 
 export default function CircularHabitCard({

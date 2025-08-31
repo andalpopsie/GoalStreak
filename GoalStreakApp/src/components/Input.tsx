@@ -43,6 +43,7 @@ export default function Input({
         ]}
         onPress={handleContainerPress}
         activeOpacity={1}
+        testID="input-container"
       >
         <TextInput
           ref={inputRef}
@@ -65,6 +66,12 @@ export default function Input({
           spellCheck={false}
           blurOnSubmit={!multiline}
           returnKeyType={multiline ? 'default' : 'next'}
+          testID="text-input"
+          accessible={true}
+          accessibilityLabel={label || placeholder}
+          accessibilityState={{
+            invalid: !!error
+          }}
           {...props}
         />
         
@@ -72,6 +79,10 @@ export default function Input({
           <TouchableOpacity
             style={styles.passwordToggle}
             onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+            testID="password-toggle"
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel={`${isPasswordVisible ? 'Hide' : 'Show'} password`}
           >
             <Ionicons
               name={isPasswordVisible ? 'eye-off' : 'eye'}

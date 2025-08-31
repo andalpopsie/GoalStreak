@@ -1,0 +1,28 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "allowJs": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "types": ["jest", "@types/jest", "detox/globals"]
+  },
+  "include": [
+    "src/**/*",
+    "e2e/**/*",
+    "__tests__/**/*",
+    "jest.config.js",
+    ".detoxrc.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build"
+  ]
+}

@@ -1,6 +1,6 @@
 // Firebase Configuration for GoalStreak
 import { initializeApp } from 'firebase/app';
-import { getAuth, initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import { getAuth, initializeAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -29,25 +29,14 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Auth with AsyncStorage persistence
-let auth;
-try {
-  auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(AsyncStorage)
-  });
-} catch (error) {
-  // If already initialized, get the existing instance
-  auth = getAuth(app);
-}
+// Initialize Firebase Auth
+export const auth = getAuth(app);
 
 // Initialize Firestore
 export const db = getFirestore(app);
 
 // Initialize Storage
 export const storage = getStorage(app);
-
-// Export auth
-export { auth };
 
 // Export the app
 export default app;

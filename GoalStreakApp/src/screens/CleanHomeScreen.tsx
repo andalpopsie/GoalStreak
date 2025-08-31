@@ -109,6 +109,7 @@ export default function CleanHomeScreen({ navigation }: any) {
           <RefreshControl refreshing={isLoading} onRefresh={refreshHabits} />
         }
         showsVerticalScrollIndicator={false}
+        testID="scroll-view"
       >
         {/* Today's Progress */}
         {uniqueHabits.length > 0 && (
@@ -129,7 +130,9 @@ export default function CleanHomeScreen({ navigation }: any) {
           </View>
         ) : uniqueHabits.length === 0 ? (
           /* Show empty state when no habits */
-          <EmptyHabitsState onCreateHabit={navigateToCreateHabit} />
+          <View testID="empty-habits-state">
+            <EmptyHabitsState onCreateHabit={navigateToCreateHabit} />
+          </View>
         ) : (
           <Animated.View style={styles.habitsGrid} entering={FadeIn.duration(600)}>
             {/* Show all habits once, regardless of completion status */}
