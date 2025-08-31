@@ -1,6 +1,6 @@
 module.exports = {
   preset: 'jest-expo',
-  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/__tests__/utils/testSetup.ts'],
   testMatch: [
     '**/__tests__/**/*.test.{js,jsx,ts,tsx}',
     '**/?(*.)+(spec|test).{js,jsx,ts,tsx}'
@@ -8,7 +8,7 @@ module.exports = {
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',
-    '!src/__tests__/**',
+    '!__tests__/**',
     '!src/__mocks__/**',
     '!src/utils/testDataGenerator.ts',
     '!src/screens/CreateHabitScreenNew.tsx',

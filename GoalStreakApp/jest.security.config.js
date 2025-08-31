@@ -9,18 +9,18 @@ module.exports = {
   preset: 'react-native',
   displayName: 'Security Tests',
   testMatch: [
-    '<rootDir>/src/__tests__/security/**/*.test.{js,jsx,ts,tsx}'
+    '<rootDir>/__tests__/security/**/*.test.{js,jsx,ts,tsx}'
   ],
   setupFilesAfterEnv: [
-    '<rootDir>/src/__tests__/setup.ts',
-    '<rootDir>/src/__tests__/security/securitySetup.ts'
+    '<rootDir>/__tests__/utils/testSetup.ts',
+    '<rootDir>/__tests__/security/securitySetup.ts'
   ],
   collectCoverageFrom: [
     'src/utils/inputValidation.ts',
     'src/services/**/*.ts',
     'src/hooks/useAuth.tsx',
     '!src/**/*.d.ts',
-    '!src/__tests__/**',
+    '!__tests__/**',
     '!src/__mocks__/**'
   ],
   coverageThreshold: {
@@ -38,9 +38,9 @@ module.exports = {
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
-    '^react-native$': '<rootDir>/src/__tests__/mocks/react-native.js',
-    '^@react-native/(.*)$': '<rootDir>/src/__tests__/mocks/react-native.js',
-    '^expo/(.*)$': '<rootDir>/src/__tests__/mocks/expo.js'
+    '^react-native$': '<rootDir>/__tests__/mocks/react-native.js',
+    '^@react-native/(.*)$': '<rootDir>/__tests__/mocks/react-native.js',
+    '^expo/(.*)$': '<rootDir>/__tests__/mocks/expo.js'
   },
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',

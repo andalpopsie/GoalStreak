@@ -7,13 +7,13 @@ export default {
   preset: 'react-native',
   displayName: 'Performance Tests',
   testMatch: [
-    '<rootDir>/src/__tests__/performance/**/*.test.{js,jsx,ts,tsx}',
+    '<rootDir>/__tests__/performance/**/*.test.{js,jsx,ts,tsx}',
   ],
-  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/__tests__/utils/testSetup.ts'],
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',
-    '!src/__tests__/**',
+    '!__tests__/**',
     '!src/__mocks__/**',
   ],
   coverageDirectory: 'coverage/performance',
@@ -31,9 +31,9 @@ export default {
     'node_modules/(?!(react-native|@react-native|expo|@expo))'
   ],
   moduleNameMapper: {
-    '^react-native$': '<rootDir>/src/__tests__/mocks/react-native.js',
-    '^@react-native/(.*)$': '<rootDir>/src/__tests__/mocks/react-native.js',
-    '^expo/(.*)$': '<rootDir>/src/__tests__/mocks/expo.js'
+    '^react-native$': '<rootDir>/__tests__/mocks/react-native.js',
+    '^@react-native/(.*)$': '<rootDir>/__tests__/mocks/react-native.js',
+    '^expo/(.*)$': '<rootDir>/__tests__/mocks/expo.js'
   },
   globals: {
     __DEV__: false,

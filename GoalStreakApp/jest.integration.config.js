@@ -9,10 +9,10 @@ module.exports = {
   ...baseConfig,
   displayName: 'Integration Tests',
   testMatch: [
-    '<rootDir>/src/__tests__/integration/**/*.test.{js,jsx,ts,tsx}'
+    '<rootDir>/__tests__/integration/**/*.test.{js,jsx,ts,tsx}'
   ],
   setupFilesAfterEnv: [
-    '<rootDir>/src/__tests__/integration/setup.ts'
+    '<rootDir>/__tests__/utils/testSetup.ts'
   ],
   testEnvironment: 'node',
   // Longer timeout for integration tests
@@ -26,7 +26,7 @@ module.exports = {
     'src/services/**/*.{js,jsx,ts,tsx}',
     'src/hooks/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',
-    '!src/__tests__/**',
+    '!__tests__/**',
     '!src/__mocks__/**'
   ],
   coverageDirectory: 'coverage/integration',
