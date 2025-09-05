@@ -2,6 +2,90 @@
 
 ---
 
+## Profile Photo System Architecture Decisions
+
+#### FileSystem + AsyncStorage Over Firebase Storage Only
+**Date**: September 5, 2025  
+**Decision**: Use expo-file-system for permanent local storage with AsyncStorage indexing, rather than Firebase Storage only  
+**Rationale**:
+- Immediate photo availability without network dependency
+- Faster loading times for frequently accessed profile photos
+- Reduced Firebase Storage costs and bandwidth usage
+- Better offline experience and app responsiveness
+- Local caching with cloud sync capability for future enhancement
+
+**Implementation**:
+```typescript
+// Copy to permanent location
+const permanentUri = `${FileSystem.documentDirectory}profile_${userId}.jpg`;
+await FileSystem.copyAsync({ from: imageUri, to: permanentUri });
+
+// Index in AsyncStorage for quick lookup
+await AsyncStorage.setItem(`profileImage_${userId}`, permanentUri);
+```
+
+#### Multiple User ID Fallback Strategy
+**Date**: September 5, 2025  
+**Decision**: Support multiple user identification patterns (uid, id, email-based) for profile photo storage  
+**Rationale**:
+- Different authentication providers may use different ID formats
+- Ensures compatibility across various user account types
+- Provides graceful fallback when primary ID is unavailable
+- Future-proofs against authentication system changes
+
+**Implementation**:
+```typescript
+const userId = user?.uid || user?.id || user?.email?.replace(/[^a-zA-Z0-9]/g, '_') || 'anonymous';
+```
+
+---
+
+## Timer System Architecture Decisions
+
+#### Local Timer Implementation Over Service-Based Architecture
+**Date**: September 2, 2025  
+**Decision**: Implement timer using local React state and intervals instead of complex timer service  
+**Rationale**:
+- Simpler, more reliable implementation with fewer moving parts
+- Direct control over timer state without service layer complexity
+- Easier debugging and maintenance
+- Better performance with local state management
+- Eliminates validation issues and service synchronization problems
+
+**Implementation**:
+```typescript
+const [localTimer, setLocalTimer] = useState<{
+  isActive: boolean;
+  remainingTime: number;
+  totalDuration: number;
+  startTime: number;
+} | null>(null);
+```
+
+#### Progress Ring Integration Strategy
+**Date**: September 2, 2025  
+**Decision**: Pass local timer state directly to TimerProgressRing component  
+**Rationale**:
+- Ensures visual progress matches actual timer state
+- Eliminates synchronization issues between timer logic and UI
+- Real-time visual feedback without additional complexity
+- Clean separation of concerns with explicit prop passing
+
+**Implementation**: Direct timer state transformation in component props
+
+#### Timer Update Frequency and Performance
+**Date**: September 2, 2025  
+**Decision**: Use 1-second intervals with requestAnimationFrame for progress updates  
+**Rationale**:
+- 1-second precision sufficient for habit timer use case
+- requestAnimationFrame prevents React render warnings
+- Balances accuracy with performance
+- Smooth visual animations without excessive CPU usage
+
+**Implementation**: `setInterval(callback, 1000)` with `requestAnimationFrame` for UI updates
+
+---
+
 ## Complete Social Platform Architecture Decisions
 
 #### Production-Ready Social Features Optimization

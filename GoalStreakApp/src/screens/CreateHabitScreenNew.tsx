@@ -12,8 +12,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius } from '../constants/theme';
 import { useHabits } from '../hooks/useHabits';
-import Button from '../components/Button';
-import IconPicker from '../components/IconPicker';
+import { Button } from '../components/common';
+import { IconPicker } from '../components/habit';
 import { CreateHabitForm, HabitCategory, HabitFrequency } from '../types';
 
 interface CreateHabitScreenNewProps {

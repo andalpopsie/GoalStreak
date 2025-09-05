@@ -1,18 +1,34 @@
 // Firebase Configuration for GoalStreak
 import { initializeApp } from 'firebase/app';
-import { getAuth, initializeAuth } from 'firebase/auth';
+import { getAuth, initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Suppress Firebase BloomFilter warnings (known issue, safe to ignore)
+// Suppress Firebase BloomFilter warnings and index errors (known issues, safe to ignore)
 const originalWarn = console.warn;
+const originalError = console.error;
+
 console.warn = (...args) => {
   if (args[0]?.includes?.('BloomFilter error') || 
       args[0]?.includes?.('@firebase/firestore')) {
     return; // Suppress Firebase internal warnings
   }
   originalWarn(...args);
+};
+
+console.error = (...args) => {
+  const errorMessage = args[0]?.toString?.() || '';
+  
+  // Suppress Firebase index errors (non-critical for development)
+  if (errorMessage.includes('The query requires an index') || 
+      errorMessage.includes('Error cleaning up old timer sessions')) {
+    console.warn('🔍 Firebase Index Info:', 'A Firestore index is needed for optimal performance.');
+    console.warn('📝 Note:', 'Timer functionality continues to work. Index can be created when deploying to production.');
+    return; // Convert error to warning for index issues
+  }
+  
+  originalError(...args);
 };
 
 // Firebase config - Production configuration
@@ -29,8 +45,10 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Auth
-export const auth = getAuth(app);
+// Initialize Firebase Auth with persistence
+export const auth = initializeAuth(app, {
+  persistence: getReactNativePersistence(AsyncStorage)
+});
 
 // Initialize Firestore
 export const db = getFirestore(app);

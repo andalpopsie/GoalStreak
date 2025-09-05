@@ -14,10 +14,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius } from '../constants/theme';
 import { LIMITS } from '../constants/limits';
 import { useHabits } from '../hooks/useHabits';
-import Button from '../components/Button';
-import SimpleInput from '../components/SimpleInput';
-import IconPicker from '../components/IconPicker';
-import { CreateHabitForm, HabitCategory, HabitFrequency } from '../types';
+import { Button, SimpleInput } from '../components/common';
+import { IconPicker } from '../components/habit';
+import { CreateHabitForm, HabitCategory, TimerConfig } from '../types';
+import { TimerToggle } from '../components/timer';
 
 interface CreateHabitScreenProps {
   navigation: any;
@@ -34,23 +34,18 @@ const HABIT_CATEGORIES: { value: HabitCategory; label: string; icon: string }[] 
   { value: 'other', label: 'Other', icon: 'ellipsis-horizontal' },
 ];
 
-const HABIT_FREQUENCIES: { value: HabitFrequency; label: string }[] = [
-  { value: 'daily', label: 'Daily' },
-  { value: 'weekly', label: 'Weekly' },
-  { value: 'monthly', label: 'Monthly' },
-];
-
 export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps) {
   const { createHabit, isCreating, habits } = useHabits();
   
   const [form, setForm] = useState<CreateHabitForm>({
     name: '',
     category: 'fitness',
-    frequency: 'daily',
+    frequency: 'daily', // Always daily
     targetValue: undefined,
     unit: '',
     icon: 'checkmark-circle', // Default icon
     isPublic: false,
+    timer: undefined, // Optional timer configuration
   });
   
   const [errors, setErrors] = useState<{
@@ -70,7 +65,15 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<CreateHabitForm> = {};
+    const newErrors: {
+      name?: string;
+      category?: string;
+      frequency?: string;
+      targetValue?: string;
+      unit?: string;
+      icon?: string;
+      isPublic?: string;
+    } = {};
 
     if (!form.name.trim()) {
       newErrors.name = 'Habit name is required';
@@ -86,7 +89,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
       newErrors.unit = 'Unit is required when target value is set';
     }
 
-    setErrors(newErrors as any);
+    setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -112,8 +115,8 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
     setForm({ ...form, category });
   };
 
-  const handleFrequencySelect = (frequency: HabitFrequency) => {
-    setForm({ ...form, frequency });
+  const handleTimerConfigChange = (timerConfig: TimerConfig | undefined) => {
+    setForm({ ...form, timer: timerConfig });
   };
 
   return (
@@ -167,7 +170,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
 
           {/* Icon & Category Selection */}
           <View style={styles.selectionSection}>
-            <Text style={styles.sectionTitle}>Customize Your Habit</Text>
+            <Text style={styles.sectionTitle}>Icon & Category</Text>
             
             <View style={styles.iconCategoryRow}>
               <View style={styles.iconContainer}>
@@ -237,64 +240,19 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
             )}
           </View>
 
-          {/* Frequency Selection */}
+          {/* Timer Configuration */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Frequency</Text>
-            <View style={styles.frequencyContainer}>
-              {HABIT_FREQUENCIES.map((frequency) => (
-                <TouchableOpacity
-                  key={frequency.value}
-                  style={[
-                    styles.frequencyButton,
-                    form.frequency === frequency.value && styles.frequencyButtonSelected
-                  ]}
-                  onPress={() => handleFrequencySelect(frequency.value)}
-                >
-                  <Text style={[
-                    styles.frequencyText,
-                    form.frequency === frequency.value && styles.frequencyTextSelected
-                  ]}>
-                    {frequency.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          {/* Target Value (Optional) */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Target Value (Optional)</Text>
-            <Text style={styles.sectionDescription}>
-              Set a specific target like "30 minutes" or "10 push-ups"
-            </Text>
-            
-            <View style={styles.targetContainer}>
-              <View style={styles.targetValueContainer}>
-                <SimpleInput
-                  placeholder="e.g., 30"
-                  value={form.targetValue?.toString() || ''}
-                  onChangeText={(value) => setForm({ 
-                    ...form, 
-                    targetValue: value ? parseInt(value) || undefined : undefined 
-                  })}
-                  keyboardType="numeric"
-                  error={errors.targetValue}
-                />
-              </View>
-              <View style={styles.targetUnitContainer}>
-                <SimpleInput
-                  placeholder="e.g., minutes"
-                  value={form.unit || ''}
-                  onChangeText={(unit) => setForm({ ...form, unit })}
-                  error={errors.unit}
-                />
-              </View>
-            </View>
+            <Text style={styles.sectionTitle}>Timer</Text>
+            <TimerToggle
+              timerConfig={form.timer}
+              onTimerConfigChange={handleTimerConfigChange}
+              habitName={form.name || 'New Habit'}
+            />
           </View>
 
           {/* Privacy Settings */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Privacy</Text>
+            <Text style={styles.sectionTitle}>Visibility</Text>
             <TouchableOpacity
               style={styles.privacyOption}
               onPress={() => setForm({ ...form, isPublic: !form.isPublic })}
@@ -402,13 +360,13 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
   },
   section: {
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.md,
   },
   inputSection: {
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.md,
   },
   selectionSection: {
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.md,
     position: 'relative',
   },
   iconCategoryRow: {
@@ -534,44 +492,6 @@ const styles = StyleSheet.create({
     color: Colors.accent1,
     fontWeight: Typography.fontWeight.medium,
   },
-  frequencyContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  frequencyButton: {
-    flex: 1,
-    backgroundColor: Colors.white,
-    padding: Spacing.md,
-    borderRadius: BorderRadius.md,
-    alignItems: 'center',
-    marginHorizontal: Spacing.xs,
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  frequencyButtonSelected: {
-    backgroundColor: Colors.accent1,
-    borderColor: Colors.accent1,
-  },
-  frequencyText: {
-    fontSize: Typography.fontSize.base,
-    color: Colors.primaryText,
-    fontWeight: Typography.fontWeight.medium,
-  },
-  frequencyTextSelected: {
-    color: Colors.white,
-  },
-  targetContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  targetValueContainer: {
-    flex: 1,
-    marginRight: Spacing.sm,
-  },
-  targetUnitContainer: {
-    flex: 2,
-    marginLeft: Spacing.sm,
-  },
   privacyOption: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -604,8 +524,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accent3,
   },
   buttonContainer: {
-    marginTop: Spacing.lg,
-    marginBottom: Spacing.xl,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.md,
   },
   // Icon Selection Styles
   iconSelector: {

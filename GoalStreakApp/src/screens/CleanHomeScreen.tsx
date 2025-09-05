@@ -17,10 +17,8 @@ import { LIMITS } from '../constants/limits';
 import { useAuth } from '../hooks/useAuth';
 import { useHabitsWithSocial } from '../hooks/useHabitsWithSocial'; // Re-enabled social features with error handling
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
-import SkeletonHabitCard from '../components/SkeletonHabitCard';
-import AnimatedCircularHabitCard from '../components/AnimatedCircularHabitCard';
-import OfflineBanner from '../components/OfflineBanner';
-import EmptyHabitsState from '../components/EmptyHabitsState';
+import { OfflineBanner } from '../components/common';
+import { SkeletonHabitCard, AnimatedCircularHabitCard, EmptyHabitsState } from '../components/habit';
 
 export default function CleanHomeScreen({ navigation }: any) {
   const { user } = useAuth();
@@ -242,7 +240,7 @@ const styles = StyleSheet.create({
   },
   habitCardContainer: {
     width: '48%',
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.xl * 2, // Extra space for timer controls
   },
   addHabitCard: {
     aspectRatio: 1,

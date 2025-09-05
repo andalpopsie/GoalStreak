@@ -12,9 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAnalytics } from '../hooks/useAnalytics';
-import StatsOverview from '../components/StatsOverview';
-import ProgressChart from '../components/ProgressChart';
-import InsightsCard from '../components/InsightsCard';
+import { StatsOverview, ProgressChart, InsightsCard } from '../components/analytics';
 
 export default function AnalyticsScreen() {
   const {
@@ -131,25 +129,9 @@ export default function AnalyticsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Analytics</Text>
-        <TouchableOpacity style={styles.refreshButton} onPress={handleRefresh}>
-          <Ionicons 
-            name="refresh" 
-            size={24} 
-            color={Colors.primaryText}
-            style={[
-              (isLoadingAnalytics || isLoadingTrends || isLoadingInsights) && styles.spinning
-            ]}
-          />
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView
-        style={styles.content}
-        refreshControl={
+    <ScrollView
+      style={styles.container}
+      refreshControl={
           <RefreshControl
             refreshing={isLoadingAnalytics}
             onRefresh={handleRefresh}
@@ -207,7 +189,6 @@ export default function AnalyticsScreen() {
         {/* Bottom Spacing */}
         <View style={styles.bottomSpacing} />
       </ScrollView>
-    </SafeAreaView>
   );
 }
 
@@ -215,28 +196,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+    marginTop: -50,
+    paddingTop: 50,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
+    paddingTop: Spacing.xs,
+    paddingBottom: Spacing.md,
   },
   title: {
     fontSize: Typography.fontSize['2xl'],
     fontWeight: Typography.fontWeight.bold,
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.bold,
-  },
-  refreshButton: {
-    padding: Spacing.sm,
-  },
-  spinning: {
-    // Add rotation animation if needed
-  },
-  content: {
-    flex: 1,
   },
   section: {
     marginVertical: Spacing.sm,

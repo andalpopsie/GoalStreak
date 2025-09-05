@@ -13,8 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
-import Button from '../components/Button';
-import SimpleInput from '../components/SimpleInput';
+import { Button, SimpleInput } from '../components/common';
 import { LoginForm } from '../types';
 
 interface LoginScreenProps {

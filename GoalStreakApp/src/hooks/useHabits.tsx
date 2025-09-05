@@ -1,7 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
+import { DeviceEventEmitter } from 'react-native';
 import { habitService, completionService, streakService } from '../services/habitService';
 import { useAuth } from './useAuth';
+import { useTimer } from '../contexts/TimerContext';
 import { Habit, HabitCompletion, Streak, CreateHabitForm } from '../types';
+import { TimerState } from '../types/timer';
 import { LIMITS } from '../constants/limits';
 
 interface UseHabitsReturn {
@@ -10,10 +13,15 @@ interface UseHabitsReturn {
   streaks: Record<string, Streak>;
   todayCompletions: Record<string, HabitCompletion>;
   
+  // Timer integration
+  activeTimers: Record<string, TimerState>;
+  timerSessions: any[];
+  
   // Loading states
   isLoading: boolean;
   isCreating: boolean;
   isCompleting: boolean;
+  isTimerLoading: boolean;
   
   // Actions
   createHabit: (habitData: CreateHabitForm) => Promise<void>;
@@ -24,13 +32,35 @@ interface UseHabitsReturn {
   refreshHabits: () => Promise<void>;
   clearAllHabits: () => Promise<void>; // TEMPORARY: For testing
   
+  // Timer actions
+  startHabitTimer: (habitId: string, duration: number) => Promise<void>;
+  pauseHabitTimer: (habitId: string) => Promise<void>;
+  resumeHabitTimer: (habitId: string) => Promise<void>;
+  resetHabitTimer: (habitId: string) => Promise<void>;
+  completeHabitTimer: (habitId: string) => Promise<void>;
+  
   // Utilities
   isHabitCompletedToday: (habitId: string) => boolean;
   getHabitStreak: (habitId: string) => Streak | null;
+  getHabitTimer: (habitId: string) => TimerState | null;
+  hasActiveTimer: (habitId: string) => boolean;
 }
 
 export function useHabits(): UseHabitsReturn {
   const { user } = useAuth();
+  
+  // Timer context integration
+  const {
+    activeTimers,
+    timerSessions,
+    isLoading: isTimerLoading,
+    startTimer,
+    pauseTimer,
+    resumeTimer,
+    resetTimer,
+    completeTimer,
+    updateTimerProgress
+  } = useTimer();
   
   // State
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -104,6 +134,62 @@ export function useHabits(): UseHabitsReturn {
     return unsubscribe;
   }, [user]);
 
+  // Set up timer progress updates
+  useEffect(() => {
+    if (Object.keys(activeTimers).length === 0) {
+      return;
+    }
+
+    // Update timer progress every second for active timers
+    const progressInterval = setInterval(() => {
+      Object.keys(activeTimers).forEach(habitId => {
+        const timer = activeTimers[habitId];
+        if (timer.isActive && !timer.isPaused) {
+          updateTimerProgress(habitId);
+        }
+      });
+    }, 1000);
+
+    return () => {
+      clearInterval(progressInterval);
+    };
+  }, [activeTimers, updateTimerProgress]);
+
+  // Set up timer completion event listener
+  useEffect(() => {
+    const handleTimerCompletion = async (event: any) => {
+      // DeviceEventEmitter passes data directly, not in event.detail
+      const { habitId, completedInBackground, completionMethod, timestamp } = event;
+      
+
+      if (!user) {
+        console.warn('No user available for timer completion');
+        return;
+      }
+
+      try {
+        // Check if habit is already completed today
+        const existingCompletion = await completionService.getTodayCompletion(habitId, user.id);
+        if (existingCompletion) {
+          return;
+        }
+        
+        // Complete the habit automatically when timer finishes
+        await completeHabitViaTimer(habitId);
+        
+      } catch (error) {
+        console.error('Error handling timer completion event:', error);
+      }
+    };
+
+    // Listen for timer completion events using React Native's DeviceEventEmitter
+    const subscription = DeviceEventEmitter.addListener('timerHabitCompletion', handleTimerCompletion);
+    
+    return () => {
+      subscription.remove();
+    };
+  }, [user]);
+
   // Create new habit
   const createHabit = useCallback(async (habitData: CreateHabitForm) => {
     if (!user) {
@@ -166,6 +252,12 @@ export function useHabits(): UseHabitsReturn {
 
     try {
       setIsCompleting(true);
+      
+      // If there's an active timer for this habit, complete it first
+      if (activeTimers[habitId]) {
+        await completeTimer(habitId);
+      }
+      
       await completionService.completeHabit(habitId, user.id, value, notes);
       
       // Refresh data to get updated streak and completion
@@ -187,7 +279,7 @@ export function useHabits(): UseHabitsReturn {
     } finally {
       setIsCompleting(false);
     }
-  }, [user]);
+  }, [user, activeTimers, completeTimer]);
 
   // Uncomplete habit
   const uncompleteHabit = useCallback(async (habitId: string) => {
@@ -236,6 +328,109 @@ export function useHabits(): UseHabitsReturn {
     }
   }, [user, loadHabits]);
 
+  // Timer-related methods
+  const startHabitTimer = useCallback(async (habitId: string, duration: number) => {
+    try {
+      await startTimer(habitId, duration);
+    } catch (error) {
+      console.error('Error starting habit timer:', error);
+      throw error;
+    }
+  }, [startTimer]);
+
+  const pauseHabitTimer = useCallback(async (habitId: string) => {
+    try {
+      await pauseTimer(habitId);
+    } catch (error) {
+      console.error('Error pausing habit timer:', error);
+      throw error;
+    }
+  }, [pauseTimer]);
+
+  const resumeHabitTimer = useCallback(async (habitId: string) => {
+    try {
+      await resumeTimer(habitId);
+    } catch (error) {
+      console.error('Error resuming habit timer:', error);
+      throw error;
+    }
+  }, [resumeTimer]);
+
+  const resetHabitTimer = useCallback(async (habitId: string) => {
+    try {
+      await resetTimer(habitId);
+    } catch (error) {
+      console.error('Error resetting habit timer:', error);
+      throw error;
+    }
+  }, [resetTimer]);
+
+  const completeHabitTimer = useCallback(async (habitId: string) => {
+    try {
+      // Complete the timer first
+      await completeTimer(habitId);
+      
+      // Then complete the habit automatically
+      await completeHabit(habitId);
+    } catch (error) {
+      console.error('Error completing habit timer:', error);
+      throw error;
+    }
+  }, [completeTimer, completeHabit]);
+
+  // Complete habit via timer (internal method for timer completion events)
+  const completeHabitViaTimer = useCallback(async (habitId: string) => {
+    if (!user) throw new Error('User not authenticated');
+
+    try {
+      setIsCompleting(true);
+      
+      // Get the timer session ID if available
+      let timerSessionId: string | undefined;
+      
+      // Try to get the most recent timer session for this habit
+      try {
+        const { timerSessionService } = await import('../services/timerService');
+        const sessions = await timerSessionService.getHabitTimerSessions(habitId);
+        const recentSession = sessions.find(session => 
+          session.completed && 
+          session.completionMethod === 'timer' &&
+          // Session completed within the last 5 minutes
+          new Date().getTime() - new Date(session.createdAt).getTime() < 5 * 60 * 1000
+        );
+        
+        if (recentSession) {
+          timerSessionId = recentSession.id;
+        }
+      } catch (error) {
+        console.error('Error getting timer session for completion:', error);
+        // Continue without timer session ID
+      }
+      
+      // Complete the habit with timer session reference
+      await completionService.completeHabit(habitId, user.id, undefined, 'Completed via timer', timerSessionId);
+      
+      // Refresh data to get updated streak and completion
+      const [completion, streak] = await Promise.all([
+        completionService.getTodayCompletion(habitId, user.id),
+        streakService.getStreak(habitId)
+      ]);
+      
+      if (completion) {
+        setTodayCompletions(prev => ({ ...prev, [habitId]: completion }));
+      }
+      
+      if (streak) {
+        setStreaks(prev => ({ ...prev, [habitId]: streak }));
+      }
+    } catch (error) {
+      console.error('Error completing habit via timer:', error);
+      throw error;
+    } finally {
+      setIsCompleting(false);
+    }
+  }, [user]);
+
   // Utility functions
   const isHabitCompletedToday = useCallback((habitId: string) => {
     return habitId in todayCompletions;
@@ -245,16 +440,29 @@ export function useHabits(): UseHabitsReturn {
     return streaks[habitId] || null;
   }, [streaks]);
 
+  const getHabitTimer = useCallback((habitId: string) => {
+    return activeTimers[habitId] || null;
+  }, [activeTimers]);
+
+  const hasActiveTimer = useCallback((habitId: string) => {
+    return habitId in activeTimers && activeTimers[habitId].isActive;
+  }, [activeTimers]);
+
   return {
     // Data
     habits,
     streaks,
     todayCompletions,
     
+    // Timer integration
+    activeTimers,
+    timerSessions,
+    
     // Loading states
     isLoading,
     isCreating,
     isCompleting,
+    isTimerLoading,
     
     // Actions
     createHabit,
@@ -265,8 +473,17 @@ export function useHabits(): UseHabitsReturn {
     refreshHabits,
     clearAllHabits, // TEMPORARY: For testing
     
+    // Timer actions
+    startHabitTimer,
+    pauseHabitTimer,
+    resumeHabitTimer,
+    resetHabitTimer,
+    completeHabitTimer,
+    
     // Utilities
     isHabitCompletedToday,
     getHabitStreak,
+    getHabitTimer,
+    hasActiveTimer,
   };
 }

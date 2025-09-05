@@ -13,10 +13,8 @@ import { Colors, Typography } from '../constants/theme';
 import { useFriends } from '../hooks/useFriends';
 import { useAuth } from '../hooks/useAuth';
 import { ReactionType, UserSearchResult } from '../types/social';
-import SearchModal from '../components/SearchModal';
-import AddFriendModal from '../components/AddFriendModal';
-import ActivityFeedTab from '../components/ActivityFeedTab';
-import FriendsTab from '../components/FriendsTab';
+import { SearchModal } from '../components/common';
+import { AddFriendModal, ActivityFeedTab, FriendsTab } from '../components/social';
 
 type TabType = 'feed' | 'friends';
 

@@ -17,12 +17,14 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { withRetry, RETRY_CONFIGS } from './retryService';
-import { Habit, HabitCompletion, Streak, CreateHabitForm } from '../types';
+import { Habit, HabitCompletion, Streak, CreateHabitForm, TimerConfig, TimerSession, TimerState } from '../types';
 
 // Collection references
 const HABITS_COLLECTION = 'habits';
 const COMPLETIONS_COLLECTION = 'completions';
 const STREAKS_COLLECTION = 'streaks';
+const TIMER_SESSIONS_COLLECTION = 'timerSessions';
+const TIMER_STATES_COLLECTION = 'timerStates';
 
 // Habit CRUD Operations
 export const habitService = {
@@ -48,6 +50,17 @@ export const habitService = {
       }
       if (habitData.icon) {
         habit.icon = habitData.icon;
+      }
+      
+      // Handle timer configuration with proper validation
+      if (habitData.timer && habitData.timer.enabled) {
+        habit.timer = {
+          enabled: habitData.timer.enabled,
+          durationMinutes: habitData.timer.durationMinutes,
+          autoComplete: habitData.timer.autoComplete,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        };
       }
 
       const docRef = await addDoc(collection(db, HABITS_COLLECTION), habit);
@@ -120,10 +133,30 @@ export const habitService = {
   async updateHabit(habitId: string, updates: Partial<Habit>): Promise<void> {
     try {
       const habitRef = doc(db, HABITS_COLLECTION, habitId);
-      await updateDoc(habitRef, {
+      
+      // Prepare update data
+      const updateData: any = {
         ...updates,
         updatedAt: new Date(),
-      });
+      };
+
+      // Handle timer configuration updates
+      if (updates.timer !== undefined) {
+        if (updates.timer && updates.timer.enabled) {
+          updateData.timer = {
+            enabled: updates.timer.enabled,
+            durationMinutes: updates.timer.durationMinutes,
+            autoComplete: updates.timer.autoComplete,
+            createdAt: updates.timer.createdAt || new Date(),
+            updatedAt: new Date()
+          };
+        } else {
+          // Remove timer configuration if disabled
+          updateData.timer = null;
+        }
+      }
+
+      await updateDoc(habitRef, updateData);
     } catch (error) {
       console.error('Error updating habit:', error);
       throw new Error('Failed to update habit');
@@ -260,22 +293,113 @@ export const habitService = {
     }
   },
 
+  // Get habit with timer configuration
+  async getHabitWithTimer(habitId: string): Promise<Habit | null> {
+    try {
+      const habitDoc = await getDoc(doc(db, HABITS_COLLECTION, habitId));
+      
+      if (!habitDoc.exists()) {
+        return null;
+      }
+      
+      const data = habitDoc.data();
+      return {
+        id: habitDoc.id,
+        ...data,
+        createdAt: data.createdAt.toDate(),
+        updatedAt: data.updatedAt.toDate(),
+        timer: data.timer ? {
+          ...data.timer,
+          createdAt: data.timer.createdAt?.toDate(),
+          updatedAt: data.timer.updatedAt?.toDate()
+        } : undefined
+      } as Habit;
+    } catch (error) {
+      console.error('Error getting habit with timer:', error);
+      return null;
+    }
+  },
+
+  // Update only timer configuration for a habit
+  async updateHabitTimer(habitId: string, timerConfig: TimerConfig | null): Promise<void> {
+    try {
+      const habitRef = doc(db, HABITS_COLLECTION, habitId);
+      
+      const updateData: any = {
+        updatedAt: new Date()
+      };
+
+      if (timerConfig && timerConfig.enabled) {
+        updateData.timer = {
+          enabled: timerConfig.enabled,
+          durationMinutes: timerConfig.durationMinutes,
+          autoComplete: timerConfig.autoComplete,
+          createdAt: timerConfig.createdAt || new Date(),
+          updatedAt: new Date()
+        };
+      } else {
+        // Remove timer configuration
+        updateData.timer = null;
+      }
+
+      await updateDoc(habitRef, updateData);
+    } catch (error) {
+      console.error('Error updating habit timer:', error);
+      throw new Error('Failed to update habit timer');
+    }
+  },
+
+  // Get all habits with timer configurations for a user
+  async getUserHabitsWithTimers(userId: string): Promise<Habit[]> {
+    try {
+      const q = query(
+        collection(db, HABITS_COLLECTION),
+        where('userId', '==', userId),
+        where('timer.enabled', '==', true)
+      );
+      
+      const querySnapshot = await getDocs(q);
+      const habits: Habit[] = [];
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        habits.push({
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt.toDate(),
+          updatedAt: data.updatedAt.toDate(),
+          timer: data.timer ? {
+            ...data.timer,
+            createdAt: data.timer.createdAt?.toDate(),
+            updatedAt: data.timer.updatedAt?.toDate()
+          } : undefined
+        } as Habit);
+      });
+      
+      // Sort by creation date
+      habits.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      
+      return habits;
+    } catch (error) {
+      console.error('Error fetching habits with timers:', error);
+      // Fallback to getting all habits and filtering
+      const allHabits = await this.getUserHabits(userId);
+      return allHabits.filter(habit => habit.timer?.enabled);
+    }
+  },
+
   // TEMPORARY: Clear all habits for a user (for testing)
   async clearAllHabits(userId: string): Promise<void> {
     try {
-      console.log('Clearing all habits for user:', userId);
       
       // Get all user habits
       const habits = await this.getUserHabits(userId);
-      console.log('Found habits to delete:', habits.length);
       
       // Delete each habit (this will also delete completions and streaks)
       for (const habit of habits) {
-        console.log('Deleting habit:', habit.name);
         await this.deleteHabit(habit.id);
       }
       
-      console.log('All habits cleared successfully');
     } catch (error) {
       console.error('Error clearing all habits:', error);
       throw new Error('Failed to clear all habits');
@@ -286,7 +410,7 @@ export const habitService = {
 // Habit Completion Operations
 export const completionService = {
   // Mark habit as completed for today
-  async completeHabit(habitId: string, userId: string, value?: number, notes?: string): Promise<void> {
+  async completeHabit(habitId: string, userId: string, value?: number, notes?: string, timerSessionId?: string): Promise<void> {
     try {
       const today = new Date();
       today.setHours(0, 0, 0, 0); // Start of day
@@ -312,6 +436,27 @@ export const completionService = {
       if (notes && notes.trim()) {
         completion.notes = notes.trim();
       }
+
+      // Add timer session reference if provided
+      if (timerSessionId) {
+        completion.timerSessionId = timerSessionId;
+        
+        // Get timer session details for completion record
+        try {
+          const timerSession = await firebaseTimerSessionService.getTimerSession(timerSessionId);
+          if (timerSession) {
+            completion.timerSession = {
+              sessionId: timerSessionId,
+              duration: timerSession.actualDuration,
+              targetDuration: timerSession.targetDuration,
+              completedViaTimer: timerSession.completed && timerSession.completionMethod === 'timer'
+            };
+          }
+        } catch (error) {
+          console.error('Error fetching timer session details:', error);
+          // Continue with completion even if timer session fetch fails
+        }
+      }
       
       await addDoc(collection(db, COMPLETIONS_COLLECTION), completion);
       
@@ -328,7 +473,6 @@ export const completionService = {
     try {
       const completion = await this.getTodayCompletion(habitId, userId);
       if (!completion) {
-        console.log('No completion found for today, nothing to uncomplete');
         return; // Gracefully handle - nothing to uncomplete
       }
       
@@ -442,4 +586,378 @@ export const streakService = {
       return null;
     }
   },
+};
+
+// Firebase Timer Session Operations
+export const firebaseTimerSessionService = {
+  // Create a new timer session in Firebase
+  async createTimerSession(session: Omit<TimerSession, 'id'>): Promise<string> {
+    return withRetry(async () => {
+      const sessionData = {
+        ...session,
+        startTime: Timestamp.fromDate(session.startTime),
+        endTime: session.endTime ? Timestamp.fromDate(session.endTime) : null,
+        createdAt: Timestamp.fromDate(session.createdAt)
+      };
+
+      const docRef = await addDoc(collection(db, TIMER_SESSIONS_COLLECTION), sessionData);
+      return docRef.id;
+    }, RETRY_CONFIGS.habitCreation);
+  },
+
+  // Update an existing timer session
+  async updateTimerSession(sessionId: string, updates: Partial<TimerSession>): Promise<void> {
+    try {
+      const sessionRef = doc(db, TIMER_SESSIONS_COLLECTION, sessionId);
+      
+      const updateData: any = { ...updates };
+      
+      // Convert Date objects to Timestamps
+      if (updates.startTime) {
+        updateData.startTime = Timestamp.fromDate(updates.startTime);
+      }
+      if (updates.endTime) {
+        updateData.endTime = Timestamp.fromDate(updates.endTime);
+      }
+      if (updates.createdAt) {
+        updateData.createdAt = Timestamp.fromDate(updates.createdAt);
+      }
+
+      await updateDoc(sessionRef, updateData);
+    } catch (error) {
+      console.error('Error updating timer session:', error);
+      throw new Error('Failed to update timer session');
+    }
+  },
+
+  // Get timer sessions for a habit
+  async getHabitTimerSessions(habitId: string, limit: number = 50): Promise<TimerSession[]> {
+    try {
+      const q = query(
+        collection(db, TIMER_SESSIONS_COLLECTION),
+        where('habitId', '==', habitId),
+        orderBy('createdAt', 'desc')
+      );
+      
+      const querySnapshot = await getDocs(q);
+      const sessions: TimerSession[] = [];
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        sessions.push({
+          id: doc.id,
+          ...data,
+          startTime: data.startTime.toDate(),
+          endTime: data.endTime?.toDate(),
+          createdAt: data.createdAt.toDate()
+        } as TimerSession);
+      });
+      
+      return sessions.slice(0, limit);
+    } catch (error) {
+      console.error('Error fetching habit timer sessions:', error);
+      // Fallback to simple query without orderBy
+      try {
+        const q = query(
+          collection(db, TIMER_SESSIONS_COLLECTION),
+          where('habitId', '==', habitId)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        const sessions: TimerSession[] = [];
+        
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          sessions.push({
+            id: doc.id,
+            ...data,
+            startTime: data.startTime.toDate(),
+            endTime: data.endTime?.toDate(),
+            createdAt: data.createdAt.toDate()
+          } as TimerSession);
+        });
+        
+        // Sort in JavaScript
+        sessions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        return sessions.slice(0, limit);
+      } catch (fallbackError) {
+        console.error('Error in fallback timer sessions query:', fallbackError);
+        return [];
+      }
+    }
+  },
+
+  // Get timer sessions for a user
+  async getUserTimerSessions(userId: string, limit: number = 100): Promise<TimerSession[]> {
+    try {
+      const q = query(
+        collection(db, TIMER_SESSIONS_COLLECTION),
+        where('userId', '==', userId),
+        orderBy('createdAt', 'desc')
+      );
+      
+      const querySnapshot = await getDocs(q);
+      const sessions: TimerSession[] = [];
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        sessions.push({
+          id: doc.id,
+          ...data,
+          startTime: data.startTime.toDate(),
+          endTime: data.endTime?.toDate(),
+          createdAt: data.createdAt.toDate()
+        } as TimerSession);
+      });
+      
+      return sessions.slice(0, limit);
+    } catch (error) {
+      console.error('Error fetching user timer sessions:', error);
+      // Fallback to simple query without orderBy
+      try {
+        const q = query(
+          collection(db, TIMER_SESSIONS_COLLECTION),
+          where('userId', '==', userId)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        const sessions: TimerSession[] = [];
+        
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          sessions.push({
+            id: doc.id,
+            ...data,
+            startTime: data.startTime.toDate(),
+            endTime: data.endTime?.toDate(),
+            createdAt: data.createdAt.toDate()
+          } as TimerSession);
+        });
+        
+        // Sort in JavaScript
+        sessions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        return sessions.slice(0, limit);
+      } catch (fallbackError) {
+        console.error('Error in fallback user timer sessions query:', fallbackError);
+        return [];
+      }
+    }
+  },
+
+  // Delete a timer session
+  async deleteTimerSession(sessionId: string): Promise<void> {
+    try {
+      await deleteDoc(doc(db, TIMER_SESSIONS_COLLECTION, sessionId));
+    } catch (error) {
+      console.error('Error deleting timer session:', error);
+      throw new Error('Failed to delete timer session');
+    }
+  },
+
+  // Get timer session by ID
+  async getTimerSession(sessionId: string): Promise<TimerSession | null> {
+    try {
+      const sessionDoc = await getDoc(doc(db, TIMER_SESSIONS_COLLECTION, sessionId));
+      
+      if (!sessionDoc.exists()) {
+        return null;
+      }
+      
+      const data = sessionDoc.data();
+      return {
+        id: sessionDoc.id,
+        ...data,
+        startTime: data.startTime.toDate(),
+        endTime: data.endTime?.toDate(),
+        createdAt: data.createdAt.toDate()
+      } as TimerSession;
+    } catch (error) {
+      console.error('Error getting timer session:', error);
+      return null;
+    }
+  },
+
+  // Clean up old timer sessions (older than 90 days)
+  async cleanupOldSessions(userId: string): Promise<void> {
+    try {
+      const ninetyDaysAgo = new Date();
+      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+      
+      const q = query(
+        collection(db, TIMER_SESSIONS_COLLECTION),
+        where('userId', '==', userId),
+        where('createdAt', '<', Timestamp.fromDate(ninetyDaysAgo))
+      );
+      
+      const querySnapshot = await getDocs(q);
+      const batch = writeBatch(db);
+      
+      querySnapshot.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+      
+      if (querySnapshot.size > 0) {
+        await batch.commit();
+      }
+    } catch (error) {
+      console.error('Error cleaning up old timer sessions:', error);
+      // Don't throw - cleanup failure shouldn't break the app
+    }
+  }
+};
+
+// Firebase Timer State Sync Operations
+export const firebaseTimerStateService = {
+  // Save timer state to Firebase for cross-device sync
+  async saveTimerState(userId: string, habitId: string, timerState: TimerState): Promise<void> {
+    try {
+      const stateRef = doc(db, TIMER_STATES_COLLECTION, `${userId}_${habitId}`);
+      
+      const stateData = {
+        userId,
+        habitId: timerState.habitId,
+        isActive: timerState.isActive,
+        isPaused: timerState.isPaused,
+        startTime: timerState.startTime ? Timestamp.fromDate(timerState.startTime) : null,
+        pausedTime: timerState.pausedTime,
+        remainingTime: timerState.remainingTime,
+        progress: timerState.progress,
+        lastUpdate: Timestamp.fromDate(timerState.lastUpdate),
+        originalDuration: timerState.originalDuration,
+        syncedAt: Timestamp.fromDate(new Date())
+      };
+
+      await setDoc(stateRef, stateData, { merge: true });
+    } catch (error) {
+      console.error('Error saving timer state to Firebase:', error);
+      // Don't throw - sync failure shouldn't break timer functionality
+    }
+  },
+
+  // Load timer state from Firebase
+  async loadTimerState(userId: string, habitId: string): Promise<TimerState | null> {
+    try {
+      const stateDoc = await getDoc(doc(db, TIMER_STATES_COLLECTION, `${userId}_${habitId}`));
+      
+      if (!stateDoc.exists()) {
+        return null;
+      }
+      
+      const data = stateDoc.data();
+      return {
+        habitId: data.habitId,
+        isActive: data.isActive,
+        isPaused: data.isPaused,
+        startTime: data.startTime?.toDate() || null,
+        pausedTime: data.pausedTime,
+        remainingTime: data.remainingTime,
+        progress: data.progress,
+        lastUpdate: data.lastUpdate.toDate(),
+        originalDuration: data.originalDuration || 0
+      };
+    } catch (error) {
+      console.error('Error loading timer state from Firebase:', error);
+      return null;
+    }
+  },
+
+  // Delete timer state from Firebase
+  async deleteTimerState(userId: string, habitId: string): Promise<void> {
+    try {
+      await deleteDoc(doc(db, TIMER_STATES_COLLECTION, `${userId}_${habitId}`));
+    } catch (error) {
+      console.error('Error deleting timer state from Firebase:', error);
+      // Don't throw - cleanup failure shouldn't break the app
+    }
+  },
+
+  // Get all active timer states for a user
+  async getUserActiveTimerStates(userId: string): Promise<TimerState[]> {
+    try {
+      const q = query(
+        collection(db, TIMER_STATES_COLLECTION),
+        where('userId', '==', userId),
+        where('isActive', '==', true)
+      );
+      
+      const querySnapshot = await getDocs(q);
+      const states: TimerState[] = [];
+      
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        states.push({
+          habitId: data.habitId,
+          isActive: data.isActive,
+          isPaused: data.isPaused,
+          startTime: data.startTime?.toDate() || null,
+          pausedTime: data.pausedTime,
+          remainingTime: data.remainingTime,
+          progress: data.progress,
+          lastUpdate: data.lastUpdate.toDate(),
+          originalDuration: data.originalDuration || 0
+        });
+      });
+      
+      return states;
+    } catch (error) {
+      console.error('Error getting user active timer states:', error);
+      return [];
+    }
+  },
+
+  // Subscribe to timer state changes for real-time sync
+  subscribeToTimerState(userId: string, habitId: string, callback: (state: TimerState | null) => void): () => void {
+    const stateRef = doc(db, TIMER_STATES_COLLECTION, `${userId}_${habitId}`);
+    
+    return onSnapshot(stateRef, (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        const state: TimerState = {
+          habitId: data.habitId,
+          isActive: data.isActive,
+          isPaused: data.isPaused,
+          startTime: data.startTime?.toDate() || null,
+          pausedTime: data.pausedTime,
+          remainingTime: data.remainingTime,
+          progress: data.progress,
+          lastUpdate: data.lastUpdate.toDate(),
+          originalDuration: data.originalDuration || 0
+        };
+        callback(state);
+      } else {
+        callback(null);
+      }
+    }, (error) => {
+      console.error('Error in timer state subscription:', error);
+      callback(null);
+    });
+  },
+
+  // Clean up inactive timer states (older than 24 hours)
+  async cleanupInactiveStates(userId: string): Promise<void> {
+    try {
+      const twentyFourHoursAgo = new Date();
+      twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+      
+      const q = query(
+        collection(db, TIMER_STATES_COLLECTION),
+        where('userId', '==', userId),
+        where('lastUpdate', '<', Timestamp.fromDate(twentyFourHoursAgo))
+      );
+      
+      const querySnapshot = await getDocs(q);
+      const batch = writeBatch(db);
+      
+      querySnapshot.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+      
+      if (querySnapshot.size > 0) {
+        await batch.commit();
+      }
+    } catch (error) {
+      console.error('Error cleaning up inactive timer states:', error);
+      // Don't throw - cleanup failure shouldn't break the app
+    }
+  }
 };

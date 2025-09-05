@@ -293,8 +293,8 @@ class AnalyticsService {
 
       // Fill in actual completion data
       completions.forEach(completion => {
-        const dateKey = completion.completedAt.toISOString().split('T')[0];
-        if (dailyData[dateKey]) {
+        const dateKey = completion.completedAt?.toISOString()?.split('T')[0];
+        if (dateKey && dailyData[dateKey]) {
           dailyData[dateKey].completions++;
           dailyData[dateKey].habits.add(completion.habitId);
         }

@@ -1,11 +1,24 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { View, Text } from 'react-native';
-import { AuthProvider } from './src/hooks/useAuth';
+import { AuthProvider, useAuth } from './src/hooks/useAuth';
+import { TimerProvider } from './src/contexts/TimerContext';
 import AppNavigator from './src/navigation/AppNavigator';
-import ErrorBoundary from './src/components/ErrorBoundary';
+import { ErrorBoundary } from './src/components/common';
 import { Colors } from './src/constants/theme';
 import { useAppFonts } from './src/hooks/useFonts';
+
+// Inner component to access auth context
+function AppContent() {
+  const { user } = useAuth();
+  
+  return (
+    <TimerProvider userId={user?.id}>
+      <AppNavigator />
+      <StatusBar style="dark" backgroundColor={Colors.background} />
+    </TimerProvider>
+  );
+}
 
 export default function App() {
   const fontsLoaded = useAppFonts();
@@ -22,8 +35,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <AppNavigator />
-        <StatusBar style="dark" backgroundColor={Colors.background} />
+        <AppContent />
       </AuthProvider>
     </ErrorBoundary>
   );

@@ -6,7 +6,6 @@ export class SocialTestSetup {
   
   // Step 1: Create a test friend user
   static async createTestFriend(): Promise<string> {
-    console.log('Creating test friend user...');
     
     const testFriendId = 'test-friend-' + Date.now();
     const testFriend = {
@@ -17,14 +16,12 @@ export class SocialTestSetup {
     };
 
     await setDoc(doc(db, 'users', testFriendId), testFriend);
-    console.log('✅ Test friend created:', testFriend.displayName);
     
     return testFriendId;
   }
 
   // Step 2: Create sample habits for test friend
   static async createTestHabits(userId: string): Promise<string[]> {
-    console.log('Creating test habits...');
     
     const habits = [
       { name: 'Morning Run', category: 'fitness', icon: 'fitness' },
@@ -49,7 +46,6 @@ export class SocialTestSetup {
       });
       
       habitIds.push(docRef.id);
-      console.log('✅ Created habit:', habit.name);
     }
     
     return habitIds;
@@ -57,7 +53,6 @@ export class SocialTestSetup {
 
   // Step 3: Create sample activities
   static async createTestActivities(userId: string): Promise<void> {
-    console.log('Creating test activities...');
     
     const activities = [
       {
@@ -85,22 +80,17 @@ export class SocialTestSetup {
 
     for (const activity of activities) {
       await addDoc(collection(db, 'activities'), activity);
-      console.log('✅ Created activity:', activity.message);
     }
   }
 
   // Main setup function
   static async setupBasicTestData(): Promise<void> {
-    console.log('🚀 Setting up basic social test data...\n');
     
     try {
       const testFriendId = await this.createTestFriend();
       await this.createTestHabits(testFriendId);
       await this.createTestActivities(testFriendId);
       
-      console.log('\n🎉 Basic test data ready!');
-      console.log('📧 Test friend email: testfriend@example.com');
-      console.log('👤 Test friend name: Test Friend');
       
     } catch (error) {
       console.error('❌ Error:', error);

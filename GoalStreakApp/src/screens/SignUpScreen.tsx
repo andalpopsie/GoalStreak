@@ -13,8 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
-import Button from '../components/Button';
-import Input from '../components/Input';
+import { Button, Input } from '../components/common';
 import { SignUpForm } from '../types';
 
 interface SignUpScreenProps {

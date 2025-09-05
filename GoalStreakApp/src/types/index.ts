@@ -1,5 +1,11 @@
 // GoalStreak TypeScript Type Definitions
 
+// Import timer types for use in this file
+import { TimerConfig, TimerConfigForm } from './timer';
+
+// Re-export timer types for convenience
+export * from './timer';
+
 // User Types
 export interface User {
   id: string;
@@ -22,6 +28,7 @@ export interface Habit {
   unit?: string;
   icon?: string; // User-selected icon name
   isPublic: boolean;
+  timer?: TimerConfig; // Optional timer configuration
   createdAt: Date;
   updatedAt: Date;
 }
@@ -78,6 +85,8 @@ export type HabitCategory =
 
 export type HabitFrequency = 'daily' | 'weekly' | 'monthly';
 
+
+
 // Habit Completion Types
 export interface HabitCompletion {
   id: string;
@@ -86,6 +95,12 @@ export interface HabitCompletion {
   completedAt: Date;
   value?: number;
   notes?: string;
+  timerSession?: {
+    sessionId: string;
+    duration: number; // Actual duration spent
+    targetDuration: number; // Original timer duration
+    completedViaTimer: boolean;
+  };
 }
 
 // Streak Types
@@ -141,6 +156,8 @@ export interface Reaction {
 
 export type ReactionType = '👏' | '🔥' | '💪' | '❤️';
 
+
+
 // Navigation Types
 export type RootStackParamList = {
   Auth: undefined;
@@ -194,7 +211,10 @@ export interface CreateHabitForm {
   unit?: string;
   icon?: string; // User-selected icon name
   isPublic: boolean;
+  timer?: TimerConfig; // Optional timer configuration
 }
+
+
 
 // Component Props Types
 export interface ButtonProps {
@@ -229,6 +249,8 @@ export interface HabitsState {
   streaks: Record<string, Streak>;
   isLoading: boolean;
 }
+
+
 
 export interface FriendsState {
   friends: Friend[];
