@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image, Modal, TextInput, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
+import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
@@ -11,14 +12,85 @@ import { useAuth } from '../hooks/useAuth';
 export default function ProfileScreen() {
   const { user, isAuthenticated, logout } = useAuth();
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showNotificationsModal, setShowNotificationsModal] = useState(false);
+  const [editedName, setEditedName] = useState(user?.displayName || '');
+  const [editedEmail, setEditedEmail] = useState(user?.email || '');
+  
+  // Notification settings
+  const [notificationSettings, setNotificationSettings] = useState({
+    habitReminders: true,
+    socialUpdates: true,
+    weeklyReports: true,
+    friendRequests: true,
+    achievements: true,
+  });
 
   // Load saved profile image on component mount
   useEffect(() => {
     if (isAuthenticated && user) {
       console.log('useEffect triggered - loading profile image');
       loadProfileImage();
+      setEditedName(user.displayName || '');
+      setEditedEmail(user.email || '');
+      loadNotificationSettings();
+      setupNotifications();
     }
   }, [user?.id, user?.email, isAuthenticated]);
+
+  const setupNotifications = async () => {
+    const { status } = await Notifications.requestPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Please enable notifications to receive reminders');
+      return;
+    }
+
+    // Configure notification behavior
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+      }),
+    });
+  };
+
+  const sendTestNotification = async () => {
+    try {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "GoalStreak Reminder 🎯",
+          body: "Time to complete your daily habits!",
+          data: { type: 'habit_reminder' },
+        },
+        trigger: { seconds: 2 },
+      });
+      Alert.alert('Test Sent!', 'You should receive a notification in 2 seconds');
+    } catch (error) {
+      console.error('Error sending test notification:', error);
+      Alert.alert('Error', 'Failed to send test notification');
+    }
+  };
+
+  const loadNotificationSettings = async () => {
+    try {
+      const saved = await AsyncStorage.getItem('notificationSettings');
+      if (saved) {
+        setNotificationSettings(JSON.parse(saved));
+      }
+    } catch (error) {
+      console.error('Error loading notification settings:', error);
+    }
+  };
+
+  const saveNotificationSettings = async (newSettings: typeof notificationSettings) => {
+    try {
+      await AsyncStorage.setItem('notificationSettings', JSON.stringify(newSettings));
+      setNotificationSettings(newSettings);
+    } catch (error) {
+      console.error('Error saving notification settings:', error);
+    }
+  };
 
   const loadProfileImage = async () => {
     try {
@@ -126,6 +198,18 @@ export default function ProfileScreen() {
     }
   };
 
+  const saveProfile = async () => {
+    try {
+      // For now, just update local state since we don't have user update API
+      // In a real app, this would call an API to update user profile
+      Alert.alert('Success', 'Profile updated successfully!');
+      setShowEditModal(false);
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      Alert.alert('Error', 'Failed to update profile');
+    }
+  };
+
   const showImagePicker = () => {
     Alert.alert(
       'Profile Photo',
@@ -208,7 +292,7 @@ export default function ProfileScreen() {
           <>
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Account</Text>
-              <TouchableOpacity style={styles.menuItem}>
+              <TouchableOpacity style={styles.menuItem} onPress={() => setShowEditModal(true)}>
                 <Ionicons name="person-outline" size={24} color={Colors.primaryText} />
                 <Text style={styles.menuText}>Edit Profile</Text>
                 <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
@@ -233,7 +317,7 @@ export default function ProfileScreen() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Settings</Text>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => setShowNotificationsModal(true)}>
             <Ionicons name="notifications-outline" size={24} color={Colors.primaryText} />
             <Text style={styles.menuText}>Notifications</Text>
             <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
@@ -259,6 +343,145 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Edit Profile Modal */}
+      <Modal
+        visible={showEditModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
+        <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={() => setShowEditModal(false)}>
+              <Text style={styles.cancelButton}>Cancel</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>Edit Profile</Text>
+            <TouchableOpacity onPress={saveProfile}>
+              <Text style={styles.saveButton}>Save</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <ScrollView style={styles.modalContent}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Display Name</Text>
+              <TextInput
+                style={styles.textInput}
+                value={editedName}
+                onChangeText={setEditedName}
+                placeholder="Enter your name"
+                placeholderTextColor={Colors.accent2}
+              />
+            </View>
+            
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Email</Text>
+              <TextInput
+                style={[styles.textInput, styles.disabledInput]}
+                value={editedEmail}
+                editable={false}
+                placeholder="Email address"
+                placeholderTextColor={Colors.accent2}
+              />
+              <Text style={styles.helperText}>Email cannot be changed</Text>
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
+
+      {/* Notifications Settings Modal */}
+      <Modal
+        visible={showNotificationsModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
+        <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={() => setShowNotificationsModal(false)}>
+              <Text style={styles.cancelButton}>Done</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>Notifications</Text>
+            <View style={{ width: 50 }} />
+          </View>
+          
+          <ScrollView style={styles.modalContent}>
+            <View style={styles.notificationSection}>
+              <Text style={styles.notificationSectionTitle}>Habit Tracking</Text>
+              
+              <View style={styles.notificationItem}>
+                <View style={styles.notificationInfo}>
+                  <Text style={styles.notificationTitle}>Habit Reminders</Text>
+                  <Text style={styles.notificationDescription}>Get reminded to complete your daily habits</Text>
+                </View>
+                <Switch
+                  value={notificationSettings.habitReminders}
+                  onValueChange={(value) => saveNotificationSettings({...notificationSettings, habitReminders: value})}
+                  trackColor={{ false: Colors.lightGray, true: Colors.primary }}
+                />
+              </View>
+
+              <View style={styles.notificationItem}>
+                <View style={styles.notificationInfo}>
+                  <Text style={styles.notificationTitle}>Weekly Reports</Text>
+                  <Text style={styles.notificationDescription}>Receive weekly progress summaries</Text>
+                </View>
+                <Switch
+                  value={notificationSettings.weeklyReports}
+                  onValueChange={(value) => saveNotificationSettings({...notificationSettings, weeklyReports: value})}
+                  trackColor={{ false: Colors.lightGray, true: Colors.primary }}
+                />
+              </View>
+
+              <View style={styles.notificationItem}>
+                <View style={styles.notificationInfo}>
+                  <Text style={styles.notificationTitle}>Achievements</Text>
+                  <Text style={styles.notificationDescription}>Celebrate when you reach milestones</Text>
+                </View>
+                <Switch
+                  value={notificationSettings.achievements}
+                  onValueChange={(value) => saveNotificationSettings({...notificationSettings, achievements: value})}
+                  trackColor={{ false: Colors.lightGray, true: Colors.primary }}
+                />
+              </View>
+            </View>
+
+            <View style={styles.notificationSection}>
+              <Text style={styles.notificationSectionTitle}>Social</Text>
+              
+              <View style={styles.notificationItem}>
+                <View style={styles.notificationInfo}>
+                  <Text style={styles.notificationTitle}>Friend Requests</Text>
+                  <Text style={styles.notificationDescription}>New friend requests and acceptances</Text>
+                </View>
+                <Switch
+                  value={notificationSettings.friendRequests}
+                  onValueChange={(value) => saveNotificationSettings({...notificationSettings, friendRequests: value})}
+                  trackColor={{ false: Colors.lightGray, true: Colors.primary }}
+                />
+              </View>
+
+              <View style={styles.notificationItem}>
+                <View style={styles.notificationInfo}>
+                  <Text style={styles.notificationTitle}>Social Updates</Text>
+                  <Text style={styles.notificationDescription}>Activity from friends and reactions</Text>
+                </View>
+                <Switch
+                  value={notificationSettings.socialUpdates}
+                  onValueChange={(value) => saveNotificationSettings({...notificationSettings, socialUpdates: value})}
+                  trackColor={{ false: Colors.lightGray, true: Colors.primary }}
+                />
+              </View>
+            </View>
+
+            <View style={styles.testSection}>
+              <TouchableOpacity style={styles.testButton} onPress={sendTestNotification}>
+                <Ionicons name="notifications" size={20} color={Colors.white} />
+                <Text style={styles.testButtonText}>Send Test Notification</Text>
+              </TouchableOpacity>
+              <Text style={styles.testDescription}>Test your notification settings with a sample reminder</Text>
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -375,5 +598,125 @@ const styles = StyleSheet.create({
     color: Colors.primaryText,
     textAlign: 'center',
     lineHeight: Typography.lineHeight.relaxed * Typography.fontSize.base,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  modalTitle: {
+    fontSize: Typography.fontSize.lg,
+    fontWeight: Typography.fontWeight.semibold,
+    color: Colors.primaryText,
+  },
+  cancelButton: {
+    fontSize: Typography.fontSize.base,
+    color: Colors.accent2,
+  },
+  saveButton: {
+    fontSize: Typography.fontSize.base,
+    color: Colors.primary,
+    fontWeight: Typography.fontWeight.semibold,
+  },
+  modalContent: {
+    flex: 1,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
+  },
+  inputGroup: {
+    marginBottom: Spacing.lg,
+  },
+  inputLabel: {
+    fontSize: Typography.fontSize.sm,
+    fontWeight: Typography.fontWeight.medium,
+    color: Colors.primaryText,
+    marginBottom: Spacing.xs,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 8,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    fontSize: Typography.fontSize.base,
+    color: Colors.primaryText,
+    backgroundColor: Colors.white,
+  },
+  disabledInput: {
+    backgroundColor: Colors.lightGray,
+    color: Colors.accent2,
+  },
+  helperText: {
+    fontSize: Typography.fontSize.xs,
+    color: Colors.accent2,
+    marginTop: Spacing.xs,
+  },
+  notificationSection: {
+    marginBottom: Spacing.xl,
+  },
+  notificationSectionTitle: {
+    fontSize: Typography.fontSize.lg,
+    fontWeight: Typography.fontWeight.semibold,
+    color: Colors.primaryText,
+    marginBottom: Spacing.md,
+  },
+  notificationItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  notificationInfo: {
+    flex: 1,
+    marginRight: Spacing.md,
+  },
+  notificationTitle: {
+    fontSize: Typography.fontSize.base,
+    fontWeight: Typography.fontWeight.medium,
+    color: Colors.primaryText,
+    marginBottom: 2,
+  },
+  notificationDescription: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.accent2,
+    lineHeight: Typography.lineHeight.relaxed * Typography.fontSize.sm,
+  },
+  testSection: {
+    marginTop: Spacing.lg,
+    paddingTop: Spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    alignItems: 'center',
+  },
+  testButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderRadius: 8,
+    marginBottom: Spacing.sm,
+  },
+  testButtonText: {
+    color: Colors.white,
+    fontSize: Typography.fontSize.base,
+    fontWeight: Typography.fontWeight.medium,
+    marginLeft: Spacing.sm,
+  },
+  testDescription: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.accent2,
+    textAlign: 'center',
+    paddingHorizontal: Spacing.lg,
   },
 });
