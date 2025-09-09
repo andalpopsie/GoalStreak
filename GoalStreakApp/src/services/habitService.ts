@@ -18,6 +18,7 @@ import {
 import { db } from './firebase';
 import { withRetry, RETRY_CONFIGS } from './retryService';
 import { Habit, HabitCompletion, Streak, CreateHabitForm, TimerConfig, TimerSession, TimerState } from '../types';
+import { notificationService } from './notificationService';
 
 // Collection references
 const HABITS_COLLECTION = 'habits';
@@ -63,10 +64,30 @@ export const habitService = {
         };
       }
 
+      // Handle reminder configuration
+      if (habitData.reminderEnabled && habitData.reminderTime) {
+        habit.reminderEnabled = habitData.reminderEnabled;
+        habit.reminderTime = habitData.reminderTime;
+      }
+
       const docRef = await addDoc(collection(db, HABITS_COLLECTION), habit);
       
       // Initialize streak data
       await this.initializeStreak(docRef.id);
+      
+      // Schedule notification if reminder is enabled
+      if (habitData.reminderEnabled && habitData.reminderTime) {
+        try {
+          const fullHabit: Habit = {
+            id: docRef.id,
+            ...habit,
+          };
+          await notificationService.scheduleHabitReminder(fullHabit);
+          console.log('✅ Notification scheduled for new habit');
+        } catch (notificationError) {
+          console.error('⚠️ Failed to schedule notification (non-critical):', notificationError);
+        }
+      }
       
       return docRef.id;
     }, RETRY_CONFIGS.habitCreation);

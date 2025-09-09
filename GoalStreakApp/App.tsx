@@ -1,12 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { View, Text } from 'react-native';
+import * as Notifications from 'expo-notifications';
 import { AuthProvider, useAuth } from './src/hooks/useAuth';
 import { TimerProvider } from './src/contexts/TimerContext';
 import AppNavigator from './src/navigation/AppNavigator';
 import { ErrorBoundary } from './src/components/common';
 import { Colors } from './src/constants/theme';
 import { useAppFonts } from './src/hooks/useFonts';
+
+// Configure notification behavior globally
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
 // Inner component to access auth context
 function AppContent() {

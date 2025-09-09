@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image, Modal, TextInput, Switch } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image, Modal, TextInput, Switch, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -8,6 +8,7 @@ import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
+import { photoService } from '../services/photoService';
 
 export default function ProfileScreen() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -16,6 +17,7 @@ export default function ProfileScreen() {
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [editedName, setEditedName] = useState(user?.displayName || '');
   const [editedEmail, setEditedEmail] = useState(user?.email || '');
+  const [isUploading, setIsUploading] = useState(false);
   
   // Notification settings
   const [notificationSettings, setNotificationSettings] = useState({
@@ -45,30 +47,81 @@ export default function ProfileScreen() {
       return;
     }
 
-    // Configure notification behavior
+    // Configure notification behavior with display options
     Notifications.setNotificationHandler({
       handleNotification: async () => ({
-        shouldShowAlert: true,
+        shouldShowBanner: true,     // Shows banner at top
+        shouldShowList: true,       // Shows in notification center
         shouldPlaySound: true,
-        shouldSetBadge: false,
+        shouldSetBadge: true,       // Shows app icon badge count
       }),
     });
   };
 
   const sendTestNotification = async () => {
     try {
-      await Notifications.scheduleNotificationAsync({
+      console.log('🔔 Starting test notification...');
+      
+      // Check permissions first
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      console.log('📱 Current permission status:', existingStatus);
+      
+      let finalStatus = existingStatus;
+      
+      if (existingStatus !== 'granted') {
+        console.log('📱 Requesting permissions...');
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+        console.log('📱 New permission status:', finalStatus);
+      }
+      
+      if (finalStatus !== 'granted') {
+        Alert.alert('Permission Required', 'Please enable notifications in Settings to receive reminders.');
+        return;
+      }
+
+      console.log('⏰ Scheduling test notification...');
+      
+      // Test 1: Immediate notification (2 seconds)
+      const immediateId = await Notifications.scheduleNotificationAsync({
         content: {
-          title: "GoalStreak Reminder 🎯",
-          body: "Time to complete your daily habits!",
-          data: { type: 'habit_reminder' },
+          title: "Test 1: Immediate 🔔",
+          body: "This should appear in 2 seconds",
+          badge: 1,
         },
         trigger: { seconds: 2 },
       });
-      Alert.alert('Test Sent!', 'You should receive a notification in 2 seconds');
+
+      // Test 2: Daily notification for 1 minute from now
+      const now = new Date();
+      const testTime = new Date(now.getTime() + 60000); // 1 minute from now
+      const testHour = testTime.getHours();
+      const testMinute = testTime.getMinutes();
+
+      const dailyId = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Test 2: Daily Trigger 🕐",
+          body: `Testing daily at ${testHour}:${testMinute.toString().padStart(2, '0')}`,
+          badge: 2,
+        },
+        trigger: {
+          hour: testHour,
+          minute: testMinute,
+          repeats: true,
+        },
+      });
+
+      console.log('✅ Test notifications scheduled');
+      console.log(`📅 Daily test will fire at ${testHour}:${testMinute.toString().padStart(2, '0')}`);
+
+      // Check scheduled notifications
+      const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+      console.log('📋 Total scheduled notifications:', scheduled.length);
+
+      Alert.alert('Tests Sent!', `1. Immediate (2 sec): ID ${immediateId}\n2. Daily test (${testHour}:${testMinute.toString().padStart(2, '0')}): ID ${dailyId}\n\nPermission: ${finalStatus}\nTotal scheduled: ${scheduled.length}`);
     } catch (error) {
-      console.error('Error sending test notification:', error);
-      Alert.alert('Error', 'Failed to send test notification');
+      console.error('❌ Error sending test notification:', error);
+      Alert.alert('Error', `Failed to send test notification: ${error.message}`);
     }
   };
 
@@ -97,22 +150,18 @@ export default function ProfileScreen() {
       console.log('Loading profile image for user:', user?.uid || user?.email);
       console.log('Is authenticated:', isAuthenticated);
       
-      // First try to get from Firebase user
-      if (user?.photoURL) {
-        console.log('Using Firebase photoURL:', user.photoURL);
-        setProfileImage(user.photoURL);
-        return;
-      }
+      if (!isAuthenticated || !user) return;
+
+      const userId = user?.uid || user?.id || user?.email?.replace(/[^a-zA-Z0-9]/g, '_') || 'anonymous';
       
-      // Then try AsyncStorage for local images
-      if (isAuthenticated) {
-        const userId = user?.uid || user?.id || user?.email?.replace(/[^a-zA-Z0-9]/g, '_') || 'anonymous';
-        const key = `profileImage_${userId}`;
-        const savedImage = await AsyncStorage.getItem(key);
-        console.log('AsyncStorage key:', key, 'savedImage:', savedImage);
-        if (savedImage) {
-          setProfileImage(savedImage);
-        }
+      // Use new photo service with cloud sync
+      const photoURL = await photoService.getProfilePhoto(userId);
+      
+      if (photoURL) {
+        console.log('Profile photo loaded:', photoURL);
+        setProfileImage(photoURL);
+      } else {
+        console.log('No profile photo found');
       }
     } catch (error) {
       console.error('Error loading profile image:', error);
@@ -122,40 +171,46 @@ export default function ProfileScreen() {
   const saveProfileImage = async (imageUri: string) => {
     try {
       console.log('Saving profile image:', imageUri);
-      console.log('User object:', user);
-      console.log('User UID:', user?.uid);
-      console.log('Is authenticated:', isAuthenticated);
       
       if (!isAuthenticated) {
         Alert.alert('Error', 'Please sign in to save profile photo');
         return;
       }
 
-      // Use email as fallback if uid is not available
       const userId = user?.uid || user?.id || user?.email?.replace(/[^a-zA-Z0-9]/g, '_') || 'anonymous';
       console.log('Using userId:', userId);
 
-      // Create permanent file path
-      const fileName = `profile_${userId}.jpg`;
-      const permanentUri = `${FileSystem.documentDirectory}${fileName}`;
+      setIsUploading(true);
       
-      // Copy image to permanent location
-      await FileSystem.copyAsync({
-        from: imageUri,
-        to: permanentUri,
-      });
-      
-      console.log('Copied image to permanent location:', permanentUri);
-      
-      // Save permanent URI to AsyncStorage
-      const key = `profileImage_${userId}`;
-      await AsyncStorage.setItem(key, permanentUri);
-      console.log('Saved to AsyncStorage with key:', key);
-      
-      setProfileImage(permanentUri);
+      try {
+        // Upload to Firebase Storage with compression
+        const cloudURL = await photoService.uploadProfilePhoto(userId, imageUri);
+        console.log('Photo uploaded to cloud:', cloudURL);
+        
+        setProfileImage(cloudURL);
+        Alert.alert('Success', 'Profile photo saved and synced to cloud!');
+      } catch (error) {
+        console.error('Cloud upload failed, saving locally:', error);
+        
+        // Fallback to local storage if cloud upload fails
+        const fileName = `profile_${userId}.jpg`;
+        const permanentUri = `${FileSystem.documentDirectory}${fileName}`;
+        
+        await FileSystem.copyAsync({
+          from: imageUri,
+          to: permanentUri,
+        });
+        
+        await AsyncStorage.setItem(`profileImage_${userId}`, permanentUri);
+        setProfileImage(permanentUri);
+        
+        Alert.alert('Saved Locally', 'Photo saved locally. Will sync to cloud when connection is available.');
+      }
     } catch (error) {
       console.error('Error saving profile image:', error);
       Alert.alert('Error', 'Failed to save profile photo');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -210,6 +265,32 @@ export default function ProfileScreen() {
     }
   };
 
+  const syncToCloud = async () => {
+    try {
+      if (!isAuthenticated || !user) {
+        Alert.alert('Error', 'Please sign in to sync photos');
+        return;
+      }
+
+      const userId = user?.uid || user?.id || user?.email?.replace(/[^a-zA-Z0-9]/g, '_') || 'anonymous';
+      
+      setIsUploading(true);
+      const cloudURL = await photoService.syncLocalPhotoToCloud(userId);
+      
+      if (cloudURL) {
+        setProfileImage(cloudURL);
+        Alert.alert('Success', 'Photo synced to cloud successfully!');
+      } else {
+        Alert.alert('Info', 'No local photo found to sync');
+      }
+    } catch (error) {
+      console.error('Error syncing to cloud:', error);
+      Alert.alert('Error', 'Failed to sync photo to cloud');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const showImagePicker = () => {
     Alert.alert(
       'Profile Photo',
@@ -252,7 +333,9 @@ export default function ProfileScreen() {
             onPress={showImagePicker}
             activeOpacity={0.7}
           >
-            {profileImage ? (
+            {isUploading ? (
+              <ActivityIndicator size="large" color={Colors.primary} />
+            ) : profileImage ? (
               <Image 
                 source={{ uri: profileImage }} 
                 style={styles.profileImage}
@@ -296,6 +379,16 @@ export default function ProfileScreen() {
                 <Ionicons name="person-outline" size={24} color={Colors.primaryText} />
                 <Text style={styles.menuText}>Edit Profile</Text>
                 <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+              </TouchableOpacity>
+              
+              <TouchableOpacity style={styles.menuItem} onPress={syncToCloud} disabled={isUploading}>
+                <Ionicons name="cloud-upload-outline" size={24} color={Colors.primaryText} />
+                <Text style={styles.menuText}>Sync Photo to Cloud</Text>
+                {isUploading ? (
+                  <ActivityIndicator size="small" color={Colors.primary} />
+                ) : (
+                  <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+                )}
               </TouchableOpacity>
               <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
                 <Ionicons name="log-out-outline" size={24} color={Colors.error} />

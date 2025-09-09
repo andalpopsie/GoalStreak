@@ -23,6 +23,12 @@ export const useHabitsWithSocial = () => {
       const habit = habitsHook.habits?.find(h => h?.id === habitId);
       if (!habit?.name || !habit?.category) return;
 
+      // ✅ Check if habit is public before sharing
+      if (!habit.isPublic) {
+        console.log('Habit is private, skipping social sharing');
+        return;
+      }
+
       const streak = habitsHook.getHabitStreak(habitId);
 
       // Share habit completion

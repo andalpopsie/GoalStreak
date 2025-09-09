@@ -29,6 +29,8 @@ export interface Habit {
   icon?: string; // User-selected icon name
   isPublic: boolean;
   timer?: TimerConfig; // Optional timer configuration
+  reminderTime?: string; // Optional reminder time in HH:MM format (e.g., "09:30")
+  reminderEnabled?: boolean; // Whether reminder notifications are enabled
   createdAt: Date;
   updatedAt: Date;
 }
@@ -212,6 +214,8 @@ export interface CreateHabitForm {
   icon?: string; // User-selected icon name
   isPublic: boolean;
   timer?: TimerConfig; // Optional timer configuration
+  reminderTime?: string; // Optional reminder time in HH:MM format
+  reminderEnabled?: boolean; // Whether reminder notifications are enabled
 }
 
 

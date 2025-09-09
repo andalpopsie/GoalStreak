@@ -1,43 +1,12 @@
-// Notification Service - Habit reminders and notifications
 import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Habit } from '../types';
 
-const NOTIFICATION_SETTINGS_KEY = '@goalstreak_notifications';
-
-export interface NotificationSettings {
-  enabled: boolean;
-  dailyReminder: boolean;
-  reminderTime: string; // HH:MM format
-  streakMilestones: boolean;
-  friendActivity: boolean;
-  weeklyReports: boolean;
-}
-
-const defaultSettings: NotificationSettings = {
-  enabled: true,
-  dailyReminder: true,
-  reminderTime: '20:00', // 8 PM
-  streakMilestones: true,
-  friendActivity: true,
-  weeklyReports: true,
-};
-
-class NotificationService {
-  private settings: NotificationSettings = defaultSettings;
-
-  async initialize(): Promise<boolean> {
+export class NotificationService {
+  /**
+   * Check notification permissions and request if needed
+   */
+  async checkAndRequestPermissions(): Promise<boolean> {
     try {
-      // Configure notification behavior
-      Notifications.setNotificationHandler({
-        handleNotification: async () => ({
-          shouldShowAlert: true,
-          shouldPlaySound: true,
-          shouldSetBadge: false,
-        }),
-      });
-
-      // Request permissions
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
       
@@ -45,191 +14,161 @@ class NotificationService {
         const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
       }
-
-      if (finalStatus !== 'granted') {
-        console.log('Notification permissions not granted');
-        return false;
-      }
-
-      // Load saved settings
-      await this.loadSettings();
-
-      // Set up default notifications if enabled
-      if (this.settings.enabled && this.settings.dailyReminder) {
-        await this.scheduleDailyReminder();
-      }
-
-      return true;
+      
+      console.log('📱 Notification permission status:', finalStatus);
+      return finalStatus === 'granted';
     } catch (error) {
-      console.error('Error initializing notifications:', error);
+      console.error('❌ Error checking notification permissions:', error);
       return false;
     }
   }
 
-  async loadSettings(): Promise<NotificationSettings> {
+  /**
+   * Schedule multiple daily reminders (best practice approach)
+   * Schedule 7 days in advance to ensure continuity
+   */
+  async scheduleHabitReminder(habit: Habit): Promise<string | null> {
     try {
-      const savedSettings = await AsyncStorage.getItem(NOTIFICATION_SETTINGS_KEY);
-      if (savedSettings) {
-        this.settings = { ...defaultSettings, ...JSON.parse(savedSettings) };
+      if (!habit.reminderTime || !habit.reminderEnabled) {
+        console.log('⚠️ Reminder not enabled or no time set');
+        return null;
       }
-      return this.settings;
-    } catch (error) {
-      console.error('Error loading notification settings:', error);
-      return defaultSettings;
-    }
-  }
 
-  async saveSettings(settings: Partial<NotificationSettings>): Promise<void> {
-    try {
-      this.settings = { ...this.settings, ...settings };
-      await AsyncStorage.setItem(NOTIFICATION_SETTINGS_KEY, JSON.stringify(this.settings));
+      // Check permissions first
+      const hasPermission = await this.checkAndRequestPermissions();
+      if (!hasPermission) {
+        console.error('❌ Notification permissions not granted');
+        return null;
+      }
+
+      // Parse time in 24-hour format
+      const [hours, minutes] = habit.reminderTime.split(':').map(Number);
+
+      if (isNaN(hours) || isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+        console.error('❌ Invalid time format:', habit.reminderTime);
+        return null;
+      }
+
+      console.log(`⏰ Scheduling notifications for ${hours}:${minutes.toString().padStart(2, '0')}`);
+
+      // Cancel any existing notifications for this habit
+      await this.cancelHabitReminders(habit.id);
+
+      const notificationIds: string[] = [];
+
+      // Schedule notifications for the next 7 days (best practice)
+      for (let day = 0; day < 7; day++) {
+        const notificationDate = new Date();
+        notificationDate.setDate(notificationDate.getDate() + day);
+        notificationDate.setHours(hours, minutes, 0, 0);
+
+        // Skip if the time has already passed today (for day 0)
+        if (day === 0 && notificationDate <= new Date()) {
+          continue;
+        }
+
+        const notificationId = await Notifications.scheduleNotificationAsync({
+          content: {
+            title: `Time for ${habit.name}! 🎯`,
+            body: `Don't break your streak - complete your ${habit.name} habit now!`,
+            badge: 1,
+            categoryIdentifier: 'habit-reminder',
+            data: { 
+              type: 'habit_reminder',
+              habitId: habit.id,
+              habitName: habit.name,
+              scheduledFor: notificationDate.toISOString()
+            },
+          },
+          trigger: {
+            date: notificationDate,
+          },
+        });
+
+        notificationIds.push(notificationId);
+        console.log(`📅 Scheduled for ${notificationDate.toLocaleString()}, ID: ${notificationId}`);
+      }
+
+      // Store notification IDs for this habit (for cancellation)
+      await this.storeNotificationIds(habit.id, notificationIds);
+
+      console.log(`✅ Scheduled ${notificationIds.length} notifications for ${habit.name}`);
       
-      // Update scheduled notifications based on new settings
-      if (settings.dailyReminder !== undefined || settings.reminderTime !== undefined) {
-        await this.updateDailyReminder();
-      }
+      return notificationIds[0] || null;
     } catch (error) {
-      console.error('Error saving notification settings:', error);
+      console.error('❌ Error scheduling habit reminder:', error);
+      return null;
     }
   }
 
-  async scheduleDailyReminder(): Promise<void> {
+  /**
+   * Store notification IDs for a habit (for later cancellation)
+   */
+  private async storeNotificationIds(habitId: string, notificationIds: string[]): Promise<void> {
     try {
-      // Cancel existing daily reminder
-      await Notifications.cancelScheduledNotificationAsync('daily-reminder');
+      const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+      await AsyncStorage.setItem(`notifications_${habitId}`, JSON.stringify(notificationIds));
+    } catch (error) {
+      console.error('Error storing notification IDs:', error);
+    }
+  }
 
-      if (!this.settings.enabled || !this.settings.dailyReminder) {
-        return;
-      }
-
-      const [hours, minutes] = this.settings.reminderTime.split(':').map(Number);
+  /**
+   * Cancel all notifications for a habit
+   */
+  async cancelHabitReminders(habitId: string): Promise<void> {
+    try {
+      const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+      const storedIds = await AsyncStorage.getItem(`notifications_${habitId}`);
       
-      await Notifications.scheduleNotificationAsync({
-        identifier: 'daily-reminder',
-        content: {
-          title: 'Time to build your habits! 🎯',
-          body: 'Check in with your daily habits and keep your streaks going strong.',
-          data: { type: 'daily_reminder' },
-        },
-        trigger: {
-          hour: hours,
-          minute: minutes,
-          repeats: true,
-        },
-      });
+      if (storedIds) {
+        const notificationIds: string[] = JSON.parse(storedIds);
+        
+        for (const id of notificationIds) {
+          await Notifications.cancelScheduledNotificationAsync(id);
+        }
+        
+        await AsyncStorage.removeItem(`notifications_${habitId}`);
+        console.log(`✅ Cancelled ${notificationIds.length} notifications for habit ${habitId}`);
+      }
     } catch (error) {
-      console.error('Error scheduling daily reminder:', error);
+      console.error('Error cancelling habit reminders:', error);
     }
   }
 
-  async updateDailyReminder(): Promise<void> {
-    await this.scheduleDailyReminder();
-  }
-
-  async sendStreakMilestone(habitName: string, streakCount: number): Promise<void> {
+  /**
+   * Update all habit reminders for a user
+   */
+  async updateHabitReminders(habits: Habit[]): Promise<void> {
     try {
-      if (!this.settings.enabled || !this.settings.streakMilestones) {
-        return;
+      console.log('🔄 Updating all habit reminders...');
+      
+      for (const habit of habits) {
+        if (habit.reminderEnabled && habit.reminderTime) {
+          await this.scheduleHabitReminder(habit);
+        } else {
+          await this.cancelHabitReminders(habit.id);
+        }
       }
 
-      let title = '';
-      let body = '';
-
-      if (streakCount === 7) {
-        title = '🔥 One Week Streak!';
-        body = `Amazing! You've completed "${habitName}" for 7 days straight!`;
-      } else if (streakCount === 30) {
-        title = '🏆 One Month Streak!';
-        body = `Incredible! You've built a 30-day streak with "${habitName}"!`;
-      } else if (streakCount === 100) {
-        title = '🎉 100 Day Streak!';
-        body = `Legendary! You've achieved 100 days with "${habitName}"!`;
-      } else if (streakCount % 50 === 0) {
-        title = `🌟 ${streakCount} Day Streak!`;
-        body = `Outstanding dedication with "${habitName}"! Keep it up!`;
-      } else {
-        return; // Don't send notification for other milestones
-      }
-
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title,
-          body,
-          data: { type: 'streak_milestone', habitName, streakCount },
-        },
-        trigger: null, // Send immediately
-      });
+      console.log(`✅ Updated reminders for ${habits.length} habits`);
     } catch (error) {
-      console.error('Error sending streak milestone notification:', error);
+      console.error('Error updating habit reminders:', error);
     }
   }
 
-  async sendFriendActivity(friendName: string, habitName: string): Promise<void> {
-    try {
-      if (!this.settings.enabled || !this.settings.friendActivity) {
-        return;
-      }
-
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: '👥 Friend Activity',
-          body: `${friendName} just completed "${habitName}"! Keep each other motivated!`,
-          data: { type: 'friend_activity', friendName, habitName },
-        },
-        trigger: null, // Send immediately
-      });
-    } catch (error) {
-      console.error('Error sending friend activity notification:', error);
-    }
-  }
-
-  async sendWeeklyReport(completions: number, streaks: number): Promise<void> {
-    try {
-      if (!this.settings.enabled || !this.settings.weeklyReports) {
-        return;
-      }
-
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: '📊 Weekly Report',
-          body: `This week: ${completions} completions and ${streaks} active streaks! Great progress!`,
-          data: { type: 'weekly_report', completions, streaks },
-        },
-        trigger: null, // Send immediately
-      });
-    } catch (error) {
-      console.error('Error sending weekly report:', error);
-    }
-  }
-
-  async cancelAllNotifications(): Promise<void> {
-    try {
-      await Notifications.cancelAllScheduledNotificationsAsync();
-    } catch (error) {
-      console.error('Error canceling notifications:', error);
-    }
-  }
-
-  getSettings(): NotificationSettings {
-    return { ...this.settings };
-  }
-
-  // Test notification (for development)
-  async sendTestNotification(): Promise<void> {
-    try {
-      await Notifications.scheduleNotificationAsync({
-        content: {
-          title: 'Test Notification 🧪',
-          body: 'GoalStreak notifications are working perfectly!',
-          data: { type: 'test' },
-        },
-        trigger: null,
-      });
-    } catch (error) {
-      console.error('Error sending test notification:', error);
-    }
+  /**
+   * Format time for display
+   */
+  formatTime(timeString: string): string {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const date = new Date(2000, 0, 1, hours, minutes);
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
   }
 }
 
 export const notificationService = new NotificationService();
-export default notificationService;

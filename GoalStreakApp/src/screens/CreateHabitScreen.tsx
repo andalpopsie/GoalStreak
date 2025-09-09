@@ -8,6 +8,8 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Modal,
+  FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,6 +20,7 @@ import { Button, SimpleInput } from '../components/common';
 import { IconPicker } from '../components/habit';
 import { CreateHabitForm, HabitCategory, TimerConfig } from '../types';
 import { TimerToggle } from '../components/timer';
+import { notificationService } from '../services/notificationService';
 
 interface CreateHabitScreenProps {
   navigation: any;
@@ -46,6 +49,8 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
     icon: 'checkmark-circle', // Default icon
     isPublic: false,
     timer: undefined, // Optional timer configuration
+    reminderTime: undefined, // Optional reminder time
+    reminderEnabled: false, // Reminder notifications disabled by default
   });
   
   const [errors, setErrors] = useState<{
@@ -63,6 +68,11 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
   
   // Category dropdown state
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  
+  // Time picker state
+  const [selectedHour, setSelectedHour] = useState(9);
+  const [selectedMinute, setSelectedMinute] = useState(0);
+  const [selectedPeriod, setSelectedPeriod] = useState<'AM' | 'PM'>('AM');
 
   const validateForm = (): boolean => {
     const newErrors: {
@@ -100,7 +110,22 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
     }
 
     try {
-      await createHabit(form);
+      // Convert selected time to 24-hour format for storage
+      let hour24 = selectedHour;
+      if (selectedPeriod === 'PM' && selectedHour !== 12) {
+        hour24 += 12;
+      } else if (selectedPeriod === 'AM' && selectedHour === 12) {
+        hour24 = 0;
+      }
+
+      const reminderTime = form.reminderEnabled 
+        ? `${hour24.toString().padStart(2, '0')}:${selectedMinute.toString().padStart(2, '0')}`
+        : undefined;
+
+      await createHabit({
+        ...form,
+        reminderTime,
+      });
       
       Alert.alert('Success', 'Habit created successfully!', [
         { text: 'OK', onPress: () => navigation.goBack() }
@@ -250,6 +275,111 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
             />
           </View>
 
+          {/* Reminder Configuration */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Enable Notifications</Text>
+            
+            {/* Reminder Toggle */}
+            <TouchableOpacity
+              style={styles.reminderToggle}
+              onPress={() => setForm({ ...form, reminderEnabled: !form.reminderEnabled })}
+            >
+              <View style={styles.reminderInfo}>
+                <Text style={styles.reminderTitle}>Daily Reminders</Text>
+              </View>
+              <View style={[
+                styles.toggle,
+                form.reminderEnabled && styles.toggleActive
+              ]}>
+                {form.reminderEnabled && (
+                  <Ionicons name="checkmark" size={16} color={Colors.white} />
+                )}
+              </View>
+            </TouchableOpacity>
+
+            {/* Time Pickers */}
+            {form.reminderEnabled && (
+              <View style={styles.timePickerContainer}>
+                <Text style={styles.timePickerLabel}>Reminder Time</Text>
+                <View style={styles.timePickerRow}>
+                  
+                  {/* Hour Picker */}
+                  <View style={styles.pickerColumn}>
+                    <Text style={styles.pickerTitle}>Hour</Text>
+                    <ScrollView style={styles.picker} showsVerticalScrollIndicator={false}>
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map((hour) => (
+                        <TouchableOpacity
+                          key={hour}
+                          style={[
+                            styles.pickerOption,
+                            selectedHour === hour && styles.pickerOptionSelected
+                          ]}
+                          onPress={() => setSelectedHour(hour)}
+                        >
+                          <Text style={[
+                            styles.pickerText,
+                            selectedHour === hour && styles.pickerTextSelected
+                          ]}>
+                            {hour}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+
+                  {/* Minute Picker */}
+                  <View style={styles.pickerColumn}>
+                    <Text style={styles.pickerTitle}>Min</Text>
+                    <ScrollView style={styles.picker} showsVerticalScrollIndicator={false}>
+                      {Array.from({ length: 60 }, (_, i) => i).map((minute) => (
+                        <TouchableOpacity
+                          key={minute}
+                          style={[
+                            styles.pickerOption,
+                            selectedMinute === minute && styles.pickerOptionSelected
+                          ]}
+                          onPress={() => setSelectedMinute(minute)}
+                        >
+                          <Text style={[
+                            styles.pickerText,
+                            selectedMinute === minute && styles.pickerTextSelected
+                          ]}>
+                            {minute.toString().padStart(2, '0')}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+
+                  {/* AM/PM Picker */}
+                  <View style={styles.pickerColumn}>
+                    <Text style={styles.pickerTitle}>Period</Text>
+                    <ScrollView style={styles.picker} showsVerticalScrollIndicator={false}>
+                      {['AM', 'PM'].map((period) => (
+                        <TouchableOpacity
+                          key={period}
+                          style={[
+                            styles.pickerOption,
+                            selectedPeriod === period && styles.pickerOptionSelected
+                          ]}
+                          onPress={() => setSelectedPeriod(period as 'AM' | 'PM')}
+                        >
+                          <Text style={[
+                            styles.pickerText,
+                            selectedPeriod === period && styles.pickerTextSelected
+                          ]}>
+                            {period}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+
+                </View>
+              </View>
+            )}
+          </View>
+
           {/* Privacy Settings */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Visibility</Text>
@@ -259,9 +389,6 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
             >
               <View style={styles.privacyInfo}>
                 <Text style={styles.privacyTitle}>Share with friends</Text>
-                <Text style={styles.privacyDescription}>
-                  Let your friends see this habit in their activity feed
-                </Text>
               </View>
               <View style={[
                 styles.toggle,
@@ -506,11 +633,6 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.medium,
     color: Colors.primaryText,
-    marginBottom: Spacing.xs,
-  },
-  privacyDescription: {
-    fontSize: Typography.fontSize.sm,
-    color: Colors.gray.dark,
   },
   toggle: {
     width: 24,
@@ -550,5 +672,64 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: Typography.fontSize.sm,
     color: Colors.gray.dark,
+  },
+  reminderToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  reminderInfo: {
+    flex: 1,
+  },
+  reminderTitle: {
+    fontSize: Typography.fontSize.base,
+    fontWeight: Typography.fontWeight.medium,
+    color: Colors.primaryText,
+  },
+  timePickerContainer: {
+    paddingVertical: Spacing.md,
+  },
+  timePickerLabel: {
+    fontSize: Typography.fontSize.base,
+    color: Colors.primaryText,
+    marginBottom: Spacing.sm,
+  },
+  timePickerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    height: 120,
+  },
+  pickerColumn: {
+    flex: 1,
+    marginHorizontal: Spacing.xs,
+  },
+  pickerTitle: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.accent2,
+    textAlign: 'center',
+    marginBottom: Spacing.xs,
+  },
+  picker: {
+    maxHeight: 100,
+    backgroundColor: Colors.accent1,
+    borderRadius: BorderRadius.md,
+  },
+  pickerOption: {
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+  },
+  pickerOptionSelected: {
+    backgroundColor: Colors.primary,
+  },
+  pickerText: {
+    fontSize: Typography.fontSize.base,
+    color: Colors.primaryText,
+  },
+  pickerTextSelected: {
+    color: Colors.white,
+    fontWeight: Typography.fontWeight.medium,
   },
 });
