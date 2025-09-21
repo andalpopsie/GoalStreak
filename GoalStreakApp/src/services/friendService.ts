@@ -16,6 +16,7 @@ import {
   serverTimestamp,
   writeBatch
 } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 import { db } from './firebase';
 import { 
   Friend, 
@@ -34,7 +35,8 @@ import {
 } from '../types/social';
 
 class FriendService {
-  // Collections
+  // Auth and Collections
+  private auth = getAuth();
   private friendsCollection = collection(db, 'friends');
   private friendRequestsCollection = collection(db, 'friendRequests');
   private activitiesCollection = collection(db, 'activities');
@@ -601,55 +603,87 @@ class FriendService {
   // Search for users by name or email
   async searchUsers(searchQuery: string): Promise<UserSearchResult[]> {
     try {
-      const usersQuery = query(
+      const currentUserId = this.auth.currentUser?.uid;
+      if (!currentUserId) {
+        throw new Error('User not authenticated');
+      }
+
+      const results: UserSearchResult[] = [];
+      const userIds = new Set<string>(); // Track unique users
+      
+      // Get current user's friends and pending requests (simplified)
+      const friendsQuery = query(
+        this.friendsCollection,
+        where('userId', '==', currentUserId)
+      );
+      const friendsSnapshot = await getDocs(friendsQuery);
+      const friendIds = new Set(friendsSnapshot.docs.map(doc => doc.data().friendId));
+
+      const sentRequestsQuery = query(
+        this.friendRequestsCollection,
+        where('fromUserId', '==', currentUserId),
+        where('status', '==', 'pending')
+      );
+      const sentRequestsSnapshot = await getDocs(sentRequestsQuery);
+      const sentRequestIds = new Set(sentRequestsSnapshot.docs.map(doc => doc.data().toUserId));
+
+      const receivedRequestsQuery = query(
+        this.friendRequestsCollection,
+        where('toUserId', '==', currentUserId),
+        where('status', '==', 'pending')
+      );
+      const receivedRequestsSnapshot = await getDocs(receivedRequestsQuery);
+      const receivedRequestIds = new Set(receivedRequestsSnapshot.docs.map(doc => doc.data().fromUserId));
+
+      // Helper function to add user to results
+      const addUserToResults = (doc: any) => {
+        const userData = doc.data();
+        const userId = doc.id;
+        
+        // Skip current user and duplicates
+        if (userId === currentUserId || userIds.has(userId)) return;
+        
+        userIds.add(userId);
+        results.push({
+          id: userId,
+          name: userData.name || userData.displayName || userData.firstName || '',
+          email: userData.email || '',
+          avatar: userData.avatar || userData.profilePhoto || undefined,
+          mutualFriends: 0,
+          isFriend: friendIds.has(userId),
+          hasPendingRequest: sentRequestIds.has(userId) || receivedRequestIds.has(userId)
+        });
+      };
+
+      // Search by email
+      const emailQuery = query(
         this.usersCollection,
         where('email', '>=', searchQuery.toLowerCase()),
         where('email', '<=', searchQuery.toLowerCase() + '\uf8ff'),
         limit(10)
       );
-      
-      const usersSnapshot = await getDocs(usersQuery);
-      const results: UserSearchResult[] = [];
-      
-      usersSnapshot.forEach((doc) => {
-        const userData = doc.data();
-        results.push({
-          id: doc.id,
-          name: userData.name || userData.displayName || userData.firstName || '',
-          email: userData.email || '',
-          avatar: userData.avatar || userData.profilePhoto || undefined,
-          mutualFriends: 0, // TODO: Calculate mutual friends
-          isFriend: false, // TODO: Check if already friends
-          hasPendingRequest: false // TODO: Check for pending requests
-        });
-      });
+      const emailSnapshot = await getDocs(emailQuery);
+      emailSnapshot.forEach(addUserToResults);
 
-      // Also search by name if query doesn't look like email
-      if (!searchQuery.includes('@')) {
-        const nameQuery = query(
-          this.usersCollection,
-          where('name', '>=', searchQuery),
-          where('name', '<=', searchQuery + '\uf8ff'),
-          limit(10)
-        );
-        
-        const nameSnapshot = await getDocs(nameQuery);
-        nameSnapshot.forEach((doc) => {
-          const userData = doc.data();
-          const existingResult = results.find(r => r.id === doc.id);
-          if (!existingResult) {
-            results.push({
-              id: doc.id,
-              name: userData.name || userData.displayName || userData.firstName || '',
-              email: userData.email || '',
-              avatar: userData.avatar || userData.profilePhoto || undefined,
-              mutualFriends: 0, // TODO: Calculate mutual friends
-              isFriend: false, // TODO: Check if already friends
-              hasPendingRequest: false // TODO: Check for pending requests
-            });
-          }
-        });
-      }
+      // Search by name (always search, not just when no @)
+      const nameQuery = query(
+        this.usersCollection,
+        where('name', '>=', searchQuery),
+        where('name', '<=', searchQuery + '\uf8ff'),
+        limit(10)
+      );
+      const nameSnapshot = await getDocs(nameQuery);
+      nameSnapshot.forEach(addUserToResults);
+
+      // Also search by displayName if different from name
+      const displayNameQuery = query(
+        this.usersCollection,
+        where('displayName', '>=', searchQuery),
+        where('displayName', '<=', searchQuery + '\uf8ff'),
+        limit(10)
+      );
+      const displayNameSnapshot = await getDocs(displayNameQuery);
+      displayNameSnapshot.forEach(addUserToResults);
 
       return results;
     } catch (error) {

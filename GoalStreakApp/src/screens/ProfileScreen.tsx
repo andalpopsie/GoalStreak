@@ -3,13 +3,11 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image, Mod
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
 import { photoService } from '../services/photoService';
-import { notificationService } from '../services/notificationService';
 
 export default function ProfileScreen() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -47,82 +45,11 @@ export default function ProfileScreen() {
       }
       
       if (finalStatus !== 'granted') {
-        console.log('Notification permissions not granted');
+        console.warn('Notification permissions not granted');
         return;
       }
-      
-      console.log('Notification permissions granted');
     } catch (error) {
       console.error('Error setting up notifications:', error);
-    }
-  };
-
-  const testHabitReminder = async () => {
-    try {
-      console.log('🧪 Testing individual habit reminder...');
-      
-      const result = await notificationService.testHabitReminder();
-      
-      Alert.alert(
-        'Habit Reminder Test! 🎯',
-        `✅ Scheduled reminder for "${result.habitName}"\n⏰ Time: ${result.reminderTime}\n📱 Notification ID: ${result.notificationId.substring(0, 8)}...\n\nYou should receive a daily reminder at 7:30 AM starting tomorrow!`,
-        [{ text: 'OK' }]
-      );
-    } catch (error) {
-      console.error('❌ Error testing habit reminder:', error);
-      Alert.alert('Error', `Failed to test habit reminder: ${error.message}`);
-    }
-  };
-
-  const testFirebaseStorage = async () => {
-    try {
-      const isConnected = await photoService.testCloudConnection();
-      Alert.alert(
-        'Firebase Storage Test',
-        isConnected ? '✅ Connected to Firebase Storage!' : '❌ Firebase Storage connection failed',
-        [{ text: 'OK' }]
-      );
-    } catch (error) {
-      Alert.alert('Error', `Test failed: ${error.message}`);
-    }
-  };
-
-  const sendTestNotification = async () => {
-    try {
-      console.log('🔔 Starting comprehensive notification tests...');
-      
-      const results = await notificationService.runNotificationTests();
-      
-      Alert.alert(
-        'Notification Tests Started! 🧪', 
-        `✅ Test 1: Immediate (5 seconds)\n⏰ Test 2: Daily repeat at ${results.testTime}\n🎯 Test 3: Action buttons (30 seconds)\n\nTotal scheduled: ${results.totalScheduled}\n\nWatch for notifications and try the action buttons!`,
-        [{ text: 'OK' }]
-      );
-    } catch (error) {
-      console.error('❌ Error running notification tests:', error);
-      Alert.alert('Error', `Failed to run tests: ${error.message}`);
-    }
-  };
-
-  const checkNotificationStatus = async () => {
-    try {
-      console.log('🔍 Checking notification status...');
-      
-      const settings = await notificationService.getNotificationSettings();
-      const scheduled = await notificationService.getScheduledNotificationsInfo();
-      const permissions = await Notifications.getPermissionsAsync();
-      
-      Alert.alert(
-        'Notification Status 📊',
-        `🔔 Permissions: ${permissions.status}\n💾 Settings Saved: ${settings.lastUpdated ? 'Yes' : 'No'}\n📱 Scheduled: ${scheduled.length} notifications\n🔊 Sound: ${settings.sound ? 'On' : 'Off'}\n🔴 Badge: ${settings.badge ? 'On' : 'Off'}\n\nSettings are ${settings.lastUpdated ? 'persistent' : 'not saved'}!`,
-        [
-          { text: 'View Details', onPress: () => console.log('📋 Scheduled notifications:', scheduled) },
-          { text: 'OK' }
-        ]
-      );
-    } catch (error) {
-      console.error('❌ Error checking notification status:', error);
-      Alert.alert('Error', `Failed to check status: ${error.message}`);
     }
   };
 
@@ -287,33 +214,6 @@ export default function ProfileScreen() {
             <Ionicons name="log-out-outline" size={24} color={Colors.error} />
             <Text style={[styles.menuText, { color: Colors.error }]}>Sign Out</Text>
           </TouchableOpacity>
-        </View>
-
-        {/* Test Section */}
-        <View style={styles.testSection}>
-          <TouchableOpacity style={[styles.testButton, { backgroundColor: Colors.success }]} onPress={testFirebaseStorage}>
-            <Ionicons name="cloud" size={20} color={Colors.white} />
-            <Text style={styles.testButtonText}>Test Firebase Storage</Text>
-          </TouchableOpacity>
-          <Text style={styles.testDescription}>Test connection to Firebase Storage for profile photos</Text>
-          
-          <TouchableOpacity style={[styles.testButton, { backgroundColor: '#FF6B35', marginTop: 12 }]} onPress={testHabitReminder}>
-            <Ionicons name="alarm" size={20} color={Colors.white} />
-            <Text style={styles.testButtonText}>Test Habit Reminder</Text>
-          </TouchableOpacity>
-          <Text style={styles.testDescription}>Phase 1: Test individual habit notification (Morning Workout at 7:30 AM)</Text>
-          
-          <TouchableOpacity style={styles.testButton} onPress={sendTestNotification}>
-            <Ionicons name="notifications" size={20} color={Colors.white} />
-            <Text style={styles.testButtonText}>Run Notification Tests</Text>
-          </TouchableOpacity>
-          <Text style={styles.testDescription}>Comprehensive test: immediate, daily repeat, and action buttons</Text>
-          
-          <TouchableOpacity style={[styles.testButton, { backgroundColor: Colors.accent3, marginTop: 12 }]} onPress={checkNotificationStatus}>
-            <Ionicons name="information-circle" size={20} color={Colors.white} />
-            <Text style={styles.testButtonText}>Check Status & Persistence</Text>
-          </TouchableOpacity>
-          <Text style={styles.testDescription}>View notification settings, permissions, and scheduled notifications</Text>
         </View>
       </ScrollView>
 
@@ -485,31 +385,6 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.base,
     color: Colors.primaryText,
     marginLeft: Spacing.md,
-  },
-  testSection: {
-    marginTop: Spacing.xl,
-    paddingHorizontal: Spacing.lg,
-  },
-  testButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.primary,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-    borderRadius: 8,
-    marginBottom: Spacing.sm,
-  },
-  testButtonText: {
-    color: Colors.white,
-    fontSize: Typography.fontSize.base,
-    fontWeight: Typography.fontWeight.medium,
-    marginLeft: Spacing.sm,
-  },
-  testDescription: {
-    fontSize: Typography.fontSize.sm,
-    color: Colors.accent2,
-    textAlign: 'center',
-    paddingHorizontal: Spacing.lg,
   },
   modalContainer: {
     flex: 1,

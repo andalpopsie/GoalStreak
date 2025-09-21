@@ -126,18 +126,23 @@ export default function SearchModal({
                         user.hasPendingRequest && styles.addButtonPending,
                         user.isFriend && styles.addButtonFriends
                       ]}
-                      onPress={() => onSendFriendRequest(user)}
+                      onPress={() => !user.isFriend && !user.hasPendingRequest ? onSendFriendRequest(user) : null}
                       disabled={sendingRequestTo === user.id || user.isFriend || user.hasPendingRequest}
                     >
                       {sendingRequestTo === user.id ? (
-                        <Ionicons name="hourglass" size={20} color={Colors.white} />
+                        <Ionicons name="hourglass" size={16} color={Colors.white} />
                       ) : user.isFriend ? (
-                        <Ionicons name="checkmark-circle" size={20} color={Colors.white} />
+                        <Ionicons name="checkmark-circle" size={16} color={Colors.white} />
                       ) : user.hasPendingRequest ? (
-                        <Ionicons name="time" size={20} color={Colors.white} />
+                        <Ionicons name="time" size={16} color={Colors.white} />
                       ) : (
-                        <Ionicons name="person-add" size={20} color={Colors.white} />
+                        <Ionicons name="person-add" size={16} color={Colors.white} />
                       )}
+                      <Text style={styles.addButtonText}>
+                        {sendingRequestTo === user.id ? 'Sending...' :
+                         user.isFriend ? 'Friends' :
+                         user.hasPendingRequest ? 'Pending' : 'Add'}
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 ))
@@ -258,11 +263,20 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   addButton: {
-    padding: 8,
-    borderRadius: 20,
-    backgroundColor: Colors.accent3,
+    flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    backgroundColor: Colors.accent3,
+    minWidth: 80,
     justifyContent: 'center',
+  },
+  addButtonText: {
+    color: Colors.white,
+    fontSize: 12,
+    fontWeight: '600',
+    marginLeft: 4,
   },
   addButtonDisabled: {
     backgroundColor: Colors.secondaryText,

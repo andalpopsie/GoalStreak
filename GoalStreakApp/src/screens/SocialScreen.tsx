@@ -14,7 +14,7 @@ import { useFriends } from '../hooks/useFriends';
 import { useAuth } from '../hooks/useAuth';
 import { ReactionType, UserSearchResult } from '../types/social';
 import { SearchModal } from '../components/common';
-import { AddFriendModal, ActivityFeedTab, FriendsTab } from '../components/social';
+import { ActivityFeedTab, FriendsTab } from '../components/social';
 
 type TabType = 'feed' | 'friends';
 
@@ -39,7 +39,6 @@ export default function SocialScreen() {
 
   // UI state
   const [activeTab, setActiveTab] = useState<TabType>('feed');
-  const [showAddFriendModal, setShowAddFriendModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [sendingRequestTo, setSendingRequestTo] = useState<string | null>(null);
 
@@ -177,12 +176,6 @@ export default function SocialScreen() {
         >
           <Ionicons name="search" size={22} color={Colors.primaryText} />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.addFriendTabButton}
-          onPress={() => setShowAddFriendModal(true)}
-        >
-          <Ionicons name="person-add" size={22} color={Colors.primaryText} />
-        </TouchableOpacity>
       </View>
 
       {/* Content */}
@@ -238,9 +231,9 @@ export default function SocialScreen() {
               {activeTab === 'friends' && (
                 <TouchableOpacity
                   style={styles.emptyStateButton}
-                  onPress={() => setShowAddFriendModal(true)}
+                  onPress={() => setShowSearchModal(true)}
                 >
-                  <Text style={styles.emptyStateButtonText}>Add Your First Friend</Text>
+                  <Text style={styles.emptyStateButtonText}>Search & Add Friends</Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -249,13 +242,6 @@ export default function SocialScreen() {
       </ScrollView>
 
       {/* Modals */}
-      <AddFriendModal
-        visible={showAddFriendModal}
-        onClose={() => setShowAddFriendModal(false)}
-        onSendRequest={handleSendFriendRequest}
-        isLoading={isSendingRequest}
-      />
-
       <SearchModal
         visible={showSearchModal}
         onClose={() => setShowSearchModal(false)}
@@ -300,12 +286,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   searchTabButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-  },
-  addFriendTabButton: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 16,
