@@ -18,7 +18,12 @@ The app uses a best-practice approach for daily habit reminders, scheduling mult
 - ✅ Batch scheduling for 7 days ahead
 - ✅ No immediate firing (waits for actual scheduled time)
 
-## ⚠️ IMPORTANT: Testing Limitations
+## ⚠️ IMPORTANT: SDK 54 & Testing Requirements
+
+### Expo SDK Version
+- **Current**: SDK 54.0.0 ✅
+- **FileSystem**: Uses `expo-file-system/legacy` for compatibility
+- **Dependencies**: All updated to SDK 54 compatible versions
 
 ### Expo Go Limitations
 ```
@@ -109,5 +114,5 @@ console.log('Permission:', status);
 ```
 
 ---
-**Last Updated**: December 9, 2025
-**Status**: ✅ Implemented with Expo Go limitations noted
+**Last Updated**: September 21, 2025
+**Status**: ✅ Implemented with SDK 54 compatibility

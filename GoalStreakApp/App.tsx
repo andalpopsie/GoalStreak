@@ -8,6 +8,7 @@ import AppNavigator from './src/navigation/AppNavigator';
 import { ErrorBoundary } from './src/components/common';
 import { Colors } from './src/constants/theme';
 import { useAppFonts } from './src/hooks/useFonts';
+import { notificationService } from './src/services/notificationService';
 
 // Configure notification behavior globally
 Notifications.setNotificationHandler({
@@ -33,6 +34,19 @@ function AppContent() {
 
 export default function App() {
   const fontsLoaded = useAppFonts();
+
+  useEffect(() => {
+    // Setup notification action listeners (industry standard)
+    const subscription = Notifications.addNotificationResponseReceivedListener(response => {
+      const { actionIdentifier, notification } = response;
+      
+      if (actionIdentifier) {
+        notificationService.handleNotificationAction(actionIdentifier, notification);
+      }
+    });
+
+    return () => subscription.remove();
+  }, []);
 
   if (!fontsLoaded) {
     // Show loading screen while fonts load

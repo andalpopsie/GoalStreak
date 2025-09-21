@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing } from '../../constants/theme';
 import { SocialActivity } from '../../types/social';
 import { getCategoryIcon } from '../../utils/categoryIcons';
+import { formatRelativeTime } from '../../utils/timeUtils';
 
 interface ActivityCardProps {
   activity: SocialActivity;
@@ -78,23 +79,6 @@ export default function ActivityCard({ activity }: ActivityCardProps) {
     }
   };
 
-  const getTimeAgo = (timestamp: Date) => {
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - timestamp.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours}h ago`;
-    
-    const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 7) return `${diffInDays}d ago`;
-    
-    const diffInWeeks = Math.floor(diffInDays / 7);
-    return `${diffInWeeks}w ago`;
-  };
-
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -129,7 +113,7 @@ export default function ActivityCard({ activity }: ActivityCardProps) {
             {getActivityText()}
           </Text>
           <Text style={styles.timeText}>
-            {getTimeAgo(activity.timestamp)}
+            {formatRelativeTime(activity.timestamp)}
           </Text>
         </View>
 

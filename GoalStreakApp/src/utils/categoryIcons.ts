@@ -6,9 +6,11 @@ export const CATEGORY_ICONS: Record<string, string> = {
   fitness: 'fitness',                   // ✓ Verified - fitness icon
   workout: 'fitness',                   // ✓ Verified - fitness icon
   running: 'walk',                      // ✓ Verified - walking/running figure
-  yoga: 'body',                         // ✓ Verified - body silhouette
+  yoga: 'body',                         // ✓ Verified - body silhouette for yoga
+  weightlifting: 'barbell',             // ✓ Verified - barbell for weightlifting
   cycling: 'bicycle',                   // ✓ Verified - bicycle
-  swimming: 'water',                    // ✓ Verified - water waves
+  swimming: 'water',                    // ✓ Verified - water waves for swimming
+  pet: 'paw',                           // ✓ Verified - paw print for pets
   cardio: 'heart',                      // ✓ Verified - heart for cardio
   strength: 'fitness',                  // ✓ Verified - fitness for strength
   
@@ -83,8 +85,10 @@ export const CATEGORY_COLORS: Record<string, string> = {
   workout: Colors.accent1,              // Warm orange - active energy
   running: Colors.accent1,              // Warm orange - dynamic movement
   yoga: Colors.accent3,                 // Teal - calm and centered
+  weightlifting: '#E17055',             // Strong orange-red - power and strength
   cycling: Colors.accent1,              // Warm orange - active energy
   swimming: Colors.accent3,             // Teal - water association
+  pet: '#FDCB6E',                       // Warm yellow - joy and companionship
   cardio: '#FF6B6B',                    // Red-orange - heart/cardio
   strength: Colors.accent1,             // Warm orange - power
   
@@ -188,6 +192,17 @@ export const getCategoryIcon = (category: string, habitName?: string, selectedIc
     'yoga': 'body',
     'stretch': 'body',
     'stretching': 'body',
+    'weightlifting': 'barbell',
+    'weights': 'barbell',
+    'lifting': 'barbell',
+    'strength': 'barbell',
+    'swimming': 'water',
+    'swim': 'water',
+    'pool': 'water',
+    'pet': 'paw',
+    'dog': 'paw',
+    'cat': 'paw',
+    'animal': 'paw',
     
     // Meditation/Mindfulness
     'meditate': 'flower',

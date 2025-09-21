@@ -1,11 +1,7 @@
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { getAuth } from 'firebase/auth';
 import * as ImageManipulator from 'expo-image-manipulator';
-import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// Toggle between development (local) and production (cloud) mode
-const USE_CLOUD_STORAGE = !__DEV__; // Production uses cloud, development uses local
 
 export class PhotoService {
   private storage = getStorage();
@@ -32,135 +28,47 @@ export class PhotoService {
   }
 
   /**
-   * Upload profile photo - automatically chooses cloud or local based on mode
+   * Save profile photo - Cloud first with local cache
    */
-  async uploadProfilePhoto(userId: string, imageUri: string): Promise<string> {
-    if (USE_CLOUD_STORAGE) {
-      return await this.uploadToCloud(userId, imageUri);
-    } else {
-      return await this.saveLocally(userId, imageUri);
-    }
-  }
-
-  /**
-   * Upload to Firebase Storage (Production)
-   */
-  private async uploadToCloud(userId: string, imageUri: string): Promise<string> {
+  async saveProfilePhoto(userId: string, imageUri: string): Promise<string | null> {
     try {
-      console.log('📤 Uploading to Firebase Storage...');
-      
-      if (!this.auth.currentUser) {
-        throw new Error('User must be authenticated to upload photos');
-      }
-
       const compressedUri = await this.compressImage(imageUri);
       const response = await fetch(compressedUri);
       const blob = await response.blob();
-
-      const photoRef = ref(this.storage, `profile-photos/${this.auth.currentUser.uid}.jpg`);
+      
+      const photoRef = ref(this.storage, `profile-photos/${userId}.jpg`);
       await uploadBytes(photoRef, blob);
       const downloadURL = await getDownloadURL(photoRef);
       
-      // Cache locally for offline access
-      await this.cacheLocally(userId, downloadURL);
+      await AsyncStorage.setItem(`profilePhoto_${userId}`, downloadURL);
       
-      console.log('✅ Photo uploaded to cloud successfully');
       return downloadURL;
     } catch (error) {
-      console.error('❌ Cloud upload failed:', error);
-      // Fallback to local storage if cloud fails
-      return await this.saveLocally(userId, imageUri);
-    }
-  }
-
-  /**
-   * Save locally (Development & Fallback)
-   */
-  private async saveLocally(userId: string, imageUri: string): Promise<string> {
-    try {
-      console.log('💾 Saving photo locally...');
-      
-      const compressedUri = await this.compressImage(imageUri);
-      const fileName = `profile_${userId}.jpg`;
-      const permanentUri = `${FileSystem.documentDirectory}${fileName}`;
-      
-      await FileSystem.copyAsync({
-        from: compressedUri,
-        to: permanentUri,
-      });
-      
-      await AsyncStorage.setItem(`profileImage_${userId}`, permanentUri);
-      
-      console.log('✅ Photo saved locally');
-      return permanentUri;
-    } catch (error) {
-      console.error('❌ Error saving photo locally:', error);
+      console.error('❌ Error saving profile photo:', error);
       throw new Error('Failed to save profile photo');
     }
   }
 
   /**
-   * Cache cloud photo locally for offline access
-   */
-  private async cacheLocally(userId: string, downloadURL: string): Promise<void> {
-    try {
-      const localPath = `${FileSystem.documentDirectory}profile_${userId}_cloud.jpg`;
-      const downloadResult = await FileSystem.downloadAsync(downloadURL, localPath);
-      
-      await AsyncStorage.setItem(`profileImage_${userId}`, downloadResult.uri);
-      await AsyncStorage.setItem(`profileImageCloud_${userId}`, downloadURL);
-    } catch (error) {
-      console.error('Error caching photo:', error);
-      // Still save cloud URL for fallback
-      await AsyncStorage.setItem(`profileImageCloud_${userId}`, downloadURL);
-    }
-  }
-
-  /**
-   * Get profile photo with smart loading
+   * Get profile photo - Cloud first with cache
    */
   async getProfilePhoto(userId: string): Promise<string | null> {
     try {
-      if (USE_CLOUD_STORAGE) {
-        // Production: Try cache first, then cloud
-        const cloudURL = await AsyncStorage.getItem(`profileImageCloud_${userId}`);
-        if (cloudURL) {
-          const localCache = await AsyncStorage.getItem(`profileImage_${userId}`);
-          if (localCache && localCache.startsWith('file://')) {
-            const fileInfo = await FileSystem.getInfoAsync(localCache);
-            if (fileInfo.exists) {
-              return localCache; // Use cached version
-            }
-          }
-          return cloudURL; // Use cloud URL
-        }
+      const cachedUrl = await AsyncStorage.getItem(`profilePhoto_${userId}`);
+      if (cachedUrl) {
+        return cachedUrl;
       }
       
-      // Development or fallback: Use local storage
-      return await AsyncStorage.getItem(`profileImage_${userId}`);
+      const photoRef = ref(this.storage, `profile-photos/${userId}.jpg`);
+      const downloadURL = await getDownloadURL(photoRef);
+      
+      await AsyncStorage.setItem(`profilePhoto_${userId}`, downloadURL);
+      
+      return downloadURL;
     } catch (error) {
-      console.error('Error getting profile photo:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Sync local photo to cloud
-   */
-  async syncLocalPhotoToCloud(userId: string): Promise<string | null> {
-    if (!USE_CLOUD_STORAGE) {
-      console.log('📱 Development mode: Using local storage');
-      return await this.getProfilePhoto(userId);
-    }
-
-    try {
-      const localPhoto = await AsyncStorage.getItem(`profileImage_${userId}`);
-      if (localPhoto && localPhoto.startsWith('file://')) {
-        return await this.uploadToCloud(userId, localPhoto);
+      if (error.code !== 'storage/object-not-found') {
+        console.error('❌ Error loading profile photo:', error);
       }
-      return null;
-    } catch (error) {
-      console.error('Error syncing to cloud:', error);
       return null;
     }
   }
@@ -170,29 +78,25 @@ export class PhotoService {
    */
   async deleteProfilePhoto(userId: string): Promise<void> {
     try {
-      if (USE_CLOUD_STORAGE && this.auth.currentUser) {
-        // Delete from cloud
-        const photoRef = ref(this.storage, `profile-photos/${this.auth.currentUser.uid}.jpg`);
-        await deleteObject(photoRef);
-      }
-      
-      // Clear local storage
-      await AsyncStorage.removeItem(`profileImage_${userId}`);
-      await AsyncStorage.removeItem(`profileImageCloud_${userId}`);
-      
-      // Delete local file
-      const fileName = `profile_${userId}.jpg`;
-      const fileUri = `${FileSystem.documentDirectory}${fileName}`;
-      const fileInfo = await FileSystem.getInfoAsync(fileUri);
-      
-      if (fileInfo.exists) {
-        await FileSystem.deleteAsync(fileUri);
-      }
-      
-      console.log('Profile photo deleted');
+      const photoRef = ref(this.storage, `profile-photos/${userId}.jpg`);
+      await deleteObject(photoRef);
+      await AsyncStorage.removeItem(`profilePhoto_${userId}`);
     } catch (error) {
-      console.error('Error deleting photo:', error);
+      console.error('❌ Error deleting profile photo:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Clear all cached photos (for debugging)
+   */
+  async clearCache(): Promise<void> {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      const photoKeys = keys.filter(key => key.startsWith('profilePhoto_'));
+      await AsyncStorage.multiRemove(photoKeys);
+    } catch (error) {
+      console.error('❌ Error clearing cache:', error);
     }
   }
 }

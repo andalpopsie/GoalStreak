@@ -495,12 +495,13 @@ class FriendService {
     });
   }
 
-  // Real-time activity feed subscription
+  // Real-time activity feed subscription (cross-device optimized)
   subscribeToActivityFeed(
     userId: string, 
     callback: (activities: SocialActivity[]) => void,
     errorCallback?: (error: any) => void
   ): () => void {
+    // Listen to all activities collection changes to catch reaction updates across devices
     const activitiesQuery = query(
       this.activitiesCollection,
       orderBy('timestamp', 'desc'),
@@ -509,12 +510,16 @@ class FriendService {
 
     return onSnapshot(
       activitiesQuery, 
-      async () => {
+      async (snapshot) => {
         try {
-          const feedData = await this.getActivityFeed(userId);
-          callback(feedData.activities);
+          // Check if any document changed (including reactions from other devices)
+          const changes = snapshot.docChanges();
+          if (changes.length > 0) {
+            const feedData = await this.getActivityFeed(userId);
+            callback(feedData.activities);
+          }
         } catch (error) {
-          console.error('Error in activity feed subscription:', error);
+          console.error('Error in cross-device activity feed sync:', error);
           if (errorCallback) errorCallback(error);
         }
       },
@@ -525,7 +530,7 @@ class FriendService {
     );
   }
 
-  // Add reaction to activity (optimized)
+  // Add reaction to activity (optimized for cross-device sync)
   async addReaction(activityId: string, userId: string, reactionType: ReactionType): Promise<void> {
     if (!activityId || !userId || !reactionType) {
       throw new Error('Invalid parameters for adding reaction');
@@ -558,9 +563,11 @@ class FriendService {
         reactions[userId] = userReactions;
       }
 
+      // Update with server timestamp for cross-device sync
       await updateDoc(activityRef, {
         reactions,
-        updatedAt: new Date()
+        updatedAt: serverTimestamp(),
+        lastReactionAt: serverTimestamp()
       });
     } catch (error) {
       console.error('Error adding reaction:', error);

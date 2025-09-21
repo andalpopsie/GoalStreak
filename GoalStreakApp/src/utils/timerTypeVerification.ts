@@ -79,14 +79,14 @@ export const verifyTimerTypes = () => {
   const timeFormatted = formatRemainingTime(90000); // 01:30
 
   // Test constants
+  const testConstants = {
     minDuration: TIMER_CONSTANTS.MIN_DURATION_MINUTES,
     maxDuration: TIMER_CONSTANTS.MAX_DURATION_MINUTES,
     defaultDuration: TIMER_CONSTANTS.DEFAULT_DURATION_MINUTES
-  });
+  };
 
   // Test error enum
   const errorExample = TimerError.INVALID_DURATION;
-
 
   return {
     configValidation,

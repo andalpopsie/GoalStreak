@@ -10,6 +10,7 @@ import {
   Platform,
   Modal,
   FlatList,
+  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -122,10 +123,38 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
         ? `${hour24.toString().padStart(2, '0')}:${selectedMinute.toString().padStart(2, '0')}`
         : undefined;
 
-      await createHabit({
+      // Create the habit first
+      const newHabit = await createHabit({
         ...form,
         reminderTime,
       });
+      
+      // Schedule notification if reminders are enabled
+      if (form.reminderEnabled && reminderTime && newHabit) {
+        try {
+          console.log(`📅 Scheduling notification for "${form.name}" at ${reminderTime}`);
+          
+          const notificationId = await notificationService.scheduleHabitReminder({
+            id: newHabit.id,
+            name: form.name,
+            reminderTime,
+            reminderEnabled: true,
+          });
+          
+          if (notificationId) {
+            console.log(`✅ Notification scheduled successfully: ${notificationId}`);
+          }
+        } catch (notificationError) {
+          console.error('❌ Failed to schedule notification:', notificationError);
+          // Don't fail the habit creation if notification fails
+          Alert.alert(
+            'Habit Created', 
+            'Habit created successfully, but notification scheduling failed. You can enable notifications later in settings.',
+            [{ text: 'OK', onPress: () => navigation.goBack() }]
+          );
+          return;
+        }
+      }
       
       Alert.alert('Success', 'Habit created successfully!', [
         { text: 'OK', onPress: () => navigation.goBack() }
@@ -399,6 +428,59 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                 )}
               </View>
             </TouchableOpacity>
+          </View>
+
+          {/* Reminder Settings */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Daily Reminder</Text>
+            <TouchableOpacity
+              style={styles.privacyOption}
+              onPress={() => setForm({ ...form, reminderEnabled: !form.reminderEnabled })}
+            >
+              <View style={styles.privacyInfo}>
+                <Text style={styles.privacyTitle}>Enable notifications</Text>
+                <Text style={styles.privacySubtitle}>Get reminded to complete this habit</Text>
+              </View>
+              <Switch
+                value={form.reminderEnabled}
+                onValueChange={(value) => setForm({ ...form, reminderEnabled: value })}
+                trackColor={{ false: Colors.accent3, true: Colors.primary }}
+                thumbColor={Colors.white}
+              />
+            </TouchableOpacity>
+            
+            {form.reminderEnabled && (
+              <TouchableOpacity
+                style={styles.timeSelector}
+                onPress={() => {
+                  // Convert current time to form format
+                  const hour24 = selectedPeriod === 'PM' && selectedHour !== 12 
+                    ? selectedHour + 12 
+                    : selectedPeriod === 'AM' && selectedHour === 12 
+                    ? 0 
+                    : selectedHour;
+                  const timeString = `${hour24.toString().padStart(2, '0')}:${selectedMinute.toString().padStart(2, '0')}`;
+                  setForm({ ...form, reminderTime: timeString });
+                }}
+              >
+                <Ionicons name="time-outline" size={24} color={Colors.primary} />
+                <View style={styles.timeInfo}>
+                  <Text style={styles.timeTitle}>Reminder Time</Text>
+                  <Text style={styles.timeValue}>
+                    {form.reminderTime 
+                      ? (() => {
+                          const [hours, minutes] = form.reminderTime.split(':').map(Number);
+                          const period = hours >= 12 ? 'PM' : 'AM';
+                          const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+                          return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
+                        })()
+                      : `${selectedHour}:${selectedMinute.toString().padStart(2, '0')} ${selectedPeriod}`
+                    }
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={16} color={Colors.accent2} />
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Create Button */}
@@ -731,5 +813,34 @@ const styles = StyleSheet.create({
   pickerTextSelected: {
     color: Colors.white,
     fontWeight: Typography.fontWeight.medium,
+  },
+  timeSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginTop: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.accent2 + '30',
+  },
+  timeInfo: {
+    flex: 1,
+    marginLeft: Spacing.md,
+  },
+  timeTitle: {
+    fontSize: Typography.fontSize.base,
+    fontWeight: Typography.fontWeight.medium,
+    color: Colors.primaryText,
+  },
+  timeValue: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.accent2,
+    marginTop: 2,
+  },
+  privacySubtitle: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.accent2,
+    marginTop: 2,
   },
 });

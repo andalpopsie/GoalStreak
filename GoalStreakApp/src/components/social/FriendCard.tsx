@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors, Typography } from '../../constants/theme';
 import { Friend, FriendRequest } from '../../types/social';
+import { photoService } from '../../services/photoService';
 
 interface FriendCardProps {
   friend?: Friend;
@@ -37,20 +37,12 @@ export default function FriendCard({
   const loadProfilePhoto = async () => {
     try {
       const userId = friend?.friendId || friendRequest?.fromUserId;
-      const userEmail = friend?.friendEmail || friendRequest?.fromUserEmail;
       
-      if (userId || userEmail) {
-        const possibleKeys = [
-          `profileImage_${userId}`,
-          `profileImage_${userEmail?.replace(/[^a-zA-Z0-9]/g, '_')}`,
-        ];
-        
-        for (const key of possibleKeys) {
-          const savedImage = await AsyncStorage.getItem(key);
-          if (savedImage) {
-            setProfilePhoto(savedImage);
-            break;
-          }
+      if (userId) {
+        // Use the new photoService
+        const photoUri = await photoService.getProfilePhoto(userId);
+        if (photoUri) {
+          setProfilePhoto(photoUri);
         }
       }
     } catch (error) {

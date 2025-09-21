@@ -15,9 +15,15 @@ const HABIT_ICONS = [
   { name: 'fitness', category: 'Fitness' },
   { name: 'walk', category: 'Fitness' },
   { name: 'bicycle', category: 'Fitness' },
+  { name: 'body', category: 'Fitness' },        // Yoga
+  { name: 'barbell', category: 'Fitness' },     // Weightlifting
+  { name: 'water', category: 'Fitness' },       // Swimming
   { name: 'heart', category: 'Health' },
   { name: 'pulse', category: 'Health' },
   { name: 'medical', category: 'Health' },
+  
+  // Pets & Animals
+  { name: 'paw', category: 'Pets' },            // Pet care
   
   // Sleep & Rest
   { name: 'moon', category: 'Sleep' },

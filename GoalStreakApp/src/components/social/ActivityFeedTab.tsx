@@ -1,9 +1,10 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '../../constants/theme';
 import { SocialActivity, ReactionType } from '../../types/social';
+import { formatRelativeTime } from '../../utils/timeUtils';
+import { photoService } from '../../services/photoService';
 
 interface ActivityFeedTabProps {
   activityFeed: SocialActivity[];
@@ -18,10 +19,9 @@ export default function ActivityFeedTab({
 }: ActivityFeedTabProps) {
   const [profilePhotos, setProfilePhotos] = useState<{[key: string]: string}>({});
 
-  // Load profile photos for all users in the feed
   useEffect(() => {
     loadProfilePhotos();
-  }, [activityFeed]);
+  }, [activityFeed, currentUserId]);
 
   const loadProfilePhotos = async () => {
     const photos: {[key: string]: string} = {};
@@ -29,22 +29,24 @@ export default function ActivityFeedTab({
     for (const activity of activityFeed) {
       if (activity?.userId && !photos[activity.userId]) {
         try {
-          // Try different possible keys for the user
-          const possibleKeys = [
-            `profileImage_${activity.userId}`,
-            `profileImage_${activity.userEmail?.replace(/[^a-zA-Z0-9]/g, '_')}`,
-          ];
-          
-          for (const key of possibleKeys) {
-            const savedImage = await AsyncStorage.getItem(key);
-            if (savedImage) {
-              photos[activity.userId] = savedImage;
-              break;
-            }
+          const photoUri = await photoService.getProfilePhoto(activity.userId);
+          if (photoUri) {
+            photos[activity.userId] = photoUri;
           }
         } catch (error) {
           console.error('Error loading profile photo for user:', activity.userId, error);
         }
+      }
+    }
+    
+    if (currentUserId && !photos[currentUserId]) {
+      try {
+        const photoUri = await photoService.getProfilePhoto(currentUserId);
+        if (photoUri) {
+          photos[currentUserId] = photoUri;
+        }
+      } catch (error) {
+        console.error('Error loading current user photo:', error);
       }
     }
     
@@ -68,29 +70,6 @@ export default function ActivityFeedTab({
     
     const userReactions = activity.reactions[currentUserId];
     return Array.isArray(userReactions) && userReactions.includes(reactionType);
-  };
-
-  const formatTimestamp = (timestamp: any) => {
-    if (!timestamp) return 'Recently';
-    
-    try {
-      const date = new Date(timestamp);
-      if (isNaN(date.getTime())) return 'Recently';
-      
-      const now = new Date();
-      const diff = now.getTime() - date.getTime();
-      const minutes = Math.floor(diff / 60000);
-      const hours = Math.floor(diff / 3600000);
-      const days = Math.floor(diff / 86400000);
-
-      if (minutes < 1) return 'Just now';
-      if (minutes < 60) return minutes + 'm ago';
-      if (hours < 24) return hours + 'h ago';
-      if (days < 7) return days + 'd ago';
-      return date.toLocaleDateString();
-    } catch (error) {
-      return 'Recently';
-    }
   };
 
   const getActivityText = (activity: SocialActivity) => {
@@ -119,6 +98,7 @@ export default function ActivityFeedTab({
                 <Image 
                   source={{ uri: activity?.userPhotoURL || profilePhotos[activity?.userId || ''] }} 
                   style={styles.profileImage}
+                  onError={(error) => console.warn('Image load error:', error.nativeEvent.error)}
                 />
               ) : (
                 <Text style={styles.initials}>
@@ -132,7 +112,7 @@ export default function ActivityFeedTab({
                   {String(activity?.userName || 'Unknown User')}
                 </Text>
                 <Text style={styles.activityTime}>
-                  {formatTimestamp(activity?.timestamp)}
+                  {formatRelativeTime(activity?.timestamp)}
                 </Text>
               </View>
               <Text style={styles.activityText}>

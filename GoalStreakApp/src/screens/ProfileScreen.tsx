@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
 import { photoService } from '../services/photoService';
+import { notificationService } from '../services/notificationService';
 
 export default function ProfileScreen() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -18,110 +19,110 @@ export default function ProfileScreen() {
   const [editedName, setEditedName] = useState(user?.displayName || '');
   const [editedEmail, setEditedEmail] = useState(user?.email || '');
   const [isUploading, setIsUploading] = useState(false);
-  
-  // Notification settings
+
   const [notificationSettings, setNotificationSettings] = useState({
-    habitReminders: true,
-    socialUpdates: true,
-    weeklyReports: true,
-    friendRequests: true,
-    achievements: true,
+    enabled: true,
+    sound: true,
+    badge: true,
+    dailyReminder: true,
+    streakAlerts: true,
   });
 
-  // Load saved profile image on component mount
   useEffect(() => {
-    if (isAuthenticated && user) {
-      console.log('useEffect triggered - loading profile image');
+    if (isAuthenticated && user?.id) {
       loadProfileImage();
-      setEditedName(user.displayName || '');
-      setEditedEmail(user.email || '');
       loadNotificationSettings();
       setupNotifications();
     }
   }, [user?.id, user?.email, isAuthenticated]);
 
   const setupNotifications = async () => {
-    const { status } = await Notifications.requestPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Please enable notifications to receive reminders');
-      return;
+    try {
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      
+      if (finalStatus !== 'granted') {
+        console.log('Notification permissions not granted');
+        return;
+      }
+      
+      console.log('Notification permissions granted');
+    } catch (error) {
+      console.error('Error setting up notifications:', error);
     }
+  };
 
-    // Configure notification behavior with display options
-    Notifications.setNotificationHandler({
-      handleNotification: async () => ({
-        shouldShowBanner: true,     // Shows banner at top
-        shouldShowList: true,       // Shows in notification center
-        shouldPlaySound: true,
-        shouldSetBadge: true,       // Shows app icon badge count
-      }),
-    });
+  const testHabitReminder = async () => {
+    try {
+      console.log('🧪 Testing individual habit reminder...');
+      
+      const result = await notificationService.testHabitReminder();
+      
+      Alert.alert(
+        'Habit Reminder Test! 🎯',
+        `✅ Scheduled reminder for "${result.habitName}"\n⏰ Time: ${result.reminderTime}\n📱 Notification ID: ${result.notificationId.substring(0, 8)}...\n\nYou should receive a daily reminder at 7:30 AM starting tomorrow!`,
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('❌ Error testing habit reminder:', error);
+      Alert.alert('Error', `Failed to test habit reminder: ${error.message}`);
+    }
+  };
+
+  const testFirebaseStorage = async () => {
+    try {
+      const isConnected = await photoService.testCloudConnection();
+      Alert.alert(
+        'Firebase Storage Test',
+        isConnected ? '✅ Connected to Firebase Storage!' : '❌ Firebase Storage connection failed',
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      Alert.alert('Error', `Test failed: ${error.message}`);
+    }
   };
 
   const sendTestNotification = async () => {
     try {
-      console.log('🔔 Starting test notification...');
+      console.log('🔔 Starting comprehensive notification tests...');
       
-      // Check permissions first
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      console.log('📱 Current permission status:', existingStatus);
+      const results = await notificationService.runNotificationTests();
       
-      let finalStatus = existingStatus;
-      
-      if (existingStatus !== 'granted') {
-        console.log('📱 Requesting permissions...');
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-        console.log('📱 New permission status:', finalStatus);
-      }
-      
-      if (finalStatus !== 'granted') {
-        Alert.alert('Permission Required', 'Please enable notifications in Settings to receive reminders.');
-        return;
-      }
-
-      console.log('⏰ Scheduling test notification...');
-      
-      // Test 1: Immediate notification (2 seconds)
-      const immediateId = await Notifications.scheduleNotificationAsync({
-        content: {
-          title: "Test 1: Immediate 🔔",
-          body: "This should appear in 2 seconds",
-          badge: 1,
-        },
-        trigger: { seconds: 2 },
-      });
-
-      // Test 2: Daily notification for 1 minute from now
-      const now = new Date();
-      const testTime = new Date(now.getTime() + 60000); // 1 minute from now
-      const testHour = testTime.getHours();
-      const testMinute = testTime.getMinutes();
-
-      const dailyId = await Notifications.scheduleNotificationAsync({
-        content: {
-          title: "Test 2: Daily Trigger 🕐",
-          body: `Testing daily at ${testHour}:${testMinute.toString().padStart(2, '0')}`,
-          badge: 2,
-        },
-        trigger: {
-          hour: testHour,
-          minute: testMinute,
-          repeats: true,
-        },
-      });
-
-      console.log('✅ Test notifications scheduled');
-      console.log(`📅 Daily test will fire at ${testHour}:${testMinute.toString().padStart(2, '0')}`);
-
-      // Check scheduled notifications
-      const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-      console.log('📋 Total scheduled notifications:', scheduled.length);
-
-      Alert.alert('Tests Sent!', `1. Immediate (2 sec): ID ${immediateId}\n2. Daily test (${testHour}:${testMinute.toString().padStart(2, '0')}): ID ${dailyId}\n\nPermission: ${finalStatus}\nTotal scheduled: ${scheduled.length}`);
+      Alert.alert(
+        'Notification Tests Started! 🧪', 
+        `✅ Test 1: Immediate (5 seconds)\n⏰ Test 2: Daily repeat at ${results.testTime}\n🎯 Test 3: Action buttons (30 seconds)\n\nTotal scheduled: ${results.totalScheduled}\n\nWatch for notifications and try the action buttons!`,
+        [{ text: 'OK' }]
+      );
     } catch (error) {
-      console.error('❌ Error sending test notification:', error);
-      Alert.alert('Error', `Failed to send test notification: ${error.message}`);
+      console.error('❌ Error running notification tests:', error);
+      Alert.alert('Error', `Failed to run tests: ${error.message}`);
+    }
+  };
+
+  const checkNotificationStatus = async () => {
+    try {
+      console.log('🔍 Checking notification status...');
+      
+      const settings = await notificationService.getNotificationSettings();
+      const scheduled = await notificationService.getScheduledNotificationsInfo();
+      const permissions = await Notifications.getPermissionsAsync();
+      
+      Alert.alert(
+        'Notification Status 📊',
+        `🔔 Permissions: ${permissions.status}\n💾 Settings Saved: ${settings.lastUpdated ? 'Yes' : 'No'}\n📱 Scheduled: ${scheduled.length} notifications\n🔊 Sound: ${settings.sound ? 'On' : 'Off'}\n🔴 Badge: ${settings.badge ? 'On' : 'Off'}\n\nSettings are ${settings.lastUpdated ? 'persistent' : 'not saved'}!`,
+        [
+          { text: 'View Details', onPress: () => console.log('📋 Scheduled notifications:', scheduled) },
+          { text: 'OK' }
+        ]
+      );
+    } catch (error) {
+      console.error('❌ Error checking notification status:', error);
+      Alert.alert('Error', `Failed to check status: ${error.message}`);
     }
   };
 
@@ -147,160 +148,74 @@ export default function ProfileScreen() {
 
   const loadProfileImage = async () => {
     try {
-      console.log('Loading profile image for user:', user?.uid || user?.email);
-      console.log('Is authenticated:', isAuthenticated);
+      if (!user?.id) return;
       
-      if (!isAuthenticated || !user) return;
-
-      const userId = user?.uid || user?.id || user?.email?.replace(/[^a-zA-Z0-9]/g, '_') || 'anonymous';
-      
-      // Use new photo service with cloud sync
-      const photoURL = await photoService.getProfilePhoto(userId);
-      
-      if (photoURL) {
-        console.log('Profile photo loaded:', photoURL);
-        setProfileImage(photoURL);
-      } else {
-        console.log('No profile photo found');
+      const imageUri = await photoService.getProfilePhoto(user.id);
+      if (imageUri) {
+        setProfileImage(imageUri);
       }
     } catch (error) {
       console.error('Error loading profile image:', error);
     }
   };
 
-  const saveProfileImage = async (imageUri: string) => {
-    try {
-      console.log('Saving profile image:', imageUri);
-      
-      if (!isAuthenticated) {
-        Alert.alert('Error', 'Please sign in to save profile photo');
-        return;
-      }
-
-      const userId = user?.uid || user?.id || user?.email?.replace(/[^a-zA-Z0-9]/g, '_') || 'anonymous';
-      console.log('Using userId:', userId);
-
-      setIsUploading(true);
-      
-      try {
-        // Upload to Firebase Storage with compression
-        const cloudURL = await photoService.uploadProfilePhoto(userId, imageUri);
-        console.log('Photo uploaded to cloud:', cloudURL);
-        
-        setProfileImage(cloudURL);
-        Alert.alert('Success', 'Profile photo saved and synced to cloud!');
-      } catch (error) {
-        console.error('Cloud upload failed, saving locally:', error);
-        
-        // Fallback to local storage if cloud upload fails
-        const fileName = `profile_${userId}.jpg`;
-        const permanentUri = `${FileSystem.documentDirectory}${fileName}`;
-        
-        await FileSystem.copyAsync({
-          from: imageUri,
-          to: permanentUri,
-        });
-        
-        await AsyncStorage.setItem(`profileImage_${userId}`, permanentUri);
-        setProfileImage(permanentUri);
-        
-        Alert.alert('Saved Locally', 'Photo saved locally. Will sync to cloud when connection is available.');
-      }
-    } catch (error) {
-      console.error('Error saving profile image:', error);
-      Alert.alert('Error', 'Failed to save profile photo');
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
-    if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Please grant camera roll permissions to upload a profile photo.');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets[0]) {
-      await saveProfileImage(result.assets[0].uri);
-    }
-  };
-
-  const takePhoto = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    
-    if (status !== 'granted') {
-      Alert.alert('Permission needed', 'Please grant camera permissions to take a profile photo.');
-      return;
-    }
-
-    const result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets[0]) {
-      await saveProfileImage(result.assets[0].uri);
-    }
-  };
-
-  const saveProfile = async () => {
-    try {
-      // For now, just update local state since we don't have user update API
-      // In a real app, this would call an API to update user profile
-      Alert.alert('Success', 'Profile updated successfully!');
-      setShowEditModal(false);
-    } catch (error) {
-      console.error('Error saving profile:', error);
-      Alert.alert('Error', 'Failed to update profile');
-    }
-  };
-
-  const syncToCloud = async () => {
-    try {
-      if (!isAuthenticated || !user) {
-        Alert.alert('Error', 'Please sign in to sync photos');
-        return;
-      }
-
-      const userId = user?.uid || user?.id || user?.email?.replace(/[^a-zA-Z0-9]/g, '_') || 'anonymous';
-      
-      setIsUploading(true);
-      const cloudURL = await photoService.syncLocalPhotoToCloud(userId);
-      
-      if (cloudURL) {
-        setProfileImage(cloudURL);
-        Alert.alert('Success', 'Photo synced to cloud successfully!');
-      } else {
-        Alert.alert('Info', 'No local photo found to sync');
-      }
-    } catch (error) {
-      console.error('Error syncing to cloud:', error);
-      Alert.alert('Error', 'Failed to sync photo to cloud');
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
   const showImagePicker = () => {
     Alert.alert(
-      'Profile Photo',
-      'Choose how you want to add your profile photo',
+      'Update Profile Photo',
+      'Choose an option',
       [
-        { text: 'Camera', onPress: takePhoto },
-        { text: 'Photo Library', onPress: pickImage },
-        { text: 'Cancel', style: 'cancel' },
+        { text: 'Camera', onPress: () => pickImage('camera') },
+        { text: 'Photo Library', onPress: () => pickImage('library') },
+        { text: 'Cancel', style: 'cancel' }
       ]
     );
+  };
+
+  const pickImage = async (source: 'camera' | 'library') => {
+    try {
+      setIsUploading(true);
+      
+      const result = source === 'camera' 
+        ? await ImagePicker.launchCameraAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+          })
+        : await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+          });
+
+      if (!result.canceled && result.assets[0]) {
+        const imageUri = result.assets[0].uri;
+        
+        if (user?.id) {
+          const savedUri = await photoService.saveProfilePhoto(user.id, imageUri);
+          setProfileImage(savedUri);
+          Alert.alert('Success', 'Profile photo updated successfully!');
+        }
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to update profile photo. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      // Here you would typically update the user profile
+      // For now, just close the modal
+      setShowEditModal(false);
+      Alert.alert('Success', 'Profile updated successfully!');
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      Alert.alert('Error', 'Failed to update profile. Please try again.');
+    }
   };
 
   const handleLogout = async () => {
@@ -338,118 +253,79 @@ export default function ProfileScreen() {
             ) : profileImage ? (
               <Image 
                 source={{ uri: profileImage }} 
-                style={styles.profileImage}
-                pointerEvents="none"
+                style={styles.avatar}
+                resizeMode="cover"
               />
             ) : (
-              <Ionicons name="person" size={48} color={Colors.accent2} />
+              <View style={styles.avatarPlaceholder}>
+                <Ionicons name="person" size={60} color={Colors.accent2} />
+              </View>
             )}
             <View style={styles.cameraIcon}>
-              <Ionicons name="camera" size={16} color={Colors.white} />
+              <Ionicons name="camera" size={20} color={Colors.white} />
             </View>
           </TouchableOpacity>
-          <Text style={styles.name}>
-            {isAuthenticated ? user?.displayName || 'User' : 'Welcome to GoalStreak!'}
-          </Text>
-          <Text style={styles.email}>
-            {isAuthenticated ? user?.email : 'Sign in to sync your progress'}
-          </Text>
+          
+          <Text style={styles.userName}>{user?.displayName || 'User'}</Text>
+          <Text style={styles.userEmail}>{user?.email}</Text>
         </View>
 
-        <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>0</Text>
-            <Text style={styles.statLabel}>Active Habits</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>0</Text>
-            <Text style={styles.statLabel}>Total Streaks</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>0</Text>
-            <Text style={styles.statLabel}>Friends</Text>
-          </View>
-        </View>
+        <View style={styles.menuSection}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => setShowEditModal(true)}>
+            <Ionicons name="person-outline" size={24} color={Colors.primaryText} />
+            <Text style={styles.menuText}>Edit Profile</Text>
+            <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+          </TouchableOpacity>
 
-        {isAuthenticated ? (
-          <>
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Account</Text>
-              <TouchableOpacity style={styles.menuItem} onPress={() => setShowEditModal(true)}>
-                <Ionicons name="person-outline" size={24} color={Colors.primaryText} />
-                <Text style={styles.menuText}>Edit Profile</Text>
-                <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
-              </TouchableOpacity>
-              
-              <TouchableOpacity style={styles.menuItem} onPress={syncToCloud} disabled={isUploading}>
-                <Ionicons name="cloud-upload-outline" size={24} color={Colors.primaryText} />
-                <Text style={styles.menuText}>Sync Photo to Cloud</Text>
-                {isUploading ? (
-                  <ActivityIndicator size="small" color={Colors.primary} />
-                ) : (
-                  <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
-                )}
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-                <Ionicons name="log-out-outline" size={24} color={Colors.error} />
-                <Text style={[styles.menuText, { color: Colors.error }]}>Sign Out</Text>
-                <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
-              </TouchableOpacity>
-            </View>
-          </>
-        ) : (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Get Started</Text>
-            <View style={styles.authPrompt}>
-              <Text style={styles.authPromptText}>
-                Sign in to save your habits, track streaks, and connect with friends for accountability!
-              </Text>
-            </View>
-          </View>
-        )}
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Settings</Text>
           <TouchableOpacity style={styles.menuItem} onPress={() => setShowNotificationsModal(true)}>
             <Ionicons name="notifications-outline" size={24} color={Colors.primaryText} />
             <Text style={styles.menuText}>Notifications</Text>
             <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
-            <Ionicons name="shield-outline" size={24} color={Colors.primaryText} />
-            <Text style={styles.menuText}>Privacy</Text>
-            <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+
+          <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={24} color={Colors.error} />
+            <Text style={[styles.menuText, { color: Colors.error }]}>Sign Out</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Support</Text>
-          <TouchableOpacity style={styles.menuItem}>
-            <Ionicons name="help-circle-outline" size={24} color={Colors.primaryText} />
-            <Text style={styles.menuText}>Help & FAQ</Text>
-            <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+        {/* Test Section */}
+        <View style={styles.testSection}>
+          <TouchableOpacity style={[styles.testButton, { backgroundColor: Colors.success }]} onPress={testFirebaseStorage}>
+            <Ionicons name="cloud" size={20} color={Colors.white} />
+            <Text style={styles.testButtonText}>Test Firebase Storage</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
-            <Ionicons name="mail-outline" size={24} color={Colors.primaryText} />
-            <Text style={styles.menuText}>Contact Us</Text>
-            <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+          <Text style={styles.testDescription}>Test connection to Firebase Storage for profile photos</Text>
+          
+          <TouchableOpacity style={[styles.testButton, { backgroundColor: '#FF6B35', marginTop: 12 }]} onPress={testHabitReminder}>
+            <Ionicons name="alarm" size={20} color={Colors.white} />
+            <Text style={styles.testButtonText}>Test Habit Reminder</Text>
           </TouchableOpacity>
+          <Text style={styles.testDescription}>Phase 1: Test individual habit notification (Morning Workout at 7:30 AM)</Text>
+          
+          <TouchableOpacity style={styles.testButton} onPress={sendTestNotification}>
+            <Ionicons name="notifications" size={20} color={Colors.white} />
+            <Text style={styles.testButtonText}>Run Notification Tests</Text>
+          </TouchableOpacity>
+          <Text style={styles.testDescription}>Comprehensive test: immediate, daily repeat, and action buttons</Text>
+          
+          <TouchableOpacity style={[styles.testButton, { backgroundColor: Colors.accent3, marginTop: 12 }]} onPress={checkNotificationStatus}>
+            <Ionicons name="information-circle" size={20} color={Colors.white} />
+            <Text style={styles.testButtonText}>Check Status & Persistence</Text>
+          </TouchableOpacity>
+          <Text style={styles.testDescription}>View notification settings, permissions, and scheduled notifications</Text>
         </View>
       </ScrollView>
 
       {/* Edit Profile Modal */}
-      <Modal
-        visible={showEditModal}
-        animationType="slide"
-        presentationStyle="pageSheet"
-      >
+      <Modal visible={showEditModal} animationType="slide" presentationStyle="pageSheet">
         <SafeAreaView style={styles.modalContainer}>
           <View style={styles.modalHeader}>
             <TouchableOpacity onPress={() => setShowEditModal(false)}>
               <Text style={styles.cancelButton}>Cancel</Text>
             </TouchableOpacity>
             <Text style={styles.modalTitle}>Edit Profile</Text>
-            <TouchableOpacity onPress={saveProfile}>
+            <TouchableOpacity onPress={handleSaveProfile}>
               <Text style={styles.saveButton}>Save</Text>
             </TouchableOpacity>
           </View>
@@ -469,108 +345,59 @@ export default function ProfileScreen() {
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Email</Text>
               <TextInput
-                style={[styles.textInput, styles.disabledInput]}
+                style={styles.textInput}
                 value={editedEmail}
-                editable={false}
-                placeholder="Email address"
+                onChangeText={setEditedEmail}
+                placeholder="Enter your email"
                 placeholderTextColor={Colors.accent2}
+                keyboardType="email-address"
+                autoCapitalize="none"
               />
-              <Text style={styles.helperText}>Email cannot be changed</Text>
             </View>
           </ScrollView>
         </SafeAreaView>
       </Modal>
 
-      {/* Notifications Settings Modal */}
-      <Modal
-        visible={showNotificationsModal}
-        animationType="slide"
-        presentationStyle="pageSheet"
-      >
+      {/* Notifications Modal */}
+      <Modal visible={showNotificationsModal} animationType="slide" presentationStyle="pageSheet">
         <SafeAreaView style={styles.modalContainer}>
           <View style={styles.modalHeader}>
             <TouchableOpacity onPress={() => setShowNotificationsModal(false)}>
               <Text style={styles.cancelButton}>Done</Text>
             </TouchableOpacity>
             <Text style={styles.modalTitle}>Notifications</Text>
-            <View style={{ width: 50 }} />
+            <View style={{ width: 60 }} />
           </View>
           
           <ScrollView style={styles.modalContent}>
-            <View style={styles.notificationSection}>
-              <Text style={styles.notificationSectionTitle}>Habit Tracking</Text>
-              
-              <View style={styles.notificationItem}>
-                <View style={styles.notificationInfo}>
-                  <Text style={styles.notificationTitle}>Habit Reminders</Text>
-                  <Text style={styles.notificationDescription}>Get reminded to complete your daily habits</Text>
-                </View>
-                <Switch
-                  value={notificationSettings.habitReminders}
-                  onValueChange={(value) => saveNotificationSettings({...notificationSettings, habitReminders: value})}
-                  trackColor={{ false: Colors.lightGray, true: Colors.primary }}
-                />
-              </View>
-
-              <View style={styles.notificationItem}>
-                <View style={styles.notificationInfo}>
-                  <Text style={styles.notificationTitle}>Weekly Reports</Text>
-                  <Text style={styles.notificationDescription}>Receive weekly progress summaries</Text>
-                </View>
-                <Switch
-                  value={notificationSettings.weeklyReports}
-                  onValueChange={(value) => saveNotificationSettings({...notificationSettings, weeklyReports: value})}
-                  trackColor={{ false: Colors.lightGray, true: Colors.primary }}
-                />
-              </View>
-
-              <View style={styles.notificationItem}>
-                <View style={styles.notificationInfo}>
-                  <Text style={styles.notificationTitle}>Achievements</Text>
-                  <Text style={styles.notificationDescription}>Celebrate when you reach milestones</Text>
-                </View>
-                <Switch
-                  value={notificationSettings.achievements}
-                  onValueChange={(value) => saveNotificationSettings({...notificationSettings, achievements: value})}
-                  trackColor={{ false: Colors.lightGray, true: Colors.primary }}
-                />
-              </View>
+            <View style={styles.settingItem}>
+              <Text style={styles.settingLabel}>Enable Notifications</Text>
+              <Switch
+                value={notificationSettings.enabled}
+                onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, enabled: value })}
+                trackColor={{ false: Colors.accent3, true: Colors.primary }}
+                thumbColor={Colors.white}
+              />
             </View>
-
-            <View style={styles.notificationSection}>
-              <Text style={styles.notificationSectionTitle}>Social</Text>
-              
-              <View style={styles.notificationItem}>
-                <View style={styles.notificationInfo}>
-                  <Text style={styles.notificationTitle}>Friend Requests</Text>
-                  <Text style={styles.notificationDescription}>New friend requests and acceptances</Text>
-                </View>
-                <Switch
-                  value={notificationSettings.friendRequests}
-                  onValueChange={(value) => saveNotificationSettings({...notificationSettings, friendRequests: value})}
-                  trackColor={{ false: Colors.lightGray, true: Colors.primary }}
-                />
-              </View>
-
-              <View style={styles.notificationItem}>
-                <View style={styles.notificationInfo}>
-                  <Text style={styles.notificationTitle}>Social Updates</Text>
-                  <Text style={styles.notificationDescription}>Activity from friends and reactions</Text>
-                </View>
-                <Switch
-                  value={notificationSettings.socialUpdates}
-                  onValueChange={(value) => saveNotificationSettings({...notificationSettings, socialUpdates: value})}
-                  trackColor={{ false: Colors.lightGray, true: Colors.primary }}
-                />
-              </View>
+            
+            <View style={styles.settingItem}>
+              <Text style={styles.settingLabel}>Sound</Text>
+              <Switch
+                value={notificationSettings.sound}
+                onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, sound: value })}
+                trackColor={{ false: Colors.accent3, true: Colors.primary }}
+                thumbColor={Colors.white}
+              />
             </View>
-
-            <View style={styles.testSection}>
-              <TouchableOpacity style={styles.testButton} onPress={sendTestNotification}>
-                <Ionicons name="notifications" size={20} color={Colors.white} />
-                <Text style={styles.testButtonText}>Send Test Notification</Text>
-              </TouchableOpacity>
-              <Text style={styles.testDescription}>Test your notification settings with a sample reminder</Text>
+            
+            <View style={styles.settingItem}>
+              <Text style={styles.settingLabel}>Badge</Text>
+              <Switch
+                value={notificationSettings.badge}
+                onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, badge: value })}
+                trackColor={{ false: Colors.accent3, true: Colors.primary }}
+                thumbColor={Colors.white}
+              />
             </View>
           </ScrollView>
         </SafeAreaView>
@@ -588,208 +415,80 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: Spacing.md,
+    paddingBottom: Spacing.xl,
   },
   profileHeader: {
     alignItems: 'center',
-    marginBottom: Spacing.xl,
+    paddingVertical: Spacing.xl,
+    paddingHorizontal: Spacing.lg,
   },
   avatarContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: Colors.white,
+    position: 'relative',
+    marginBottom: Spacing.lg,
+  },
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 4,
+    borderColor: Colors.white,
+  },
+  avatarPlaceholder: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: Colors.accent3,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: Spacing.md,
-    borderWidth: 2,
-    borderColor: Colors.accent2,
-    position: 'relative',
-  },
-  profileImage: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
+    borderWidth: 4,
+    borderColor: Colors.white,
   },
   cameraIcon: {
     position: 'absolute',
-    bottom: -2,
-    right: -2,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: Colors.accent1,
+    bottom: 0,
+    right: 0,
+    backgroundColor: Colors.primary,
+    borderRadius: 20,
+    width: 40,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 3,
     borderColor: Colors.white,
   },
-  name: {
+  userName: {
     fontSize: Typography.fontSize.xl,
     fontWeight: Typography.fontWeight.bold,
     color: Colors.primaryText,
     marginBottom: Spacing.xs,
   },
-  email: {
+  userEmail: {
     fontSize: Typography.fontSize.base,
     color: Colors.accent2,
   },
-  statsContainer: {
-    flexDirection: 'row',
+  menuSection: {
+    marginHorizontal: Spacing.lg,
     backgroundColor: Colors.white,
     borderRadius: 12,
-    padding: Spacing.md,
-    marginBottom: Spacing.xl,
-    justifyContent: 'space-around',
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: Typography.fontSize['2xl'],
-    fontWeight: Typography.fontWeight.bold,
-    color: Colors.accent1,
-    marginBottom: Spacing.xs,
-  },
-  statLabel: {
-    fontSize: Typography.fontSize.sm,
-    color: Colors.gray.dark,
-  },
-  section: {
-    marginBottom: Spacing.xl,
-  },
-  sectionTitle: {
-    fontSize: Typography.fontSize.lg,
-    fontWeight: Typography.fontWeight.semibold,
-    color: Colors.primaryText,
-    marginBottom: Spacing.md,
+    overflow: 'hidden',
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.white,
-    padding: Spacing.md,
-    borderRadius: 8,
-    marginBottom: Spacing.sm,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.accent3,
   },
   menuText: {
+    flex: 1,
     fontSize: Typography.fontSize.base,
     color: Colors.primaryText,
     marginLeft: Spacing.md,
-    flex: 1,
-  },
-  authPrompt: {
-    backgroundColor: Colors.white,
-    padding: Spacing.lg,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.accent1,
-    borderStyle: 'dashed',
-  },
-  authPromptText: {
-    fontSize: Typography.fontSize.base,
-    color: Colors.primaryText,
-    textAlign: 'center',
-    lineHeight: Typography.lineHeight.relaxed * Typography.fontSize.base,
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  modalTitle: {
-    fontSize: Typography.fontSize.lg,
-    fontWeight: Typography.fontWeight.semibold,
-    color: Colors.primaryText,
-  },
-  cancelButton: {
-    fontSize: Typography.fontSize.base,
-    color: Colors.accent2,
-  },
-  saveButton: {
-    fontSize: Typography.fontSize.base,
-    color: Colors.primary,
-    fontWeight: Typography.fontWeight.semibold,
-  },
-  modalContent: {
-    flex: 1,
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.lg,
-  },
-  inputGroup: {
-    marginBottom: Spacing.lg,
-  },
-  inputLabel: {
-    fontSize: Typography.fontSize.sm,
-    fontWeight: Typography.fontWeight.medium,
-    color: Colors.primaryText,
-    marginBottom: Spacing.xs,
-  },
-  textInput: {
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: 8,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    fontSize: Typography.fontSize.base,
-    color: Colors.primaryText,
-    backgroundColor: Colors.white,
-  },
-  disabledInput: {
-    backgroundColor: Colors.lightGray,
-    color: Colors.accent2,
-  },
-  helperText: {
-    fontSize: Typography.fontSize.xs,
-    color: Colors.accent2,
-    marginTop: Spacing.xs,
-  },
-  notificationSection: {
-    marginBottom: Spacing.xl,
-  },
-  notificationSectionTitle: {
-    fontSize: Typography.fontSize.lg,
-    fontWeight: Typography.fontWeight.semibold,
-    color: Colors.primaryText,
-    marginBottom: Spacing.md,
-  },
-  notificationItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  notificationInfo: {
-    flex: 1,
-    marginRight: Spacing.md,
-  },
-  notificationTitle: {
-    fontSize: Typography.fontSize.base,
-    fontWeight: Typography.fontWeight.medium,
-    color: Colors.primaryText,
-    marginBottom: 2,
-  },
-  notificationDescription: {
-    fontSize: Typography.fontSize.sm,
-    color: Colors.accent2,
-    lineHeight: Typography.lineHeight.relaxed * Typography.fontSize.sm,
   },
   testSection: {
-    marginTop: Spacing.lg,
-    paddingTop: Spacing.lg,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-    alignItems: 'center',
+    marginTop: Spacing.xl,
+    paddingHorizontal: Spacing.lg,
   },
   testButton: {
     flexDirection: 'row',
@@ -811,5 +510,68 @@ const styles = StyleSheet.create({
     color: Colors.accent2,
     textAlign: 'center',
     paddingHorizontal: Spacing.lg,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.accent3,
+  },
+  modalTitle: {
+    fontSize: Typography.fontSize.lg,
+    fontWeight: Typography.fontWeight.semibold,
+    color: Colors.primaryText,
+  },
+  cancelButton: {
+    fontSize: Typography.fontSize.base,
+    color: Colors.accent2,
+  },
+  saveButton: {
+    fontSize: Typography.fontSize.base,
+    color: Colors.primary,
+    fontWeight: Typography.fontWeight.medium,
+  },
+  modalContent: {
+    flex: 1,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
+  },
+  inputGroup: {
+    marginBottom: Spacing.lg,
+  },
+  inputLabel: {
+    fontSize: Typography.fontSize.base,
+    fontWeight: Typography.fontWeight.medium,
+    color: Colors.primaryText,
+    marginBottom: Spacing.sm,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: Colors.accent3,
+    borderRadius: 8,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    fontSize: Typography.fontSize.base,
+    color: Colors.primaryText,
+    backgroundColor: Colors.white,
+  },
+  settingItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: Spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.accent3,
+  },
+  settingLabel: {
+    fontSize: Typography.fontSize.base,
+    color: Colors.primaryText,
   },
 });

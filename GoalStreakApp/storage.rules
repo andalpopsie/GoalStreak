@@ -1,31 +1,26 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
-    // User profile pictures - updated path to match photoService
-    match /profile-photos/{userId}.jpg {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId
+    // User profile pictures - allow authenticated users to read all photos
+    match /profile-photos/{allPaths=**} {
+      allow read: if true; // Allow public read access for profile photos
+      allow write: if request.auth != null 
         && request.resource.size < 5 * 1024 * 1024 // 5MB limit
-        && request.resource.contentType.matches('image/.*');
+        && request.resource.contentType.matches('image/(jpeg|jpg|png|webp)');
     }
     
-    // Legacy user profile pictures path
+    // Legacy profile pictures path (for backward compatibility)
     match /users/{userId}/profile/{allPaths=**} {
       allow read: if request.auth != null;
       allow write: if request.auth != null && request.auth.uid == userId
         && request.resource.size < 5 * 1024 * 1024 // 5MB limit
-        && request.resource.contentType.matches('image/.*');
+        && request.resource.contentType.matches('image/(jpeg|jpg|png|webp)');
     }
     
-    // Allow all authenticated users to read profile photos (for social features)
-    match /profile-photos/{allPaths=**} {
-      allow read: if request.auth != null;
-    }
-    
-    // App assets (public read)
+    // Public assets (read-only)
     match /assets/{allPaths=**} {
       allow read: if true;
-      allow write: if false; // Only admin can write assets
+      allow write: if false;
     }
   }
 }
