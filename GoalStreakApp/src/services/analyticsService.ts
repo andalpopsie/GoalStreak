@@ -1,388 +1,468 @@
-// Analytics Service - Habit insights and trend analysis
+// Analytics Service - Comprehensive habit analytics and insights
 import { 
   collection, 
   query, 
   where, 
-  orderBy, 
   getDocs, 
-  startAfter,
+  orderBy, 
   limit,
-  Timestamp
+  Timestamp 
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { Habit, HabitCompletion, Streak } from '../types';
+import { Habit, HabitCompletion, HabitCategory } from '../types';
+import { logInfo, logError } from './smartLoggingService';
 
+// Analytics Types
 export interface HabitAnalytics {
   habitId: string;
   habitName: string;
-  category: string;
+  category: HabitCategory;
   totalCompletions: number;
-  completionRate: number; // Percentage
+  completionRate: number;
   currentStreak: number;
   longestStreak: number;
-  averageCompletionsPerWeek: number;
   lastCompleted?: Date;
-  createdAt: Date;
+  averageCompletionsPerWeek: number;
 }
 
 export interface PeriodAnalytics {
   period: 'week' | 'month' | 'year';
-  startDate: Date;
-  endDate: Date;
   totalCompletions: number;
   uniqueHabitsCompleted: number;
   completionRate: number;
-  streakMilestones: number;
   mostActiveDay: string;
-  topCategories: { category: string; completions: number }[];
+  topCategories: Array<{
+    category: HabitCategory;
+    completions: number;
+  }>;
 }
 
 export interface TrendData {
-  date: Date;
+  date: string;
   completions: number;
-  habits: string[];
+  habits: number;
 }
 
 export interface InsightData {
-  type: 'achievement' | 'improvement' | 'streak' | 'consistency';
+  type: 'streak' | 'category' | 'time' | 'improvement';
   title: string;
   description: string;
   value?: number;
-  trend?: 'up' | 'down' | 'stable';
-  habitId?: string;
+  icon: string;
 }
 
-class AnalyticsService {
-  private habitsCollection = collection(db, 'habits');
-  private completionsCollection = collection(db, 'completions');
-  private streaksCollection = collection(db, 'streaks');
+// Helper function to get date range
+const getDateRange = (period: 'week' | 'month' | 'year'): { start: Date; end: Date } => {
+  const end = new Date();
+  const start = new Date();
+  
+  switch (period) {
+    case 'week':
+      start.setDate(end.getDate() - 7);
+      break;
+    case 'month':
+      start.setDate(end.getDate() - 30);
+      break;
+    case 'year':
+      start.setDate(end.getDate() - 365);
+      break;
+  }
+  
+  start.setHours(0, 0, 0, 0);
+  end.setHours(23, 59, 59, 999);
+  
+  return { start, end };
+};
 
-  // Get comprehensive analytics for a user's habits
-  async getHabitAnalytics(userId: string): Promise<HabitAnalytics[]> {
-    try {
-      // Get all user habits
-      const habitsQuery = query(
-        this.habitsCollection,
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
-      );
-      const habitsSnapshot = await getDocs(habitsQuery);
-      const habits = habitsSnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
-          updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt,
-        };
-      }) as Habit[];
-
-      // Get all completions for analysis
-      const completionsQuery = query(
-        this.completionsCollection,
-        where('userId', '==', userId),
-        orderBy('completedAt', 'desc')
-      );
-      const completionsSnapshot = await getDocs(completionsQuery);
-      const completions = completionsSnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          completedAt: data.completedAt?.toDate ? data.completedAt.toDate() : data.completedAt,
-        };
-      }) as HabitCompletion[];
-
-      // Get all streaks
-      const streaksQuery = query(
-        this.streaksCollection,
-        where('userId', '==', userId)
-      );
-      const streaksSnapshot = await getDocs(streaksQuery);
-      const streaks = streaksSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Streak[];
-
-      // Calculate analytics for each habit
-      const analytics: HabitAnalytics[] = habits.map(habit => {
-        const habitCompletions = completions.filter(c => c.habitId === habit.id);
-        const habitStreak = streaks.find(s => s.habitId === habit.id);
-        
-        // Calculate days since creation
-        const daysSinceCreation = Math.max(1, 
-          Math.floor((Date.now() - habit.createdAt.getTime()) / (1000 * 60 * 60 * 24))
-        );
-        
-        // Calculate completion rate
-        const completionRate = (habitCompletions.length / daysSinceCreation) * 100;
-        
-        // Calculate average completions per week
-        const weeksSinceCreation = Math.max(1, daysSinceCreation / 7);
-        const averageCompletionsPerWeek = habitCompletions.length / weeksSinceCreation;
-        
-        // Find last completion
-        const lastCompletion = habitCompletions.length > 0 ? 
-          habitCompletions[0].completedAt : undefined;
-
-        return {
-          habitId: habit.id,
-          habitName: habit.name,
-          category: habit.category,
-          totalCompletions: habitCompletions.length,
-          completionRate: Math.round(completionRate * 100) / 100,
-          currentStreak: habitStreak?.currentStreak || 0,
-          longestStreak: habitStreak?.longestStreak || 0,
-          averageCompletionsPerWeek: Math.round(averageCompletionsPerWeek * 100) / 100,
-          lastCompleted: lastCompletion,
-          createdAt: habit.createdAt
-        };
-      });
-
-      return analytics.sort((a, b) => b.totalCompletions - a.totalCompletions);
-    } catch (error) {
-      console.error('Error getting habit analytics:', error);
-      throw error;
+// Calculate streak from completions
+const calculateStreak = (completions: HabitCompletion[]): { current: number; longest: number } => {
+  if (completions.length === 0) return { current: 0, longest: 0 };
+  
+  // Sort by date descending
+  const sorted = [...completions].sort((a, b) => 
+    b.completedAt.getTime() - a.completedAt.getTime()
+  );
+  
+  let currentStreak = 0;
+  let longestStreak = 0;
+  let tempStreak = 1;
+  let lastDate = sorted[0].completedAt;
+  
+  // Check if most recent completion was today or yesterday
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  
+  const lastCompletionDate = new Date(lastDate);
+  lastCompletionDate.setHours(0, 0, 0, 0);
+  
+  if (lastCompletionDate >= yesterday) {
+    currentStreak = 1;
+    
+    // Count consecutive days
+    for (let i = 1; i < sorted.length; i++) {
+      const currentDate = new Date(sorted[i].completedAt);
+      currentDate.setHours(0, 0, 0, 0);
+      
+      const prevDate = new Date(sorted[i - 1].completedAt);
+      prevDate.setHours(0, 0, 0, 0);
+      
+      const dayDiff = Math.floor((prevDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (dayDiff === 1) {
+        currentStreak++;
+        tempStreak++;
+      } else if (dayDiff === 0) {
+        // Same day, don't break streak
+        continue;
+      } else {
+        break;
+      }
     }
   }
-
-  // Get analytics for a specific time period
-  async getPeriodAnalytics(
-    userId: string, 
-    period: 'week' | 'month' | 'year'
-  ): Promise<PeriodAnalytics> {
-    try {
-      const now = new Date();
-      let startDate: Date;
-      let endDate = now;
-
-      // Calculate period dates
-      switch (period) {
-        case 'week':
-          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          break;
-        case 'month':
-          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-          break;
-        case 'year':
-          startDate = new Date(now.getFullYear(), 0, 1);
-          break;
-      }
-
-      // Get completions in period
-      const completionsQuery = query(
-        this.completionsCollection,
-        where('userId', '==', userId),
-        where('completedAt', '>=', Timestamp.fromDate(startDate)),
-        where('completedAt', '<=', Timestamp.fromDate(endDate)),
-        orderBy('completedAt', 'desc')
-      );
-      const completionsSnapshot = await getDocs(completionsQuery);
-      const completions = completionsSnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          completedAt: data.completedAt?.toDate ? data.completedAt.toDate() : data.completedAt,
-        };
-      }) as HabitCompletion[];
-
-      // Get habits for category analysis
-      const habitsQuery = query(
-        this.habitsCollection,
-        where('userId', '==', userId)
-      );
-      const habitsSnapshot = await getDocs(habitsQuery);
-      const habits = habitsSnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
-          updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt,
-        };
-      }) as Habit[];
-
-      // Calculate metrics
-      const totalCompletions = completions.length;
-      const uniqueHabitsCompleted = new Set(completions.map(c => c.habitId)).size;
-      const totalPossibleCompletions = habits.length * this.getDaysInPeriod(startDate, endDate);
-      const completionRate = totalPossibleCompletions > 0 ? 
-        (totalCompletions / totalPossibleCompletions) * 100 : 0;
-
-      // Find most active day
-      const dayCompletions: Record<string, number> = {};
-      completions.forEach(completion => {
-        if (completion.completedAt && typeof completion.completedAt.toLocaleDateString === 'function') {
-          const day = completion.completedAt.toLocaleDateString('en-US', { weekday: 'long' });
-          dayCompletions[day] = (dayCompletions[day] || 0) + 1;
-        }
-      });
-      const mostActiveDay = Object.entries(dayCompletions)
-        .sort(([,a], [,b]) => b - a)[0]?.[0] || 'No data';
-
-      // Calculate top categories
-      const categoryCompletions: Record<string, number> = {};
-      completions.forEach(completion => {
-        const habit = habits.find(h => h.id === completion.habitId);
-        if (habit) {
-          categoryCompletions[habit.category] = (categoryCompletions[habit.category] || 0) + 1;
-        }
-      });
-      const topCategories = Object.entries(categoryCompletions)
-        .map(([category, completions]) => ({ category, completions }))
-        .sort((a, b) => b.completions - a.completions)
-        .slice(0, 5);
-
-      // Count streak milestones (streaks of 7, 30, 100+ days achieved in period)
-      const streakMilestones = 0; // This would require more complex streak tracking
-
-      return {
-        period,
-        startDate,
-        endDate,
-        totalCompletions,
-        uniqueHabitsCompleted,
-        completionRate: Math.round(completionRate * 100) / 100,
-        streakMilestones,
-        mostActiveDay,
-        topCategories
-      };
-    } catch (error) {
-      console.error('Error getting period analytics:', error);
-      throw error;
+  
+  // Calculate longest streak
+  tempStreak = 1;
+  for (let i = 1; i < sorted.length; i++) {
+    const currentDate = new Date(sorted[i].completedAt);
+    currentDate.setHours(0, 0, 0, 0);
+    
+    const prevDate = new Date(sorted[i - 1].completedAt);
+    prevDate.setHours(0, 0, 0, 0);
+    
+    const dayDiff = Math.floor((prevDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (dayDiff === 1) {
+      tempStreak++;
+      longestStreak = Math.max(longestStreak, tempStreak);
+    } else if (dayDiff === 0) {
+      // Same day, continue
+      continue;
+    } else {
+      tempStreak = 1;
     }
   }
+  
+  longestStreak = Math.max(longestStreak, currentStreak, tempStreak);
+  
+  return { current: currentStreak, longest: longestStreak };
+};
 
-  // Get trend data for charts
-  async getTrendData(
-    userId: string, 
-    days: number = 30
-  ): Promise<TrendData[]> {
-    try {
-      const endDate = new Date();
-      const startDate = new Date(endDate.getTime() - days * 24 * 60 * 60 * 1000);
+// Get habit analytics for a specific habit
+export const getHabitAnalytics = async (
+  userId: string,
+  habitId: string,
+  habit: Habit
+): Promise<HabitAnalytics> => {
+  try {
+    // Get all completions for this habit
+    const completionsRef = collection(db, 'completions');
+    const q = query(
+      completionsRef,
+      where('userId', '==', userId),
+      where('habitId', '==', habitId),
+      orderBy('completedAt', 'desc')
+    );
+    
+    const snapshot = await getDocs(q);
+    const completions: HabitCompletion[] = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      completedAt: doc.data().completedAt?.toDate() || new Date(),
+    })) as HabitCompletion[];
+    
+    // Calculate streaks
+    const { current, longest } = calculateStreak(completions);
+    
+    // Calculate completion rate (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const recentCompletions = completions.filter(c => 
+      c.completedAt >= thirtyDaysAgo
+    );
+    
+    const completionRate = (recentCompletions.length / 30) * 100;
+    
+    // Calculate average completions per week
+    const weeklyAverage = completions.length > 0 
+      ? (completions.length / Math.max(1, Math.ceil((Date.now() - habit.createdAt.getTime()) / (7 * 24 * 60 * 60 * 1000))))
+      : 0;
+    
+    return {
+      habitId,
+      habitName: habit.name,
+      category: habit.category,
+      totalCompletions: completions.length,
+      completionRate: Math.min(100, completionRate),
+      currentStreak: current,
+      longestStreak: longest,
+      lastCompleted: completions.length > 0 ? completions[0].completedAt : undefined,
+      averageCompletionsPerWeek: Math.round(weeklyAverage * 10) / 10,
+    };
+  } catch (error) {
+    logError('analytics', 'Error getting habit analytics', { habitId, error });
+    throw error;
+  }
+};
 
-      const completionsQuery = query(
-        this.completionsCollection,
-        where('userId', '==', userId),
-        where('completedAt', '>=', Timestamp.fromDate(startDate)),
-        where('completedAt', '<=', Timestamp.fromDate(endDate)),
-        orderBy('completedAt', 'asc')
-      );
-      const completionsSnapshot = await getDocs(completionsQuery);
-      
-      const completions = completionsSnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          completedAt: data.completedAt?.toDate ? data.completedAt.toDate() : data.completedAt,
-        };
-      }) as HabitCompletion[];
+// Get all habit analytics for a user
+export const getAllHabitAnalytics = async (
+  userId: string,
+  habits: Habit[]
+): Promise<HabitAnalytics[]> => {
+  try {
+    logInfo('analytics', 'Loading analytics for all habits', { userId, habitCount: habits.length });
+    
+    const analyticsPromises = habits.map(habit => 
+      getHabitAnalytics(userId, habit.id, habit)
+    );
+    
+    const analytics = await Promise.all(analyticsPromises);
+    
+    // Sort by total completions descending
+    return analytics.sort((a, b) => b.totalCompletions - a.totalCompletions);
+  } catch (error) {
+    logError('analytics', 'Error getting all habit analytics', { userId, error });
+    throw error;
+  }
+};
 
-      // Group completions by date
-      const dailyData: Record<string, { completions: number; habits: Set<string> }> = {};
-      
-      // Initialize all days with zero completions
-      for (let i = 0; i < days; i++) {
-        const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
-        const dateKey = date.toISOString().split('T')[0];
-        dailyData[dateKey] = { completions: 0, habits: new Set() };
+// Get period analytics
+export const getPeriodAnalytics = async (
+  userId: string,
+  period: 'week' | 'month' | 'year'
+): Promise<PeriodAnalytics> => {
+  try {
+    const { start, end } = getDateRange(period);
+    
+    // Get completions in period
+    const completionsRef = collection(db, 'completions');
+    const q = query(
+      completionsRef,
+      where('userId', '==', userId),
+      where('completedAt', '>=', Timestamp.fromDate(start)),
+      where('completedAt', '<=', Timestamp.fromDate(end))
+    );
+    
+    const snapshot = await getDocs(q);
+    const completions: HabitCompletion[] = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      completedAt: doc.data().completedAt?.toDate() || new Date(),
+    })) as HabitCompletion[];
+    
+    // Get habits to map categories
+    const habitsRef = collection(db, 'habits');
+    const habitsQuery = query(habitsRef, where('userId', '==', userId));
+    const habitsSnapshot = await getDocs(habitsQuery);
+    const habits: Habit[] = habitsSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toDate() || new Date(),
+      updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+    })) as Habit[];
+    
+    const habitMap = new Map(habits.map(h => [h.id, h]));
+    
+    // Calculate unique habits completed
+    const uniqueHabits = new Set(completions.map(c => c.habitId));
+    
+    // Calculate most active day
+    const dayCount: Record<string, number> = {};
+    completions.forEach(c => {
+      const day = c.completedAt.toLocaleDateString('en-US', { weekday: 'short' });
+      dayCount[day] = (dayCount[day] || 0) + 1;
+    });
+    
+    const mostActiveDay = Object.entries(dayCount).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
+    
+    // Calculate top categories
+    const categoryCount: Record<string, number> = {};
+    completions.forEach(c => {
+      const habit = habitMap.get(c.habitId);
+      if (habit) {
+        categoryCount[habit.category] = (categoryCount[habit.category] || 0) + 1;
       }
+    });
+    
+    const topCategories = Object.entries(categoryCount)
+      .map(([category, completions]) => ({
+        category: category as HabitCategory,
+        completions,
+      }))
+      .sort((a, b) => b.completions - a.completions)
+      .slice(0, 5);
+    
+    // Calculate completion rate
+    const daysInPeriod = period === 'week' ? 7 : period === 'month' ? 30 : 365;
+    const expectedCompletions = uniqueHabits.size * daysInPeriod;
+    const completionRate = expectedCompletions > 0 
+      ? (completions.length / expectedCompletions) * 100 
+      : 0;
+    
+    return {
+      period,
+      totalCompletions: completions.length,
+      uniqueHabitsCompleted: uniqueHabits.size,
+      completionRate: Math.min(100, completionRate),
+      mostActiveDay,
+      topCategories,
+    };
+  } catch (error) {
+    logError('analytics', 'Error getting period analytics', { userId, period, error });
+    throw error;
+  }
+};
 
-      // Fill in actual completion data
-      completions.forEach(completion => {
-        const dateKey = completion.completedAt?.toISOString()?.split('T')[0];
-        if (dateKey && dailyData[dateKey]) {
-          dailyData[dateKey].completions++;
-          dailyData[dateKey].habits.add(completion.habitId);
-        }
-      });
-
-      // Convert to array format
-      const result = Object.entries(dailyData).map(([dateStr, data]) => ({
-        date: new Date(dateStr),
+// Get trend data for charts
+export const getTrendData = async (
+  userId: string,
+  days: number = 30
+): Promise<TrendData[]> => {
+  try {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - days);
+    startDate.setHours(0, 0, 0, 0);
+    
+    // Get completions in range
+    const completionsRef = collection(db, 'completions');
+    const q = query(
+      completionsRef,
+      where('userId', '==', userId),
+      where('completedAt', '>=', Timestamp.fromDate(startDate)),
+      where('completedAt', '<=', Timestamp.fromDate(endDate))
+    );
+    
+    const snapshot = await getDocs(q);
+    const completions: HabitCompletion[] = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      completedAt: doc.data().completedAt?.toDate() || new Date(),
+    })) as HabitCompletion[];
+    
+    // Group by date
+    const dateMap: Record<string, { completions: number; habits: Set<string> }> = {};
+    
+    // Initialize all dates
+    for (let i = 0; i < days; i++) {
+      const date = new Date(startDate);
+      date.setDate(date.getDate() + i);
+      const dateStr = date.toISOString().split('T')[0];
+      dateMap[dateStr] = { completions: 0, habits: new Set() };
+    }
+    
+    // Fill in completion data
+    completions.forEach(c => {
+      const dateStr = c.completedAt.toISOString().split('T')[0];
+      if (dateMap[dateStr]) {
+        dateMap[dateStr].completions++;
+        dateMap[dateStr].habits.add(c.habitId);
+      }
+    });
+    
+    // Convert to array
+    return Object.entries(dateMap)
+      .map(([date, data]) => ({
+        date,
         completions: data.completions,
-        habits: Array.from(data.habits)
-      }));
-      
-      return result;
-    } catch (error) {
-      console.error('Error getting trend data:', error);
-      throw error;
+        habits: data.habits.size,
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+  } catch (error) {
+    logError('analytics', 'Error getting trend data', { userId, days, error });
+    throw error;
+  }
+};
+
+// Generate insights based on analytics
+export const generateInsights = async (
+  userId: string,
+  habitAnalytics: HabitAnalytics[],
+  periodAnalytics: PeriodAnalytics
+): Promise<InsightData[]> => {
+  try {
+    const insights: InsightData[] = [];
+    
+    // Streak insights
+    const bestStreak = habitAnalytics.reduce((max, h) => 
+      h.currentStreak > max.currentStreak ? h : max
+    , habitAnalytics[0]);
+    
+    if (bestStreak && bestStreak.currentStreak >= 7) {
+      insights.push({
+        type: 'streak',
+        title: `${bestStreak.currentStreak}-Day Streak! 🔥`,
+        description: `You're on fire with "${bestStreak.habitName}"! Keep it going!`,
+        value: bestStreak.currentStreak,
+        icon: 'flame',
+      });
     }
-  }
-
-  // Generate personalized insights
-  async getInsights(userId: string): Promise<InsightData[]> {
-    try {
-      const analytics = await this.getHabitAnalytics(userId);
-      const weekAnalytics = await this.getPeriodAnalytics(userId, 'week');
-      const monthAnalytics = await this.getPeriodAnalytics(userId, 'month');
-      
-      const insights: InsightData[] = [];
-
-      // Achievement insights
-      const topHabit = analytics[0];
-      if (topHabit && topHabit.totalCompletions > 0) {
-        insights.push({
-          type: 'achievement',
-          title: 'Top Performer',
-          description: `${topHabit.habitName} is your most completed habit with ${topHabit.totalCompletions} completions!`,
-          value: topHabit.totalCompletions,
-          habitId: topHabit.habitId
-        });
-      }
-
-      // Streak insights
-      const bestStreak = analytics.reduce((best, current) => 
-        current.currentStreak > best.currentStreak ? current : best, analytics[0]);
-      
-      if (bestStreak && bestStreak.currentStreak > 0) {
-        insights.push({
-          type: 'streak',
-          title: 'Current Streak Champion',
-          description: `You're on a ${bestStreak.currentStreak} day streak with ${bestStreak.habitName}!`,
-          value: bestStreak.currentStreak,
-          habitId: bestStreak.habitId
-        });
-      }
-
-      // Consistency insights
-      const consistentHabits = analytics.filter(h => h.completionRate > 80);
-      if (consistentHabits.length > 0) {
-        insights.push({
-          type: 'consistency',
-          title: 'Consistency Master',
-          description: `You have ${consistentHabits.length} habit${consistentHabits.length > 1 ? 's' : ''} with over 80% completion rate!`,
-          value: consistentHabits.length
-        });
-      }
-
-      // Improvement insights
-      if (weekAnalytics.completionRate > monthAnalytics.completionRate) {
-        insights.push({
-          type: 'improvement',
-          title: 'Weekly Improvement',
-          description: `Your completion rate this week (${weekAnalytics.completionRate.toFixed(1)}%) is higher than your monthly average!`,
-          trend: 'up',
-          value: weekAnalytics.completionRate
-        });
-      }
-
-      return insights;
-    } catch (error) {
-      console.error('Error generating insights:', error);
-      throw error;
+    
+    // Category insights
+    if (periodAnalytics.topCategories.length > 0) {
+      const topCategory = periodAnalytics.topCategories[0];
+      insights.push({
+        type: 'category',
+        title: `${topCategory.category.charAt(0).toUpperCase() + topCategory.category.slice(1)} Champion`,
+        description: `You completed ${topCategory.completions} ${topCategory.category} habits this ${periodAnalytics.period}!`,
+        value: topCategory.completions,
+        icon: 'trophy',
+      });
     }
+    
+    // Improvement insights
+    const improvingHabits = habitAnalytics.filter(h => 
+      h.currentStreak > 0 && h.completionRate > 70
+    );
+    
+    if (improvingHabits.length > 0) {
+      insights.push({
+        type: 'improvement',
+        title: 'Strong Performance! 💪',
+        description: `${improvingHabits.length} habit${improvingHabits.length > 1 ? 's are' : ' is'} showing great consistency!`,
+        value: improvingHabits.length,
+        icon: 'trending-up',
+      });
+    }
+    
+    // Time insights
+    if (periodAnalytics.mostActiveDay !== 'N/A') {
+      insights.push({
+        type: 'time',
+        title: `${periodAnalytics.mostActiveDay} is Your Day!`,
+        description: `You're most productive on ${periodAnalytics.mostActiveDay}s. Schedule important habits then!`,
+        icon: 'calendar',
+      });
+    }
+    
+    // Completion rate insight
+    if (periodAnalytics.completionRate >= 80) {
+      insights.push({
+        type: 'improvement',
+        title: 'Excellent Consistency! ⭐',
+        description: `${Math.round(periodAnalytics.completionRate)}% completion rate this ${periodAnalytics.period}. You're crushing it!`,
+        value: Math.round(periodAnalytics.completionRate),
+        icon: 'star',
+      });
+    }
+    
+    return insights;
+  } catch (error) {
+    logError('analytics', 'Error generating insights', { userId, error });
+    return [];
   }
+};
 
-  // Helper method to calculate days in period
-  private getDaysInPeriod(startDate: Date, endDate: Date): number {
-    return Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-  }
-}
+// Export analytics service
+export const analyticsService = {
+  getHabitAnalytics,
+  getAllHabitAnalytics,
+  getPeriodAnalytics,
+  getTrendData,
+  generateInsights,
+};
 
-export const analyticsService = new AnalyticsService();
 export default analyticsService;

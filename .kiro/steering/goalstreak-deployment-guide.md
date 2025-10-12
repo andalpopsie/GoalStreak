@@ -6,8 +6,10 @@ Comprehensive deployment strategy for GoalStreak, covering development, staging,
 ## Environment Configuration
 
 ### Development Environment
+**Location**: Root directory `.env.development`
+
 ```typescript
-// .env.development
+// .env.development (in root directory)
 EXPO_PUBLIC_ENVIRONMENT=development
 EXPO_PUBLIC_FIREBASE_API_KEY=AIzaSyDev_API_Key_Here
 EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=goalstreak-dev.firebaseapp.com
@@ -15,14 +17,16 @@ EXPO_PUBLIC_FIREBASE_PROJECT_ID=goalstreak-dev
 EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=goalstreak-dev.appspot.com
 EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789
 EXPO_PUBLIC_FIREBASE_APP_ID=1:123456789:web:dev_app_id
-EXPO_PUBLIC_API_BASE_URL=https://api-dev.goalstreak.com
+EXPO_PUBLIC_API_BASE_URL=https://api-dev.goalstreak.co
 EXPO_PUBLIC_ANALYTICS_ENABLED=false
 EXPO_PUBLIC_DEBUG_MODE=true
 ```
 
 ### Staging Environment
+**Location**: Root directory `.env.staging`
+
 ```typescript
-// .env.staging
+// .env.staging (in root directory)
 EXPO_PUBLIC_ENVIRONMENT=staging
 EXPO_PUBLIC_FIREBASE_API_KEY=AIzaSyStaging_API_Key_Here
 EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=goalstreak-staging.firebaseapp.com
@@ -30,14 +34,16 @@ EXPO_PUBLIC_FIREBASE_PROJECT_ID=goalstreak-staging
 EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=goalstreak-staging.appspot.com
 EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=987654321
 EXPO_PUBLIC_FIREBASE_APP_ID=1:987654321:web:staging_app_id
-EXPO_PUBLIC_API_BASE_URL=https://api-staging.goalstreak.com
+EXPO_PUBLIC_API_BASE_URL=https://api-staging.goalstreak.co
 EXPO_PUBLIC_ANALYTICS_ENABLED=true
 EXPO_PUBLIC_DEBUG_MODE=false
 ```
 
 ### Production Environment
+**Location**: Root directory `.env.production`
+
 ```typescript
-// .env.production
+// .env.production (in root directory)
 EXPO_PUBLIC_ENVIRONMENT=production
 EXPO_PUBLIC_FIREBASE_API_KEY=AIzaSyProd_API_Key_Here
 EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=goalstreak-app2.firebaseapp.com
@@ -45,7 +51,7 @@ EXPO_PUBLIC_FIREBASE_PROJECT_ID=goalstreak-app2
 EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=goalstreak-app2.appspot.com
 EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=233571046472
 EXPO_PUBLIC_FIREBASE_APP_ID=1:233571046472:web:020727b78eec425fd0347d
-EXPO_PUBLIC_API_BASE_URL=https://api.goalstreak.com
+EXPO_PUBLIC_API_BASE_URL=https://api.goalstreak.co
 EXPO_PUBLIC_ANALYTICS_ENABLED=true
 EXPO_PUBLIC_DEBUG_MODE=false
 ```
@@ -417,8 +423,8 @@ Perfect for building healthy routines in fitness, wellness, productivity, and pe
   keywords: "habits,goals,productivity,tracking,streaks,motivation,social,friends,accountability,wellness,fitness,mindfulness",
   category: "Health & Fitness",
   contentRating: "4+",
-  privacyPolicyUrl: "https://goalstreak.com/privacy",
-  supportUrl: "https://goalstreak.com/support"
+  privacyPolicyUrl: "https://goalstreak.co/privacy",
+  supportUrl: "https://goalstreak.co/support"
 };
 ```
 

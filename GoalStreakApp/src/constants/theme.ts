@@ -28,6 +28,14 @@ export const Colors = {
   warning: '#FF894F',          // New warm orange
   error: '#FF4444',
   info: '#154D71',             // Dark blue
+  
+  // Category Colors - 6-category system
+  fitnessOrange: '#FF894F',    // Fitness category
+  wellnessTeal: '#538392',     // Wellness category (updated to teal)
+  nutritionGreen: '#B3E2A7',   // Nutrition category (updated to light green)
+  socialPurple: '#B771E5',     // Social category
+  productivityNavy: '#003161', // Productivity category
+  otherPink: '#B95E82',        // Other category
 } as const;
 
 export const Typography = {
@@ -185,5 +193,36 @@ export const Theme = {
   shadows: Shadows,
   layout: Layout,
 } as const;
+
+// 6-Category Color Mapping
+export const CategoryColors = {
+  // 6 main categories with designated colors
+  fitness: Colors.fitnessOrange,        // 🟠 #FF894F - Exercise, workouts, running
+  wellness: Colors.wellnessTeal,        // 🟦 #538392 - Health, meditation, sleep
+  nutrition: Colors.nutritionGreen,     // 🟢 #B3E2A7 - Food, water, vitamins
+  social: Colors.socialPurple,          // 🟣 #B771E5 - Friends, family, music
+  productivity: Colors.productivityNavy, // 🔷 #003161 - Work, learning, writing
+  other: Colors.otherPink,              // 🌸 #B95E82 - Other habits
+} as const;
+
+// Helper function to get category color
+export const getCategoryColor = (category: string): string => {
+  return CategoryColors[category as keyof typeof CategoryColors] || CategoryColors.other;
+};
+
+// Helper function to get category background color (lighter version)
+export const getCategoryBackgroundColor = (category: string): string => {
+  const color = getCategoryColor(category);
+  // Return a lighter version for backgrounds
+  switch (color) {
+    case Colors.fitnessOrange: return '#FFF4F0';   // Very light orange
+    case Colors.wellnessTeal: return '#F0F7F8';    // Very light teal (updated for #538392)
+    case Colors.nutritionGreen: return '#F5FBF2';  // Very light green (updated for #B3E2A7)
+    case Colors.socialPurple: return '#F5F0FF';    // Very light purple
+    case Colors.productivityNavy: return '#F0F2F5'; // Very light navy
+    case Colors.otherPink: return '#FDF2F6';       // Very light pink
+    default: return Colors.gray.light;
+  }
+};
 
 export default Theme;

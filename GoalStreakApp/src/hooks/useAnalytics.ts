@@ -1,12 +1,21 @@
-// useAnalytics Hook - Analytics state management
+// useAnalytics Hook - Analytics state management with real data
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
-import analyticsService, { 
-  HabitAnalytics, 
-  PeriodAnalytics, 
-  TrendData, 
-  InsightData 
+import { useHabits } from './useHabits';
+import { 
+  getAllHabitAnalytics,
+  getPeriodAnalytics,
+  getTrendData,
+  generateInsights,
+  HabitAnalytics,
+  PeriodAnalytics,
+  TrendData,
+  InsightData,
 } from '../services/analyticsService';
+import { logInfo, logError } from '../services/smartLoggingService';
+
+// Re-export types for convenience
+export type { HabitAnalytics, PeriodAnalytics, TrendData, InsightData };
 
 interface UseAnalyticsReturn {
   // Data
@@ -36,6 +45,7 @@ interface UseAnalyticsReturn {
 
 export const useAnalytics = (): UseAnalyticsReturn => {
   const { user } = useAuth();
+  const { habits } = useHabits();
   
   // State
   const [habitAnalytics, setHabitAnalytics] = useState<HabitAnalytics[]>([]);
@@ -54,76 +64,129 @@ export const useAnalytics = (): UseAnalyticsReturn => {
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('week');
   const [error, setError] = useState<string | null>(null);
 
-  // Load habit analytics
+  // Load habit analytics with real data
   const loadHabitAnalytics = useCallback(async () => {
-    if (!user?.id) return;
+    if (!user?.id || habits.length === 0) {
+      setHabitAnalytics([]);
+      return;
+    }
     
     setIsLoadingAnalytics(true);
+    setError(null);
     
     try {
-      const analytics = await analyticsService.getHabitAnalytics(user.id);
+      logInfo('analytics', 'Loading habit analytics', { userId: user.id, habitCount: habits.length });
+      
+      const analytics = await getAllHabitAnalytics(user.id, habits);
       setHabitAnalytics(analytics);
+      
+      logInfo('analytics', 'Habit analytics loaded successfully', { count: analytics.length });
     } catch (err) {
-      console.error('Error loading habit analytics:', err);
-      setError('Failed to load habit analytics');
+      logError('analytics', 'Error loading habit analytics', { error: err });
+      setError('Failed to load habit analytics. Please try again.');
+      setHabitAnalytics([]);
     } finally {
       setIsLoadingAnalytics(false);
     }
-  }, [user?.id]);
+  }, [user?.id, habits]);
 
-  // Load period analytics
+  // Load period analytics with real data
   const loadPeriodAnalytics = useCallback(async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      setWeekAnalytics(null);
+      setMonthAnalytics(null);
+      setYearAnalytics(null);
+      return;
+    }
     
     try {
+      logInfo('analytics', 'Loading period analytics', { userId: user.id });
+      
       const [week, month, year] = await Promise.all([
-        analyticsService.getPeriodAnalytics(user.id, 'week'),
-        analyticsService.getPeriodAnalytics(user.id, 'month'),
-        analyticsService.getPeriodAnalytics(user.id, 'year')
+        getPeriodAnalytics(user.id, 'week'),
+        getPeriodAnalytics(user.id, 'month'),
+        getPeriodAnalytics(user.id, 'year'),
       ]);
       
       setWeekAnalytics(week);
       setMonthAnalytics(month);
       setYearAnalytics(year);
+      
+      logInfo('analytics', 'Period analytics loaded successfully');
     } catch (err) {
-      console.error('Error loading period analytics:', err);
-      setError('Failed to load period analytics');
+      logError('analytics', 'Error loading period analytics', { error: err });
+      setError('Failed to load period analytics. Please try again.');
+      setWeekAnalytics(null);
+      setMonthAnalytics(null);
+      setYearAnalytics(null);
     }
   }, [user?.id]);
 
-  // Load trend data
+  // Load trend data with real data
   const loadTrendData = useCallback(async (days: number = 30) => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      setTrendData([]);
+      return;
+    }
     
     setIsLoadingTrends(true);
+    setError(null);
     
     try {
-      const trends = await analyticsService.getTrendData(user.id, days);
+      logInfo('analytics', 'Loading trend data', { userId: user.id, days });
+      
+      const trends = await getTrendData(user.id, days);
       setTrendData(trends);
+      
+      logInfo('analytics', 'Trend data loaded successfully', { dataPoints: trends.length });
     } catch (err) {
-      console.error('Error loading trend data:', err);
-      setError('Failed to load trend data');
+      logError('analytics', 'Error loading trend data', { error: err });
+      setError('Failed to load trend data. Please try again.');
+      setTrendData([]);
     } finally {
       setIsLoadingTrends(false);
     }
   }, [user?.id]);
 
-  // Load insights
+  // Load insights with real data
   const loadInsights = useCallback(async () => {
-    if (!user?.id) return;
+    if (!user?.id || habitAnalytics.length === 0) {
+      setInsights([]);
+      return;
+    }
     
     setIsLoadingInsights(true);
+    setError(null);
     
     try {
-      const insightsData = await analyticsService.getInsights(user.id);
-      setInsights(insightsData);
+      logInfo('analytics', 'Generating insights', { userId: user.id });
+      
+      const currentPeriodAnalytics = selectedPeriod === 'week' ? weekAnalytics 
+        : selectedPeriod === 'month' ? monthAnalytics 
+        : yearAnalytics;
+      
+      if (!currentPeriodAnalytics) {
+        setInsights([]);
+        return;
+      }
+      
+      const generatedInsights = await generateInsights(
+        user.id,
+        habitAnalytics,
+        currentPeriodAnalytics
+      );
+      
+      setInsights(generatedInsights);
+      
+      logInfo('analytics', 'Insights generated successfully', { count: generatedInsights.length });
     } catch (err) {
-      console.error('Error loading insights:', err);
-      setError('Failed to load insights');
+      logError('analytics', 'Error generating insights', { error: err });
+      setError('Failed to generate insights. Please try again.');
+      setInsights([]);
     } finally {
       setIsLoadingInsights(false);
     }
-  }, [user?.id]);
+  }, [user?.id, habitAnalytics, selectedPeriod, weekAnalytics, monthAnalytics, yearAnalytics]);
 
   // Refresh functions
   const refreshAnalytics = useCallback(async () => {
@@ -162,14 +225,20 @@ export const useAnalytics = (): UseAnalyticsReturn => {
     }
   }, [selectedPeriod, weekAnalytics, monthAnalytics, yearAnalytics]);
 
-  // Initialize data on mount
+  // Initialize data on mount and when habits change
   useEffect(() => {
-    if (user?.id) {
+    if (user?.id && habits.length > 0) {
       refreshAnalytics();
       loadTrendData();
+    }
+  }, [user?.id, habits.length]); // Simplified dependencies to avoid infinite loops
+
+  // Load insights when analytics data is ready
+  useEffect(() => {
+    if (habitAnalytics.length > 0 && (weekAnalytics || monthAnalytics || yearAnalytics)) {
       loadInsights();
     }
-  }, [user?.id, refreshAnalytics, loadTrendData, loadInsights]);
+  }, [habitAnalytics.length, weekAnalytics, monthAnalytics, yearAnalytics, selectedPeriod]);
 
   return {
     // Data

@@ -80,81 +80,34 @@ export const CATEGORY_ICONS: Record<string, string> = {
 };
 
 export const CATEGORY_COLORS: Record<string, string> = {
-  // Fitness & Workout - Energetic and motivating colors
-  fitness: Colors.accent1,              // Warm orange - energy and strength
-  workout: Colors.accent1,              // Warm orange - active energy
-  running: Colors.accent1,              // Warm orange - dynamic movement
-  yoga: Colors.accent3,                 // Teal - calm and centered
-  weightlifting: '#E17055',             // Strong orange-red - power and strength
-  cycling: Colors.accent1,              // Warm orange - active energy
-  swimming: Colors.accent3,             // Teal - water association
-  pet: '#FDCB6E',                       // Warm yellow - joy and companionship
-  cardio: '#FF6B6B',                    // Red-orange - heart/cardio
-  strength: Colors.accent1,             // Warm orange - power
+  // 6-category system with designated colors
+  fitness: Colors.fitnessOrange,        // 🟠 #FF894F - Exercise, workouts, running, sports
+  wellness: Colors.wellnessTeal,        // 🟦 #538392 - Health, meditation, sleep, mindfulness  
+  nutrition: Colors.nutritionGreen,     // 🟢 #B3E2A7 - Food, water, vitamins, diet
+  social: Colors.socialPurple,          // 🟣 #B771E5 - Friends, family, relationships, music
+  productivity: Colors.productivityNavy, // 🔷 #003161 - Work, learning, organization, writing
+  other: Colors.otherPink,              // 🌸 #B95E82 - Other habits, miscellaneous
   
-  // Health & Wellness - Calming and nurturing colors
-  wellness: Colors.accent3,             // Teal - health and balance
-  health: Colors.accent3,               // Teal - medical/health
-  sleep: '#6C5CE7',                     // Purple - night and rest
-  meditation: Colors.accent3,           // Teal - peace and mindfulness
-  breathing: '#74B9FF',                 // Light blue - air and breath
-  mindfulness: Colors.accent3,          // Teal - inner peace
+  // Legacy support for backward compatibility (map to closest category)
+  workout: Colors.fitnessOrange,        // Maps to fitness
+  running: Colors.fitnessOrange,        // Maps to fitness
+  yoga: Colors.wellnessTeal,            // Maps to wellness
+  meditation: Colors.wellnessTeal,      // Maps to wellness
+  mindfulness: Colors.wellnessTeal,     // Maps to wellness
+  health: Colors.wellnessTeal,          // Maps to wellness
+  sleep: Colors.wellnessTeal,           // Maps to wellness
+  water: Colors.nutritionGreen,         // Maps to nutrition
+  diet: Colors.nutritionGreen,          // Maps to nutrition
+  vitamins: Colors.nutritionGreen,      // Maps to nutrition
+  friends: Colors.socialPurple,         // Maps to social
+  family: Colors.socialPurple,          // Maps to social
+  music: Colors.socialPurple,           // Maps to social
+  learning: Colors.productivityNavy,    // Maps to productivity
+  writing: Colors.productivityNavy,     // Maps to productivity
+  coding: Colors.productivityNavy,      // Maps to productivity
   
-  // Nutrition - Natural and healthy colors
-  nutrition: '#00B894',                 // Green - health and nature
-  water: Colors.accent3,                // Teal - water and hydration
-  diet: '#00B894',                      // Green - healthy eating
-  vitamins: Colors.accent3,             // Teal - health supplements
-  healthy_eating: '#00B894',            // Green - natural and healthy
-  
-  // Productivity & Learning - Professional and focused colors
-  productivity: Colors.primaryText,     // Dark blue - professional focus
-  learning: '#6C5CE7',                  // Purple - knowledge and wisdom
-  reading: '#6C5CE7',                   // Purple - intellectual growth
-  writing: Colors.primaryText,          // Dark blue - communication
-  journaling: '#A29BFE',                // Light purple - personal reflection
-  coding: Colors.primaryText,           // Dark blue - technical focus
-  studying: '#6C5CE7',                  // Purple - academic pursuit
-  
-  // Social & Personal - Warm and connecting colors
-  social: Colors.accent1,               // Warm orange - social warmth
-  family: '#FF7675',                    // Warm red - love and family
-  friends: Colors.accent1,              // Warm orange - friendship joy
-  relationships: '#FF7675',             // Warm red - love and connection
-  communication: Colors.accent1,        // Warm orange - social interaction
-  
-  // Creative & Hobbies - Vibrant and inspiring colors
-  creative: '#FD79A8',                  // Pink - creativity and imagination
-  music: '#FDCB6E',                     // Yellow - joy and harmony
-  art: '#FD79A8',                       // Pink - artistic expression
-  photography: '#74B9FF',               // Light blue - visual arts
-  crafts: Colors.accent1,               // Warm orange - hands-on creativity
-  
-  // Daily Habits - Clean and organized colors
-  hygiene: Colors.accent3,              // Teal - cleanliness and care
-  cleaning: Colors.accent3,             // Teal - organization and order
-  skincare: '#FD79A8',                  // Pink - beauty and self-care
-  grooming: Colors.accent3,             // Teal - personal care
-  organization: Colors.primaryText,     // Dark blue - structure and order
-  
-  // Mental Health & Self-Care - Nurturing and supportive colors
-  self_care: '#FF7675',                 // Warm red - self-love
-  therapy: '#A29BFE',                   // Light purple - healing and growth
-  gratitude: '#FDCB6E',                 // Yellow - positivity and appreciation
-  reflection: '#6C5CE7',                // Purple - introspection and wisdom
-  
-  // Financial & Career - Success and growth colors
-  finance: '#00B894',                   // Green - money and prosperity
-  career: Colors.primaryText,           // Dark blue - professional growth
-  networking: Colors.accent1,           // Warm orange - social connections
-  
-  // Spiritual & Personal Growth - Enlightening colors
-  spiritual: '#FDCB6E',                 // Yellow - enlightenment and wisdom
-  prayer: '#A29BFE',                    // Light purple - spiritual connection
-  personal_growth: '#6C5CE7',           // Purple - transformation and growth
-  
-  // Default
-  other: Colors.primaryText,            // Dark blue - neutral and reliable
+  // Default fallback
+  other: Colors.otherPink,              // Pink - other category
 };
 
 /**
@@ -291,102 +244,12 @@ export const getCategoryIcon = (category: string, habitName?: string, selectedIc
 export const getCategoryColor = (category: string): string => {
   const normalizedCategory = category?.toLowerCase()?.trim() || 'other';
   
-  // First try exact category match
+  // Direct category mapping - clean and predictable
   if (CATEGORY_COLORS[normalizedCategory]) {
     return CATEGORY_COLORS[normalizedCategory];
   }
   
-  // If no exact match, try to match by habit name/keywords
-  const keywordColorMappings: Record<string, string> = {
-    // Sleep related - Purple/Dark colors
-    'sleep': '#6C5CE7',
-    'bedtime': '#6C5CE7',
-    'rest': '#6C5CE7',
-    'nap': '#6C5CE7',
-    
-    // Exercise/Movement - Orange/Red colors
-    'walk': Colors.accent1,
-    'walking': Colors.accent1,
-    'run': Colors.accent1,
-    'running': Colors.accent1,
-    'jog': Colors.accent1,
-    'jogging': Colors.accent1,
-    'exercise': Colors.accent1,
-    'workout': Colors.accent1,
-    'gym': Colors.accent1,
-    'fitness': Colors.accent1,
-    'yoga': Colors.accent3,
-    'stretch': Colors.accent3,
-    'stretching': Colors.accent3,
-    
-    // Meditation/Mindfulness - Teal/Green colors
-    'meditate': Colors.accent3,
-    'meditation': Colors.accent3,
-    'mindfulness': Colors.accent3,
-    'breathe': '#74B9FF',
-    'breathing': '#74B9FF',
-    
-    // Health - Teal colors
-    'health': Colors.accent3,
-    'medicine': Colors.accent3,
-    'vitamin': Colors.accent3,
-    'supplement': Colors.accent3,
-    
-    // Water/Hydration - Blue colors
-    'water': Colors.accent3,
-    'hydrate': Colors.accent3,
-    'drink': Colors.accent3,
-    
-    // Nutrition - Green colors
-    'eat': '#00B894',
-    'food': '#00B894',
-    'meal': '#00B894',
-    'nutrition': '#00B894',
-    'diet': '#00B894',
-    
-    // Reading/Learning - Purple colors
-    'read': '#6C5CE7',
-    'reading': '#6C5CE7',
-    'book': '#6C5CE7',
-    'study': '#6C5CE7',
-    'learn': '#6C5CE7',
-    'learning': '#6C5CE7',
-    
-    // Social - Orange colors
-    'social': Colors.accent1,
-    'friend': Colors.accent1,
-    'family': '#FF7675',
-    'call': Colors.accent1,
-    'text': Colors.accent1,
-    
-    // Work/Productivity - Dark blue colors
-    'work': Colors.primaryText,
-    'job': Colors.primaryText,
-    'productivity': Colors.primaryText,
-    'write': Colors.primaryText,
-    'writing': Colors.primaryText,
-    'journal': '#A29BFE',
-    
-    // Creative - Pink colors
-    'art': '#FD79A8',
-    'draw': '#FD79A8',
-    'music': '#FDCB6E',
-    'photo': '#74B9FF',
-    'creative': '#FD79A8',
-    
-    // Self-care - Pink/Teal colors
-    'skincare': '#FD79A8',
-    'hygiene': Colors.accent3,
-    'clean': Colors.accent3,
-    'organize': Colors.primaryText,
-  };
-  
-  // Check if the category contains any keywords
-  for (const [keyword, color] of Object.entries(keywordColorMappings)) {
-    if (normalizedCategory.includes(keyword)) {
-      return color;
-    }
-  }
+
   
   // Final fallback
   return CATEGORY_COLORS.other;

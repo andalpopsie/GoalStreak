@@ -1,19 +1,19 @@
 # GoalStreak Project Context & Architecture
 
-## Current Project State (August 31, 2025)
+## Current Project State (January 2025)
 
-### 🎊 Project Status: MVP COMPLETE (100%)
-- **Development Time**: 10 days (vs 90 days planned)
-- **Features**: All core features + social system + analytics implemented
+### 🎊 Project Status: PRODUCTION READY (100%)
+- **Development Time**: 112+ days (Aug 2024 - Jan 2025)
+- **Features**: All core features + social system + analytics + timers + notifications implemented
 - **Quality**: Production-ready with enterprise-grade architecture
-- **Next Phase**: App Store submission and launch
+- **Current Phase**: App Store legal compliance and submission preparation
 
 ## Technical Architecture Overview
 
 ### Frontend Stack
 ```typescript
 // Core Technologies
-- React Native 0.79.5 with Expo SDK ~53.0.20
+- React Native with Expo SDK 54.0.0
 - TypeScript for type safety
 - React Navigation 7.x for routing
 - React Native Reanimated 3.x for animations
@@ -42,25 +42,70 @@
 - Social collections (friends, activities, reactions)
 ```
 
-### Project Structure
+### Project Structure (Optimized January 2025)
 ```
 GoalStreakApp/
-├── src/
+├── .env                   # Main environment file
+├── .env.development       # Development environment variables
+├── .env.production        # Production environment variables (with feature flags)
+├── src/                   # Source code
 │   ├── components/          # Reusable UI components (20+ components)
 │   ├── screens/            # Screen components (11 screens)
 │   ├── navigation/         # Navigation configuration
-│   ├── services/          # Firebase and API services
+│   ├── services/          # Firebase and API services (14 services)
 │   ├── hooks/             # Custom React hooks
 │   ├── types/             # TypeScript definitions
 │   ├── constants/         # Theme, limits, configurations
-│   └── utils/             # Helper functions
+│   ├── config/            # Environment configuration loader
+│   └── utils/             # Helper functions (including linkingUtils.ts)
+├── docs/                  # Documentation and guides (organized)
+│   ├── BUILD_GUIDE.md       # Build instructions
+│   ├── IOS_TESTING_GUIDE.md # iOS testing procedures
+│   ├── STEP-BY-STEP-IOS-SUBMISSION-GUIDE.md # Complete submission guide
+│   └── reports/           # Generated reports and validation results
+├── config/                # Configuration files (organized)
+│   ├── .eslintrc.js         # ESLint configuration
+│   ├── jest.config.js       # Jest testing configuration
+│   └── tsconfig.json        # TypeScript configuration
+├── firebase/              # Firebase configuration (organized)
+│   ├── firebase.json        # Firebase project configuration
+│   ├── firestore.rules      # Firestore security rules
+│   ├── firestore.indexes.json # Firestore indexes
+│   ├── storage.rules        # Firebase Storage rules
+│   └── deploy-rules.sh      # Deployment script
+├── scripts/               # Build and utility scripts
+│   ├── ios-production-build-and-submit.js # Main iOS build script
+│   ├── configure-app-store-connect.js     # App Store configuration
+│   ├── setup-eas-credentials.js           # Credential setup
+│   ├── ios-pre-submission-validation.js   # Validation script
+│   └── cleanup-and-organize-directory.js  # Directory organization
 ├── assets/                # Images, icons, fonts
-└── app.json              # Expo configuration
+├── app-store-assets/      # App Store submission materials
+│   ├── metadata/          # Legal docs, descriptions, configs
+│   ├── screenshots/       # App Store screenshots
+│   ├── real-screenshots/  # Actual device screenshots
+│   ├── icons/            # App icons and graphics
+│   └── marketing/        # Marketing materials
+├── ios/                  # iOS native code and PrivacyInfo.xcprivacy
+├── temp/                 # Temporary files and build artifacts (organized)
+│   ├── coverage/          # Test coverage reports
+│   └── .expo/            # Expo build cache
+├── app.json              # Expo configuration with privacy descriptions
+├── eas.json              # EAS Build configuration
+└── package.json          # Dependencies and scripts
 ```
 
 ## Core Features Implemented
 
-### 1. Authentication System ✅
+### 1. iOS Legal Compliance ✅
+- Comprehensive privacy usage descriptions in Info.plist
+- Privacy manifest file (PrivacyInfo.xcprivacy) for iOS 17+ compliance
+- Detailed privacy policy and terms of service documents
+- Functional in-app links to legal documents (linkingUtils.ts)
+- Full compliance with COPPA, GDPR, CCPA, and App Store guidelines
+- All URLs updated to goalstreak.co domain
+
+### 2. Authentication System ✅
 - Email/password registration and login
 - User profile management
 - Session persistence with AsyncStorage
@@ -331,6 +376,42 @@ const Typography = {
 - Advanced analytics and insights
 - Team challenges and competitions
 - Premium subscription features
+
+## Project Organization & Maintenance
+
+### Directory Organization (January 2025)
+- **Optimized Structure**: Zero duplicate files, single source of truth
+- **Logical Grouping**: Files grouped by purpose (docs/, config/, firebase/, etc.)
+- **Clean Root**: Environment files in root, config files in config/
+- **Automated Cleanup**: `npm run cleanup:directory` script for maintenance
+- **Documentation**: Comprehensive guides in `docs/` directory
+- **Professional Presentation**: Ready for App Store submission review
+
+### Organization Benefits
+- **Improved Navigation**: Faster file discovery and logical grouping
+- **Better Git Tracking**: Cleaner commit history and easier change tracking
+- **Enhanced Maintainability**: Clear separation of concerns and consistent structure
+- **Developer Experience**: Easier onboarding and project understanding
+- **Submission Ready**: Professional structure for App Store review
+
+### File Creation Guidelines (IMPORTANT)
+**BEFORE creating any new file, ask:**
+1. Can this be added to an existing file?
+2. Does a similar file already exist?
+3. Is this documentation or code?
+4. Will this file be maintained long-term?
+
+**Documentation Files:**
+- ✅ Update existing docs instead of creating new ones
+- ✅ Use CHANGELOG.md for incremental updates
+- ❌ Don't create duplicate guides or reports
+- ❌ Don't create "summary" files for recent work
+
+**Configuration Files:**
+- ✅ Environment files stay in root directory
+- ✅ Config files (.eslintrc, jest.config, tsconfig) in config/
+- ❌ Never duplicate .env files
+- ❌ Don't create environment-specific config duplicates
 
 ## Development Best Practices
 

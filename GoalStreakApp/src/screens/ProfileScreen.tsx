@@ -8,6 +8,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
 import { photoService } from '../services/photoService';
+import { openPrivacyPolicy, openTermsOfService, openSupport } from '../utils/linkingUtils';
+import { trackScreen, trackEvent, trackFeature } from '../services/enhancedAnalyticsService';
 
 export default function ProfileScreen() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -27,6 +29,13 @@ export default function ProfileScreen() {
   });
 
   useEffect(() => {
+    // Track screen view
+    trackScreen('Profile', 'ProfileScreen');
+    trackEvent('profile_screen_viewed', {
+      user_id: user?.id,
+      has_profile_image: !!profileImage
+    });
+
     if (isAuthenticated && user?.id) {
       loadProfileImage();
       loadNotificationSettings();
@@ -156,8 +165,17 @@ export default function ProfileScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
+              // Track logout
+              trackEvent('user_logout', {
+                user_id: user?.id
+              });
+              
               await logout();
             } catch (error: any) {
+              trackEvent('logout_error', {
+                error_message: error.message,
+                user_id: user?.id
+              });
               Alert.alert('Error', error.message);
             }
           }
@@ -207,6 +225,24 @@ export default function ProfileScreen() {
           <TouchableOpacity style={styles.menuItem} onPress={() => setShowNotificationsModal(true)}>
             <Ionicons name="notifications-outline" size={24} color={Colors.primaryText} />
             <Text style={styles.menuText}>Notifications</Text>
+            <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.menuItem} onPress={openPrivacyPolicy}>
+            <Ionicons name="shield-outline" size={24} color={Colors.primaryText} />
+            <Text style={styles.menuText}>Privacy Policy</Text>
+            <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.menuItem} onPress={openTermsOfService}>
+            <Ionicons name="document-text-outline" size={24} color={Colors.primaryText} />
+            <Text style={styles.menuText}>Terms of Service</Text>
+            <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.menuItem} onPress={openSupport}>
+            <Ionicons name="help-circle-outline" size={24} color={Colors.primaryText} />
+            <Text style={styles.menuText}>Help & Support</Text>
             <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
           </TouchableOpacity>
 

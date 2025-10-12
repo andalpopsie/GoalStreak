@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="1920" viewBox="0 0 1200 1920" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg { fill: #FDFDFD; }
+      .primary-text { fill: #154D71; font-family: 'Montserrat', sans-serif; font-weight: 700; }
+      .secondary-text { fill: #154D71; font-family: 'Montserrat', sans-serif; font-weight: 500; }
+      .accent { fill: #FF894F; }
+      .accent3 { fill: #4A90A4; }
+      .feature-text { fill: #154D71; font-family: 'Montserrat', sans-serif; font-weight: 400; }
+    </style>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" class="bg"/>
+  
+  <!-- Status Bar (iOS style) -->
+  
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="100%" height="80" fill="#FFFFFF"/>
+  <text x="32" y="50" class="primary-text" font-size="24" font-weight="700">GoalStreak</text>
+  
+  <!-- Main Content Area -->
+  <g transform="translate(32, 120)">
+    <!-- Title -->
+    <text x="0" y="0" class="primary-text" font-size="32" font-weight="700">Welcome to GoalStreak</text>
+    <text x="0" y="50" class="secondary-text" font-size="18">Build lasting habits with friends</text>
+    
+    <!-- Mock UI Elements based on screen type -->
+    
+          <!-- Welcome Screen -->
+          <g transform="translate(568, 760)">
+            <circle cx="0" cy="-50" r="60" fill="#FF894F"/>
+            <text x="0" y="-40" text-anchor="middle" font-size="40">🎯</text>
+            <text x="0" y="20" text-anchor="middle" class="primary-text" font-size="24" font-weight="700">Welcome to GoalStreak</text>
+            <text x="0" y="50" text-anchor="middle" class="secondary-text" font-size="16">Your journey to better habits starts here</text>
+          </g>
+        
+    
+    <!-- Feature List -->
+    <g transform="translate(0, 1560)">
+      
+        <g transform="translate(0, 0)">
+          <circle cx="8" cy="8" r="6" class="accent"/>
+          <text x="24" y="12" class="feature-text" font-size="16">Social accountability</text>
+        </g>
+      
+        <g transform="translate(0, 40)">
+          <circle cx="8" cy="8" r="6" class="accent"/>
+          <text x="24" y="12" class="feature-text" font-size="16">Streak tracking</text>
+        </g>
+      
+        <g transform="translate(0, 80)">
+          <circle cx="8" cy="8" r="6" class="accent"/>
+          <text x="24" y="12" class="feature-text" font-size="16">Beautiful analytics</text>
+        </g>
+      
+    </g>
+  </g>
+  
+  <!-- Bottom Navigation (if mobile) -->
+  
+  <rect x="0" y="1840" width="100%" height="80" fill="#FFFFFF"/>
+  <g transform="translate(150, 1860)">
+    
+      <g transform="translate(0, 0)">
+        <circle cx="0" cy="-10" r="12" fill="#FF894F"/>
+        <text x="0" y="20" text-anchor="middle" class="feature-text" font-size="12">Home</text>
+      </g>
+    
+      <g transform="translate(300, 0)">
+        <circle cx="0" cy="-10" r="12" fill="#154D71"/>
+        <text x="0" y="20" text-anchor="middle" class="feature-text" font-size="12">Social</text>
+      </g>
+    
+      <g transform="translate(600, 0)">
+        <circle cx="0" cy="-10" r="12" fill="#154D71"/>
+        <text x="0" y="20" text-anchor="middle" class="feature-text" font-size="12">Analytics</text>
+      </g>
+    
+      <g transform="translate(900, 0)">
+        <circle cx="0" cy="-10" r="12" fill="#154D71"/>
+        <text x="0" y="20" text-anchor="middle" class="feature-text" font-size="12">Profile</text>
+      </g>
+    
+  </g>
+  
+</svg>

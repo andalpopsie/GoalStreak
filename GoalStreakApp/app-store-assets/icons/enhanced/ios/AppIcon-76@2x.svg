@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="152" height="152" viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Enhanced gradient with better contrast -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF894F;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FF7F3E;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4A90A4;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Inner glow effect -->
+    <radialGradient id="innerGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:0" />
+    </radialGradient>
+    
+    <!-- Shadow filter -->
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="1.52" stdDeviation="0.76" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+    
+    <style>
+      .icon-text { 
+        fill: #FFFFFF; 
+        font-family: 'Montserrat', 'Helvetica Neue', Arial, sans-serif; 
+        font-weight: 800; 
+        text-anchor: middle;
+        dominant-baseline: middle;
+      }
+    </style>
+  </defs>
+  
+  <!-- Background with enhanced gradient -->
+  <rect width="100%" height="100%" rx="30.400000000000002" fill="url(#bgGradient)"/>
+  
+  <!-- Inner glow overlay -->
+  <rect width="100%" height="100%" rx="30.400000000000002" fill="url(#innerGlow)"/>
+  
+  <!-- Main Icon - Enhanced Target/Goal Symbol -->
+  <g transform="translate(76, 76)" filter="url(#shadow)">
+    <!-- Outer ring with enhanced styling -->
+    <circle cx="0" cy="0" r="48.64" 
+            fill="none" 
+            stroke="#FFFFFF" 
+            stroke-width="6.08" 
+            opacity="0.9"/>
+    
+    <!-- Middle ring -->
+    <circle cx="0" cy="0" r="33.44" 
+            fill="none" 
+            stroke="#FFFFFF" 
+            stroke-width="4.5600000000000005" 
+            opacity="0.8"/>
+    
+    <!-- Inner filled circle (bullseye) -->
+    <circle cx="0" cy="0" r="18.24" 
+            fill="#FFFFFF" 
+            opacity="0.95"/>
+    
+    <!-- Enhanced streak indicator (flame/arrow) -->
+    <g transform="translate(27.36, -27.36)">
+      <!-- Main flame shape -->
+      <path d="M 0,0 
+               Q 7.295999999999999,-9.728000000000002 12.16,-2.4320000000000004
+               Q 14.591999999999999,2.4320000000000004 9.728000000000002,7.295999999999999
+               Q 4.864000000000001,4.864000000000001 0,0 Z" 
+            fill="#FF894F" 
+            opacity="0.9"/>
+      
+      <!-- Inner flame highlight -->
+      <path d="M 2.4320000000000004,1.2160000000000002
+               Q 6.08,-4.864000000000001 8.511999999999999,-1.2160000000000002
+               Q 9.728000000000002,2.4320000000000004 6.08,4.864000000000001
+               Q 3.6479999999999997,3.6479999999999997 2.4320000000000004,1.2160000000000002 Z" 
+            fill="#FFFFFF" 
+            opacity="0.6"/>
+    </g>
+    
+    <!-- Progress indicator dots (optional for larger sizes) -->
+    
+  </g>
+  
+  <!-- App name for very large sizes -->
+  
+</svg>

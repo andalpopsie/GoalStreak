@@ -1,7 +1,11 @@
 import React, { Component, ReactNode } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing } from '../../constants/theme';
+import { crashlyticsService } from '../../services/crashlyticsService';
+import { trackEvent } from '../../services/enhancedAnalyticsService';
+import { initializationService } from '../../services/initializationService';
+import { config } from '../../config/environment';
 
 interface Props {
   children: ReactNode;
@@ -11,24 +15,157 @@ interface Props {
 interface State {
   hasError: boolean;
   error?: Error;
+  errorId?: string;
+}
+
+interface ErrorContext {
+  error_id: string;
+  error_message: string;
+  error_stack?: string;
+  error_name: string;
+  error_category: string;
+  component_stack: string;
+  timestamp: string;
+  platform: string;
+  app_version: string;
 }
 
 export default class ErrorBoundary extends Component<Props, State> {
+  private lastErrorTime = 0;
+  private errorCount = 0;
+  private readonly ERROR_THROTTLE_MS = 5000; // 5 seconds
+  private readonly MAX_ERRORS_PER_SESSION = 10;
+
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false };
   }
 
   static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+    const errorId = `error_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+    return { hasError: true, error, errorId };
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    const now = Date.now();
     
-    // In production, you might want to log this to a crash reporting service
-    // like Sentry, Crashlytics, etc.
+    // Throttle error reporting to prevent spam
+    if (now - this.lastErrorTime < this.ERROR_THROTTLE_MS) {
+      this.errorCount++;
+      if (this.errorCount > this.MAX_ERRORS_PER_SESSION) {
+        console.warn('Too many errors, stopping error reporting for this session');
+        return;
+      }
+    } else {
+      this.errorCount = 1;
+    }
+    
+    this.lastErrorTime = now;
+    
+    console.error(`ErrorBoundary [${this.state.errorId}]:`, error, errorInfo);
+    
+    // Check if services are initialized before using them
+    if (initializationService.isServicesInitialized()) {
+      this.reportError(error, errorInfo);
+    } else {
+      // Fallback logging when services aren't ready
+      console.error('Services not initialized, using fallback error logging');
+      this.fallbackErrorLogging(error, errorInfo);
+    }
   }
+
+  private categorizeError = (error: Error): string => {
+    const message = error.message.toLowerCase();
+    const stack = error.stack?.toLowerCase() || '';
+    const name = error.name.toLowerCase();
+    
+    // Network-related errors
+    if (message.includes('network') || message.includes('fetch') || 
+        message.includes('timeout') || name.includes('networkerror')) {
+      return 'network';
+    }
+    
+    // Firebase/Database errors
+    if (message.includes('firebase') || stack.includes('firestore') || 
+        message.includes('auth') || stack.includes('firebase')) {
+      return 'firebase';
+    }
+    
+    // Navigation errors
+    if (message.includes('navigation') || stack.includes('navigation') ||
+        message.includes('route') || stack.includes('navigator')) {
+      return 'navigation';
+    }
+    
+    // Rendering errors
+    if (message.includes('render') || stack.includes('render') ||
+        name.includes('invariantviolation') || message.includes('element')) {
+      return 'render';
+    }
+    
+    // Permission errors
+    if (message.includes('permission') || message.includes('denied') ||
+        message.includes('unauthorized')) {
+      return 'permission';
+    }
+    
+    // Memory/Performance errors
+    if (message.includes('memory') || message.includes('heap') ||
+        message.includes('performance')) {
+      return 'performance';
+    }
+    
+    return 'unknown';
+  };
+
+  private sanitizeErrorData = (error: Error, errorInfo: any): ErrorContext => {
+    // Enhanced sensitive information filtering
+    const sensitivePatterns = /password|token|key|secret|auth|email|phone|address|ssn|credit/gi;
+    
+    const sanitizedStack = error.stack?.replace(sensitivePatterns, '[REDACTED]');
+    const sanitizedMessage = error.message.replace(sensitivePatterns, '[REDACTED]');
+    
+    // Truncate very long stack traces to prevent log bloat
+    const truncatedStack = sanitizedStack?.length > 2000 
+      ? sanitizedStack.substring(0, 2000) + '...[TRUNCATED]'
+      : sanitizedStack;
+    
+    return {
+      error_id: this.state.errorId || `error_${Date.now()}`,
+      error_message: sanitizedMessage,
+      error_stack: truncatedStack,
+      error_name: error.name,
+      error_category: this.categorizeError(error),
+      component_stack: errorInfo.componentStack?.substring(0, 1000), // Limit component stack size
+      timestamp: new Date().toISOString(),
+      platform: Platform.OS,
+      app_version: config.app.version,
+    };
+  };
+
+  private reportError = (error: Error, errorInfo: any) => {
+    try {
+      const errorContext = this.sanitizeErrorData(error, errorInfo);
+      
+      crashlyticsService.recordError(error, `ErrorBoundary: ${errorInfo.componentStack}`, 'high');
+      trackEvent('app_error_boundary_triggered', errorContext);
+    } catch (analyticsError) {
+      console.warn('Failed to log error to analytics:', analyticsError);
+    }
+  };
+
+  private fallbackErrorLogging = (error: Error, errorInfo: any) => {
+    // Store error for later reporting when services are ready
+    const errorData = {
+      error: error.message,
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
+      timestamp: new Date().toISOString(),
+    };
+    
+    console.error('Fallback error logging:', errorData);
+    // Could store in AsyncStorage for later reporting when services initialize
+  };
 
   handleRetry = () => {
     this.setState({ hasError: false, error: undefined });

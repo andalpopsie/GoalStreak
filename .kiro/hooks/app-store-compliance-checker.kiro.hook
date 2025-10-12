@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "name": "App Store Compliance Checker",
+  "description": "Monitors changes to app configuration, legal documents, and metadata files. When changes are detected, automatically checks for App Store compliance issues and ensures all requirements are met for successful submission.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "GoalStreakApp/app.json",
+      "GoalStreakApp/eas.json",
+      "GoalStreakApp/app-store-assets/metadata/*.md",
+      "GoalStreakApp/app-store-assets/metadata/*.json",
+      "GoalStreakApp/ios/GoalStreak/Info.plist",
+      "GoalStreakApp/ios/GoalStreak/PrivacyInfo.xcprivacy",
+      "GoalStreakApp/src/utils/linkingUtils.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "App Store related files have been modified. Please perform a comprehensive compliance check focusing on:\n\n1. **iOS Requirements**:\n   - Verify all privacy usage descriptions are comprehensive and user-friendly\n   - Check that privacy manifest file (PrivacyInfo.xcprivacy) is complete and accurate\n   - Ensure all required permissions have proper justifications\n   - Validate bundle identifier and version consistency\n\n2. **Legal Documents**:\n   - Verify privacy policy covers all data collection practices\n   - Check terms of service are comprehensive and legally sound\n   - Ensure all URLs use the correct goalstreak.co domain\n   - Validate contact information is current and monitored\n\n3. **Metadata Consistency**:\n   - Check app descriptions are consistent across all files\n   - Verify keywords are optimized and within character limits\n   - Ensure age rating matches content and features\n   - Validate all URLs are accessible and functional\n\n4. **Technical Compliance**:\n   - Verify linking utilities handle errors gracefully\n   - Check that legal document links are functional\n   - Ensure privacy controls are properly implemented\n   - Validate data collection matches privacy disclosures\n\n**CRITICAL - Documentation Rules**:\n- ❌ DO NOT create new compliance report files\n- ✅ DO update existing compliance checklists in app-store-assets/metadata/\n- ✅ DO use CHANGELOG.md for tracking compliance improvements\n\nProvide a compliance report with:\n- ✅ Items that are compliant\n- ⚠️ Items that need attention\n- ❌ Critical issues that must be fixed\n- 📋 Recommended next steps for submission readiness\n- 📝 Which existing files should be updated (never create new ones)"
+  }
+}

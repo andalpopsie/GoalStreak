@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1600" height="2560" viewBox="0 0 1600 2560" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg { fill: #FDFDFD; }
+      .primary-text { fill: #154D71; font-family: 'Montserrat', sans-serif; font-weight: 700; }
+      .secondary-text { fill: #154D71; font-family: 'Montserrat', sans-serif; font-weight: 500; }
+      .accent { fill: #FF894F; }
+      .accent3 { fill: #4A90A4; }
+      .feature-text { fill: #154D71; font-family: 'Montserrat', sans-serif; font-weight: 400; }
+    </style>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" class="bg"/>
+  
+  <!-- Status Bar (iOS style) -->
+  
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="100%" height="80" fill="#FFFFFF"/>
+  <text x="32" y="50" class="primary-text" font-size="24" font-weight="700">GoalStreak</text>
+  
+  <!-- Main Content Area -->
+  <g transform="translate(32, 120)">
+    <!-- Title -->
+    <text x="0" y="0" class="primary-text" font-size="32" font-weight="700">Stay Accountable Together</text>
+    <text x="0" y="50" class="secondary-text" font-size="18">Connect with friends for motivation</text>
+    
+    <!-- Mock UI Elements based on screen type -->
+    
+          <!-- Activity Feed -->
+          
+            <g transform="translate(0, 100)">
+              <rect x="0" y="0" width="1536" height="80" rx="8" fill="#FFFFFF"/>
+              <circle cx="40" cy="40" r="20" fill="#154D71"/>
+              <text x="80" y="25" class="primary-text" font-size="16" font-weight="600">Sarah completed</text>
+              <text x="80" y="45" class="secondary-text" font-size="14">Morning Run</text>
+              <text x="80" y="65" class="feature-text" font-size="12">2 hours ago</text>
+              <g transform="translate(1416, 25)">
+                <text font-size="20">❤️</text>
+                <text x="30" font-size="20">🔥</text>
+                <text x="60" font-size="20">🏅</text>
+              </g>
+            </g>
+          
+            <g transform="translate(0, 200)">
+              <rect x="0" y="0" width="1536" height="80" rx="8" fill="#FFFFFF"/>
+              <circle cx="40" cy="40" r="20" fill="#154D71"/>
+              <text x="80" y="25" class="primary-text" font-size="16" font-weight="600">Mike completed</text>
+              <text x="80" y="45" class="secondary-text" font-size="14">Meditation</text>
+              <text x="80" y="65" class="feature-text" font-size="12">4 hours ago</text>
+              <g transform="translate(1416, 25)">
+                <text font-size="20">❤️</text>
+                <text x="30" font-size="20">🔥</text>
+                <text x="60" font-size="20">🏅</text>
+              </g>
+            </g>
+          
+            <g transform="translate(0, 300)">
+              <rect x="0" y="0" width="1536" height="80" rx="8" fill="#FFFFFF"/>
+              <circle cx="40" cy="40" r="20" fill="#154D71"/>
+              <text x="80" y="25" class="primary-text" font-size="16" font-weight="600">Emma completed</text>
+              <text x="80" y="45" class="secondary-text" font-size="14">Reading</text>
+              <text x="80" y="65" class="feature-text" font-size="12">6 hours ago</text>
+              <g transform="translate(1416, 25)">
+                <text font-size="20">❤️</text>
+                <text x="30" font-size="20">🔥</text>
+                <text x="60" font-size="20">🏅</text>
+              </g>
+            </g>
+          
+        
+    
+    <!-- Feature List -->
+    <g transform="translate(0, 2200)">
+      
+        <g transform="translate(0, 0)">
+          <circle cx="8" cy="8" r="6" class="accent"/>
+          <text x="24" y="12" class="feature-text" font-size="16">Friend activity feed</text>
+        </g>
+      
+        <g transform="translate(0, 40)">
+          <circle cx="8" cy="8" r="6" class="accent"/>
+          <text x="24" y="12" class="feature-text" font-size="16">Emoji reactions</text>
+        </g>
+      
+        <g transform="translate(0, 80)">
+          <circle cx="8" cy="8" r="6" class="accent"/>
+          <text x="24" y="12" class="feature-text" font-size="16">Shared progress</text>
+        </g>
+      
+    </g>
+  </g>
+  
+  <!-- Bottom Navigation (if mobile) -->
+  
+  <rect x="0" y="2480" width="100%" height="80" fill="#FFFFFF"/>
+  <g transform="translate(200, 2500)">
+    
+      <g transform="translate(0, 0)">
+        <circle cx="0" cy="-10" r="12" fill="#154D71"/>
+        <text x="0" y="20" text-anchor="middle" class="feature-text" font-size="12">Home</text>
+      </g>
+    
+      <g transform="translate(400, 0)">
+        <circle cx="0" cy="-10" r="12" fill="#154D71"/>
+        <text x="0" y="20" text-anchor="middle" class="feature-text" font-size="12">Social</text>
+      </g>
+    
+      <g transform="translate(800, 0)">
+        <circle cx="0" cy="-10" r="12" fill="#FF894F"/>
+        <text x="0" y="20" text-anchor="middle" class="feature-text" font-size="12">Analytics</text>
+      </g>
+    
+      <g transform="translate(1200, 0)">
+        <circle cx="0" cy="-10" r="12" fill="#154D71"/>
+        <text x="0" y="20" text-anchor="middle" class="feature-text" font-size="12">Profile</text>
+      </g>
+    
+  </g>
+  
+</svg>

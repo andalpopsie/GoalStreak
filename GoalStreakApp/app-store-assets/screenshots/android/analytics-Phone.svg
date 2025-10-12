@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg { fill: #FDFDFD; }
+      .primary-text { fill: #154D71; font-family: 'Montserrat', sans-serif; font-weight: 700; }
+      .secondary-text { fill: #154D71; font-family: 'Montserrat', sans-serif; font-weight: 500; }
+      .accent { fill: #FF894F; }
+      .accent3 { fill: #4A90A4; }
+      .feature-text { fill: #154D71; font-family: 'Montserrat', sans-serif; font-weight: 400; }
+    </style>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" class="bg"/>
+  
+  <!-- Status Bar (iOS style) -->
+  
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="100%" height="80" fill="#FFFFFF"/>
+  <text x="32" y="50" class="primary-text" font-size="24" font-weight="700">GoalStreak</text>
+  
+  <!-- Main Content Area -->
+  <g transform="translate(32, 120)">
+    <!-- Title -->
+    <text x="0" y="0" class="primary-text" font-size="32" font-weight="700">Powerful Insights</text>
+    <text x="0" y="50" class="secondary-text" font-size="18">Track your progress over time</text>
+    
+    <!-- Mock UI Elements based on screen type -->
+    
+          <!-- Analytics Charts -->
+          <g transform="translate(0, 100)">
+            <!-- Bar Chart -->
+            <rect x="0" y="0" width="1016" height="200" rx="12" fill="#FFFFFF"/>
+            <text x="16" y="30" class="primary-text" font-size="18" font-weight="600">Weekly Progress</text>
+            
+              <rect x="40" y="130" width="20" height="50" 
+                    fill="#FF894F" rx="2"/>
+            
+              <rect x="173.71428571428572" y="120" width="20" height="60" 
+                    fill="#FF894F" rx="2"/>
+            
+              <rect x="307.42857142857144" y="110" width="20" height="70" 
+                    fill="#FF894F" rx="2"/>
+            
+              <rect x="441.14285714285717" y="100" width="20" height="80" 
+                    fill="#FF894F" rx="2"/>
+            
+              <rect x="574.8571428571429" y="90" width="20" height="90" 
+                    fill="#FF894F" rx="2"/>
+            
+              <rect x="708.5714285714286" y="80" width="20" height="100" 
+                    fill="#FF894F" rx="2"/>
+            
+              <rect x="842.2857142857143" y="70" width="20" height="110" 
+                    fill="#FF894F" rx="2"/>
+            
+            
+            <!-- Stats Cards -->
+            <g transform="translate(0, 240)">
+              
+                <rect x="0" y="0" width="500" height="80" rx="8" fill="#FFFFFF"/>
+                <text x="16" y="30" class="primary-text" font-size="24" font-weight="700">127</text>
+                <text x="16" y="50" class="secondary-text" font-size="14">Total Habits</text>
+              
+                <rect x="516" y="0" width="500" height="80" rx="8" fill="#FFFFFF"/>
+                <text x="532" y="30" class="primary-text" font-size="24" font-weight="700">89%</text>
+                <text x="532" y="50" class="secondary-text" font-size="14">Success Rate</text>
+              
+            </g>
+          </g>
+        
+    
+    <!-- Feature List -->
+    <g transform="translate(0, 1560)">
+      
+        <g transform="translate(0, 0)">
+          <circle cx="8" cy="8" r="6" class="accent"/>
+          <text x="24" y="12" class="feature-text" font-size="16">Detailed analytics</text>
+        </g>
+      
+        <g transform="translate(0, 40)">
+          <circle cx="8" cy="8" r="6" class="accent"/>
+          <text x="24" y="12" class="feature-text" font-size="16">Trend visualization</text>
+        </g>
+      
+        <g transform="translate(0, 80)">
+          <circle cx="8" cy="8" r="6" class="accent"/>
+          <text x="24" y="12" class="feature-text" font-size="16">Personal records</text>
+        </g>
+      
+    </g>
+  </g>
+  
+  <!-- Bottom Navigation (if mobile) -->
+  
+  <rect x="0" y="1840" width="100%" height="80" fill="#FFFFFF"/>
+  <g transform="translate(135, 1860)">
+    
+      <g transform="translate(0, 0)">
+        <circle cx="0" cy="-10" r="12" fill="#154D71"/>
+        <text x="0" y="20" text-anchor="middle" class="feature-text" font-size="12">Home</text>
+      </g>
+    
+      <g transform="translate(270, 0)">
+        <circle cx="0" cy="-10" r="12" fill="#154D71"/>
+        <text x="0" y="20" text-anchor="middle" class="feature-text" font-size="12">Social</text>
+      </g>
+    
+      <g transform="translate(540, 0)">
+        <circle cx="0" cy="-10" r="12" fill="#154D71"/>
+        <text x="0" y="20" text-anchor="middle" class="feature-text" font-size="12">Analytics</text>
+      </g>
+    
+      <g transform="translate(810, 0)">
+        <circle cx="0" cy="-10" r="12" fill="#FF894F"/>
+        <text x="0" y="20" text-anchor="middle" class="feature-text" font-size="12">Profile</text>
+      </g>
+    
+  </g>
+  
+</svg>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -15,6 +15,7 @@ import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
 import { Button, SimpleInput } from '../components/common';
 import { LoginForm } from '../types';
+import { trackScreen, trackEvent } from '../services/enhancedAnalyticsService';
 
 interface LoginScreenProps {
   navigation: any;
@@ -28,6 +29,14 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   });
   const [errors, setErrors] = useState<Partial<LoginForm>>({});
   const [isLoading, setIsLoading] = useState(false);
+
+  // Track screen view
+  useEffect(() => {
+    trackScreen('LoginScreen', { source: 'app_navigation' });
+    trackEvent('login_screen_viewed', {
+      source: 'app_navigation'
+    });
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<LoginForm> = {};
@@ -49,13 +58,40 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   };
 
   const handleSignIn = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      // Track validation error
+      trackEvent('login_validation_error', {
+        errors: Object.keys(errors),
+        form_completion: {
+          has_email: !!form.email.trim(),
+          has_password: !!form.password
+        }
+      });
+      return;
+    }
 
     setIsLoading(true);
     try {
+      // Track login attempt
+      trackEvent('login_started', {
+        email_domain: form.email.split('@')[1]
+      });
+
       await signIn(form.email.trim(), form.password);
+      
+      // Track successful login
+      trackEvent('login_completed', {
+        email_domain: form.email.split('@')[1]
+      });
+      
       // Navigation will be handled by the auth state change
     } catch (error: any) {
+      // Track login error
+      trackEvent('login_error', {
+        error_message: error.message,
+        email_domain: form.email.split('@')[1]
+      });
+      
       Alert.alert('Sign In Failed', error.message);
     } finally {
       setIsLoading(false);

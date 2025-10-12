@@ -4,6 +4,10 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 
+// Import analytics for navigation tracking
+import { trackScreenView } from '../services/enhancedAnalyticsService';
+import { recordPerformance } from '../services/monitoringDashboardService';
+
 // Import types
 import { RootStackParamList, MainTabParamList, AuthStackParamList } from '../types';
 
@@ -30,6 +34,7 @@ const AuthStack = createStackNavigator<AuthStackParamList>();
 function AuthNavigator() {
   return (
     <AuthStack.Navigator
+      id="AuthStack"
       screenOptions={{
         headerShown: false,
       }}
@@ -44,6 +49,7 @@ function AuthNavigator() {
 function MainTabNavigator() {
   return (
     <Tab.Navigator
+      id="MainTabs"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName: keyof typeof Ionicons.glyphMap;
@@ -80,23 +86,23 @@ function MainTabNavigator() {
         },
       })}
     >
-      <Tab.Screen 
-        name="Home" 
+      <Tab.Screen
+        name="Home"
         component={CleanHomeScreen}
         options={{ title: 'Dashboard' }}
       />
-      <Tab.Screen 
-        name="Social" 
+      <Tab.Screen
+        name="Social"
         component={SocialScreen}
         options={{ title: 'Social' }}
       />
-      <Tab.Screen 
-        name="Analytics" 
+      <Tab.Screen
+        name="Analytics"
         component={AnalyticsScreen}
         options={{ title: 'Analytics' }}
       />
-      <Tab.Screen 
-        name="Profile" 
+      <Tab.Screen
+        name="Profile"
         component={ProfileScreen}
         options={{ title: 'Profile' }}
       />
@@ -108,13 +114,14 @@ function MainTabNavigator() {
 function MainStackNavigator() {
   return (
     <Stack.Navigator
+      id="MainStack"
       screenOptions={{
         headerShown: false,
       }}
     >
       <Stack.Screen name="MainTabs" component={MainTabNavigator} />
-      <Stack.Screen 
-        name="CreateHabit" 
+      <Stack.Screen
+        name="CreateHabit"
         component={CreateHabitScreen}
         options={{
           headerShown: false,
@@ -132,6 +139,47 @@ function MainStackNavigator() {
 // Root Stack Navigator
 export default function AppNavigator() {
   const { isAuthenticated, isLoading } = useAuth();
+  const navigationStartTime = React.useRef<number>(0);
+
+  // Track navigation performance
+  const handleNavigationStateChange = React.useCallback((state: any) => {
+    if (!state) return;
+
+    const currentRoute = getCurrentRouteName(state);
+    const navigationTime = Date.now() - navigationStartTime.current;
+
+    if (currentRoute && navigationStartTime.current > 0) {
+      // Track screen view
+      trackScreenView(currentRoute, {
+        navigation_time: navigationTime,
+        timestamp: new Date().toISOString()
+      });
+
+      // Record navigation performance
+      recordPerformance('navigation_time', navigationTime, 'navigation', {
+        screen: currentRoute
+      });
+    }
+  }, []);
+
+  // Helper function to get current route name
+  const getCurrentRouteName = (state: any): string | undefined => {
+    if (!state?.routes?.length) {
+      return undefined;
+    }
+
+    const route = state.routes[state.index];
+    if (route?.state) {
+      return getCurrentRouteName(route.state);
+    }
+
+    return route?.name;
+  };
+
+  // Track navigation start time
+  const handleNavigationReady = React.useCallback(() => {
+    navigationStartTime.current = Date.now();
+  }, []);
 
   if (isLoading) {
     // You can return a loading screen here
@@ -139,8 +187,12 @@ export default function AppNavigator() {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      onReady={handleNavigationReady}
+      onStateChange={handleNavigationStateChange}
+    >
       <Stack.Navigator
+        id="RootStack"
         screenOptions={{
           headerShown: false,
         }}

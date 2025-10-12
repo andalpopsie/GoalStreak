@@ -35,3 +35,39 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+
+# Organized directories
+temp/
+docs/reports/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Build artifacts
+ios/build/
+android/build/
+*.xcarchive
+
+# Cleanup documentation (temporary files)
+*CLEANUP*.md
+*SAFETY*.md
+DIRECTORY_CLEANUP_PREVIEW.md
+
+# Coverage reports
+coverage/
+*.lcov

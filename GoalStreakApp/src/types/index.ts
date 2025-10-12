@@ -36,54 +36,13 @@ export interface Habit {
 }
 
 export type HabitCategory = 
-  // Fitness & Workout
-  | 'fitness'
-  | 'workout'
-  | 'running'
-  | 'yoga'
-  | 'cycling'
-  | 'swimming'
-  
-  // Health & Wellness
-  | 'wellness'
-  | 'health'
-  | 'sleep'
-  | 'meditation'
-  | 'breathing'
-  
-  // Nutrition
-  | 'nutrition'
-  | 'water'
-  | 'diet'
-  | 'vitamins'
-  
-  // Productivity & Learning
-  | 'productivity'
-  | 'learning'
-  | 'writing'
-  | 'coding'
-  
-  // Social & Personal
-  | 'social'
-  | 'family'
-  | 'friends'
-  
-  // Creative & Hobbies
-  | 'creative'
-  | 'music'
-  | 'art'
-  | 'photography'
-  
-  // Daily Habits
-  | 'hygiene'
-  | 'cleaning'
-  | 'skincare'
-  
-  // Legacy (for backward compatibility)
-  | 'mindfulness'
-  
-  // Default
-  | 'other';
+  // Simplified 6-category system with designated colors
+  | 'fitness'      // 🟠 Orange (#FF894F) - Exercise, workouts, running, sports
+  | 'wellness'     // 🟦 Teal (#538392) - Health, meditation, sleep, mindfulness
+  | 'nutrition'    // 🟢 Light Green (#B3E2A7) - Food, water, vitamins, diet
+  | 'social'       // 🟣 Purple (#B771E5) - Friends, family, relationships, music
+  | 'productivity' // 🔷 Navy (#003161) - Work, learning, organization, writing
+  | 'other';       // 🌸 Pink - Other habits
 
 export type HabitFrequency = 'daily' | 'weekly' | 'monthly';
 

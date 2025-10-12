@@ -10,7 +10,7 @@ GoalStreak is a mobile accountability app built with React Native (Expo) and Fir
 ## Tech Stack Standards
 
 ### Frontend (React Native + Expo)
-- Use Expo SDK ~49.0.0 for cross-platform development
+- Use Expo SDK 54.0.0 for cross-platform development
 - Implement TypeScript for type safety
 - Use React Navigation for navigation
 - Follow React Native best practices for performance
@@ -53,20 +53,94 @@ const colors = {
 - Active streaks: Accent 1 highlight
 - Always use #FFF6E9 background for warmth
 
+## Legal Compliance Standards
+
+### iOS App Store Requirements
+- All privacy usage descriptions must be comprehensive and user-friendly
+- Privacy manifest file (PrivacyInfo.xcprivacy) must be complete and accurate
+- Legal documents (privacy policy, terms of service) must be accessible in-app
+- All URLs must use goalstreak.co domain
+- Full compliance with COPPA (13+ age requirement), GDPR, and CCPA
+
+### Privacy Implementation
+- Use linkingUtils.ts for all external legal document links
+- Include privacy policy and terms of service links in SignUpScreen and ProfileScreen
+- Ensure graceful error handling for failed URL opening
+- Maintain comprehensive privacy manifest for iOS 17+ compliance
+
+## Project Organization Standards
+
+### Directory Organization Principles
+- **Logical Grouping**: Files organized by purpose and functionality
+- **Clean Root**: Environment files in root, config files in config/
+- **Zero Duplicates**: Single source of truth for all configuration
+- **Professional Structure**: Ready for code review and App Store submission
+- **Automated Maintenance**: Use `npm run cleanup:directory` for organization
+- **Documentation First**: All guides and docs in dedicated `docs/` directory
+
+### Organization Benefits
+- **Improved Navigation**: Faster file discovery and logical grouping
+- **Better Git Tracking**: Cleaner commit history and easier change tracking  
+- **Enhanced Maintainability**: Clear separation of concerns
+- **Developer Experience**: Easier onboarding and project understanding
+
+### File Creation Rules (CRITICAL)
+**ALWAYS follow these rules before creating ANY new file:**
+
+1. **Documentation Files**
+   - ❌ DON'T create new summary/report files for recent work
+   - ✅ DO update existing documentation files
+   - ✅ DO use CHANGELOG.md for incremental updates
+   - ❌ DON'T duplicate guides or create redundant docs
+
+2. **Configuration Files**
+   - ❌ DON'T create duplicate .env files
+   - ✅ DO keep .env files ONLY in root directory
+   - ❌ DON'T create environment-specific config duplicates
+   - ✅ DO use single config files with environment detection
+
+3. **Code Files**
+   - ❌ DON'T create new components for UI variations (use props/variants)
+   - ✅ DO extend existing components with new props
+   - ❌ DON'T create duplicate service files
+   - ✅ DO add methods to existing services
+
+4. **Before Creating ANY File, Ask:**
+   - Can this be added to an existing file?
+   - Does a similar file already exist?
+   - Will this create duplication?
+   - Is this truly necessary or just convenient?
+
 ## Code Standards
 
-### File Structure
+### File Structure (Optimized January 2025)
 ```
-src/
-├── components/          # Reusable UI components
-├── screens/            # Screen components
-├── navigation/         # Navigation configuration
-├── services/          # Firebase and API services
-├── utils/             # Helper functions
-├── hooks/             # Custom React hooks
-├── types/             # TypeScript type definitions
-└── constants/         # App constants (colors, sizes, etc.)
+GoalStreakApp/
+├── .env, .env.development, .env.production  # Environment variables (ROOT ONLY)
+├── src/                   # Source code
+│   ├── components/          # Reusable UI components
+│   ├── screens/            # Screen components
+│   ├── navigation/         # Navigation configuration
+│   ├── services/          # Firebase and API services (14 services)
+│   ├── utils/             # Helper functions
+│   ├── hooks/             # Custom React hooks
+│   ├── types/             # TypeScript type definitions
+│   ├── config/            # Environment configuration loader
+│   └── constants/         # App constants (colors, sizes, etc.)
+├── docs/                  # Documentation and guides (NO duplicates)
+├── config/                # Config files ONLY (.eslintrc.js, jest.config.js, tsconfig.json)
+├── firebase/              # Firebase configuration and rules
+├── scripts/               # Build and utility scripts
+├── assets/                # App assets (icons, fonts, etc.)
+├── app-store-assets/      # App Store submission materials
+├── temp/                  # Temporary files and build artifacts
+└── [essential root files] # package.json, app.json, eas.json, etc.
 ```
+
+**IMPORTANT**: 
+- Environment files (.env*) live in ROOT directory ONLY
+- Config directory contains build/lint/test configs ONLY
+- Never duplicate configuration files
 
 ### Naming Conventions
 - Components: PascalCase (e.g., `HabitCard.tsx`)

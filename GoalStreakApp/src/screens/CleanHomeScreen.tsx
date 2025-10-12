@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
-  ActivityIndicator,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,6 +18,7 @@ import { useHabitsWithSocial } from '../hooks/useHabitsWithSocial'; // Re-enable
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { OfflineBanner } from '../components/common';
 import { SkeletonHabitCard, AnimatedCircularHabitCard, EmptyHabitsState } from '../components/habit';
+import { trackScreen, trackEvent, trackFeature } from '../services/enhancedAnalyticsService';
 
 export default function CleanHomeScreen({ navigation }: any) {
   const { user } = useAuth();
@@ -34,6 +34,20 @@ export default function CleanHomeScreen({ navigation }: any) {
     deleteHabit,
   } = useHabitsWithSocial(); // Re-enabled social features with improved error handling
   const networkStatus = useNetworkStatus();
+
+  // Track screen view
+  useEffect(() => {
+    trackScreen('CleanHomeScreen', { source: 'app_navigation' });
+    
+    // Track user engagement with habits
+    if (habits.length > 0) {
+      trackEvent('home_screen_viewed', {
+        total_habits: habits.length,
+        daily_habits: habits.filter(h => h.frequency === 'daily').length,
+        user_id: user?.id
+      });
+    }
+  }, [habits.length, user?.id]);
 
   const todayHabits = habits.filter(habit => habit.frequency === 'daily');
   
@@ -57,13 +71,51 @@ export default function CleanHomeScreen({ navigation }: any) {
 
   const handleToggleHabit = async (habitId: string) => {
     try {
-      if (isHabitCompletedToday(habitId)) {
+      const habit = habits.find(h => h.id === habitId);
+      const wasCompleted = isHabitCompletedToday(habitId);
+      
+      if (wasCompleted) {
         await uncompleteHabit(habitId);
+        // Track habit uncomplete
+        trackEvent('habit_uncompleted', {
+          habit_id: habitId,
+          habit_name: habit?.name,
+          habit_category: habit?.category,
+          user_id: user?.id
+        });
       } else {
         await completeHabit(habitId);
+        // Track habit completion
+        const currentStreak = getHabitStreak(habitId);
+        trackFeature('habit_tracking', 'habit_completed', 1);
+        trackEvent('habit_completed', {
+          habit_id: habitId,
+          habit_name: habit?.name,
+          habit_category: habit?.category,
+          streak_count: currentStreak,
+          user_id: user?.id,
+          completion_time: new Date().toISOString()
+        });
+        
+        // Track streak milestones
+        const streakCount = typeof currentStreak === 'object' ? currentStreak.count : currentStreak;
+        if (streakCount > 0 && [7, 30, 100, 365].includes(streakCount)) {
+          trackEvent('streak_milestone_achieved', {
+            habit_id: habitId,
+            habit_name: habit?.name,
+            milestone: streakCount,
+            user_id: user?.id
+          });
+        }
       }
     } catch (error: any) {
       console.error('Error toggling habit:', error);
+      // Track error
+      trackEvent('habit_toggle_error', {
+        habit_id: habitId,
+        error_message: error.message,
+        user_id: user?.id
+      });
     }
   };
 
@@ -78,8 +130,21 @@ export default function CleanHomeScreen({ navigation }: any) {
   };
 
   const navigateToCreateHabit = () => {
+    // Track navigation attempt
+    trackEvent('create_habit_button_clicked', {
+      current_habit_count: uniqueHabits.length,
+      user_id: user?.id
+    });
+    
     // Check habit limit before navigation
     if (uniqueHabits.length >= LIMITS.MAX_HABITS) {
+      // Track limit reached
+      trackEvent('habit_limit_reached', {
+        current_habit_count: uniqueHabits.length,
+        limit: LIMITS.MAX_HABITS,
+        user_id: user?.id
+      });
+      
       Alert.alert(
         'Habit Limit Reached',
         `You can create up to ${LIMITS.MAX_HABITS} habits to help you stay focused on what matters most! Consider completing your current habits consistently before adding new ones.`,
@@ -89,9 +154,19 @@ export default function CleanHomeScreen({ navigation }: any) {
     }
 
     try {
+      // Track successful navigation
+      trackEvent('navigate_to_create_habit', {
+        current_habit_count: uniqueHabits.length,
+        user_id: user?.id
+      });
       navigation.navigate('CreateHabit');
     } catch (error) {
       console.error('Navigation error:', error);
+      trackEvent('navigation_error', {
+        target_screen: 'CreateHabit',
+        error_message: error instanceof Error ? error.message : 'Unknown error',
+        user_id: user?.id
+      });
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,9 +8,6 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Modal,
-  FlatList,
-  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,25 +19,54 @@ import { IconPicker } from '../components/habit';
 import { CreateHabitForm, HabitCategory, TimerConfig } from '../types';
 import { TimerToggle } from '../components/timer';
 import { notificationService } from '../services/notificationService';
+import { trackScreen, trackEvent, trackFeature } from '../services/enhancedAnalyticsService';
+import { useAuth } from '../hooks/useAuth';
+import { useHabitFormValidation } from '../hooks/useHabitFormValidation';
+import { getCategoryColor } from '../utils/categoryIcons';
 
 interface CreateHabitScreenProps {
   navigation: any;
 }
 
-const HABIT_CATEGORIES: { value: HabitCategory; label: string; icon: string }[] = [
-  { value: 'fitness', label: 'Fitness', icon: 'fitness' },
-  { value: 'wellness', label: 'Wellness', icon: 'heart' },
-  { value: 'nutrition', label: 'Nutrition', icon: 'restaurant' },
-  { value: 'productivity', label: 'Productivity', icon: 'briefcase' },
-  { value: 'mindfulness', label: 'Mindfulness', icon: 'leaf' },
-  { value: 'social', label: 'Social', icon: 'people' },
-  { value: 'learning', label: 'Learning', icon: 'book' },
-  { value: 'other', label: 'Other', icon: 'ellipsis-horizontal' },
+interface HabitCategoryOption {
+  value: HabitCategory;
+  label: string;
+  icon: string;
+}
+
+const HABIT_CATEGORIES: HabitCategoryOption[] = [
+  { value: 'fitness', label: 'Fitness', icon: 'fitness' },           // 🟠 Orange - Exercise, workouts, running
+  { value: 'wellness', label: 'Wellness', icon: 'heart' },           // 🟦 Teal - Health, meditation, sleep
+  { value: 'nutrition', label: 'Nutrition', icon: 'restaurant' },    // 🟢 Light Green - Food, water, vitamins
+  { value: 'social', label: 'Social', icon: 'people' },              // 🟣 Purple - Friends, family, relationships
+  { value: 'productivity', label: 'Productivity', icon: 'briefcase' }, // 🔷 Navy - Work, learning, organization
+  { value: 'other', label: 'Other', icon: 'ellipsis-horizontal' },   // 🌸 Pink - Other habits
 ];
+
+// Constants for better maintainability
+const DEFAULT_REMINDER_HOUR = 9;
+const DEFAULT_REMINDER_MINUTE = 0;
+const DEFAULT_REMINDER_PERIOD = 'AM' as const;
+
+// Validation constants
+const HABIT_NAME_MIN_LENGTH = 2;
+const HABIT_NAME_MAX_LENGTH = 50;
+const TARGET_VALUE_MAX = 10000;
+const HABIT_NAME_PATTERN = /^[a-zA-Z0-9\s\-_.,!?()]+$/;
 
 export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps) {
   const { createHabit, isCreating, habits } = useHabits();
-  
+  const { user } = useAuth();
+
+  // Track screen view
+  useEffect(() => {
+    trackScreen('CreateHabit');
+    trackEvent('create_habit_screen_viewed', {
+      current_habit_count: habits.length,
+      user_id: user?.id
+    });
+  }, [habits.length, user?.id]);
+
   const [form, setForm] = useState<CreateHabitForm>({
     name: '',
     category: 'fitness',
@@ -53,121 +79,204 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
     reminderTime: undefined, // Optional reminder time
     reminderEnabled: false, // Reminder notifications disabled by default
   });
-  
-  const [errors, setErrors] = useState<{
-    name?: string;
-    category?: string;
-    frequency?: string;
-    targetValue?: string;
-    unit?: string;
-    icon?: string;
-    isPublic?: string;
-  }>({});
-  
+
+  const [errors, setErrors] = useState<Partial<Record<keyof CreateHabitForm, string>>>({});
+
   // Icon picker state
   const [showIconPicker, setShowIconPicker] = useState(false);
-  
-  // Category dropdown state
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-  
+
   // Time picker state
-  const [selectedHour, setSelectedHour] = useState(9);
-  const [selectedMinute, setSelectedMinute] = useState(0);
-  const [selectedPeriod, setSelectedPeriod] = useState<'AM' | 'PM'>('AM');
+  const [selectedHour] = useState(DEFAULT_REMINDER_HOUR);
+  const [selectedMinute] = useState(DEFAULT_REMINDER_MINUTE);
+  const [selectedPeriod] = useState<'AM' | 'PM'>(DEFAULT_REMINDER_PERIOD);
 
-  const validateForm = (): boolean => {
-    const newErrors: {
-      name?: string;
-      category?: string;
-      frequency?: string;
-      targetValue?: string;
-      unit?: string;
-      icon?: string;
-      isPublic?: string;
-    } = {};
+  // Validation logic extracted for better maintainability
+  const validation = useHabitFormValidation(habits);
 
-    if (!form.name.trim()) {
-      newErrors.name = 'Habit name is required';
-    } else if (form.name.trim().length < 2) {
-      newErrors.name = 'Habit name must be at least 2 characters';
-    }
-
-    if (form.targetValue !== undefined && form.targetValue <= 0) {
-      newErrors.targetValue = 'Target value must be greater than 0';
-    }
-
-    if (form.targetValue !== undefined && !form.unit?.trim()) {
-      newErrors.unit = 'Unit is required when target value is set';
-    }
-
+  const validateForm = useCallback((): boolean => {
+    const newErrors = validation.validateForm(form);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }, [form, validation]);
+
+  // Helper function to format time
+  const formatTimeFor24Hour = useCallback((hour: number, minute: number, period: 'AM' | 'PM'): string => {
+    let hour24 = hour;
+    if (period === 'PM' && hour !== 12) {
+      hour24 += 12;
+    } else if (period === 'AM' && hour === 12) {
+      hour24 = 0;
+    }
+    return `${hour24.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+  }, []);
 
   const handleCreateHabit = async () => {
     if (!validateForm()) {
+      // Track validation error
+      trackEvent('habit_creation_validation_error', {
+        form_data: {
+          name_length: form.name.length,
+          category: form.category,
+          has_target_value: !!form.targetValue,
+          has_timer: !!form.timer,
+          reminder_enabled: form.reminderEnabled
+        },
+        user_id: user?.id
+      });
       Alert.alert('Validation Error', 'Please check your form inputs');
       return;
     }
 
     try {
-      // Convert selected time to 24-hour format for storage
-      let hour24 = selectedHour;
-      if (selectedPeriod === 'PM' && selectedHour !== 12) {
-        hour24 += 12;
-      } else if (selectedPeriod === 'AM' && selectedHour === 12) {
-        hour24 = 0;
-      }
+      // Track habit creation attempt
+      trackEvent('habit_creation_started', {
+        habit_name: form.name,
+        habit_category: form.category,
+        frequency: form.frequency,
+        has_target_value: !!form.targetValue,
+        has_timer: !!form.timer,
+        reminder_enabled: form.reminderEnabled,
+        is_public: form.isPublic,
+        user_id: user?.id
+      });
 
-      const reminderTime = form.reminderEnabled 
-        ? `${hour24.toString().padStart(2, '0')}:${selectedMinute.toString().padStart(2, '0')}`
+      // Convert selected time to 24-hour format for storage
+      const reminderTime = form.reminderEnabled
+        ? formatTimeFor24Hour(selectedHour, selectedMinute, selectedPeriod)
         : undefined;
 
-      // Create the habit first
-      const newHabit = await createHabit({
+      // Create the habit
+      await createHabit({
         ...form,
         reminderTime,
       });
-      
+
       // Schedule notification if reminders are enabled
-      if (form.reminderEnabled && reminderTime && newHabit) {
+      if (form.reminderEnabled && reminderTime) {
         try {
           console.log(`📅 Scheduling notification for "${form.name}" at ${reminderTime}`);
-          
-          const notificationId = await notificationService.scheduleHabitReminder({
-            id: newHabit.id,
-            name: form.name,
-            reminderTime,
-            reminderEnabled: true,
-          });
-          
-          if (notificationId) {
-            console.log(`✅ Notification scheduled successfully: ${notificationId}`);
+
+          // Find the newly created habit by name (since createHabit doesn't return the habit)
+          const newHabit = habits.find(h => h.name === form.name && h.category === form.category);
+
+          if (newHabit) {
+            const notificationId = await notificationService.scheduleHabitReminder({
+              id: newHabit.id,
+              name: form.name,
+              reminderTime,
+              reminderEnabled: true,
+            });
+
+            if (notificationId) {
+              console.log(`✅ Notification scheduled successfully: ${notificationId}`);
+            }
           }
         } catch (notificationError) {
           console.error('❌ Failed to schedule notification:', notificationError);
           // Don't fail the habit creation if notification fails
           Alert.alert(
-            'Habit Created', 
+            'Habit Created',
             'Habit created successfully, but notification scheduling failed. You can enable notifications later in settings.',
             [{ text: 'OK', onPress: () => navigation.goBack() }]
           );
           return;
         }
       }
-      
+
+      // Track successful habit creation
+      trackFeature('habit_management', 'habit_created', 1);
+      trackEvent('habit_created', {
+        habit_name: form.name,
+        habit_category: form.category,
+        frequency: form.frequency,
+        has_target_value: !!form.targetValue,
+        has_timer: !!form.timer,
+        reminder_enabled: form.reminderEnabled,
+        is_public: form.isPublic,
+        user_id: user?.id,
+        total_habits_after_creation: habits.length + 1
+      });
+
       Alert.alert('Success', 'Habit created successfully!', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
     } catch (error: any) {
       console.error('Error creating habit:', error);
+
+      // Track habit creation error
+      trackEvent('habit_creation_error', {
+        error_message: error.message || 'Unknown error',
+        form_data: {
+          name_length: form.name.length,
+          category: form.category,
+          has_target_value: !!form.targetValue,
+          has_timer: !!form.timer,
+          reminder_enabled: form.reminderEnabled
+        },
+        user_id: user?.id
+      });
+
       Alert.alert('Error', error.message || 'Failed to create habit');
     }
   };
 
-  const handleCategorySelect = (category: HabitCategory) => {
-    setForm({ ...form, category });
-  };
+  const handleCategorySelect = useCallback((category: HabitCategory) => {
+    setForm(prev => ({ ...prev, category }));
+  }, []);
+
+  // Memoize category options to prevent unnecessary re-renders
+  const categoryOptions = useMemo(() => HABIT_CATEGORIES, []);
+
+  // Memoize category colors for better performance
+  const categoryColors = useMemo(() => {
+    return HABIT_CATEGORIES.reduce((acc, category) => {
+      acc[category.value] = getCategoryColor(category.value);
+      return acc;
+    }, {} as Record<HabitCategory, string>);
+  }, []);
+
+  // Memoized category card component for better performance
+  const CategoryCard = React.memo(({ category }: { category: HabitCategoryOption }) => {
+    const categoryColor = categoryColors[category.value];
+    const isSelected = form.category === category.value;
+
+    return (
+      <TouchableOpacity
+        style={[
+          styles.categoryCard,
+          isSelected && styles.categoryCardSelected,
+          { borderColor: categoryColor + '30' }
+        ]}
+        onPress={() => handleCategorySelect(category.value)}
+      >
+        <View style={[
+          styles.categoryIconContainer,
+          { backgroundColor: categoryColor + '15' }
+        ]}>
+          <Ionicons
+            name={category.icon as any}
+            size={24}
+            color={categoryColor}
+          />
+        </View>
+        <Text style={[
+          styles.categoryLabel,
+          isSelected && { color: categoryColor }
+        ]}>
+          {category.label}
+        </Text>
+        {isSelected && (
+          <View style={styles.selectedIndicator}>
+            <Ionicons name="checkmark-circle" size={20} color={categoryColor} />
+          </View>
+        )}
+      </TouchableOpacity>
+    );
+  });
+
+
+
+
 
   const handleTimerConfigChange = (timerConfig: TimerConfig | undefined) => {
     setForm({ ...form, timer: timerConfig });
@@ -175,128 +284,60 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        {/* Header */}
+        {/* Minimalist Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+            accessibilityLabel="Go back to previous screen"
+            accessibilityRole="button"
+          >
             <Ionicons name="arrow-back" size={24} color={Colors.primaryText} />
           </TouchableOpacity>
-          <Text style={styles.title}>Create New Habit</Text>
-          <View style={styles.placeholder} />
+          <Text style={styles.title}>New Habit</Text>
+          <Text style={styles.habitCounter}>{habits.length + 1}/{LIMITS.MAX_HABITS}</Text>
         </View>
 
-        {/* Habit Counter */}
-        <View style={styles.habitCounterSection}>
-          <Text style={styles.habitCounterText}>
-            Creating habit {habits.length + 1} of {LIMITS.MAX_HABITS}
-          </Text>
-          {habits.length >= LIMITS.MAX_HABITS - 1 && (
-            <Text style={styles.habitCounterWarning}>
-              {habits.length === LIMITS.MAX_HABITS - 1 ? 'This will be your last habit!' : 'Habit limit reached'}
-            </Text>
-          )}
-          {habits.length < LIMITS.MAX_HABITS - 1 && (
-            <Text style={styles.habitCounterSubtext}>
-              {LIMITS.MAX_HABITS - 1 - habits.length} more habits available after this
-            </Text>
-          )}
-        </View>
-
-        <ScrollView 
+        <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
-          onScrollBeginDrag={() => setShowCategoryDropdown(false)}
         >
-          {/* Habit Name */}
-          <View style={styles.inputSection}>
+          {/* Habit Name - Minimalist */}
+          <View style={styles.nameSection}>
             <SimpleInput
-              label="What habit do you want to build?"
-              placeholder="e.g., Morning meditation, Daily run"
+              placeholder="Habit name"
               value={form.name}
-              onChangeText={(name) => setForm({ ...form, name })}
+              onChangeText={(name: string) => setForm({ ...form, name })}
               error={errors.name}
             />
           </View>
 
-          {/* Icon & Category Selection */}
-          <View style={styles.selectionSection}>
-            <Text style={styles.sectionTitle}>Icon & Category</Text>
-            
-            <View style={styles.iconCategoryRow}>
-              <View style={styles.iconContainer}>
-                <TouchableOpacity 
-                style={styles.categorySelector}
-                onPress={() => setShowIconPicker(true)}
-              >
-                <View style={styles.categoryContent}>
-                  <Ionicons name="happy-outline" size={24} color={Colors.accent1} />
-                  <Text style={styles.categoryText}>Icon</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={16} color={Colors.accent2} />
-              </TouchableOpacity>
-              </View>
-
-              <View style={styles.categoryContainer}>
-                <TouchableOpacity 
-                  style={styles.categorySelector}
-                  onPress={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                >
-                <View style={styles.categoryContent}>
-                  <Ionicons name="grid-outline" size={24} color={Colors.accent1} />
-                  <Text style={styles.categoryText}>
-                    Category
-                  </Text>
-                </View>
-                <Ionicons
-                  name={showCategoryDropdown ? "chevron-up" : "chevron-down"}
-                  size={16}
-                  color={Colors.accent2}
-                />
-              </TouchableOpacity>
-              </View>
-            </View>
-            
-            {showCategoryDropdown && (
-              <View style={styles.categoryDropdown}>
-                {HABIT_CATEGORIES.map((category) => (
-                  <TouchableOpacity
-                    key={category.value}
-                    style={[
-                      styles.dropdownItem,
-                      form.category === category.value && styles.dropdownItemSelected
-                    ]}
-                    onPress={() => {
-                      handleCategorySelect(category.value);
-                      setShowCategoryDropdown(false);
-                    }}
-                  >
-                    <Ionicons
-                      name={category.icon as any}
-                      size={20}
-                      color={form.category === category.value ? Colors.accent1 : Colors.primaryText}
-                    />
-                    <Text style={[
-                      styles.dropdownItemText,
-                      form.category === category.value && styles.dropdownItemTextSelected
-                    ]}>
-                      {category.label}
-                    </Text>
-                    {form.category === category.value && (
-                      <Ionicons name="checkmark" size={16} color={Colors.accent1} />
-                    )}
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
+          {/* Visual Category Selection */}
+          <View style={styles.categoryGrid}>
+            {categoryOptions.map((category) => (
+              <CategoryCard key={category.value} category={category} />
+            ))}
           </View>
 
-          {/* Timer Configuration */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Timer</Text>
+          {/* Icon Selection - Minimalist */}
+          <TouchableOpacity
+            style={styles.iconSelector}
+            onPress={() => setShowIconPicker(true)}
+          >
+            <View style={styles.iconPreview}>
+              <Ionicons name={form.icon as any} size={24} color={getCategoryColor(form.category)} />
+            </View>
+            <Text style={styles.iconText}>Choose icon</Text>
+            <Ionicons name="chevron-forward" size={16} color={Colors.secondaryText} />
+          </TouchableOpacity>
+
+          {/* Timer - Minimalist */}
+          <View style={styles.featureSection}>
             <TimerToggle
               timerConfig={form.timer}
               onTimerConfigChange={handleTimerConfigChange}
@@ -304,184 +345,71 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
             />
           </View>
 
-          {/* Reminder Configuration */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Enable Notifications</Text>
-            
-            {/* Reminder Toggle */}
+          {/* Quick Settings - Minimalist */}
+          <View style={styles.settingsRow}>
             <TouchableOpacity
-              style={styles.reminderToggle}
-              onPress={() => setForm({ ...form, reminderEnabled: !form.reminderEnabled })}
-            >
-              <View style={styles.reminderInfo}>
-                <Text style={styles.reminderTitle}>Daily Reminders</Text>
-              </View>
-              <View style={[
-                styles.toggle,
-                form.reminderEnabled && styles.toggleActive
-              ]}>
-                {form.reminderEnabled && (
-                  <Ionicons name="checkmark" size={16} color={Colors.white} />
-                )}
-              </View>
-            </TouchableOpacity>
-
-            {/* Time Pickers */}
-            {form.reminderEnabled && (
-              <View style={styles.timePickerContainer}>
-                <Text style={styles.timePickerLabel}>Reminder Time</Text>
-                <View style={styles.timePickerRow}>
-                  
-                  {/* Hour Picker */}
-                  <View style={styles.pickerColumn}>
-                    <Text style={styles.pickerTitle}>Hour</Text>
-                    <ScrollView style={styles.picker} showsVerticalScrollIndicator={false}>
-                      {Array.from({ length: 12 }, (_, i) => i + 1).map((hour) => (
-                        <TouchableOpacity
-                          key={hour}
-                          style={[
-                            styles.pickerOption,
-                            selectedHour === hour && styles.pickerOptionSelected
-                          ]}
-                          onPress={() => setSelectedHour(hour)}
-                        >
-                          <Text style={[
-                            styles.pickerText,
-                            selectedHour === hour && styles.pickerTextSelected
-                          ]}>
-                            {hour}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-                  </View>
-
-                  {/* Minute Picker */}
-                  <View style={styles.pickerColumn}>
-                    <Text style={styles.pickerTitle}>Min</Text>
-                    <ScrollView style={styles.picker} showsVerticalScrollIndicator={false}>
-                      {Array.from({ length: 60 }, (_, i) => i).map((minute) => (
-                        <TouchableOpacity
-                          key={minute}
-                          style={[
-                            styles.pickerOption,
-                            selectedMinute === minute && styles.pickerOptionSelected
-                          ]}
-                          onPress={() => setSelectedMinute(minute)}
-                        >
-                          <Text style={[
-                            styles.pickerText,
-                            selectedMinute === minute && styles.pickerTextSelected
-                          ]}>
-                            {minute.toString().padStart(2, '0')}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-                  </View>
-
-                  {/* AM/PM Picker */}
-                  <View style={styles.pickerColumn}>
-                    <Text style={styles.pickerTitle}>Period</Text>
-                    <ScrollView style={styles.picker} showsVerticalScrollIndicator={false}>
-                      {['AM', 'PM'].map((period) => (
-                        <TouchableOpacity
-                          key={period}
-                          style={[
-                            styles.pickerOption,
-                            selectedPeriod === period && styles.pickerOptionSelected
-                          ]}
-                          onPress={() => setSelectedPeriod(period as 'AM' | 'PM')}
-                        >
-                          <Text style={[
-                            styles.pickerText,
-                            selectedPeriod === period && styles.pickerTextSelected
-                          ]}>
-                            {period}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                    </ScrollView>
-                  </View>
-
-                </View>
-              </View>
-            )}
-          </View>
-
-          {/* Privacy Settings */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Visibility</Text>
-            <TouchableOpacity
-              style={styles.privacyOption}
+              style={[styles.settingCard, form.isPublic && styles.settingCardActive]}
               onPress={() => setForm({ ...form, isPublic: !form.isPublic })}
             >
-              <View style={styles.privacyInfo}>
-                <Text style={styles.privacyTitle}>Share with friends</Text>
-              </View>
-              <View style={[
-                styles.toggle,
-                form.isPublic && styles.toggleActive
+              <Ionicons
+                name={form.isPublic ? "people" : "people-outline"}
+                size={20}
+                color={form.isPublic ? Colors.accent1 : Colors.secondaryText}
+              />
+              <Text style={[
+                styles.settingText,
+                form.isPublic && styles.settingTextActive
               ]}>
-                {form.isPublic && (
-                  <Ionicons name="checkmark" size={16} color={Colors.white} />
-                )}
-              </View>
+                Share
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.settingCard, form.reminderEnabled && styles.settingCardActive]}
+              onPress={() => setForm({ ...form, reminderEnabled: !form.reminderEnabled })}
+            >
+              <Ionicons
+                name={form.reminderEnabled ? "notifications" : "notifications-outline"}
+                size={20}
+                color={form.reminderEnabled ? Colors.accent1 : Colors.secondaryText}
+              />
+              <Text style={[
+                styles.settingText,
+                form.reminderEnabled && styles.settingTextActive
+              ]}>
+                Remind
+              </Text>
             </TouchableOpacity>
           </View>
 
-          {/* Reminder Settings */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Daily Reminder</Text>
+          {form.reminderEnabled && (
             <TouchableOpacity
-              style={styles.privacyOption}
-              onPress={() => setForm({ ...form, reminderEnabled: !form.reminderEnabled })}
-            >
-              <View style={styles.privacyInfo}>
-                <Text style={styles.privacyTitle}>Enable notifications</Text>
-                <Text style={styles.privacySubtitle}>Get reminded to complete this habit</Text>
-              </View>
-              <Switch
-                value={form.reminderEnabled}
-                onValueChange={(value) => setForm({ ...form, reminderEnabled: value })}
-                trackColor={{ false: Colors.accent3, true: Colors.primary }}
-                thumbColor={Colors.white}
-              />
-            </TouchableOpacity>
-            
-            {form.reminderEnabled && (
-              <TouchableOpacity
-                style={styles.timeSelector}
-                onPress={() => {
-                  // Convert current time to form format
-                  const hour24 = selectedPeriod === 'PM' && selectedHour !== 12 
-                    ? selectedHour + 12 
-                    : selectedPeriod === 'AM' && selectedHour === 12 
-                    ? 0 
+              style={styles.timeSelector}
+              onPress={() => {
+                const hour24 = selectedPeriod === 'PM' && selectedHour !== 12
+                  ? selectedHour + 12
+                  : selectedPeriod === 'AM' && selectedHour === 12
+                    ? 0
                     : selectedHour;
-                  const timeString = `${hour24.toString().padStart(2, '0')}:${selectedMinute.toString().padStart(2, '0')}`;
-                  setForm({ ...form, reminderTime: timeString });
-                }}
-              >
-                <Ionicons name="time-outline" size={24} color={Colors.primary} />
-                <View style={styles.timeInfo}>
-                  <Text style={styles.timeTitle}>Reminder Time</Text>
-                  <Text style={styles.timeValue}>
-                    {form.reminderTime 
-                      ? (() => {
-                          const [hours, minutes] = form.reminderTime.split(':').map(Number);
-                          const period = hours >= 12 ? 'PM' : 'AM';
-                          const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-                          return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
-                        })()
-                      : `${selectedHour}:${selectedMinute.toString().padStart(2, '0')} ${selectedPeriod}`
-                    }
-                  </Text>
-                </View>
-                <Ionicons name="chevron-forward" size={16} color={Colors.accent2} />
-              </TouchableOpacity>
-            )}
-          </View>
+                const timeString = `${hour24.toString().padStart(2, '0')}:${selectedMinute.toString().padStart(2, '0')}`;
+                setForm({ ...form, reminderTime: timeString });
+              }}
+            >
+              <Ionicons name="time" size={20} color={Colors.accent1} />
+              <Text style={styles.timeText}>
+                {form.reminderTime
+                  ? (() => {
+                    const [hours, minutes] = form.reminderTime.split(':').map(Number);
+                    const period = hours >= 12 ? 'PM' : 'AM';
+                    const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+                    return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
+                  })()
+                  : `${selectedHour}:${selectedMinute.toString().padStart(2, '0')} ${selectedPeriod}`
+                }
+              </Text>
+              <Ionicons name="chevron-forward" size={16} color={Colors.secondaryText} />
+            </TouchableOpacity>
+          )}
 
           {/* Create Button */}
           <View style={styles.buttonContainer}>
@@ -495,7 +423,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-      
+
       {/* Icon Picker Modal */}
       {showIconPicker && (
         <IconPicker
@@ -524,44 +452,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.accent2,
+    backgroundColor: Colors.white,
   },
   backButton: {
     padding: Spacing.sm,
   },
   title: {
-    fontSize: Typography.fontSize.xl,
-    fontWeight: Typography.fontWeight.bold,
+    fontSize: Typography.fontSize.lg,
+    fontWeight: Typography.fontWeight.semibold,
     color: Colors.primaryText,
   },
-  placeholder: {
-    width: 40,
-  },
-  habitCounterSection: {
-    alignItems: 'center',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    backgroundColor: Colors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.accent2 + '20',
-  },
-  habitCounterText: {
-    fontSize: Typography.fontSize.md,
-    color: Colors.primaryText,
+  habitCounter: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.secondaryText,
     fontWeight: Typography.fontWeight.medium,
   },
-  habitCounterSubtext: {
-    fontSize: Typography.fontSize.sm,
-    color: Colors.accent2,
-    marginTop: 2,
-  },
-  habitCounterWarning: {
-    fontSize: Typography.fontSize.sm,
-    color: Colors.accent1,
-    marginTop: 2,
-    fontWeight: Typography.fontWeight.medium,
-  },
+
   scrollView: {
     flex: 1,
   },
@@ -571,276 +477,134 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: Spacing.md,
   },
-  inputSection: {
+  nameSection: {
     marginBottom: Spacing.md,
   },
-  selectionSection: {
-    marginBottom: Spacing.md,
-    position: 'relative',
-  },
-  iconCategoryRow: {
+
+  // Category Grid - Compact 3x2 Layout
+  categoryGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'space-between',
-    gap: Spacing.md,
+    marginBottom: Spacing.lg,
   },
-  iconContainer: {
-    flex: 1,
-  },
-  categoryContainer: {
-    flex: 1,
-  },
-  fieldLabel: {
-    fontSize: Typography.fontSize.sm,
-    fontWeight: Typography.fontWeight.medium,
-    color: Colors.primaryText,
-    marginBottom: Spacing.xs,
-  },
-  categorySelector: {
-    backgroundColor: Colors.white,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: Colors.gray.light,
-  },
-  categoryContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-  },
-  categoryText: {
-    fontSize: Typography.fontSize.base,
-    color: Colors.primaryText,
-  },
-  categoryDropdown: {
-    position: 'absolute',
-    top: 80,
-    right: 0,
+  categoryCard: {
     width: '48%',
     backgroundColor: Colors.white,
     borderRadius: BorderRadius.md,
-    marginTop: Spacing.xs,
-    borderWidth: 1,
+    padding: Spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 2,
     borderColor: Colors.gray.light,
-    maxHeight: 200,
-    zIndex: 1000,
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  sectionTitle: {
-    fontSize: Typography.fontSize.lg,
-    fontWeight: Typography.fontWeight.semibold,
-    color: Colors.primaryText,
+    position: 'relative',
+    minHeight: 60,
     marginBottom: Spacing.sm,
   },
-  sectionDescription: {
-    fontSize: Typography.fontSize.sm,
-    color: Colors.gray.dark,
-    marginBottom: Spacing.md,
-  },
-  dropdownButton: {
+  categoryCardSelected: {
+    borderWidth: 2,
     backgroundColor: Colors.white,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: Colors.accent2 + '30',
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
   },
-  dropdownContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  dropdownText: {
-    fontSize: Typography.fontSize.base,
-    color: Colors.primaryText,
-    marginLeft: Spacing.sm,
-    fontWeight: Typography.fontWeight.medium,
-  },
-  dropdownMenu: {
-    backgroundColor: Colors.white,
-    borderRadius: BorderRadius.md,
-    marginTop: Spacing.xs,
-    borderWidth: 1,
-    borderColor: Colors.accent2 + '30',
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  dropdownItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: Spacing.md,
-    backgroundColor: Colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.accent2 + '20',
-  },
-  dropdownItemSelected: {
-    backgroundColor: Colors.accent1 + '10',
-  },
-  dropdownItemText: {
-    fontSize: Typography.fontSize.base,
-    color: Colors.primaryText,
-    marginLeft: Spacing.sm,
-    flex: 1,
-  },
-  dropdownItemTextSelected: {
-    color: Colors.accent1,
-    fontWeight: Typography.fontWeight.medium,
-  },
-  privacyOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.white,
-    padding: Spacing.md,
-    borderRadius: BorderRadius.md,
-  },
-  privacyInfo: {
-    flex: 1,
-  },
-  privacyTitle: {
-    fontSize: Typography.fontSize.base,
-    fontWeight: Typography.fontWeight.medium,
-    color: Colors.primaryText,
-  },
-  toggle: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: Colors.gray.light,
+  categoryIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: Spacing.sm,
   },
-  toggleActive: {
-    backgroundColor: Colors.accent3,
+  categoryLabel: {
+    fontSize: Typography.fontSize.base,
+    fontWeight: Typography.fontWeight.semibold,
+    color: Colors.primaryText,
+    flex: 1,
   },
-  buttonContainer: {
-    marginTop: Spacing.md,
-    marginBottom: Spacing.md,
+  selectedIndicator: {
+    marginLeft: Spacing.xs,
   },
-  // Icon Selection Styles
+
+  // Icon Selector - Minimalist
   iconSelector: {
     backgroundColor: Colors.white,
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.gray.light,
   },
-  selectedIconContainer: {
+  iconPreview: {
     width: 40,
     height: 40,
-    borderRadius: BorderRadius.sm,
+    borderRadius: 20,
     backgroundColor: Colors.background,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: Spacing.sm,
+    marginRight: Spacing.md,
   },
-  iconSelectorText: {
+  iconText: {
     flex: 1,
-    fontSize: Typography.fontSize.sm,
-    color: Colors.gray.dark,
-  },
-  reminderToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  reminderInfo: {
-    flex: 1,
-  },
-  reminderTitle: {
-    fontSize: Typography.fontSize.base,
-    fontWeight: Typography.fontWeight.medium,
-    color: Colors.primaryText,
-  },
-  timePickerContainer: {
-    paddingVertical: Spacing.md,
-  },
-  timePickerLabel: {
     fontSize: Typography.fontSize.base,
     color: Colors.primaryText,
-    marginBottom: Spacing.sm,
-  },
-  timePickerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    height: 120,
-  },
-  pickerColumn: {
-    flex: 1,
-    marginHorizontal: Spacing.xs,
-  },
-  pickerTitle: {
-    fontSize: Typography.fontSize.sm,
-    color: Colors.accent2,
-    textAlign: 'center',
-    marginBottom: Spacing.xs,
-  },
-  picker: {
-    maxHeight: 100,
-    backgroundColor: Colors.accent1,
-    borderRadius: BorderRadius.md,
-  },
-  pickerOption: {
-    paddingVertical: Spacing.sm,
-    alignItems: 'center',
-  },
-  pickerOptionSelected: {
-    backgroundColor: Colors.primary,
-  },
-  pickerText: {
-    fontSize: Typography.fontSize.base,
-    color: Colors.primaryText,
-  },
-  pickerTextSelected: {
-    color: Colors.white,
     fontWeight: Typography.fontWeight.medium,
   },
+
+  // Feature Section
+  featureSection: {
+    marginBottom: Spacing.md,
+  },
+
+  // Settings Row - Minimalist
+  settingsRow: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  settingCard: {
+    flex: 1,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.gray.light,
+  },
+  settingCardActive: {
+    borderColor: Colors.accent1,
+    backgroundColor: Colors.accent1 + '08',
+  },
+  settingText: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.secondaryText,
+    marginTop: Spacing.xs,
+    fontWeight: Typography.fontWeight.medium,
+  },
+  settingTextActive: {
+    color: Colors.accent1,
+  },
+
+  // Time Selector - Minimalist
   timeSelector: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.white,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     padding: Spacing.md,
-    marginTop: Spacing.sm,
+    marginBottom: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.accent2 + '30',
+    borderColor: Colors.gray.light,
   },
-  timeInfo: {
+  timeText: {
     flex: 1,
+    fontSize: Typography.fontSize.base,
+    color: Colors.primaryText,
+    fontWeight: Typography.fontWeight.medium,
     marginLeft: Spacing.md,
   },
-  timeTitle: {
-    fontSize: Typography.fontSize.base,
-    fontWeight: Typography.fontWeight.medium,
-    color: Colors.primaryText,
-  },
-  timeValue: {
-    fontSize: Typography.fontSize.sm,
-    color: Colors.accent2,
-    marginTop: 2,
-  },
-  privacySubtitle: {
-    fontSize: Typography.fontSize.sm,
-    color: Colors.accent2,
-    marginTop: 2,
+
+  buttonContainer: {
+    marginTop: Spacing.md,
+    marginBottom: Spacing.md,
   },
 });

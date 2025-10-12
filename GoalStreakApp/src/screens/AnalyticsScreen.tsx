@@ -1,5 +1,5 @@
 // AnalyticsScreen - Comprehensive habit analytics dashboard
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,8 +13,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { StatsOverview, ProgressChart, InsightsCard } from '../components/analytics';
+import { trackScreen, trackEvent, trackFeature } from '../services/enhancedAnalyticsService';
+import { useAuth } from '../hooks/useAuth';
 
 export default function AnalyticsScreen() {
+  const { user } = useAuth();
   const {
     habitAnalytics,
     trendData,
@@ -33,12 +36,40 @@ export default function AnalyticsScreen() {
 
   const currentPeriodAnalytics = getCurrentPeriodAnalytics();
 
+  // Track screen view and analytics usage
+  useEffect(() => {
+    trackScreen('Analytics', 'AnalyticsScreen');
+    trackFeature('analytics', 'analytics_screen_viewed', 1);
+    
+    trackEvent('analytics_screen_viewed', {
+      selected_period: selectedPeriod,
+      total_habits: habitAnalytics.length,
+      has_insights: insights.length > 0,
+      user_id: user?.id
+    });
+  }, [selectedPeriod, habitAnalytics.length, insights.length, user?.id]);
+
   const handleRefresh = async () => {
+    trackEvent('analytics_refresh', {
+      selected_period: selectedPeriod,
+      user_id: user?.id
+    });
+    
     await Promise.all([
       refreshAnalytics(),
       refreshTrends(),
       refreshInsights()
     ]);
+  };
+
+  const handlePeriodChange = (period: 'week' | 'month' | 'year') => {
+    trackEvent('analytics_period_changed', {
+      previous_period: selectedPeriod,
+      new_period: period,
+      user_id: user?.id
+    });
+    
+    setSelectedPeriod(period);
   };
 
   const renderHabitAnalytics = () => {
@@ -146,7 +177,7 @@ export default function AnalyticsScreen() {
           <StatsOverview
             analytics={currentPeriodAnalytics}
             selectedPeriod={selectedPeriod}
-            onPeriodChange={setSelectedPeriod}
+            onPeriodChange={handlePeriodChange}
           />
         )}
 

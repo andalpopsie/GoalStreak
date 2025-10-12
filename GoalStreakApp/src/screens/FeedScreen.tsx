@@ -1,10 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing } from '../constants/theme';
+import { trackScreen, trackEvent } from '../services/enhancedAnalyticsService';
+import { useAuth } from '../hooks/useAuth';
 
 export default function FeedScreen() {
+  const { user } = useAuth();
+
+  // Track screen view
+  useEffect(() => {
+    trackScreen('Feed', 'FeedScreen');
+    trackEvent('social_feed_viewed', {
+      user_id: user?.id
+    });
+  }, [user?.id]);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>

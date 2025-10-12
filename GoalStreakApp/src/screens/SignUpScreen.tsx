@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -15,6 +15,8 @@ import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
 import { Button, Input } from '../components/common';
 import { SignUpForm } from '../types';
+import { openPrivacyPolicy, openTermsOfService } from '../utils/linkingUtils';
+import { trackScreen, trackEvent, trackConversion } from '../services/enhancedAnalyticsService';
 
 interface SignUpScreenProps {
   navigation: any;
@@ -30,6 +32,14 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
   });
   const [errors, setErrors] = useState<Partial<SignUpForm>>({});
   const [isLoading, setIsLoading] = useState(false);
+
+  // Track screen view
+  useEffect(() => {
+    trackScreen('SignUpScreen', { source: 'app_navigation' });
+    trackEvent('signup_screen_viewed', {
+      source: 'app_navigation'
+    });
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: Partial<SignUpForm> = {};
@@ -63,13 +73,49 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
   };
 
   const handleSignUp = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      // Track validation error
+      trackEvent('signup_validation_error', {
+        errors: Object.keys(errors),
+        form_completion: {
+          has_name: !!form.displayName.trim(),
+          has_email: !!form.email.trim(),
+          has_password: !!form.password,
+          has_confirm_password: !!form.confirmPassword
+        }
+      });
+      return;
+    }
 
     setIsLoading(true);
     try {
+      // Track signup attempt
+      trackEvent('signup_started', {
+        email_domain: form.email.split('@')[1],
+        name_length: form.displayName.trim().length
+      });
+
       await signUp(form.email.trim(), form.password, form.displayName.trim());
+      
+      // Track successful signup
+      trackConversion('first_open', 1, {
+        userId: form.email, // Will be updated with actual user ID later
+        source: 'app_signup'
+      });
+      
+      trackEvent('signup_completed', {
+        email_domain: form.email.split('@')[1],
+        name_length: form.displayName.trim().length
+      });
+      
       // Navigation will be handled by the auth state change
     } catch (error: any) {
+      // Track signup error
+      trackEvent('signup_error', {
+        error_message: error.message,
+        email_domain: form.email.split('@')[1]
+      });
+      
       Alert.alert('Sign Up Failed', error.message);
     } finally {
       setIsLoading(false);
@@ -106,7 +152,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
               label="Full Name"
               placeholder="Enter your full name"
               value={form.displayName}
-              onChangeText={(displayName) => setForm({ ...form, displayName })}
+              onChangeText={(displayName: string) => setForm({ ...form, displayName })}
               autoCapitalize="words"
               autoComplete="name"
               error={errors.displayName}
@@ -117,7 +163,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
               label="Email"
               placeholder="Enter your email"
               value={form.email}
-              onChangeText={(email) => setForm({ ...form, email })}
+              onChangeText={(email: string) => setForm({ ...form, email })}
               keyboardType="email-address"
               autoCapitalize="none"
               autoComplete="email"
@@ -129,7 +175,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
               label="Password"
               placeholder="Create a password"
               value={form.password}
-              onChangeText={(password) => setForm({ ...form, password })}
+              onChangeText={(password: string) => setForm({ ...form, password })}
               secureTextEntry
               autoComplete="new-password"
               error={errors.password}
@@ -140,7 +186,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
               label="Confirm Password"
               placeholder="Confirm your password"
               value={form.confirmPassword}
-              onChangeText={(confirmPassword) => setForm({ ...form, confirmPassword })}
+              onChangeText={(confirmPassword: string) => setForm({ ...form, confirmPassword })}
               secureTextEntry
               autoComplete="new-password"
               error={errors.confirmPassword}
@@ -168,9 +214,13 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
           <View style={styles.terms}>
             <Text style={styles.termsText}>
               By creating an account, you agree to our{' '}
-              <Text style={styles.termsLink}>Terms of Service</Text>
+              <TouchableOpacity onPress={openTermsOfService} style={styles.linkContainer}>
+                <Text style={styles.termsLink}>Terms of Service</Text>
+              </TouchableOpacity>
               {' '}and{' '}
-              <Text style={styles.termsLink}>Privacy Policy</Text>
+              <TouchableOpacity onPress={openPrivacyPolicy} style={styles.linkContainer}>
+                <Text style={styles.termsLink}>Privacy Policy</Text>
+              </TouchableOpacity>
             </Text>
           </View>
         </ScrollView>
@@ -253,8 +303,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: Typography.lineHeight.relaxed * Typography.fontSize.sm,
   },
+  linkContainer: {
+    // Inline display for text links
+  },
   termsLink: {
     color: Colors.accent1,
     fontWeight: Typography.fontWeight.medium,
+    textDecorationLine: 'underline',
   },
 });

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="432" height="432" viewBox="0 0 432 432" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4.32" stdDeviation="2.16" flood-color="#000000" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+  
+  <!-- Foreground icon for adaptive icon -->
+  <g transform="translate(216, 216)" filter="url(#shadow)">
+    <!-- Outer ring -->
+    <circle cx="0" cy="0" r="96.768" 
+            fill="none" 
+            stroke="#154D71" 
+            stroke-width="17.28"/>
+    
+    <!-- Middle ring -->
+    <circle cx="0" cy="0" r="66.528" 
+            fill="none" 
+            stroke="#154D71" 
+            stroke-width="12.96"/>
+    
+    <!-- Inner filled circle -->
+    <circle cx="0" cy="0" r="36.288" 
+            fill="#154D71"/>
+    
+    <!-- Streak indicator -->
+    <g transform="translate(54.43199999999999, -54.43199999999999)">
+      <path d="M 0,0 
+               Q 14.5152,-19.3536 24.192,-4.8384
+               Q 29.0304,4.8384 19.3536,14.5152
+               Q 9.6768,9.6768 0,0 Z" 
+            fill="#FF894F"/>
+    </g>
+  </g>
+</svg>

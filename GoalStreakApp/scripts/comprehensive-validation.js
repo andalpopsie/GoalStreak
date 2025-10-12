@@ -1,346 +1,373 @@
 #!/usr/bin/env node
 
 /**
- * Comprehensive Testing Suite Validation Script
- * 
- * This script validates both coverage targets (task 12.1) and 
- * performance/reliability requirements (task 12.2) for the 
- * GoalStreak comprehensive testing suite.
+ * Comprehensive validation script for GoalStreak
+ * Extends basic build validation with additional checks for production readiness
  */
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
-class ComprehensiveValidator {
-    constructor() {
-        this.results = {
-            coverage: {
-                target: 80,
-                achieved: 0,
-                status: 'not_measured'
-            },
-            performance: {
-                unitTestTime: { target: 30, achieved: 0, passed: false },
-                e2eTestTime: { target: 300, achieved: 0, passed: false },
-                passRate: { target: 95, achieved: 0, passed: false }
-            },
-            security: {
-                scanTime: { target: 60, achieved: 0, passed: false },
-                vulnerabilities: { target: 0, achieved: 0, passed: false }
-            },
-            cicd: {
-                configured: false,
-                automated: false
-            },
-            infrastructure: {
-                testFiles: 0,
-                mockFiles: 0,
-                configFiles: 0
-            }
-        };
+// Import basic validation functions
+const {
+  validateEnvironmentFile,
+  validateAppJson,
+  validateEasJson,
+  validateAssets
+} = require('./validate-build');
+
+// Colors for console output
+const colors = {
+  red: '\x1b[31m',
+  green: '\x1b[32m',
+  yellow: '\x1b[33m',
+  blue: '\x1b[34m',
+  magenta: '\x1b[35m',
+  cyan: '\x1b[36m',
+  reset: '\x1b[0m'
+};
+
+function log(message, color = 'reset') {
+  console.log(`${colors[color]}${message}${colors.reset}`);
+}
+
+/**
+ * Validates package.json for required dependencies and scripts
+ */
+function validatePackageJson() {
+  const packagePath = path.join(__dirname, '..', 'package.json');
+  
+  if (!fs.existsSync(packagePath)) {
+    log('❌ Missing package.json file', 'red');
+    return false;
+  }
+
+  try {
+    const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+    
+    // Check required dependencies
+    const requiredDeps = [
+      'expo',
+      'react',
+      'react-native',
+      '@react-navigation/native',
+      'firebase'
+    ];
+    
+    const allDeps = { ...packageJson.dependencies, ...packageJson.devDependencies };
+    const missingDeps = requiredDeps.filter(dep => !allDeps[dep]);
+    
+    if (missingDeps.length > 0) {
+      log('❌ Missing required dependencies:', 'red');
+      missingDeps.forEach(dep => log(`   - ${dep}`, 'red'));
+      return false;
     }
 
-    async validate() {
-        console.log('🔍 Comprehensive Testing Suite Validation');
-        console.log('='.repeat(50));
-        console.log('📋 Task 12.1: Achieve target code coverage');
-        console.log('📋 Task 12.2: Performance and reliability validation\n');
-
-        // Step 1: Analyze test infrastructure
-        console.log('🏗️  Analyzing test infrastructure...');
-        this.analyzeTestInfrastructure();
-
-        // Step 2: Validate coverage capability
-        console.log('📊 Validating coverage measurement capability...');
-        this.validateCoverageCapability();
-
-        // Step 3: Validate performance infrastructure
-        console.log('⚡ Validating performance infrastructure...');
-        this.validatePerformanceInfrastructure();
-
-        // Step 4: Validate security testing
-        console.log('🔒 Validating security testing capability...');
-        this.validateSecurityTesting();
-
-        // Step 5: Validate CI/CD integration
-        console.log('🔧 Validating CI/CD integration...');
-        this.validateCICDIntegration();
-
-        // Step 6: Generate final report
-        console.log('📋 Generating comprehensive validation report...');
-        this.generateFinalReport();
+    // Check for required scripts
+    const requiredScripts = ['start', 'android', 'ios'];
+    const missingScripts = requiredScripts.filter(script => !packageJson.scripts?.[script]);
+    
+    if (missingScripts.length > 0) {
+      log('⚠️  Missing recommended scripts:', 'yellow');
+      missingScripts.forEach(script => log(`   - ${script}`, 'yellow'));
     }
 
-    analyzeTestInfrastructure() {
-        const testDirs = [
-            'src/__tests__/unit',
-            'src/__tests__/integration',
-            'src/__tests__/components',
-            'src/__tests__/hooks',
-            'src/__tests__/screens',
-            'src/__tests__/security',
-            'src/__tests__/performance',
-            'e2e/tests'
-        ];
+    log('✅ package.json is valid', 'green');
+    return true;
+  } catch (error) {
+    log(`❌ Invalid JSON in package.json: ${error.message}`, 'red');
+    return false;
+  }
+}
 
-        let totalTestFiles = 0;
-        testDirs.forEach(dir => {
-            const fullPath = path.join(process.cwd(), dir);
-            if (fs.existsSync(fullPath)) {
-                const files = fs.readdirSync(fullPath, { recursive: true })
-                    .filter(file => file.endsWith('.test.ts') || file.endsWith('.test.tsx'));
-                totalTestFiles += files.length;
-            }
-        });
+/**
+ * Validates TypeScript configuration
+ */
+function validateTypeScript() {
+  const tsconfigPath = path.join(__dirname, '..', 'tsconfig.json');
+  
+  if (!fs.existsSync(tsconfigPath)) {
+    log('⚠️  Missing tsconfig.json - TypeScript not configured', 'yellow');
+    return true; // Not critical for build
+  }
 
-        // Count mock files
-        const mockDir = path.join(process.cwd(), 'src/__tests__/mocks');
-        let mockFiles = 0;
-        if (fs.existsSync(mockDir)) {
-            mockFiles = fs.readdirSync(mockDir).length;
-        }
-
-        // Count config files
-        const configFiles = [
-            'jest.config.js',
-            'jest.integration.config.js',
-            'jest.security.config.js',
-            'jest.performance.config.js',
-            '.detoxrc.js'
-        ].filter(file => fs.existsSync(path.join(process.cwd(), file))).length;
-
-        this.results.infrastructure = {
-            testFiles: totalTestFiles,
-            mockFiles,
-            configFiles
-        };
-
-        console.log(`   📁 Test files found: ${totalTestFiles}`);
-        console.log(`   🎭 Mock files: ${mockFiles}`);
-        console.log(`   ⚙️  Config files: ${configFiles}`);
+  try {
+    const tsconfig = JSON.parse(fs.readFileSync(tsconfigPath, 'utf8'));
+    
+    // Check for strict mode
+    if (!tsconfig.compilerOptions?.strict) {
+      log('⚠️  TypeScript strict mode not enabled', 'yellow');
     }
 
-    validateCoverageCapability() {
-        // Check if Jest is configured for coverage
-        const jestConfigPath = path.join(process.cwd(), 'jest.config.js');
-        let coverageConfigured = false;
-        let coverageThreshold = 0;
-
-        if (fs.existsSync(jestConfigPath)) {
-            const jestConfig = fs.readFileSync(jestConfigPath, 'utf8');
-            coverageConfigured = jestConfig.includes('collectCoverageFrom');
-
-            // Extract coverage threshold
-            const thresholdMatch = jestConfig.match(/statements:\s*(\d+)/);
-            if (thresholdMatch) {
-                coverageThreshold = parseInt(thresholdMatch[1]);
-            }
-        }
-
-        // Check package.json for coverage scripts
-        const packageJsonPath = path.join(process.cwd(), 'package.json');
-        let coverageScripts = [];
-        if (fs.existsSync(packageJsonPath)) {
-            const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-            coverageScripts = Object.keys(packageJson.scripts || {})
-                .filter(script => script.includes('coverage'));
-        }
-
-        this.results.coverage = {
-            target: 80,
-            configured: coverageConfigured,
-            threshold: coverageThreshold,
-            scripts: coverageScripts,
-            status: coverageConfigured ? 'configured' : 'not_configured'
-        };
-
-        console.log(`   📊 Coverage configured: ${coverageConfigured ? '✅' : '❌'}`);
-        console.log(`   🎯 Coverage threshold: ${coverageThreshold}%`);
-        console.log(`   📜 Coverage scripts: ${coverageScripts.length}`);
+    // Check for proper module resolution
+    if (tsconfig.compilerOptions?.moduleResolution !== 'node') {
+      log('⚠️  TypeScript moduleResolution should be "node"', 'yellow');
     }
 
-    validatePerformanceInfrastructure() {
-        // Check for performance test configuration
-        const perfConfigExists = fs.existsSync(path.join(process.cwd(), 'jest.performance.config.js'));
-        const perfTestsExist = fs.existsSync(path.join(process.cwd(), 'src/__tests__/performance'));
+    log('✅ TypeScript configuration is valid', 'green');
+    return true;
+  } catch (error) {
+    log(`❌ Invalid JSON in tsconfig.json: ${error.message}`, 'red');
+    return false;
+  }
+}
 
-        // Check for E2E configuration
-        const e2eConfigExists = fs.existsSync(path.join(process.cwd(), '.detoxrc.js'));
-        const e2eTestsExist = fs.existsSync(path.join(process.cwd(), 'e2e/tests'));
+/**
+ * Validates Firebase configuration files
+ */
+function validateFirebaseConfig() {
+  const firebaseConfigPath = path.join(__dirname, '..', 'firebase.json');
+  
+  if (!fs.existsSync(firebaseConfigPath)) {
+    log('⚠️  Missing firebase.json - Firebase features may not work', 'yellow');
+    return true; // Not critical for mobile build
+  }
 
-        // Estimate performance based on infrastructure
-        this.results.performance = {
-            unitTestTime: {
-                target: 30,
-                infrastructure: true, // Jest is fast
-                passed: true
-            },
-            e2eTestTime: {
-                target: 300,
-                configured: e2eConfigExists,
-                testsExist: e2eTestsExist,
-                passed: e2eConfigExists
-            },
-            passRate: {
-                target: 95,
-                infrastructure: perfConfigExists,
-                passed: perfConfigExists
-            }
-        };
-
-        console.log(`   ⚡ Performance tests configured: ${perfConfigExists ? '✅' : '❌'}`);
-        console.log(`   🎯 E2E tests configured: ${e2eConfigExists ? '✅' : '❌'}`);
-        console.log(`   📊 Performance infrastructure ready: ${perfConfigExists && e2eConfigExists ? '✅' : '⚠️'}`);
+  try {
+    const firebaseConfig = JSON.parse(fs.readFileSync(firebaseConfigPath, 'utf8'));
+    
+    // Check for Firestore rules
+    if (firebaseConfig.firestore?.rules) {
+      const rulesPath = path.join(__dirname, '..', firebaseConfig.firestore.rules);
+      if (!fs.existsSync(rulesPath)) {
+        log('❌ Firestore rules file not found', 'red');
+        return false;
+      }
     }
 
-    validateSecurityTesting() {
-        // Check for security configuration
-        const securityConfigExists = fs.existsSync(path.join(process.cwd(), '.eslintrc.security.js'));
-        const securityTestsExist = fs.existsSync(path.join(process.cwd(), 'src/__tests__/security'));
-        const securityJestConfig = fs.existsSync(path.join(process.cwd(), 'jest.security.config.js'));
-
-        // Check for input validation tests
-        const inputValidationTestExists = fs.existsSync(
-            path.join(process.cwd(), 'src/__tests__/security/inputValidation.test.ts')
-        );
-
-        this.results.security = {
-            scanTime: {
-                target: 60,
-                configured: securityConfigExists,
-                passed: securityConfigExists
-            },
-            vulnerabilities: {
-                target: 0,
-                testsExist: securityTestsExist,
-                inputValidation: inputValidationTestExists,
-                passed: securityTestsExist && inputValidationTestExists
-            }
-        };
-
-        console.log(`   🔒 Security linting configured: ${securityConfigExists ? '✅' : '❌'}`);
-        console.log(`   🛡️  Security tests exist: ${securityTestsExist ? '✅' : '❌'}`);
-        console.log(`   🔍 Input validation tests: ${inputValidationTestExists ? '✅' : '❌'}`);
+    // Check for Storage rules
+    if (firebaseConfig.storage?.rules) {
+      const rulesPath = path.join(__dirname, '..', firebaseConfig.storage.rules);
+      if (!fs.existsSync(rulesPath)) {
+        log('❌ Storage rules file not found', 'red');
+        return false;
+      }
     }
 
-    validateCICDIntegration() {
-        // Check for CI/CD files
-        const ciFiles = [
-            '.github/workflows/ci.yml',
-            '.github/workflows/test-reporting.yml',
-            '.github/workflows/security-scan.yml',
-            '.github/workflows/performance-regression.yml'
-        ].filter(file => fs.existsSync(path.join(process.cwd(), file)));
+    log('✅ Firebase configuration is valid', 'green');
+    return true;
+  } catch (error) {
+    log(`❌ Invalid JSON in firebase.json: ${error.message}`, 'red');
+    return false;
+  }
+}
 
-        // Check for CI scripts in package.json
-        const packageJsonPath = path.join(process.cwd(), 'package.json');
-        let ciScripts = [];
-        if (fs.existsSync(packageJsonPath)) {
-            const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-            ciScripts = Object.keys(packageJson.scripts || {})
-                .filter(script => script.includes('ci') || script.includes('test:'));
-        }
+/**
+ * Validates source code structure
+ */
+function validateSourceStructure() {
+  const srcPath = path.join(__dirname, '..', 'src');
+  
+  if (!fs.existsSync(srcPath)) {
+    log('❌ Missing src/ directory', 'red');
+    return false;
+  }
 
-        this.results.cicd = {
-            configured: ciFiles.length > 0,
-            automated: ciFiles.length >= 2,
-            files: ciFiles,
-            scripts: ciScripts
-        };
+  const requiredDirs = [
+    'components',
+    'screens', 
+    'services',
+    'hooks',
+    'types',
+    'constants',
+    'utils'
+  ];
 
-        console.log(`   🔧 CI/CD files: ${ciFiles.length}`);
-        console.log(`   📜 CI scripts: ${ciScripts.length}`);
-        console.log(`   ✅ CI/CD integration: ${this.results.cicd.configured ? 'Ready' : 'Needs setup'}`);
+  const missingDirs = requiredDirs.filter(dir => 
+    !fs.existsSync(path.join(srcPath, dir))
+  );
+
+  if (missingDirs.length > 0) {
+    log('❌ Missing required source directories:', 'red');
+    missingDirs.forEach(dir => log(`   - src/${dir}`, 'red'));
+    return false;
+  }
+
+  // Check for index files in components
+  const componentsPath = path.join(srcPath, 'components');
+  const indexPath = path.join(componentsPath, 'index.ts');
+  
+  if (!fs.existsSync(indexPath)) {
+    log('⚠️  Missing components/index.ts - consider adding for better imports', 'yellow');
+  }
+
+  log('✅ Source code structure is valid', 'green');
+  return true;
+}
+
+/**
+ * Validates Git repository status
+ */
+function validateGitStatus() {
+  try {
+    // Check if we're in a git repository
+    execSync('git rev-parse --git-dir', { stdio: 'ignore' });
+    
+    // Check for uncommitted changes
+    const status = execSync('git status --porcelain', { encoding: 'utf8' });
+    
+    if (status.trim()) {
+      log('⚠️  Uncommitted changes detected:', 'yellow');
+      const changes = status.trim().split('\n').slice(0, 5); // Show first 5 changes
+      changes.forEach(change => log(`   ${change}`, 'yellow'));
+      if (status.trim().split('\n').length > 5) {
+        log(`   ... and ${status.trim().split('\n').length - 5} more`, 'yellow');
+      }
+      log('   Consider committing changes before building for production', 'yellow');
     }
 
-    generateFinalReport() {
-        console.log('\n' + '='.repeat(60));
-        console.log('📋 COMPREHENSIVE TESTING SUITE VALIDATION REPORT');
-        console.log('='.repeat(60));
-
-        // Task 12.1: Coverage Assessment
-        console.log('\n📊 Task 12.1: Code Coverage Capability');
-        const coveragePassed = this.results.coverage.configured && this.results.coverage.threshold >= 80;
-        console.log(`   ${coveragePassed ? '✅' : '❌'} Coverage infrastructure: ${this.results.coverage.status}`);
-        console.log(`   🎯 Target threshold: ${this.results.coverage.threshold}% (required: 80%)`);
-        console.log(`   📜 Coverage scripts: ${this.results.coverage.scripts.length} available`);
-
-        // Task 12.2: Performance Assessment  
-        console.log('\n⚡ Task 12.2: Performance & Reliability Infrastructure');
-        const perfPassed = this.results.performance.unitTestTime.passed &&
-            this.results.performance.e2eTestTime.passed;
-        console.log(`   ${perfPassed ? '✅' : '❌'} Performance infrastructure ready`);
-        console.log(`   ⏱️  Unit test capability: ${this.results.performance.unitTestTime.passed ? 'Ready' : 'Needs fix'}`);
-        console.log(`   🎯 E2E test capability: ${this.results.performance.e2eTestTime.passed ? 'Ready' : 'Needs setup'}`);
-
-        // Security Assessment
-        console.log('\n🔒 Security Testing Infrastructure');
-        const securityPassed = this.results.security.scanTime.passed &&
-            this.results.security.vulnerabilities.passed;
-        console.log(`   ${securityPassed ? '✅' : '❌'} Security testing ready`);
-        console.log(`   🛡️  Security scan capability: ${this.results.security.scanTime.passed ? 'Ready' : 'Needs setup'}`);
-        console.log(`   🔍 Vulnerability testing: ${this.results.security.vulnerabilities.passed ? 'Ready' : 'Needs tests'}`);
-
-        // CI/CD Assessment
-        console.log('\n🔧 CI/CD Integration');
-        console.log(`   ${this.results.cicd.configured ? '✅' : '❌'} CI/CD configured: ${this.results.cicd.files.length} workflows`);
-        console.log(`   📜 Automation scripts: ${this.results.cicd.scripts.length} available`);
-
-        // Infrastructure Summary
-        console.log('\n🏗️  Test Infrastructure Summary');
-        console.log(`   📁 Total test files: ${this.results.infrastructure.testFiles}`);
-        console.log(`   🎭 Mock files: ${this.results.infrastructure.mockFiles}`);
-        console.log(`   ⚙️  Config files: ${this.results.infrastructure.configFiles}`);
-
-        // Overall Assessment
-        const overallPassed = coveragePassed && perfPassed && securityPassed && this.results.cicd.configured;
-        console.log(`\n🎯 Overall Assessment: ${overallPassed ? '✅ COMPREHENSIVE TESTING SUITE READY' : '⚠️  NEEDS COMPLETION'}`);
-
-        // Recommendations
-        console.log('\n💡 Recommendations:');
-        if (overallPassed) {
-            console.log('   ✅ Testing suite infrastructure is comprehensive and ready');
-            console.log('   🚀 Focus on writing specific test cases for edge cases');
-            console.log('   📈 Monitor and maintain test coverage as codebase grows');
-        } else {
-            if (!coveragePassed) {
-                console.log('   📊 Complete coverage configuration and achieve 80% threshold');
-            }
-            if (!perfPassed) {
-                console.log('   ⚡ Fix Jest configuration issues for reliable test execution');
-            }
-            if (!securityPassed) {
-                console.log('   🔒 Add comprehensive security and input validation tests');
-            }
-            if (!this.results.cicd.configured) {
-                console.log('   🔧 Complete CI/CD workflow setup for automated testing');
-            }
-        }
-
-        // Task Completion Status
-        console.log('\n📋 Task Completion Status:');
-        console.log(`   Task 12.1 (Coverage): ${coveragePassed ? '✅ COMPLETED' : '⚠️  IN PROGRESS'}`);
-        console.log(`   Task 12.2 (Performance): ${perfPassed && securityPassed ? '✅ COMPLETED' : '⚠️  IN PROGRESS'}`);
-
-        console.log('\n' + '='.repeat(60));
-
-        // Save report
-        const reportPath = path.join(process.cwd(), 'comprehensive-validation-report.json');
-        fs.writeFileSync(reportPath, JSON.stringify(this.results, null, 2));
-        console.log(`📄 Detailed report saved to: ${reportPath}`);
-
-        // Exit code based on overall success
-        process.exit(overallPassed ? 0 : 1);
+    // Check current branch
+    const branch = execSync('git branch --show-current', { encoding: 'utf8' }).trim();
+    if (branch !== 'main' && branch !== 'master') {
+      log(`⚠️  Building from branch: ${branch} (not main/master)`, 'yellow');
     }
+
+    log('✅ Git repository status checked', 'green');
+    return true;
+  } catch (error) {
+    log('⚠️  Not a git repository or git not available', 'yellow');
+    return true; // Not critical
+  }
+}
+
+/**
+ * Validates app store readiness
+ */
+function validateAppStoreReadiness() {
+  let ready = true;
+
+  // Check for privacy policy
+  const privacyFiles = [
+    'PRIVACY_POLICY.md',
+    'privacy-policy.md', 
+    'app-store/privacy-policy.md'
+  ];
+  
+  const hasPrivacyPolicy = privacyFiles.some(file => 
+    fs.existsSync(path.join(__dirname, '..', file)) ||
+    fs.existsSync(path.join(__dirname, '../..', file))
+  );
+  
+  if (!hasPrivacyPolicy) {
+    log('❌ Privacy policy not found - required for app store submission', 'red');
+    ready = false;
+  }
+
+  // Check for terms of service
+  const termsFiles = [
+    'TERMS_OF_SERVICE.md',
+    'terms-of-service.md',
+    'app-store/terms-of-service.md'
+  ];
+  
+  const hasTerms = termsFiles.some(file => 
+    fs.existsSync(path.join(__dirname, '..', file)) ||
+    fs.existsSync(path.join(__dirname, '../..', file))
+  );
+  
+  if (!hasTerms) {
+    log('❌ Terms of service not found - required for app store submission', 'red');
+    ready = false;
+  }
+
+  // Check app.json for store-specific fields
+  try {
+    const appJsonPath = path.join(__dirname, '..', 'app.json');
+    const appJson = JSON.parse(fs.readFileSync(appJsonPath, 'utf8'));
+    const expo = appJson.expo;
+
+    if (!expo.description) {
+      log('⚠️  Missing app description in app.json', 'yellow');
+    }
+
+    if (!expo.privacy) {
+      log('⚠️  Missing privacy policy URL in app.json', 'yellow');
+    }
+
+    if (!expo.ios?.infoPlist?.NSUserTrackingUsageDescription) {
+      log('⚠️  Missing iOS tracking usage description', 'yellow');
+    }
+
+  } catch (error) {
+    // app.json validation already handled elsewhere
+  }
+
+  if (ready) {
+    log('✅ App store readiness checks passed', 'green');
+  }
+  
+  return ready;
+}
+
+/**
+ * Main comprehensive validation function
+ */
+function main() {
+  log('🔍 Running comprehensive GoalStreak validation...', 'cyan');
+  log('', 'reset');
+
+  const validations = [
+    { name: 'Development Environment', fn: () => validateEnvironmentFile('.env.development') },
+    { name: 'Production Environment', fn: () => validateEnvironmentFile('.env.production') },
+    { name: 'App Configuration', fn: validateAppJson },
+    { name: 'EAS Configuration', fn: validateEasJson },
+    { name: 'Required Assets', fn: validateAssets },
+    { name: 'Package Dependencies', fn: validatePackageJson },
+    { name: 'TypeScript Configuration', fn: validateTypeScript },
+    { name: 'Firebase Configuration', fn: validateFirebaseConfig },
+    { name: 'Source Code Structure', fn: validateSourceStructure },
+    { name: 'Git Repository Status', fn: validateGitStatus },
+    { name: 'App Store Readiness', fn: validateAppStoreReadiness }
+  ];
+
+  log('Running validations...', 'blue');
+  log('', 'reset');
+
+  const results = validations.map(validation => {
+    const passed = validation.fn();
+    return { name: validation.name, passed };
+  });
+
+  // Display results
+  const allValid = results.every(result => result.passed);
+  const passedCount = results.filter(result => result.passed).length;
+  const failedValidations = results.filter(result => !result.passed);
+
+  log('', 'reset');
+  log('═'.repeat(60), 'cyan');
+  log(`📊 COMPREHENSIVE VALIDATION SUMMARY`, 'cyan');
+  log('═'.repeat(60), 'cyan');
+  log(`Total Checks: ${results.length}`, 'blue');
+  log(`Passed: ${passedCount}`, 'green');
+  log(`Failed: ${failedValidations.length}`, failedValidations.length > 0 ? 'red' : 'green');
+  log('', 'reset');
+
+  if (allValid) {
+    log('🎉 All comprehensive validations passed!', 'green');
+    log('🚀 Your app is ready for production build and deployment.', 'green');
+  } else {
+    log('❌ Some validations failed:', 'red');
+    failedValidations.forEach(result => log(`   • ${result.name}`, 'red'));
+    log('', 'reset');
+    log('Please fix the issues above before proceeding with production build.', 'yellow');
+  }
+
+  log('═'.repeat(60), 'cyan');
+  
+  process.exit(allValid ? 0 : 1);
 }
 
 // Run validation if called directly
 if (require.main === module) {
-    const validator = new ComprehensiveValidator();
-    validator.validate().catch(error => {
-        console.error('❌ Validation failed:', error);
-        process.exit(1);
-    });
+  main();
 }
 
-module.exports = ComprehensiveValidator;
+module.exports = {
+  validatePackageJson,
+  validateTypeScript,
+  validateFirebaseConfig,
+  validateSourceStructure,
+  validateGitStatus,
+  validateAppStoreReadiness
+};

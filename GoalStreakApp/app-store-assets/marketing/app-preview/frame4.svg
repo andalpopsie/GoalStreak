@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF894F;stop-opacity:0.1" />
+      <stop offset="100%" style="stop-color:#4A90A4;stop-opacity:0.1" />
+    </linearGradient>
+    <style>
+      .title-text { fill: #154D71; font-family: 'Montserrat', sans-serif; font-weight: 800; }
+      .subtitle-text { fill: #154D71; font-family: 'Montserrat', sans-serif; font-weight: 500; }
+      .feature-text { fill: #154D71; font-family: 'Montserrat', sans-serif; font-weight: 400; }
+    </style>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#FDFDFD"/>
+  <rect width="100%" height="100%" fill="url(#bgGradient)"/>
+  
+  <!-- Phone mockup -->
+  <g transform="translate(340, 200)">
+    <!-- Phone frame -->
+    <rect x="0" y="0" width="400" height="800" rx="40" fill="#000000"/>
+    <rect x="10" y="10" width="380" height="780" rx="30" fill="#FDFDFD"/>
+    
+    <!-- Screen content based on frame type -->
+    
+          <g transform="translate(20, 60)">
+            <rect x="0" y="0" width="340" height="200" rx="12" fill="#FFFFFF"/>
+            <text x="16" y="30" fill="#154D71" font-size="18" font-weight="600">Weekly Progress</text>
+            
+              <rect x="40" y="130" width="20" height="50" 
+                    fill="#FF894F" rx="2"/>
+            
+              <rect x="82.85714285714286" y="120" width="20" height="60" 
+                    fill="#FF894F" rx="2"/>
+            
+              <rect x="125.71428571428571" y="110" width="20" height="70" 
+                    fill="#FF894F" rx="2"/>
+            
+              <rect x="168.57142857142858" y="100" width="20" height="80" 
+                    fill="#FF894F" rx="2"/>
+            
+              <rect x="211.42857142857142" y="90" width="20" height="90" 
+                    fill="#FF894F" rx="2"/>
+            
+              <rect x="254.28571428571428" y="80" width="20" height="100" 
+                    fill="#FF894F" rx="2"/>
+            
+              <rect x="297.14285714285717" y="70" width="20" height="110" 
+                    fill="#FF894F" rx="2"/>
+            
+          </g>
+        
+  </g>
+  
+  <!-- Text overlay -->
+  <g transform="translate(540, 1100)">
+    <text x="0" y="0" text-anchor="middle" class="title-text" font-size="48">Powerful Analytics</text>
+    <text x="0" y="80" text-anchor="middle" class="subtitle-text" font-size="28">Track your progress over time</text>
+  </g>
+  
+  <!-- Progress indicator -->
+  <g transform="translate(540, 1300)">
+    
+      <circle cx="-60" cy="0" r="8" 
+              fill="#E8E8E8"/>
+    
+      <circle cx="-30" cy="0" r="8" 
+              fill="#E8E8E8"/>
+    
+      <circle cx="0" cy="0" r="8" 
+              fill="#E8E8E8"/>
+    
+      <circle cx="30" cy="0" r="8" 
+              fill="#FF894F"/>
+    
+      <circle cx="60" cy="0" r="8" 
+              fill="#E8E8E8"/>
+    
+  </g>
+</svg>

@@ -1,0 +1,145 @@
+{
+  "appInformation": {
+    "name": "GoalStreak",
+    "bundleId": "com.goalstreak.app",
+    "sku": "goalstreak-ios-app",
+    "primaryLanguage": "en-US",
+    "category": {
+      "primary": "Health & Fitness",
+      "secondary": "Productivity"
+    },
+    "contentRights": {
+      "containsThirdPartyContent": false,
+      "hasRights": true
+    }
+  },
+  "versionInformation": {
+    "version": "1.0.0",
+    "copyright": "© 2025 GoalStreak. All rights reserved.",
+    "tradeRepresentativeContactInformation": {
+      "firstName": "[FIRST_NAME]",
+      "lastName": "[LAST_NAME]",
+      "emailAddress": "[EMAIL]",
+      "phoneNumber": "[PHONE]",
+      "isDisplayedOnAppStore": false
+    }
+  },
+  "appStoreInformation": {
+    "name": "GoalStreak",
+    "subtitle": "Social Habit Tracking",
+    "promotionalText": "🎯 Build lasting habits with friends! Track streaks, share progress, and achieve goals together with social accountability.",
+    "description": "Transform your life with GoalStreak - the social habit tracker that helps you build lasting routines through accountability, motivation, and community support.\n\n🎯 BUILD HABITS THAT STICK\n• Beautiful habit tracking with visual progress circles\n• Smart streak counting and milestone celebrations\n• 39+ habit categories: fitness, wellness, productivity, creativity\n• Offline support with seamless cloud sync\n• Customizable reminders and notifications\n\n👥 SOCIAL ACCOUNTABILITY THAT WORKS\n• Connect with friends for mutual motivation\n• Real-time activity feed showing friends' progress\n• Encourage friends with emoji reactions (❤️🔥🏅)\n• Privacy controls - share what you want, when you want\n• Friend challenges and group motivation\n\n📊 INSIGHTS THAT INSPIRE\n• Comprehensive analytics and progress charts\n• Streak statistics and personal achievement records\n• Weekly and monthly progress summaries\n• Trend analysis to optimize your routine\n• Achievement badges and milestone tracking\n\n✨ WHY GOALSTREAK WORKS:\n• Social accountability increases success rates by 65%\n• Beautiful, intuitive design makes tracking effortless\n• Proven habit formation techniques built-in\n• Community support when motivation is low\n• Privacy-first approach - your data stays yours\n\n🏆 PERFECT FOR:\n• Fitness routines and workout consistency\n• Wellness practices like meditation and journaling\n• Productivity habits and skill development\n• Creative projects and learning goals\n• Daily self-care and mindfulness practices\n\nJoin thousands of users who've transformed their lives with GoalStreak. Download now and start building the habits that will change everything!\n\n🔒 Privacy & Security: Your data is encrypted and secure. We never sell your information. Full privacy controls included.",
+    "keywords": "habit tracker,habits,goals,productivity,streaks,motivation,social accountability,friends,wellness,fitness,mindfulness,routine,progress,self improvement,personal growth",
+    "supportUrl": "https://goalstreak.co/support",
+    "marketingUrl": "https://goalstreak.co",
+    "privacyPolicyUrl": "https://goalstreak.co/privacy"
+  },
+  "ageRating": {
+    "rating": "4+",
+    "advisories": {
+      "cartoonOrFantasyViolence": "None",
+      "realisticViolence": "None",
+      "prolongedGraphicViolence": "None",
+      "sexualContentOrNudity": "None",
+      "profanityOrCrudeHumor": "None",
+      "alcoholTobaccoOrDrugUse": "None",
+      "matureOrSuggestiveThemes": "None",
+      "simulatedGambling": "None",
+      "horrorOrFearThemes": "None",
+      "medicalOrTreatmentInformation": "None",
+      "unrestrictedWebAccess": "None",
+      "socialNetworking": "Infrequent/Mild",
+      "userGeneratedContent": "Infrequent/Mild"
+    },
+    "rationale": "GoalStreak is designed for all ages and promotes positive habit formation. The app includes mild social networking features (friend connections and activity sharing) and user-generated content (habit names and progress sharing) that are moderated and family-friendly."
+  },
+  "appReviewInformation": {
+    "contact": {
+      "firstName": "[FIRST_NAME]",
+      "lastName": "[LAST_NAME]",
+      "phoneNumber": "[PHONE]",
+      "emailAddress": "[EMAIL]"
+    },
+    "demoAccount": {
+      "required": false,
+      "username": "",
+      "password": ""
+    },
+    "notes": "GoalStreak is a social habit tracking app that helps users build lasting routines through accountability and community support.\n\nKEY FEATURES TO TEST:\n1. User Registration/Login - Create account with email/password\n2. Habit Creation - Tap '+' to create habits from 39+ categories\n3. Habit Tracking - Tap habits to mark complete, see streak counters\n4. Social Features - Add friends via email, see activity feed\n5. Analytics - View progress charts and statistics\n\nTEST ACCOUNT (if needed):\n- The app works without special accounts\n- All features available after standard registration\n- No premium features or subscriptions currently\n\nPRIVACY & SAFETY:\n- All user data is private by default\n- Users control what they share with friends\n- No inappropriate content or gambling mechanics\n- Family-friendly design suitable for all ages\n\nThe app promotes positive behavior change and healthy habit formation through social accountability and progress tracking."
+  },
+  "versionReleaseInformation": {
+    "releaseType": "manual",
+    "earliestReleaseDate": null,
+    "whatsNew": "Welcome to GoalStreak! 🎉\n\n✨ Beautiful habit tracking with visual progress\n👥 Social accountability with friends\n📊 Comprehensive analytics and insights\n🏆 Achievement system and milestones\n🔒 Privacy-first design\n\nStart building habits that stick - download now!"
+  },
+  "appPrivacy": {
+    "privacyPolicyUrl": "https://goalstreak.co/privacy",
+    "dataTypes": [
+      {
+        "category": "Contact Info",
+        "types": ["Email Address"],
+        "purposes": ["App Functionality", "Analytics"],
+        "linked": true,
+        "tracking": false
+      },
+      {
+        "category": "User Content",
+        "types": ["Photos", "Other User Content"],
+        "purposes": ["App Functionality"],
+        "linked": true,
+        "tracking": false
+      },
+      {
+        "category": "Usage Data",
+        "types": ["Product Interaction", "Advertising Data", "Other Usage Data"],
+        "purposes": ["Analytics", "Product Personalization", "App Functionality"],
+        "linked": false,
+        "tracking": true
+      },
+      {
+        "category": "Identifiers",
+        "types": ["User ID", "Device ID"],
+        "purposes": ["App Functionality", "Analytics"],
+        "linked": true,
+        "tracking": false
+      }
+    ]
+  },
+  "keywordOptimization": {
+    "primaryKeywords": [
+      "habit tracker",
+      "habits",
+      "goals",
+      "productivity",
+      "streaks"
+    ],
+    "secondaryKeywords": [
+      "motivation",
+      "social accountability",
+      "friends",
+      "wellness",
+      "fitness",
+      "mindfulness",
+      "routine",
+      "progress"
+    ],
+    "longTailKeywords": [
+      "habit tracking with friends",
+      "social habit tracker",
+      "streak counter app",
+      "accountability partner app",
+      "habit formation app",
+      "daily routine tracker"
+    ],
+    "competitorKeywords": [
+      "habitica alternative",
+      "streaks app alternative",
+      "way of life alternative",
+      "productive alternative"
+    ]
+  },
+  "localization": {
+    "supportedLanguages": ["en-US"],
+    "futureLanguages": ["es-ES", "fr-FR", "de-DE", "pt-BR", "ja-JP"]
+  }
+}

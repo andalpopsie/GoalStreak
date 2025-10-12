@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "Spec Task Tracker",
+  "description": "Monitors changes to spec task files and provides intelligent task management, progress tracking, and next-step recommendations. Helps maintain momentum during feature development and ensures nothing falls through the cracks.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      ".kiro/specs/*/tasks.md",
+      ".kiro/specs/*/requirements.md",
+      ".kiro/specs/*/design.md"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Spec files have been updated. Please analyze the current state and provide intelligent task management:\n\n1. **Task Progress Analysis**:\n   - Review completed vs remaining tasks\n   - Identify any blocked or stalled tasks\n   - Check for task dependencies and sequencing\n   - Calculate overall spec completion percentage\n\n2. **Next Steps Recommendation**:\n   - Suggest the most logical next task to work on\n   - Identify any prerequisites that need completion\n   - Flag tasks that might be ready for parallel execution\n   - Recommend task prioritization based on dependencies\n\n3. **Quality Assurance**:\n   - Check that completed tasks align with requirements\n   - Verify implementation matches design specifications\n   - Identify any gaps between requirements and tasks\n   - Ensure all requirements are covered by tasks\n\n4. **Risk Assessment**:\n   - Identify tasks that might be more complex than estimated\n   - Flag potential integration challenges\n   - Check for external dependencies or blockers\n   - Assess timeline risks and mitigation strategies\n\n5. **Documentation Sync**:\n   - Ensure task descriptions are clear and actionable\n   - Check that requirements references are accurate\n   - Verify design alignment with current implementation\n   - Update any outdated task information\n\n6. **Milestone Tracking**:\n   - Identify major milestones and their completion status\n   - Track progress toward spec completion\n   - Estimate remaining effort and timeline\n   - Suggest celebration points for completed milestones\n\n**CRITICAL - Documentation Rules**:\n- ❌ DO NOT create new task tracking report files\n- ✅ DO update the existing tasks.md file in the spec directory\n- ✅ DO use CHANGELOG.md for tracking major milestones\n\nProvide a task management report with:\n- 📊 Progress summary and completion percentage\n- ⏭️ Recommended next task with rationale\n- ⚠️ Potential risks or blockers identified\n- ✅ Recently completed achievements\n- 📋 Updated task prioritization\n- 🎯 Milestone status and timeline estimates\n- 📝 Updates to make in existing tasks.md (never create new files)"
+  }
+}
