@@ -1,8 +1,10 @@
-# Step-by-Step iOS App Store Submission Guide
+# iOS Submission Guide
 
 ## 🎯 Complete Sequence for GoalStreak iOS Launch
 
-Follow these steps in **exact order** to successfully submit GoalStreak to the iOS App Store.
+This guide consolidates all iOS submission information including setup, testing, and App Store Connect configuration. Follow these steps in **exact order** to successfully submit GoalStreak to the iOS App Store.
+
+> **Note**: This guide consolidates information from multiple iOS-related documents for a single comprehensive reference.
 
 ---
 

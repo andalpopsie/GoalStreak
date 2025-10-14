@@ -1,8 +1,8 @@
-# iOS Pre-Launch Testing Guide
+# Testing Guide
 
 ## Overview
 
-This guide covers the comprehensive iOS pre-launch testing suite for GoalStreak, ensuring the app meets all requirements for iOS App Store submission.
+This comprehensive testing guide covers all testing procedures for GoalStreak, including iOS pre-launch testing, device compatibility, and core functionality validation.
 
 ## Testing Requirements
 

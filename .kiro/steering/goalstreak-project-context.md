@@ -58,10 +58,17 @@ GoalStreakApp/
 │   ├── constants/         # Theme, limits, configurations
 │   ├── config/            # Environment configuration loader
 │   └── utils/             # Helper functions (including linkingUtils.ts)
-├── docs/                  # Documentation and guides (organized)
-│   ├── BUILD_GUIDE.md       # Build instructions
-│   ├── IOS_TESTING_GUIDE.md # iOS testing procedures
-│   ├── STEP-BY-STEP-IOS-SUBMISSION-GUIDE.md # Complete submission guide
+├── docs/                  # Documentation and guides (optimized & consolidated)
+│   ├── README.md            # Documentation overview & navigation
+│   ├── BUILD_GUIDE.md       # Build and deployment procedures
+│   ├── IOS_SUBMISSION_GUIDE.md # iOS App Store submission process
+│   ├── TESTING_GUIDE.md     # Comprehensive testing procedures
+│   ├── ANALYTICS_GUIDE.md   # Analytics implementation & monitoring
+│   ├── FIREBASE_GUIDE.md    # Firebase configuration & troubleshooting
+│   ├── UI_DESIGN_GUIDE.md   # UI components & design system
+│   ├── APP_STORE_OPTIMIZATION.md # App Store optimization strategy
+│   ├── ONBOARDING-ENHANCEMENT-PLAN.md # User onboarding improvements
+│   ├── PRE-LAUNCH-FOCUS-AREAS.md # Project planning & focus areas
 │   └── reports/           # Generated reports and validation results
 ├── config/                # Configuration files (organized)
 │   ├── .eslintrc.js         # ESLint configuration

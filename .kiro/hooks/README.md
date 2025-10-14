@@ -28,6 +28,18 @@ Agent hooks provide automated assistance and quality assurance throughout the de
 - Documents new services, hooks, and utilities
 - Maintains consistency between code and documentation
 
+### Documentation Maintenance
+**File**: `documentation-maintenance.kiro.hook`
+**Triggers**: New file creation in docs/ directory
+**Purpose**: Maintains clean, consolidated documentation structure
+
+**What it does**:
+- Prevents creation of redundant documentation files
+- Enforces single source of truth principle
+- Identifies consolidation opportunities
+- Maintains professional documentation structure
+- Prevents documentation proliferation and duplication
+
 ## 🏪 App Store Launch Hooks
 
 ### App Store Compliance Checker
@@ -136,6 +148,7 @@ Agent hooks provide automated assistance and quality assurance throughout the de
 - ✅ All hooks updated for optimized directory structure
 - ✅ File creation rules enforced across all hooks
 - ✅ Documentation consolidation guidelines implemented
+- ✅ Documentation maintenance hook added for structure preservation
 - ✅ App Store launch hooks added for current phase
 - ✅ Legal compliance monitoring implemented
 - ✅ Asset organization automation in place
