@@ -19,9 +19,11 @@ import ProfileScreen from '../screens/ProfileScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import CreateHabitScreen from '../screens/CreateHabitScreen';
+import OnboardingScreen from '../screens/OnboardingScreen';
 
 // Import hooks
 import { useAuth } from '../hooks/useAuth';
+import { useOnboarding } from '../hooks/useOnboarding';
 
 // Import theme
 import { Colors } from '../constants/theme';
@@ -34,7 +36,7 @@ const AuthStack = createStackNavigator<AuthStackParamList>();
 function AuthNavigator() {
   return (
     <AuthStack.Navigator
-      id="AuthStack"
+      id={undefined}
       screenOptions={{
         headerShown: false,
       }}
@@ -49,7 +51,7 @@ function AuthNavigator() {
 function MainTabNavigator() {
   return (
     <Tab.Navigator
-      id="MainTabs"
+      id={undefined}
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName: keyof typeof Ionicons.glyphMap;
@@ -114,7 +116,7 @@ function MainTabNavigator() {
 function MainStackNavigator() {
   return (
     <Stack.Navigator
-      id="MainStack"
+      id={undefined}
       screenOptions={{
         headerShown: false,
       }}
@@ -139,6 +141,7 @@ function MainStackNavigator() {
 // Root Stack Navigator
 export default function AppNavigator() {
   const { isAuthenticated, isLoading } = useAuth();
+  const { isOnboardingComplete, isLoading: isOnboardingLoading } = useOnboarding();
   const navigationStartTime = React.useRef<number>(0);
 
   // Track navigation performance
@@ -181,7 +184,7 @@ export default function AppNavigator() {
     navigationStartTime.current = Date.now();
   }, []);
 
-  if (isLoading) {
+  if (isLoading || isOnboardingLoading) {
     // You can return a loading screen here
     return null;
   }
@@ -192,13 +195,17 @@ export default function AppNavigator() {
       onStateChange={handleNavigationStateChange}
     >
       <Stack.Navigator
-        id="RootStack"
+        id={undefined}
         screenOptions={{
           headerShown: false,
         }}
       >
         {isAuthenticated ? (
-          <Stack.Screen name="Main" component={MainStackNavigator} />
+          isOnboardingComplete ? (
+            <Stack.Screen name="Main" component={MainStackNavigator} />
+          ) : (
+            <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+          )
         ) : (
           <Stack.Screen name="Auth" component={AuthNavigator} />
         )}

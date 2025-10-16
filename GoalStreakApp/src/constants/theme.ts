@@ -4,7 +4,7 @@ export const Colors = {
   // Primary Colors - New Sophisticated Palette
   primaryText: '#154D71',      // New dark blue for text and icons
   background: '#FDFDFD',       // New light gray background
-  accent1: '#FF894F',          // New warm orange (was #FF7F3E)
+  accent1: '#B771E5',          // New purple primary accent (was #FF894F)
   accent2: '#154D71',          // Dark blue for secondary accents
   accent3: '#4A90A4',          // Complementary teal for completed states
   
@@ -25,17 +25,17 @@ export const Colors = {
   
   // Semantic Colors
   success: '#4A90A4',          // Updated teal
-  warning: '#FF894F',          // New warm orange
+  warning: '#B771E5',          // New purple (was orange)
   error: '#FF4444',
   info: '#154D71',             // Dark blue
   
-  // Category Colors - 6-category system
-  fitnessOrange: '#FF894F',    // Fitness category
-  wellnessTeal: '#538392',     // Wellness category (updated to teal)
-  nutritionGreen: '#B3E2A7',   // Nutrition category (updated to light green)
-  socialPurple: '#B771E5',     // Social category
-  productivityNavy: '#003161', // Productivity category
-  otherPink: '#B95E82',        // Other category
+  // Category Colors - 6-category system (Final Perfect Palette)
+  fitnessOrange: '#B771E5',    // Fitness category - Purple
+  wellnessTeal: '#48B3AF',     // Wellness category - Teal
+  nutritionGreen: '#A7E399',   // Nutrition category - Light Green
+  socialPurple: '#3C3D37',     // Social category - Dark Charcoal
+  productivityNavy: '#003161', // Productivity category - Navy
+  otherPink: '#FF9013',        // Other category - Orange
 } as const;
 
 export const Typography = {
@@ -196,13 +196,13 @@ export const Theme = {
 
 // 6-Category Color Mapping
 export const CategoryColors = {
-  // 6 main categories with designated colors
-  fitness: Colors.fitnessOrange,        // 🟠 #FF894F - Exercise, workouts, running
-  wellness: Colors.wellnessTeal,        // 🟦 #538392 - Health, meditation, sleep
-  nutrition: Colors.nutritionGreen,     // 🟢 #B3E2A7 - Food, water, vitamins
-  social: Colors.socialPurple,          // 🟣 #B771E5 - Friends, family, music
+  // 6 main categories with perfect color palette
+  fitness: Colors.fitnessOrange,        // 🟣 #B771E5 - Exercise, workouts, running
+  wellness: Colors.wellnessTeal,        // 🔷 #48B3AF - Health, meditation, sleep
+  nutrition: Colors.nutritionGreen,     // 🟢 #A7E399 - Food, water, vitamins
+  social: Colors.socialPurple,          // ⚫ #3C3D37 - Friends, family, music
   productivity: Colors.productivityNavy, // 🔷 #003161 - Work, learning, writing
-  other: Colors.otherPink,              // 🌸 #B95E82 - Other habits
+  other: Colors.otherPink,              // 🟠 #FF9013 - Other habits
 } as const;
 
 // Helper function to get category color
@@ -215,12 +215,12 @@ export const getCategoryBackgroundColor = (category: string): string => {
   const color = getCategoryColor(category);
   // Return a lighter version for backgrounds
   switch (color) {
-    case Colors.fitnessOrange: return '#FFF4F0';   // Very light orange
-    case Colors.wellnessTeal: return '#F0F7F8';    // Very light teal (updated for #538392)
-    case Colors.nutritionGreen: return '#F5FBF2';  // Very light green (updated for #B3E2A7)
-    case Colors.socialPurple: return '#F5F0FF';    // Very light purple
-    case Colors.productivityNavy: return '#F0F2F5'; // Very light navy
-    case Colors.otherPink: return '#FDF2F6';       // Very light pink
+    case Colors.fitnessOrange: return '#F5F0FD';   // Very light purple (#B771E5)
+    case Colors.wellnessTeal: return '#E8F5F4';    // Very light teal (#48B3AF)
+    case Colors.nutritionGreen: return '#F0FBE8';  // Very light green (#A7E399)
+    case Colors.socialPurple: return '#F5F5F4';    // Very light gray (#3C3D37)
+    case Colors.productivityNavy: return '#E8EBF0'; // Very light navy (#003161)
+    case Colors.otherPink: return '#FFF4E8';       // Very light orange (#FF9013)
     default: return Colors.gray.light;
   }
 };

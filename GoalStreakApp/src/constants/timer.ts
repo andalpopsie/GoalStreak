@@ -30,7 +30,7 @@ export const TIMER_CONSTANTS = {
   // Colors (matching design system)
   COLORS: {
     INACTIVE: '#E8E8E8', // Light gray for inactive timer
-    ACTIVE: '#FF7F3E', // Energetic Orange for active timer
+    ACTIVE: '#FFF58A', // Light Yellow for active timer
     COMPLETED: '#37B5B6', // Teal Green for completed timer
     PAUSED: '#80C4E9', // Soft Blue for paused timer
   },

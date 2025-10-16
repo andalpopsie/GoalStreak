@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import React, { useEffect, useMemo } from 'react';
+import { View, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedProps,
@@ -26,30 +26,24 @@ interface TimerProgressRingProps {
   timerState: TimerState | null;
   size: number;
   strokeWidth: number;
-  onTimerStart: () => void;
-  onTimerPause: () => void;
-  onTimerReset: () => void;
-  onTimerComplete: () => void;
 }
 
-export default function TimerProgressRing({
+export default React.memo(function TimerProgressRing({
   habit,
   timerState,
   size,
   strokeWidth,
-  onTimerStart,
-  onTimerPause,
-  onTimerReset,
-  onTimerComplete,
 }: TimerProgressRingProps) {
   // Animation values
   const progress = useSharedValue(0);
   const opacity = useSharedValue(0);
 
-  // Calculate dimensions
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const center = size / 2;
+  // Calculate dimensions (memoized for performance)
+  const { radius, circumference, center } = useMemo(() => ({
+    radius: (size - strokeWidth) / 2,
+    circumference: 2 * Math.PI * ((size - strokeWidth) / 2),
+    center: size / 2
+  }), [size, strokeWidth]);
 
   // Update progress animation when timer state changes
   useEffect(() => {
@@ -124,7 +118,7 @@ export default function TimerProgressRing({
     }
 
     if (isActive && !isPaused) {
-      return Colors.accent1; // Active - Orange
+      return Colors.accent3; // Active - Teal (better than bright yellow)
     }
 
     return Colors.accent2; // Paused - Dark Blue
@@ -171,7 +165,7 @@ export default function TimerProgressRing({
       </Svg>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

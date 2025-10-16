@@ -36,13 +36,13 @@ export interface Habit {
 }
 
 export type HabitCategory = 
-  // Simplified 6-category system with designated colors
-  | 'fitness'      // 🟠 Orange (#FF894F) - Exercise, workouts, running, sports
-  | 'wellness'     // 🟦 Teal (#538392) - Health, meditation, sleep, mindfulness
-  | 'nutrition'    // 🟢 Light Green (#B3E2A7) - Food, water, vitamins, diet
-  | 'social'       // 🟣 Purple (#B771E5) - Friends, family, relationships, music
+  // 6-category system with optimized color palette
+  | 'fitness'      // 🟣 Purple (#B771E5) - Exercise, workouts, running, sports
+  | 'wellness'     // 🔷 Teal (#48B3AF) - Health, meditation, sleep, mindfulness
+  | 'nutrition'    // 🟢 Light Green (#A7E399) - Food, water, vitamins, diet
+  | 'social'       // ⚫ Dark Charcoal (#3C3D37) - Friends, family, relationships, music
   | 'productivity' // 🔷 Navy (#003161) - Work, learning, organization, writing
-  | 'other';       // 🌸 Pink - Other habits
+  | 'other';       // 🟠 Orange (#FF9013) - Other habits
 
 export type HabitFrequency = 'daily' | 'weekly' | 'monthly';
 
@@ -149,6 +149,18 @@ export interface ApiResponse<T> {
   data?: T;
   error?: string;
   message?: string;
+}
+
+// Onboarding Types
+export interface HabitTemplate {
+  id: string;
+  name: string;
+  category: HabitCategory;
+  icon: string; // Ionicons name as string
+  description: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  popularity: number;
+  tips: string[];
 }
 
 // Form Types

@@ -6,47 +6,92 @@ This guide consolidates all UI design decisions, component specifications, and v
 
 ## 🎯 Design System
 
-### Color Palette
+### Color Palette (Current Implementation)
 ```typescript
-const colors = {
-  primaryText: '#001BB7',      // Deep Blue
-  background: '#FFF6E9',       // Warm Neutral
-  accent1: '#FF7F3E',          // Energetic Orange (CTA/Progress)
-  accent2: '#80C4E9',          // Soft Blue (Secondary UI)
-  accent3: '#37B5B6',          // Teal Green (Success/Completed)
+const Colors = {
+  primaryText: '#154D71',      // Dark Blue
+  background: '#FDFDFD',       // Light Gray
+  accent1: '#B771E5',          // Purple (Primary accent)
+  accent2: '#154D71',          // Dark Blue (Secondary)
+  accent3: '#4A90A4',          // Teal (Success/Completed)
+  white: '#FFFFFF',
+  gray: { light: '#E8E8E8', medium: '#CCCCCC', dark: '#666666' }
 }
 ```
 
-### Typography
-- **Primary Font**: Proxima Nova (fallback to system sans-serif)
-- **Headings**: Bold, Deep Blue (#001BB7)
-- **Body**: Regular, Deep Blue (#001BB7)
-- **Secondary/Captions**: Light/Medium, Accent 2 (#80C4E9)
+### Typography System
+- **Primary Font**: Montserrat (loaded via @expo-google-fonts)
+- **Font Weights**: 400 (Regular), 500 (Medium), 600 (SemiBold), 700 (Bold)
+- **Headings**: Bold, Dark Blue (#154D71)
+- **Body**: Regular, Dark Blue (#154D71)
+- **Secondary/Captions**: Medium weight, Gray (#666666)
 
 ### Component Guidelines
-- **Primary buttons**: Accent 1 background with white text
-- **Secondary buttons**: Accent 2 outline or fill
-- **Completed states**: Accent 3
-- **Active streaks**: Accent 1 highlight
-- **Background**: Always use #FFF6E9 for warmth
+- **Primary buttons**: Purple (#B771E5) background with white text
+- **Secondary buttons**: Dark Blue (#154D71) outline or fill
+- **Completed states**: Teal (#4A90A4)
+- **Active streaks**: Purple (#B771E5) highlight
+- **Background**: Light Gray (#FDFDFD) for clean, modern look
+
+### Timer Colors (Current Implementation)
+```typescript
+const TIMER_COLORS = {
+  INACTIVE:  '#E8E8E8',  // Light gray for inactive timer
+  ACTIVE:    '#FFF58A',  // Light Yellow for active timer  
+  COMPLETED: '#37B5B6',  // Teal Green for completed timer
+  PAUSED:    '#80C4E9',  // Soft Blue for paused timer
+}
+```
 
 ## 🏷️ Category System
 
 ### Simplified 6-Category System
 GoalStreak uses a clean, simplified category system with designated colors:
 
-#### **Category Colors & Psychology**
-- **🟠 Fitness (#FF894F)** - Orange for energy and movement
-  - *Includes*: Exercise, workouts, running, sports, yoga, cycling, swimming
-  
-- **🟦 Wellness (#538392)** - Teal for health and mindfulness
-  - *Includes*: Health, meditation, sleep, mindfulness, breathing, self-care
-  
-- **🟢 Nutrition (#B3E2A7)** - Light Green for food and healthy eating
-  - *Includes*: Food, water, vitamins, diet, healthy eating
-  
-- **🟣 Social (#B771E5)** - Purple for relationships and creativity
-  - *Includes*: Friends, family, relationships, music, creative activities
+#### **Final Optimized Category Colors (Updated January 2025)**
+
+```typescript
+const CategoryColors = {
+  fitness:      '#B771E5',  // 🟣 Purple - Exercise, workouts, running, sports
+  wellness:     '#48B3AF',  // 🔷 Teal - Health, meditation, sleep, mindfulness
+  nutrition:    '#A7E399',  // 🟢 Light Green - Food, water, vitamins, diet
+  social:       '#3C3D37',  // � Dark Charcoal - Friends, family, relationships, music
+  productivity: '#003161',  // 🔷 Navy - Work, learning, organization, writing
+  other:        '#FF9013',  // 🟠 Orange - Other habits
+}
+```
+
+#### **Category Color Psychology & Benefits**
+
+- **🟣 Purple (#B771E5) - Fitness**
+  - *Psychology*: Creativity, inspiration, luxury, motivation
+  - *Perfect for*: Exercise, workouts, sports, physical challenges
+  - *User Impact*: Inspiring and energizing for fitness goals
+
+- **🔷 Teal (#48B3AF) - Wellness**
+  - *Psychology*: Calm, healing, balance, serenity, peace
+  - *Perfect for*: Meditation, sleep, mindfulness, health routines
+  - *User Impact*: Promotes relaxation and mental well-being
+
+- **🟢 Light Green (#A7E399) - Nutrition**
+  - *Psychology*: Fresh, natural, growth, vitality, health
+  - *Perfect for*: Healthy eating, water intake, vitamins, diet
+  - *User Impact*: Encourages fresh, natural, healthy choices
+
+- **� Dark Charcoal (#3C3D37) - Social**
+  - *Psychology*: Sophistication, elegance, strength, reliability
+  - *Perfect for*: Friends, family, social activities, communication
+  - *User Impact*: Promotes strong, reliable social connections
+
+- **🔷 Navy (#003161) - Productivity**
+  - *Psychology*: Focus, professionalism, stability, trust
+  - *Perfect for*: Work tasks, learning, organization, goals
+  - *User Impact*: Promotes focus and professional mindset
+
+- **🟠 Orange (#FF9013) - Other**
+  - *Psychology*: Energy, enthusiasm, warmth, versatility
+  - *Perfect for*: Personal care, hobbies, miscellaneous activities
+  - *User Impact*: Energizes diverse personal activities
   
 - **🔷 Productivity (#003161)** - Navy for work and learning
   - *Includes*: Work, learning, reading, organization, planning

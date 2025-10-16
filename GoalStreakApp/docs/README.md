@@ -12,14 +12,14 @@ This directory contains all documentation for the GoalStreak mobile app. The doc
 - **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Comprehensive testing procedures
 
 ### **Technical References**
-- **[ANALYTICS_GUIDE.md](ANALYTICS_GUIDE.md)** - Analytics implementation and monitoring
+- **[ANALYTICS-GUIDE.md](ANALYTICS-GUIDE.md)** - Analytics implementation and monitoring
 - **[FIREBASE_GUIDE.md](FIREBASE_GUIDE.md)** - Firebase configuration and troubleshooting
-- **[UI_DESIGN_GUIDE.md](UI_DESIGN_GUIDE.md)** - UI components and design system
+- **[UI_DESIGN_GUIDE.md](UI_DESIGN_GUIDE.md)** - UI components, design system, and all color updates
 
 ### **Strategy & Planning**
 - **[APP_STORE_OPTIMIZATION.md](APP_STORE_OPTIMIZATION.md)** - App Store optimization strategy
-- **[ONBOARDING-ENHANCEMENT-PLAN.md](ONBOARDING-ENHANCEMENT-PLAN.md)** - User onboarding improvements
-- **[PRE-LAUNCH-FOCUS-AREAS.md](PRE-LAUNCH-FOCUS-AREAS.md)** - Project planning and focus areas
+- **[ONBOARDING-ENHANCEMENT-PLAN.md](ONBOARDING-ENHANCEMENT-PLAN.md)** - Complete onboarding system (consolidated)
+- **[PRE-LAUNCH-FOCUS-AREAS.md](PRE-LAUNCH-FOCUS-AREAS.md)** - Project planning, focus areas, and Apple Developer tasks
 
 ### **Reports & Validation**
 - **[reports/](reports/)** - Generated reports and validation results
@@ -29,7 +29,7 @@ This directory contains all documentation for the GoalStreak mobile app. The doc
 ### **For Developers**
 - Setting up the build environment → [BUILD_GUIDE.md](BUILD_GUIDE.md)
 - Running tests → [TESTING_GUIDE.md](TESTING_GUIDE.md)
-- Understanding analytics → [ANALYTICS_GUIDE.md](ANALYTICS_GUIDE.md)
+- Understanding analytics → [ANALYTICS-GUIDE.md](ANALYTICS-GUIDE.md)
 
 ### **For App Store Submission**
 - iOS submission process → [IOS_SUBMISSION_GUIDE.md](IOS_SUBMISSION_GUIDE.md)

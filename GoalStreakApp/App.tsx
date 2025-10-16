@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { View, Text, Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { AuthProvider, useAuth } from './src/hooks/useAuth';
+import { OnboardingProvider } from './src/hooks/useOnboarding';
 import { TimerProvider } from './src/contexts/TimerContext';
 import AppNavigator from './src/navigation/AppNavigator';
 import { ErrorBoundary } from './src/components/common';
@@ -27,10 +28,12 @@ function AppContent() {
   const { user } = useAuth();
   
   return (
-    <TimerProvider userId={user?.id}>
-      <AppNavigator />
-      <StatusBar style="dark" backgroundColor={Colors.background} />
-    </TimerProvider>
+    <OnboardingProvider>
+      <TimerProvider userId={user?.id}>
+        <AppNavigator />
+        <StatusBar style="dark" backgroundColor={Colors.background} />
+      </TimerProvider>
+    </OnboardingProvider>
   );
 }
 

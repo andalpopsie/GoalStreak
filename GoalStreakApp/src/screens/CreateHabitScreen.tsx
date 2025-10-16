@@ -48,11 +48,7 @@ const DEFAULT_REMINDER_HOUR = 9;
 const DEFAULT_REMINDER_MINUTE = 0;
 const DEFAULT_REMINDER_PERIOD = 'AM' as const;
 
-// Validation constants
-const HABIT_NAME_MIN_LENGTH = 2;
-const HABIT_NAME_MAX_LENGTH = 50;
-const TARGET_VALUE_MAX = 10000;
-const HABIT_NAME_PATTERN = /^[a-zA-Z0-9\s\-_.,!?()]+$/;
+// Validation is handled by useHabitFormValidation hook
 
 export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps) {
   const { createHabit, isCreating, habits } = useHabits();
@@ -99,7 +95,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
     return Object.keys(newErrors).length === 0;
   }, [form, validation]);
 
-  // Helper function to format time
+  // Helper function to format time for 24-hour storage
   const formatTimeFor24Hour = useCallback((hour: number, minute: number, period: 'AM' | 'PM'): string => {
     let hour24 = hour;
     if (period === 'PM' && hour !== 12) {
@@ -108,6 +104,14 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
       hour24 = 0;
     }
     return `${hour24.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+  }, []);
+
+  // Helper function to format time for display
+  const formatTimeForDisplay = useCallback((timeString: string): string => {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+    return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
   }, []);
 
   const handleCreateHabit = async () => {
@@ -171,8 +175,16 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
               console.log(`✅ Notification scheduled successfully: ${notificationId}`);
             }
           }
-        } catch (notificationError) {
+        } catch (notificationError: any) {
           console.error('❌ Failed to schedule notification:', notificationError);
+          
+          // Track notification error for analytics
+          trackEvent('notification_scheduling_error', {
+            error_message: notificationError?.message || 'Unknown notification error',
+            habit_name: form.name,
+            user_id: user?.id
+          });
+          
           // Don't fail the habit creation if notification fails
           Alert.alert(
             'Habit Created',
@@ -235,19 +247,24 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
     }, {} as Record<HabitCategory, string>);
   }, []);
 
-  // Memoized category card component for better performance
-  const CategoryCard = React.memo(({ category }: { category: HabitCategoryOption }) => {
+  // Render category cards with optimized performance
+  const renderCategoryCard = useCallback((category: HabitCategoryOption) => {
     const categoryColor = categoryColors[category.value];
     const isSelected = form.category === category.value;
 
     return (
       <TouchableOpacity
+        key={category.value}
         style={[
           styles.categoryCard,
           isSelected && styles.categoryCardSelected,
           { borderColor: categoryColor + '30' }
         ]}
         onPress={() => handleCategorySelect(category.value)}
+        accessibilityRole="button"
+        accessibilityLabel={`${category.label} category`}
+        accessibilityState={{ selected: isSelected }}
+        accessibilityHint={`Select ${category.label} as the habit category`}
       >
         <View style={[
           styles.categoryIconContainer,
@@ -272,7 +289,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
         )}
       </TouchableOpacity>
     );
-  });
+  }, [categoryColors, form.category, handleCategorySelect]);
 
 
 
@@ -319,9 +336,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
 
           {/* Visual Category Selection */}
           <View style={styles.categoryGrid}>
-            {categoryOptions.map((category) => (
-              <CategoryCard key={category.value} category={category} />
-            ))}
+            {categoryOptions.map(renderCategoryCard)}
           </View>
 
           {/* Icon Selection - Minimalist */}
@@ -394,16 +409,14 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                 const timeString = `${hour24.toString().padStart(2, '0')}:${selectedMinute.toString().padStart(2, '0')}`;
                 setForm({ ...form, reminderTime: timeString });
               }}
+              accessibilityRole="button"
+              accessibilityLabel="Set reminder time"
+              accessibilityHint="Tap to set the time for habit reminders"
             >
               <Ionicons name="time" size={20} color={Colors.accent1} />
               <Text style={styles.timeText}>
                 {form.reminderTime
-                  ? (() => {
-                    const [hours, minutes] = form.reminderTime.split(':').map(Number);
-                    const period = hours >= 12 ? 'PM' : 'AM';
-                    const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-                    return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
-                  })()
+                  ? formatTimeForDisplay(form.reminderTime)
                   : `${selectedHour}:${selectedMinute.toString().padStart(2, '0')} ${selectedPeriod}`
                 }
               </Text>
@@ -496,7 +509,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: Colors.gray.light,
+    borderColor: Colors.gray.medium,
     position: 'relative',
     minHeight: 60,
     marginBottom: Spacing.sm,
@@ -532,7 +545,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.gray.light,
+    borderColor: Colors.gray.medium,
   },
   iconPreview: {
     width: 40,
@@ -568,7 +581,7 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.gray.light,
+    borderColor: Colors.gray.medium,
   },
   settingCardActive: {
     borderColor: Colors.accent1,
@@ -593,7 +606,7 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     marginBottom: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.gray.light,
+    borderColor: Colors.gray.medium,
   },
   timeText: {
     flex: 1,

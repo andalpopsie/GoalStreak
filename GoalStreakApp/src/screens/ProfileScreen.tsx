@@ -7,12 +7,14 @@ import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
+import { useOnboarding } from '../hooks/useOnboarding';
 import { photoService } from '../services/photoService';
 import { openPrivacyPolicy, openTermsOfService, openSupport } from '../utils/linkingUtils';
-import { trackScreen, trackEvent, trackFeature } from '../services/enhancedAnalyticsService';
+import { trackScreen, trackEvent } from '../services/enhancedAnalyticsService';
 
 export default function ProfileScreen() {
   const { user, isAuthenticated, logout } = useAuth();
+  const { resetOnboarding } = useOnboarding();
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
@@ -30,29 +32,31 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     // Track screen view
-    trackScreen('Profile', 'ProfileScreen');
+    trackScreen('Profile', { screen_class: 'ProfileScreen' });
     trackEvent('profile_screen_viewed', {
       user_id: user?.id,
       has_profile_image: !!profileImage
     });
+  }, [user?.id, profileImage]);
 
+  useEffect(() => {
     if (isAuthenticated && user?.id) {
       loadProfileImage();
       loadNotificationSettings();
       setupNotifications();
     }
-  }, [user?.id, user?.email, isAuthenticated]);
+  }, [user?.id, isAuthenticated]);
 
   const setupNotifications = async () => {
     try {
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
-      
+
       if (existingStatus !== 'granted') {
         const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
       }
-      
+
       if (finalStatus !== 'granted') {
         console.warn('Notification permissions not granted');
         return;
@@ -85,7 +89,7 @@ export default function ProfileScreen() {
   const loadProfileImage = async () => {
     try {
       if (!user?.id) return;
-      
+
       const imageUri = await photoService.getProfilePhoto(user.id);
       if (imageUri) {
         setProfileImage(imageUri);
@@ -110,33 +114,49 @@ export default function ProfileScreen() {
   const pickImage = async (source: 'camera' | 'library') => {
     try {
       setIsUploading(true);
-      
-      const result = source === 'camera' 
+
+      const result = source === 'camera'
         ? await ImagePicker.launchCameraAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
-          })
+          mediaTypes: ['images'],
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+        })
         : await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 0.8,
-          });
+          mediaTypes: ['images'],
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+        });
 
       if (!result.canceled && result.assets[0]) {
         const imageUri = result.assets[0].uri;
-        
+
         if (user?.id) {
           const savedUri = await photoService.saveProfilePhoto(user.id, imageUri);
           setProfileImage(savedUri);
           Alert.alert('Success', 'Profile photo updated successfully!');
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error picking image:', error);
-      Alert.alert('Error', 'Failed to update profile photo. Please try again.');
+      
+      // Don't show error for user cancellation
+      if (error?.message?.includes('cancelled') || error?.code === 'UserCancel') {
+        return;
+      }
+      
+      const errorMessage = error?.message?.includes('permission')
+        ? 'Camera or photo library permission is required. Please check your settings.'
+        : 'Failed to update profile photo. Please try again.';
+
+      Alert.alert('Error', errorMessage);
+
+      trackEvent('profile_photo_error', {
+        error_message: error?.message || 'Unknown error',
+        error_code: error?.code || 'unknown',
+        user_id: user?.id
+      });
     } finally {
       setIsUploading(false);
     }
@@ -154,14 +174,40 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleResetOnboarding = async () => {
+    Alert.alert(
+      'Reset Onboarding',
+      'This will reset your onboarding state and show the welcome flow again. This is for testing purposes only.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Reset', 
+          style: 'default',
+          onPress: async () => {
+            try {
+              await resetOnboarding();
+              Alert.alert(
+                'Onboarding Reset',
+                'Onboarding has been reset. Please restart the app to see the welcome flow.',
+                [{ text: 'OK' }]
+              );
+            } catch (error) {
+              Alert.alert('Error', 'Failed to reset onboarding. Please try again.');
+            }
+          }
+        },
+      ]
+    );
+  };
+
   const handleLogout = async () => {
     Alert.alert(
       'Sign Out',
       'Are you sure you want to sign out?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Sign Out', 
+        {
+          text: 'Sign Out',
           style: 'destructive',
           onPress: async () => {
             try {
@@ -169,7 +215,7 @@ export default function ProfileScreen() {
               trackEvent('user_logout', {
                 user_id: user?.id
               });
-              
+
               await logout();
             } catch (error: any) {
               trackEvent('logout_error', {
@@ -188,16 +234,20 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         <View style={styles.profileHeader}>
-          <TouchableOpacity 
-            style={styles.avatarContainer} 
+          <TouchableOpacity
+            style={styles.avatarContainer}
             onPress={showImagePicker}
             activeOpacity={0.7}
           >
             {isUploading ? (
-              <ActivityIndicator size="large" color={Colors.primary} />
+              <ActivityIndicator
+                size="large"
+                color={Colors.primary}
+                accessibilityLabel="Uploading profile photo"
+              />
             ) : profileImage ? (
-              <Image 
-                source={{ uri: profileImage }} 
+              <Image
+                source={{ uri: profileImage }}
                 style={styles.avatar}
                 resizeMode="cover"
               />
@@ -210,7 +260,7 @@ export default function ProfileScreen() {
               <Ionicons name="camera" size={20} color={Colors.white} />
             </View>
           </TouchableOpacity>
-          
+
           <Text style={styles.userName}>{user?.displayName || 'User'}</Text>
           <Text style={styles.userEmail}>{user?.email}</Text>
         </View>
@@ -245,7 +295,21 @@ export default function ProfileScreen() {
             <Text style={styles.menuText}>Help & Support</Text>
             <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
           </TouchableOpacity>
+        </View>
 
+        {/* Testing Section - Only show in development */}
+        {__DEV__ && (
+          <View style={styles.menuSection}>
+            <Text style={styles.sectionTitle}>Testing & Development</Text>
+            <TouchableOpacity style={styles.menuItem} onPress={handleResetOnboarding}>
+              <Ionicons name="refresh-outline" size={24} color={Colors.accent1} />
+              <Text style={[styles.menuText, { color: Colors.accent1 }]}>Reset Onboarding</Text>
+              <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <View style={styles.menuSection}>
           <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
             <Ionicons name="log-out-outline" size={24} color={Colors.error} />
             <Text style={[styles.menuText, { color: Colors.error }]}>Sign Out</Text>
@@ -265,7 +329,7 @@ export default function ProfileScreen() {
               <Text style={styles.saveButton}>Save</Text>
             </TouchableOpacity>
           </View>
-          
+
           <ScrollView style={styles.modalContent}>
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Display Name</Text>
@@ -277,7 +341,7 @@ export default function ProfileScreen() {
                 placeholderTextColor={Colors.accent2}
               />
             </View>
-            
+
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Email</Text>
               <TextInput
@@ -304,7 +368,7 @@ export default function ProfileScreen() {
             <Text style={styles.modalTitle}>Notifications</Text>
             <View style={{ width: 60 }} />
           </View>
-          
+
           <ScrollView style={styles.modalContent}>
             <View style={styles.settingItem}>
               <Text style={styles.settingLabel}>Enable Notifications</Text>
@@ -315,7 +379,7 @@ export default function ProfileScreen() {
                 thumbColor={Colors.white}
               />
             </View>
-            
+
             <View style={styles.settingItem}>
               <Text style={styles.settingLabel}>Sound</Text>
               <Switch
@@ -325,7 +389,7 @@ export default function ProfileScreen() {
                 thumbColor={Colors.white}
               />
             </View>
-            
+
             <View style={styles.settingItem}>
               <Text style={styles.settingLabel}>Badge</Text>
               <Switch
@@ -484,5 +548,13 @@ const styles = StyleSheet.create({
   settingLabel: {
     fontSize: Typography.fontSize.base,
     color: Colors.primaryText,
+  },
+  sectionTitle: {
+    fontSize: Typography.fontSize.lg,
+    fontWeight: Typography.fontWeight.semibold,
+    color: Colors.primaryText,
+    marginBottom: Spacing.md,
+    marginTop: Spacing.lg,
+    marginHorizontal: Spacing.lg,
   },
 });
