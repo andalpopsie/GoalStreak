@@ -98,7 +98,7 @@ export default function CleanHomeScreen({ navigation }: any) {
         });
         
         // Track streak milestones
-        const streakCount = typeof currentStreak === 'object' ? currentStreak.count : currentStreak;
+        const streakCount = typeof currentStreak === 'object' ? currentStreak.currentStreak : currentStreak;
         if (streakCount > 0 && [7, 30, 100, 365].includes(streakCount)) {
           trackEvent('streak_milestone_achieved', {
             habit_id: habitId,

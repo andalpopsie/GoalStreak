@@ -80,13 +80,13 @@ export const CATEGORY_ICONS: Record<string, string> = {
 };
 
 export const CATEGORY_COLORS: Record<string, string> = {
-  // 6-category system with designated colors
-  fitness: Colors.fitnessOrange,        // 🟠 #FF894F - Exercise, workouts, running, sports
-  wellness: Colors.wellnessTeal,        // 🟦 #538392 - Health, meditation, sleep, mindfulness  
-  nutrition: Colors.nutritionGreen,     // 🟢 #B3E2A7 - Food, water, vitamins, diet
-  social: Colors.socialPurple,          // 🟣 #B771E5 - Friends, family, relationships, music
+  // 6-category system with updated colors
+  fitness: Colors.fitnessOrange,        // 🟣 #B771E5 - Exercise, workouts, running, sports
+  wellness: Colors.wellnessTeal,        // 🔷 #48B3AF - Health, meditation, sleep, mindfulness  
+  nutrition: Colors.nutritionGreen,     // 🟢 #A7E399 - Food, water, vitamins, diet
+  social: Colors.socialPurple,          // ⚫ #3C3D37 - Friends, family, relationships, music
   productivity: Colors.productivityNavy, // 🔷 #003161 - Work, learning, organization, writing
-  other: Colors.otherPink,              // 🌸 #B95E82 - Other habits, miscellaneous
+  other: Colors.otherPink,              // 🟠 #FF9013 - Other habits, miscellaneous
   
   // Legacy support for backward compatibility (map to closest category)
   workout: Colors.fitnessOrange,        // Maps to fitness
