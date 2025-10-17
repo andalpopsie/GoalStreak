@@ -104,7 +104,13 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
   };
 
   const renderSlide = (slide: WelcomeSlide) => (
-    <View key={slide.id} style={[styles.slide, { paddingTop: slideTopPadding }]}>
+    <ScrollView 
+      key={slide.id} 
+      style={styles.slideScrollView}
+      contentContainerStyle={[styles.slide, { paddingTop: slideTopPadding }]}
+      showsVerticalScrollIndicator={false}
+      bounces={false}
+    >
       <Animated.View 
         entering={FadeInUp.delay(200)}
         style={[styles.iconContainer, { backgroundColor: slide.color + '15' }]}
@@ -133,7 +139,7 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
           ))}
         </View>
       </Animated.View>
-    </View>
+    </ScrollView>
   );
 
   return (
@@ -210,14 +216,14 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  slide: {
+  slideScrollView: {
     width: screenWidth,
-    flex: 1,
+  },
+  slide: {
     alignItems: 'center',
-    justifyContent: 'flex-start', // Changed from 'center' to prevent overlap
     paddingHorizontal: Spacing.xl,
     // paddingTop is set dynamically via inline style
-    paddingBottom: isSmallScreen ? 40 : 60,
+    paddingBottom: 180, // Extra space for footer (pagination + button + safe area)
   },
   iconContainer: {
     width: isSmallScreen ? 120 : isMediumScreen ? 140 : 160, // Responsive size
@@ -272,11 +278,17 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   footer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.lg,
     // paddingBottom is set dynamically via inline style
     alignItems: 'center',
     backgroundColor: Colors.white,
+    borderTopWidth: 1,
+    borderTopColor: Colors.gray.light + '40',
   },
   pagination: {
     flexDirection: 'row',
