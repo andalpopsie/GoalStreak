@@ -4,15 +4,18 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing } from '../../constants/theme';
 import { PeriodAnalytics } from '../../services/analyticsService';
+import ComparisonBadge from './ComparisonBadge';
 
 interface StatsOverviewProps {
   analytics: PeriodAnalytics;
+  previousAnalytics?: PeriodAnalytics;
   selectedPeriod: 'week' | 'month' | 'year';
   onPeriodChange: (period: 'week' | 'month' | 'year') => void;
 }
 
 export default function StatsOverview({ 
-  analytics, 
+  analytics,
+  previousAnalytics,
   selectedPeriod, 
   onPeriodChange 
 }: StatsOverviewProps) {
@@ -48,7 +51,9 @@ export default function StatsOverview({
     icon: string,
     value: string | number,
     label: string,
-    color: string = Colors.accent1
+    color: string = Colors.accent1,
+    currentNumeric?: number,
+    previousNumeric?: number
   ) => (
     <View style={styles.statCard}>
       <View style={[styles.statIcon, { backgroundColor: color + '20' }]}>
@@ -56,6 +61,13 @@ export default function StatsOverview({
       </View>
       <Text style={[styles.statValue, { color }]}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
+      {previousAnalytics && currentNumeric !== undefined && previousNumeric !== undefined && (
+        <ComparisonBadge
+          currentValue={currentNumeric}
+          previousValue={previousNumeric}
+          size="small"
+        />
+      )}
     </View>
   );
 
@@ -77,21 +89,27 @@ export default function StatsOverview({
           'checkmark-circle',
           analytics.totalCompletions,
           'Completions',
-          Colors.accent3
+          Colors.accent3,
+          analytics.totalCompletions,
+          previousAnalytics?.totalCompletions
         )}
         
         {renderStatCard(
           'trending-up',
           `${analytics.completionRate.toFixed(1)}%`,
           'Success Rate',
-          Colors.accent1
+          Colors.accent1,
+          analytics.completionRate,
+          previousAnalytics?.completionRate
         )}
         
         {renderStatCard(
           'apps',
           analytics.uniqueHabitsCompleted,
           'Habits Active',
-          Colors.primaryText
+          Colors.primaryText,
+          analytics.uniqueHabitsCompleted,
+          previousAnalytics?.uniqueHabitsCompleted
         )}
         
         {renderStatCard(
