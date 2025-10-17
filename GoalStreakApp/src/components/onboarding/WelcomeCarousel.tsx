@@ -73,6 +73,7 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
   // Calculate dynamic top position based on safe area
   const skipButtonTop = Math.max(20, insets.top + 10);
   const slideTopPadding = Math.max(100, insets.top + 80);
+  const footerBottomPadding = Math.max(30, insets.bottom + 20); // Dynamic bottom padding
 
   const handleNext = () => {
     if (currentSlide < welcomeSlides.length - 1) {
@@ -146,7 +147,7 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
         {welcomeSlides.map(renderSlide)}
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: footerBottomPadding }]}>
         <View style={styles.pagination}>
           {welcomeSlides.map((_, index) => (
             <View
@@ -262,7 +263,8 @@ const styles = StyleSheet.create({
   },
   footer: {
     paddingHorizontal: Spacing.xl,
-    paddingBottom: 50,
+    paddingTop: Spacing.lg,
+    // paddingBottom is set dynamically via inline style
     alignItems: 'center',
     backgroundColor: Colors.white,
   },
