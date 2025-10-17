@@ -73,7 +73,17 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
   // Calculate dynamic top position based on safe area
   const skipButtonTop = Math.max(20, insets.top + 10);
   const slideTopPadding = Math.max(100, insets.top + 80);
-  const footerBottomPadding = Math.max(30, insets.bottom + 20); // Dynamic bottom padding
+  
+  // Dynamic bottom padding - very generous for devices with home indicator
+  // iPhone 15 Pro has ~34px bottom inset, we need substantial extra space
+  const footerBottomPadding = insets.bottom > 0 
+    ? Math.max(70, insets.bottom + 50)  // Devices with home indicator: minimum 70px, or inset + 50px
+    : 50;                                // Devices without home indicator
+  
+  // Debug logging
+  console.log('📱 Safe area insets:', insets);
+  console.log('📏 Footer bottom padding:', footerBottomPadding);
+  console.log('📐 Screen height:', screenHeight);
 
   const handleNext = () => {
     if (currentSlide < welcomeSlides.length - 1) {
