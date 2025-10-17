@@ -7,15 +7,22 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 import { Colors, Typography, Spacing } from '../../constants/theme';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
+// Debug: Log screen dimensions
+console.log('📱 Screen dimensions:', { width: screenWidth, height: screenHeight });
+
 // Responsive sizing based on screen height
-const isSmallScreen = screenHeight < 700; // iPhone SE, iPhone 15 Pro in some cases
-const isMediumScreen = screenHeight < 800; // iPhone 15 Pro, iPhone 14
+// iPhone 15 Pro: 852px height, 393px width
+// iPhone SE: 667px height, 375px width
+// iPhone 16 Pro: 956px height, 430px width
+const isSmallScreen = screenHeight < 750; // iPhone SE and similar
+const isMediumScreen = screenHeight >= 750 && screenHeight < 900; // iPhone 15 Pro, iPhone 14
 
 interface WelcomeSlide {
   id: string;
@@ -61,6 +68,11 @@ interface WelcomeCarouselProps {
 export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
+  const insets = useSafeAreaInsets();
+  
+  // Calculate dynamic top position based on safe area
+  const skipButtonTop = Math.max(20, insets.top + 10);
+  const slideTopPadding = Math.max(100, insets.top + 80);
 
   const handleNext = () => {
     if (currentSlide < welcomeSlides.length - 1) {
@@ -81,7 +93,7 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
   };
 
   const renderSlide = (slide: WelcomeSlide) => (
-    <View key={slide.id} style={styles.slide}>
+    <View key={slide.id} style={[styles.slide, { paddingTop: slideTopPadding }]}>
       <Animated.View 
         entering={FadeInUp.delay(200)}
         style={[styles.iconContainer, { backgroundColor: slide.color + '15' }]}
@@ -115,7 +127,10 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.skipButton} onPress={onSkip}>
+      <TouchableOpacity 
+        style={[styles.skipButton, { top: skipButtonTop }]} 
+        onPress={onSkip}
+      >
         <Text style={styles.skipText}>Skip</Text>
       </TouchableOpacity>
 
@@ -168,7 +183,7 @@ const styles = StyleSheet.create({
   },
   skipButton: {
     position: 'absolute',
-    top: isSmallScreen ? 20 : isMediumScreen ? 40 : 60, // Responsive top position
+    // top is set dynamically via inline style
     right: 20,
     zIndex: 1,
     paddingHorizontal: 20,
@@ -188,10 +203,10 @@ const styles = StyleSheet.create({
     width: screenWidth,
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start', // Changed from 'center' to prevent overlap
     paddingHorizontal: Spacing.xl,
-    paddingTop: isSmallScreen ? 80 : isMediumScreen ? 90 : 100, // Responsive top padding
-    paddingBottom: isSmallScreen ? 40 : 60, // Less bottom padding on small screens
+    // paddingTop is set dynamically via inline style
+    paddingBottom: isSmallScreen ? 40 : 60,
   },
   iconContainer: {
     width: isSmallScreen ? 120 : isMediumScreen ? 140 : 160, // Responsive size
@@ -209,8 +224,6 @@ const styles = StyleSheet.create({
   content: {
     alignItems: 'center',
     maxWidth: 320,
-    flex: 1,
-    justifyContent: 'center',
   },
   title: {
     fontSize: isSmallScreen ? 26 : isMediumScreen ? 28 : 32, // Responsive font size
