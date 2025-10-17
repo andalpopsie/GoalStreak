@@ -17,12 +17,30 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 // Debug: Log screen dimensions
 console.log('📱 Screen dimensions:', { width: screenWidth, height: screenHeight });
 
-// Responsive sizing based on screen height
-// iPhone 15 Pro: 852px height, 393px width
-// iPhone SE: 667px height, 375px width
-// iPhone 16 Pro: 956px height, 430px width
-const isSmallScreen = screenHeight < 750; // iPhone SE and similar
-const isMediumScreen = screenHeight >= 750 && screenHeight < 900; // iPhone 15 Pro, iPhone 14
+// Fully dynamic responsive sizing based on screen height
+// No hardcoded device-specific values - scales proportionally
+const isSmallScreen = screenHeight < 750; // Compact devices
+const isMediumScreen = screenHeight >= 750 && screenHeight < 900; // Standard devices
+
+// Calculate responsive sizes as percentages of screen dimensions
+const getResponsiveIconSize = () => {
+  // Icon size scales between 60-80px based on screen height
+  const baseSize = 80;
+  const scale = Math.min(1, Math.max(0.75, screenHeight / 900));
+  return Math.round(baseSize * scale);
+};
+
+const getResponsiveFontSize = (baseSize: number) => {
+  // Font sizes scale proportionally with screen height
+  const scale = Math.min(1.1, Math.max(0.85, screenHeight / 850));
+  return Math.round(baseSize * scale);
+};
+
+const getResponsiveSpacing = (baseSpacing: number) => {
+  // Spacing scales with screen height
+  const scale = Math.min(1.1, Math.max(0.85, screenHeight / 850));
+  return Math.round(baseSpacing * scale);
+};
 
 interface WelcomeSlide {
   id: string;
@@ -70,15 +88,18 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
   const scrollViewRef = useRef<ScrollView>(null);
   const insets = useSafeAreaInsets();
   
-  // Calculate dynamic top position based on safe area
-  const skipButtonTop = Math.max(20, insets.top + 10);
-  const slideTopPadding = Math.max(100, insets.top + 80);
+  // Fully dynamic calculations based on safe area and screen size
+  const skipButtonTop = Math.max(getResponsiveSpacing(20), insets.top + 10);
+  const slideTopPadding = Math.max(getResponsiveSpacing(100), insets.top + getResponsiveSpacing(80));
   
-  // Dynamic bottom padding - balanced for devices with home indicator
-  // iPhone 15 Pro has ~34px bottom inset
+  // Dynamic bottom padding - scales with screen height and safe area
+  const baseFooterPadding = getResponsiveSpacing(40);
   const footerBottomPadding = insets.bottom > 0 
-    ? Math.max(50, insets.bottom + 30)  // Devices with home indicator: minimum 50px, or inset + 30px
-    : 40;                                // Devices without home indicator
+    ? Math.max(baseFooterPadding, insets.bottom + getResponsiveSpacing(30))
+    : baseFooterPadding;
+  
+  // Dynamic slide bottom padding - scales with screen height
+  const slideBottomPadding = getResponsiveSpacing(140);
   
   // Debug logging
   console.log('📱 Safe area insets:', insets);
@@ -107,7 +128,10 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
     <ScrollView 
       key={slide.id} 
       style={styles.slideScrollView}
-      contentContainerStyle={[styles.slide, { paddingTop: slideTopPadding }]}
+      contentContainerStyle={[styles.slide, { 
+        paddingTop: slideTopPadding,
+        paddingBottom: slideBottomPadding 
+      }]}
       showsVerticalScrollIndicator={false}
       bounces={false}
     >
@@ -117,7 +141,7 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
       >
         <Ionicons 
           name={slide.icon} 
-          size={isSmallScreen ? 60 : isMediumScreen ? 70 : 80} 
+          size={getResponsiveIconSize()} 
           color={slide.color} 
         />
       </Animated.View>
@@ -222,16 +246,15 @@ const styles = StyleSheet.create({
   slide: {
     alignItems: 'center',
     paddingHorizontal: Spacing.xl,
-    // paddingTop is set dynamically via inline style
-    paddingBottom: 140, // Reduced padding - footer space (pagination + button + safe area)
+    // paddingTop and paddingBottom are set dynamically via inline style
   },
   iconContainer: {
-    width: isSmallScreen ? 120 : isMediumScreen ? 140 : 160, // Responsive size
-    height: isSmallScreen ? 120 : isMediumScreen ? 140 : 160,
-    borderRadius: isSmallScreen ? 60 : isMediumScreen ? 70 : 80,
+    width: getResponsiveSpacing(160), // Fully dynamic size
+    height: getResponsiveSpacing(160),
+    borderRadius: getResponsiveSpacing(80),
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: isSmallScreen ? Spacing.xl : Spacing['2xl'], // Less margin on small screens
+    marginBottom: getResponsiveSpacing(48), // Dynamic margin
     shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
@@ -243,19 +266,19 @@ const styles = StyleSheet.create({
     maxWidth: 320,
   },
   title: {
-    fontSize: isSmallScreen ? 26 : isMediumScreen ? 28 : 32, // Responsive font size
+    fontSize: getResponsiveFontSize(32), // Fully dynamic font size
     fontWeight: '700',
     color: Colors.primaryText,
     textAlign: 'center',
-    marginBottom: isSmallScreen ? Spacing.md : Spacing.lg,
-    lineHeight: isSmallScreen ? 32 : isMediumScreen ? 34 : 38,
+    marginBottom: getResponsiveSpacing(24),
+    lineHeight: getResponsiveFontSize(38),
   },
   description: {
-    fontSize: isSmallScreen ? 15 : isMediumScreen ? 16 : 18, // Responsive font size
+    fontSize: getResponsiveFontSize(18), // Fully dynamic font size
     color: Colors.primaryText,
     textAlign: 'center',
-    lineHeight: isSmallScreen ? 22 : isMediumScreen ? 24 : 26,
-    marginBottom: isSmallScreen ? Spacing.xl : Spacing['2xl'],
+    lineHeight: getResponsiveFontSize(26),
+    marginBottom: getResponsiveSpacing(48),
     opacity: 0.8,
   },
   benefitsContainer: {
