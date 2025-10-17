@@ -90,7 +90,8 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
   
   // Fully dynamic calculations based on safe area and screen size
   const skipButtonTop = Math.max(getResponsiveSpacing(20), insets.top + 10);
-  const slideTopPadding = Math.max(getResponsiveSpacing(100), insets.top + getResponsiveSpacing(80));
+  // Reduced top padding to maximize screen space - just enough clearance for skip button
+  const slideTopPadding = Math.max(getResponsiveSpacing(70), insets.top + getResponsiveSpacing(50));
   
   // Dynamic bottom padding - scales with screen height and safe area
   const baseFooterPadding = getResponsiveSpacing(40);
@@ -254,7 +255,7 @@ const styles = StyleSheet.create({
     borderRadius: getResponsiveSpacing(80),
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: getResponsiveSpacing(48), // Dynamic margin
+    marginBottom: getResponsiveSpacing(32), // Reduced margin to bring content closer
     shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
@@ -270,7 +271,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.primaryText,
     textAlign: 'center',
-    marginBottom: getResponsiveSpacing(24),
+    marginBottom: getResponsiveSpacing(16), // Reduced spacing
     lineHeight: getResponsiveFontSize(38),
   },
   description: {
@@ -278,7 +279,7 @@ const styles = StyleSheet.create({
     color: Colors.primaryText,
     textAlign: 'center',
     lineHeight: getResponsiveFontSize(26),
-    marginBottom: getResponsiveSpacing(48),
+    marginBottom: getResponsiveSpacing(32), // Reduced spacing
     opacity: 0.8,
   },
   benefitsContainer: {
