@@ -74,11 +74,11 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
   const skipButtonTop = Math.max(20, insets.top + 10);
   const slideTopPadding = Math.max(100, insets.top + 80);
   
-  // Dynamic bottom padding - very generous for devices with home indicator
-  // iPhone 15 Pro has ~34px bottom inset, we need substantial extra space
+  // Dynamic bottom padding - balanced for devices with home indicator
+  // iPhone 15 Pro has ~34px bottom inset
   const footerBottomPadding = insets.bottom > 0 
-    ? Math.max(70, insets.bottom + 50)  // Devices with home indicator: minimum 70px, or inset + 50px
-    : 50;                                // Devices without home indicator
+    ? Math.max(50, insets.bottom + 30)  // Devices with home indicator: minimum 50px, or inset + 30px
+    : 40;                                // Devices without home indicator
   
   // Debug logging
   console.log('📱 Safe area insets:', insets);
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.xl,
     // paddingTop is set dynamically via inline style
-    paddingBottom: 180, // Extra space for footer (pagination + button + safe area)
+    paddingBottom: 140, // Reduced padding - footer space (pagination + button + safe area)
   },
   iconContainer: {
     width: isSmallScreen ? 120 : isMediumScreen ? 140 : 160, // Responsive size
