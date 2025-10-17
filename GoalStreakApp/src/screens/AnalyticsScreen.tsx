@@ -12,7 +12,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAnalytics } from '../hooks/useAnalytics';
-import { StatsOverview, ProgressChart, InsightsCard, MotivationalMessage } from '../components/analytics';
+import { StatsOverview, ProgressChart, InsightsCard, MotivationalMessage, MilestoneCelebration } from '../components/analytics';
+import { useMilestones } from '../hooks/useMilestones';
 import { trackScreen, trackEvent, trackFeature } from '../services/enhancedAnalyticsService';
 import { useAuth } from '../hooks/useAuth';
 
@@ -34,7 +35,31 @@ export default function AnalyticsScreen() {
     error
   } = useAnalytics();
 
+  const {
+    checkCompletionMilestone,
+    checkStreakMilestone,
+    currentMilestone,
+    showCelebration,
+    closeCelebration,
+  } = useMilestones();
+
   const currentPeriodAnalytics = getCurrentPeriodAnalytics();
+
+  // Check for milestones when analytics load
+  useEffect(() => {
+    if (currentPeriodAnalytics && !isLoadingAnalytics) {
+      // Check completion milestones
+      checkCompletionMilestone(currentPeriodAnalytics.totalCompletions);
+      
+      // Check streak milestones (use longest streak from habit analytics)
+      const longestStreak = habitAnalytics.length > 0 
+        ? Math.max(...habitAnalytics.map(h => h.currentStreak))
+        : 0;
+      if (longestStreak > 0) {
+        checkStreakMilestone(longestStreak);
+      }
+    }
+  }, [currentPeriodAnalytics?.totalCompletions, habitAnalytics, isLoadingAnalytics]);
 
   // Track screen view and analytics usage
   useEffect(() => {
@@ -168,7 +193,8 @@ export default function AnalyticsScreen() {
     : 0;
 
   return (
-    <ScrollView
+    <>
+      <ScrollView
       style={styles.container}
       refreshControl={
           <RefreshControl
@@ -238,6 +264,14 @@ export default function AnalyticsScreen() {
         {/* Bottom Spacing */}
         <View style={styles.bottomSpacing} />
       </ScrollView>
+
+      {/* Milestone Celebration Modal */}
+      <MilestoneCelebration
+        visible={showCelebration}
+        milestone={currentMilestone}
+        onClose={closeCelebration}
+      />
+    </>
   );
 }
 
