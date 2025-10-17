@@ -11,7 +11,11 @@ import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 import { Colors, Typography, Spacing } from '../../constants/theme';
 
-const { width: screenWidth } = Dimensions.get('window');
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+// Responsive sizing based on screen height
+const isSmallScreen = screenHeight < 700; // iPhone SE, iPhone 15 Pro in some cases
+const isMediumScreen = screenHeight < 800; // iPhone 15 Pro, iPhone 14
 
 interface WelcomeSlide {
   id: string;
@@ -82,7 +86,11 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
         entering={FadeInUp.delay(200)}
         style={[styles.iconContainer, { backgroundColor: slide.color + '15' }]}
       >
-        <Ionicons name={slide.icon} size={80} color={slide.color} />
+        <Ionicons 
+          name={slide.icon} 
+          size={isSmallScreen ? 60 : isMediumScreen ? 70 : 80} 
+          color={slide.color} 
+        />
       </Animated.View>
 
       <Animated.View entering={FadeInUp.delay(400)} style={styles.content}>
@@ -160,7 +168,7 @@ const styles = StyleSheet.create({
   },
   skipButton: {
     position: 'absolute',
-    top: 60,
+    top: isSmallScreen ? 20 : isMediumScreen ? 40 : 60, // Responsive top position
     right: 20,
     zIndex: 1,
     paddingHorizontal: 20,
@@ -182,16 +190,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: Spacing.xl,
-    paddingTop: 100,
-    paddingBottom: 60,
+    paddingTop: isSmallScreen ? 80 : isMediumScreen ? 90 : 100, // Responsive top padding
+    paddingBottom: isSmallScreen ? 40 : 60, // Less bottom padding on small screens
   },
   iconContainer: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
+    width: isSmallScreen ? 120 : isMediumScreen ? 140 : 160, // Responsive size
+    height: isSmallScreen ? 120 : isMediumScreen ? 140 : 160,
+    borderRadius: isSmallScreen ? 60 : isMediumScreen ? 70 : 80,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Spacing['2xl'],
+    marginBottom: isSmallScreen ? Spacing.xl : Spacing['2xl'], // Less margin on small screens
     shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
@@ -205,19 +213,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   title: {
-    fontSize: 32,
+    fontSize: isSmallScreen ? 26 : isMediumScreen ? 28 : 32, // Responsive font size
     fontWeight: '700',
     color: Colors.primaryText,
     textAlign: 'center',
-    marginBottom: Spacing.lg,
-    lineHeight: 38,
+    marginBottom: isSmallScreen ? Spacing.md : Spacing.lg,
+    lineHeight: isSmallScreen ? 32 : isMediumScreen ? 34 : 38,
   },
   description: {
-    fontSize: 18,
+    fontSize: isSmallScreen ? 15 : isMediumScreen ? 16 : 18, // Responsive font size
     color: Colors.primaryText,
     textAlign: 'center',
-    lineHeight: 26,
-    marginBottom: Spacing['2xl'],
+    lineHeight: isSmallScreen ? 22 : isMediumScreen ? 24 : 26,
+    marginBottom: isSmallScreen ? Spacing.xl : Spacing['2xl'],
     opacity: 0.8,
   },
   benefitsContainer: {
