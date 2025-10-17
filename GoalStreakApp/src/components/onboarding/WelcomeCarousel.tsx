@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -16,11 +16,6 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 // Debug: Log screen dimensions
 console.log('📱 Screen dimensions:', { width: screenWidth, height: screenHeight });
-
-// Fully dynamic responsive sizing based on screen height
-// No hardcoded device-specific values - scales proportionally
-const isSmallScreen = screenHeight < 750; // Compact devices
-const isMediumScreen = screenHeight >= 750 && screenHeight < 900; // Standard devices
 
 // Calculate responsive sizes as percentages of screen dimensions
 const getResponsiveIconSize = () => {
@@ -88,19 +83,28 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
   const scrollViewRef = useRef<ScrollView>(null);
   const insets = useSafeAreaInsets();
   
-  // Fully dynamic calculations based on safe area and screen size
-  const skipButtonTop = Math.max(getResponsiveSpacing(20), insets.top + 10);
-  // Reduced top padding to maximize screen space - just enough clearance for skip button
-  const slideTopPadding = Math.max(getResponsiveSpacing(70), insets.top + getResponsiveSpacing(50));
+  // Memoized dynamic calculations based on safe area and screen size
+  const skipButtonTop = useMemo(
+    () => Math.max(getResponsiveSpacing(20), insets.top + 10),
+    [insets.top]
+  );
   
-  // Dynamic bottom padding - scales with screen height and safe area
-  const baseFooterPadding = getResponsiveSpacing(40);
-  const footerBottomPadding = insets.bottom > 0 
-    ? Math.max(baseFooterPadding, insets.bottom + getResponsiveSpacing(30))
-    : baseFooterPadding;
+  const slideTopPadding = useMemo(
+    () => Math.max(getResponsiveSpacing(70), insets.top + getResponsiveSpacing(50)),
+    [insets.top]
+  );
   
-  // Dynamic slide bottom padding - scales with screen height
-  const slideBottomPadding = getResponsiveSpacing(140);
+  const footerBottomPadding = useMemo(() => {
+    const baseFooterPadding = getResponsiveSpacing(40);
+    return insets.bottom > 0 
+      ? Math.max(baseFooterPadding, insets.bottom + getResponsiveSpacing(30))
+      : baseFooterPadding;
+  }, [insets.bottom]);
+  
+  const slideBottomPadding = useMemo(
+    () => getResponsiveSpacing(140),
+    []
+  );
   
   // Debug logging
   console.log('📱 Safe area insets:', insets);
@@ -125,7 +129,7 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
     setCurrentSlide(slideIndex);
   };
 
-  const renderSlide = (slide: WelcomeSlide) => (
+  const renderSlide = useCallback((slide: WelcomeSlide) => (
     <ScrollView 
       key={slide.id} 
       style={styles.slideScrollView}
@@ -165,7 +169,7 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
         </View>
       </Animated.View>
     </ScrollView>
-  );
+  ), [slideTopPadding, slideBottomPadding]);
 
   return (
     <View style={styles.container}>
