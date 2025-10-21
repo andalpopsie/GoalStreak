@@ -6,7 +6,7 @@ import Animated, { FadeIn, FadeOut, ZoomIn } from 'react-native-reanimated';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import { Colors, Typography, Spacing } from '../../constants/theme';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export interface Milestone {
   type: 'completion' | 'streak' | 'achievement';

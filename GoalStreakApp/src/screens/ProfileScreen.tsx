@@ -11,6 +11,7 @@ import { useOnboarding } from '../hooks/useOnboarding';
 import { photoService } from '../services/photoService';
 import { openPrivacyPolicy, openTermsOfService, openSupport } from '../utils/linkingUtils';
 import { trackScreen, trackEvent } from '../services/enhancedAnalyticsService';
+import { motivationalNotificationService } from '../services/motivationalNotificationService';
 
 export default function ProfileScreen() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -28,6 +29,7 @@ export default function ProfileScreen() {
     badge: true,
     dailyReminder: true,
     streakAlerts: true,
+    dailyMotivation: false, // New: Daily motivational notifications
   });
 
   useEffect(() => {
@@ -81,6 +83,13 @@ export default function ProfileScreen() {
     try {
       await AsyncStorage.setItem('notificationSettings', JSON.stringify(newSettings));
       setNotificationSettings(newSettings);
+      
+      // Handle daily motivation notifications
+      if (newSettings.dailyMotivation) {
+        await motivationalNotificationService.scheduleDailyNotification(9, 0); // 9:00 AM default
+      } else {
+        await motivationalNotificationService.cancelDailyNotification();
+      }
     } catch (error) {
       console.error('Error saving notification settings:', error);
     }
@@ -399,6 +408,21 @@ export default function ProfileScreen() {
                 thumbColor={Colors.white}
               />
             </View>
+            
+            <View style={styles.settingItem}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.settingLabel}>Daily Motivation</Text>
+                <Text style={styles.settingDescription}>
+                  Get an encouraging message every morning at 9:00 AM
+                </Text>
+              </View>
+              <Switch
+                value={notificationSettings.dailyMotivation}
+                onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, dailyMotivation: value })}
+                trackColor={{ false: Colors.accent3, true: Colors.primary }}
+                thumbColor={Colors.white}
+              />
+            </View>
           </ScrollView>
         </SafeAreaView>
       </Modal>
@@ -548,6 +572,11 @@ const styles = StyleSheet.create({
   settingLabel: {
     fontSize: Typography.fontSize.base,
     color: Colors.primaryText,
+  },
+  settingDescription: {
+    fontSize: Typography.fontSize.sm,
+    color: Colors.gray.dark,
+    marginTop: 4,
   },
   sectionTitle: {
     fontSize: Typography.fontSize.lg,
