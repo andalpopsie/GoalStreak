@@ -18,6 +18,7 @@ import { useHabitsWithSocial } from '../hooks/useHabitsWithSocial'; // Re-enable
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { OfflineBanner } from '../components/common';
 import { SkeletonHabitCard, AnimatedCircularHabitCard, EmptyHabitsState } from '../components/habit';
+import { MotivationalMessage } from '../components/analytics';
 import { trackScreen, trackEvent, trackFeature } from '../services/enhancedAnalyticsService';
 
 export default function CleanHomeScreen({ navigation }: any) {
@@ -68,6 +69,22 @@ export default function CleanHomeScreen({ navigation }: any) {
   }, [todayHabits]);
   
   const completedToday = uniqueHabits.filter(habit => isHabitCompletedToday(habit.id));
+  
+  // Calculate motivational message data
+  const completionRate = uniqueHabits.length > 0 
+    ? (completedToday.length / uniqueHabits.length) * 100 
+    : 0;
+  
+  const longestStreak = useMemo(() => {
+    if (uniqueHabits.length === 0) return 0;
+    return Math.max(...uniqueHabits.map(habit => {
+      const streak = getHabitStreak(habit.id);
+      return typeof streak === 'object' ? streak.currentStreak : streak;
+    }));
+  }, [uniqueHabits, getHabitStreak]);
+  
+  const totalCompletions = completedToday.length;
+  const isImproving = completionRate > 50;
 
   const handleToggleHabit = async (habitId: string) => {
     try {
@@ -191,6 +208,16 @@ export default function CleanHomeScreen({ navigation }: any) {
               {completedToday.length} of {uniqueHabits.length} habits completed today
             </Text>
           </View>
+        )}
+
+        {/* Daily Motivational Message */}
+        {uniqueHabits.length > 0 && (
+          <MotivationalMessage
+            completionRate={completionRate}
+            currentStreak={longestStreak}
+            totalCompletions={totalCompletions}
+            isImproving={isImproving}
+          />
         )}
 
         {/* Habits Grid */}

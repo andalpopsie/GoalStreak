@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAnalytics } from '../hooks/useAnalytics';
-import { StatsOverview, ProgressChart, InsightsCard, MotivationalMessage, MilestoneCelebration } from '../components/analytics';
+import { StatsOverview, ProgressChart, InsightsCard, MilestoneCelebration } from '../components/analytics';
 import { useMilestones } from '../hooks/useMilestones';
 import { trackScreen, trackEvent, trackFeature } from '../services/enhancedAnalyticsService';
 import { useAuth } from '../hooks/useAuth';
@@ -206,16 +206,6 @@ export default function AnalyticsScreen() {
         }
         showsVerticalScrollIndicator={false}
       >
-        {/* Motivational Message */}
-        {currentPeriodAnalytics && (
-          <MotivationalMessage
-            completionRate={currentPeriodAnalytics.completionRate}
-            currentStreak={longestStreak}
-            totalCompletions={currentPeriodAnalytics.totalCompletions}
-            isImproving={isImproving}
-          />
-        )}
-
         {/* Stats Overview */}
         {currentPeriodAnalytics && (
           <StatsOverview
