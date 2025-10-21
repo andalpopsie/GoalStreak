@@ -77,10 +77,17 @@ export default function CleanHomeScreen({ navigation }: any) {
   
   const longestStreak = useMemo(() => {
     if (uniqueHabits.length === 0) return 0;
-    return Math.max(...uniqueHabits.map(habit => {
+    const streaks = uniqueHabits.map(habit => {
       const streak = getHabitStreak(habit.id);
-      return typeof streak === 'object' ? streak.currentStreak : streak;
-    }));
+      // Handle null, undefined, object, or number
+      if (!streak) return 0;
+      if (typeof streak === 'object' && streak.currentStreak !== undefined) {
+        return streak.currentStreak;
+      }
+      if (typeof streak === 'number') return streak;
+      return 0;
+    });
+    return streaks.length > 0 ? Math.max(...streaks) : 0;
   }, [uniqueHabits, getHabitStreak]);
   
   const totalCompletions = completedToday.length;
