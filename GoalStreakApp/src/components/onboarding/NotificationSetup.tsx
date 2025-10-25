@@ -1,4 +1,4 @@
-// NotificationSetup Component - Onboarding notification preferences
+// NotificationSetup Component - DROPDOWN VERSION
 import React, { useState } from 'react';
 import {
   View,
@@ -6,28 +6,38 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Dimensions,
+  Switch,
+  Modal,
+  FlatList,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Colors, Typography, Spacing } from '../../constants/theme';
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 interface NotificationSetupProps {
   onComplete: (enabled: boolean, hour: number, minute: number) => void;
   onSkip: () => void;
 }
 
-// Generate time options (every 30 minutes)
-const generateTimeOptions = () => {
-  const options: { hour: number; minute: number; label: string }[] = [];
+interface TimeOption {
+  label: string;
+  hour: number;
+  minute: number;
+}
+
+const generateTimeOptions = (): TimeOption[] => {
+  const options: TimeOption[] = [];
   for (let hour = 6; hour <= 22; hour++) {
     for (let minute = 0; minute < 60; minute += 30) {
+      if (hour === 22 && minute > 0) break;
       const period = hour >= 12 ? 'PM' : 'AM';
       const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-      const label = `${displayHour}:${minute.toString().padStart(2, '0')} ${period}`;
-      options.push({ hour, minute, label });
+      const displayMinute = minute.toString().padStart(2, '0');
+      options.push({
+        label: `${displayHour}:${displayMinute} ${period}`,
+        hour,
+        minute,
+      });
     }
   }
   return options;
@@ -37,342 +47,175 @@ const TIME_OPTIONS = generateTimeOptions();
 
 export default function NotificationSetup({ onComplete, onSkip }: NotificationSetupProps) {
   const [enabled, setEnabled] = useState(true);
-  const [selectedTime, setSelectedTime] = useState(
-    TIME_OPTIONS.findIndex(t => t.hour === 9 && t.minute === 0) // Default 9:00 AM
-  );
+  const [selectedHour, setSelectedHour] = useState(9);
+  const [selectedMinute, setSelectedMinute] = useState(0);
+  const [showPicker, setShowPicker] = useState(false);
+
+  console.log('🎯 DROPDOWN VERSION LOADED!');
+
+  const getSelectedTimeLabel = () => {
+    const period = selectedHour >= 12 ? 'PM' : 'AM';
+    const displayHour = selectedHour > 12 ? selectedHour - 12 : selectedHour === 0 ? 12 : selectedHour;
+    const displayMinute = selectedMinute.toString().padStart(2, '0');
+    return `${displayHour}:${displayMinute} ${period}`;
+  };
 
   const handleContinue = () => {
-    const time = TIME_OPTIONS[selectedTime];
-    onComplete(enabled, time.hour, time.minute);
+    onComplete(enabled, selectedHour, selectedMinute);
+  };
+
+  const handleTimeSelect = (option: TimeOption) => {
+    setSelectedHour(option.hour);
+    setSelectedMinute(option.minute);
+    setShowPicker(false);
+  };
+
+  const isSelected = (option: TimeOption) => {
+    return option.hour === selectedHour && option.minute === selectedMinute;
+  };
+
+  const renderTimeOption = ({ item }: { item: TimeOption }) => {
+    const selected = isSelected(item);
+    return (
+      <TouchableOpacity
+        style={[styles.timeOption, selected && styles.timeOptionSelected]}
+        onPress={() => handleTimeSelect(item)}
+        activeOpacity={0.7}
+      >
+        <Text style={[styles.timeOptionText, selected && styles.timeOptionTextSelected]}>
+          {item.label}
+        </Text>
+        {selected && <Ionicons name="checkmark-circle" size={24} color={Colors.white} />}
+      </TouchableOpacity>
+    );
   };
 
   return (
     <View style={styles.container}>
-      {/* Skip Button */}
       <TouchableOpacity style={styles.skipButton} onPress={onSkip}>
-        <Text style={styles.skipText}>Skip</Text>
+        <Text style={styles.skipButtonText}>Skip</Text>
       </TouchableOpacity>
 
-      <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Icon */}
-        <Animated.View 
-          entering={FadeInUp.delay(200)}
-          style={[styles.iconContainer, { backgroundColor: Colors.accent1 + '20' }]}
-        >
-          <Ionicons name="notifications" size={64} color={Colors.accent1} />
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <Animated.View entering={FadeInUp.delay(100)} style={styles.header}>
+          <View style={styles.iconContainer}>
+            <Ionicons name="notifications" size={60} color={Colors.accent1} />
+          </View>
+          <Text style={styles.title}>Stay on Track (DROPDOWN)</Text>
+          <Text style={styles.subtitle}>Tap the time selector below to choose your reminder time!</Text>
         </Animated.View>
 
-        {/* Title */}
-        <Animated.Text 
-          entering={FadeInUp.delay(400)}
-          style={styles.title}
-        >
-          Stay Motivated Daily
-        </Animated.Text>
-
-        {/* Description */}
-        <Animated.Text 
-          entering={FadeInUp.delay(500)}
-          style={styles.description}
-        >
-          Get a daily motivational message to keep you inspired and on track with your habits
-        </Animated.Text>
-
-        {/* Enable/Disable Toggle */}
-        <Animated.View 
-          entering={FadeInUp.delay(600)}
-          style={styles.toggleContainer}
-        >
-          <TouchableOpacity
-            style={[
-              styles.toggleButton,
-              enabled && styles.toggleButtonActive
-            ]}
-            onPress={() => setEnabled(true)}
-          >
-            <Ionicons 
-              name="checkmark-circle" 
-              size={24} 
-              color={enabled ? Colors.white : Colors.gray.medium} 
+        <Animated.View entering={FadeInUp.delay(200)} style={styles.toggleContainer}>
+          <View style={styles.toggleRow}>
+            <View style={styles.toggleLabel}>
+              <Ionicons name={enabled ? "notifications" : "notifications-off"} size={24} color={enabled ? Colors.accent1 : Colors.gray.medium} />
+              <Text style={styles.toggleText}>Enable Daily Reminders</Text>
+            </View>
+            <Switch
+              value={enabled}
+              onValueChange={setEnabled}
+              trackColor={{ false: Colors.gray.light, true: Colors.accent1 }}
+              thumbColor={Colors.white}
+              ios_backgroundColor={Colors.gray.light}
             />
-            <Text style={[
-              styles.toggleText,
-              enabled && styles.toggleTextActive
-            ]}>
-              Yes, motivate me!
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.toggleButton,
-              !enabled && styles.toggleButtonActive
-            ]}
-            onPress={() => setEnabled(false)}
-          >
-            <Ionicons 
-              name="close-circle" 
-              size={24} 
-              color={!enabled ? Colors.white : Colors.gray.medium} 
-            />
-            <Text style={[
-              styles.toggleText,
-              !enabled && styles.toggleTextActive
-            ]}>
-              No thanks
-            </Text>
-          </TouchableOpacity>
+          </View>
         </Animated.View>
 
-        {/* Time Picker (only show if enabled) */}
         {enabled && (
-          <Animated.View 
-            entering={FadeInUp.delay(700)}
-            style={styles.timePickerContainer}
-          >
-            <Text style={styles.timePickerLabel}>Choose your reminder time:</Text>
-            
-            <ScrollView 
-              style={styles.timeScroller}
-              showsVerticalScrollIndicator={false}
-            >
-              {TIME_OPTIONS.map((time, index) => (
-                <TouchableOpacity
-                  key={`${time.hour}-${time.minute}`}
-                  style={[
-                    styles.timeOption,
-                    selectedTime === index && styles.timeOptionSelected
-                  ]}
-                  onPress={() => setSelectedTime(index)}
-                >
-                  <Text style={[
-                    styles.timeOptionText,
-                    selectedTime === index && styles.timeOptionTextSelected
-                  ]}>
-                    {time.label}
-                  </Text>
-                  {selectedTime === index && (
-                    <Ionicons name="checkmark" size={20} color={Colors.white} />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+          <Animated.View entering={FadeInUp.delay(300)} style={styles.timePickerContainer}>
+            <Text style={styles.timeLabel}>Reminder Time</Text>
+            <TouchableOpacity style={styles.timeSelector} onPress={() => setShowPicker(true)} activeOpacity={0.7}>
+              <View style={styles.timeSelectorContent}>
+                <Ionicons name="time-outline" size={24} color={Colors.accent1} />
+                <Text style={styles.timeText}>{getSelectedTimeLabel()}</Text>
+              </View>
+              <Ionicons name="chevron-down" size={24} color={Colors.gray.medium} />
+            </TouchableOpacity>
           </Animated.View>
         )}
 
-        {/* Benefits */}
-        <Animated.View 
-          entering={FadeInUp.delay(800)}
-          style={styles.benefitsContainer}
-        >
-          <View style={styles.benefitItem}>
-            <Ionicons name="time" size={20} color={Colors.accent1} />
-            <Text style={styles.benefitText}>Daily reminder at your chosen time</Text>
+        <Animated.View entering={FadeInUp.delay(400)} style={styles.benefitsContainer}>
+          <Text style={styles.benefitsTitle}>Why enable reminders?</Text>
+          <View style={styles.benefit}>
+            <Ionicons name="checkmark-circle" size={24} color={Colors.accent3} />
+            <Text style={styles.benefitText}>Never miss a day</Text>
           </View>
-          <View style={styles.benefitItem}>
-            <Ionicons name="heart" size={20} color={Colors.accent1} />
-            <Text style={styles.benefitText}>Encouraging messages to keep you going</Text>
+          <View style={styles.benefit}>
+            <Ionicons name="checkmark-circle" size={24} color={Colors.accent3} />
+            <Text style={styles.benefitText}>Build consistency</Text>
           </View>
-          <View style={styles.benefitItem}>
-            <Ionicons name="settings" size={20} color={Colors.accent1} />
-            <Text style={styles.benefitText}>Change anytime in settings</Text>
+          <View style={styles.benefit}>
+            <Ionicons name="checkmark-circle" size={24} color={Colors.accent3} />
+            <Text style={styles.benefitText}>Stay motivated</Text>
           </View>
         </Animated.View>
       </ScrollView>
 
-      {/* Continue Button */}
-      <Animated.View 
-        entering={FadeInDown.delay(900)}
-        style={styles.footer}
-      >
-        <TouchableOpacity 
-          style={styles.continueButton} 
-          onPress={handleContinue}
-        >
+      <Animated.View entering={FadeInUp.delay(500)} style={styles.footer}>
+        <TouchableOpacity style={styles.continueButton} onPress={handleContinue} activeOpacity={0.8}>
           <Text style={styles.continueButtonText}>Continue</Text>
-          <Ionicons name="arrow-forward" size={24} color={Colors.white} />
+          <Ionicons name="arrow-forward" size={22} color={Colors.white} />
         </TouchableOpacity>
       </Animated.View>
+
+      <Modal visible={showPicker} transparent={true} animationType="slide" onRequestClose={() => setShowPicker(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setShowPicker(false)}>
+          <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
+            <View style={styles.modalHeader}>
+              <TouchableOpacity onPress={() => setShowPicker(false)}>
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <Text style={styles.modalTitle}>Select Time</Text>
+              <View style={{ width: 60 }} />
+            </View>
+            <FlatList
+              data={TIME_OPTIONS}
+              renderItem={renderTimeOption}
+              keyExtractor={(item) => `${item.hour}:${item.minute}`}
+              style={styles.timeList}
+              showsVerticalScrollIndicator={true}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.white,
-  },
-  skipButton: {
-    position: 'absolute',
-    top: 60,
-    right: 20,
-    zIndex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: Colors.white + '90',
-    borderRadius: 20,
-  },
-  skipText: {
-    fontSize: Typography.fontSize.base,
-    color: Colors.primaryText,
-    fontWeight: Typography.fontWeight.medium,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  content: {
-    alignItems: 'center',
-    paddingHorizontal: Spacing.xl,
-    paddingTop: 120,
-    paddingBottom: 120,
-  },
-  iconContainer: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: Spacing.xl,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: Typography.fontWeight.bold,
-    color: Colors.primaryText,
-    textAlign: 'center',
-    marginBottom: Spacing.md,
-  },
-  description: {
-    fontSize: 18,
-    color: Colors.primaryText,
-    textAlign: 'center',
-    lineHeight: 26,
-    marginBottom: Spacing.xl,
-    opacity: 0.8,
-  },
-  toggleContainer: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-    marginBottom: Spacing.xl,
-    width: '100%',
-  },
-  toggleButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.md,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: Colors.gray.light,
-    backgroundColor: Colors.white,
-    gap: Spacing.sm,
-  },
-  toggleButtonActive: {
-    borderColor: Colors.accent1,
-    backgroundColor: Colors.accent1,
-  },
-  toggleText: {
-    fontSize: Typography.fontSize.md,
-    fontWeight: Typography.fontWeight.semibold,
-    color: Colors.gray.dark,
-  },
-  toggleTextActive: {
-    color: Colors.white,
-  },
-  timePickerContainer: {
-    width: '100%',
-    marginBottom: Spacing.xl,
-  },
-  timePickerLabel: {
-    fontSize: Typography.fontSize.md,
-    fontWeight: Typography.fontWeight.semibold,
-    color: Colors.primaryText,
-    marginBottom: Spacing.md,
-    textAlign: 'center',
-  },
-  timeScroller: {
-    maxHeight: 200,
-    backgroundColor: Colors.background,
-    borderRadius: 12,
-    padding: Spacing.sm,
-  },
-  timeOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.lg,
-    borderRadius: 8,
-    marginBottom: Spacing.xs,
-    backgroundColor: Colors.white,
-  },
-  timeOptionSelected: {
-    backgroundColor: Colors.accent1,
-  },
-  timeOptionText: {
-    fontSize: Typography.fontSize.md,
-    fontWeight: Typography.fontWeight.medium,
-    color: Colors.primaryText,
-  },
-  timeOptionTextSelected: {
-    color: Colors.white,
-    fontWeight: Typography.fontWeight.semibold,
-  },
-  benefitsContainer: {
-    width: '100%',
-    backgroundColor: Colors.background,
-    borderRadius: 12,
-    padding: Spacing.lg,
-  },
-  benefitItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.md,
-    gap: Spacing.md,
-  },
-  benefitText: {
-    flex: 1,
-    fontSize: Typography.fontSize.sm,
-    color: Colors.primaryText,
-    fontWeight: Typography.fontWeight.medium,
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingHorizontal: Spacing.xl,
-    paddingBottom: 50,
-    paddingTop: Spacing.lg,
-    alignItems: 'center',
-    backgroundColor: Colors.white,
-    borderTopWidth: 1,
-    borderTopColor: Colors.gray.light + '40',
-  },
-  continueButton: {
-    backgroundColor: Colors.accent1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Spacing['2xl'],
-    paddingVertical: Spacing.lg,
-    borderRadius: 16,
-    minWidth: 200,
-    justifyContent: 'center',
-    gap: Spacing.sm,
-    shadowColor: Colors.accent1,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  continueButtonText: {
-    fontSize: 18,
-    fontWeight: Typography.fontWeight.semibold,
-    color: Colors.white,
-  },
+  container: { flex: 1, backgroundColor: Colors.background },
+  skipButton: { position: 'absolute', top: 60, right: Spacing.lg, zIndex: 10, padding: Spacing.sm },
+  skipButtonText: { fontSize: Typography.fontSize.base, color: Colors.accent2, fontWeight: Typography.fontWeight.medium },
+  scrollView: { flex: 1 },
+  content: { paddingHorizontal: Spacing.xl, paddingTop: 120, paddingBottom: 120 },
+  header: { alignItems: 'center', marginBottom: Spacing.xl * 2 },
+  iconContainer: { width: 120, height: 120, borderRadius: 60, backgroundColor: Colors.accent1 + '20', justifyContent: 'center', alignItems: 'center', marginBottom: Spacing.xl },
+  title: { fontSize: Typography.fontSize['2xl'], fontWeight: Typography.fontWeight.bold, color: Colors.primaryText, marginBottom: Spacing.md, textAlign: 'center' },
+  subtitle: { fontSize: Typography.fontSize.base, color: Colors.gray.dark, textAlign: 'center', lineHeight: 24, paddingHorizontal: Spacing.lg },
+  toggleContainer: { backgroundColor: Colors.white, borderRadius: 16, padding: Spacing.lg, marginBottom: Spacing.xl, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 },
+  toggleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  toggleLabel: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, flex: 1 },
+  toggleText: { fontSize: Typography.fontSize.lg, fontWeight: Typography.fontWeight.semibold, color: Colors.primaryText },
+  timePickerContainer: { backgroundColor: Colors.white, borderRadius: 16, padding: Spacing.lg, marginBottom: Spacing.xl, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 },
+  timeLabel: { fontSize: Typography.fontSize.base, fontWeight: Typography.fontWeight.medium, color: Colors.gray.dark, marginBottom: Spacing.md },
+  timeSelector: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: Colors.background, borderRadius: 12, padding: Spacing.lg, borderWidth: 2, borderColor: Colors.accent1 + '40' },
+  timeSelectorContent: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
+  timeText: { fontSize: Typography.fontSize.xl, fontWeight: Typography.fontWeight.bold, color: Colors.accent1 },
+  benefitsContainer: { backgroundColor: Colors.white, borderRadius: 16, padding: Spacing.lg, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3 },
+  benefitsTitle: { fontSize: Typography.fontSize.lg, fontWeight: Typography.fontWeight.semibold, color: Colors.primaryText, marginBottom: Spacing.lg },
+  benefit: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: Spacing.md },
+  benefitText: { fontSize: Typography.fontSize.base, color: Colors.gray.dark },
+  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: Spacing.xl, backgroundColor: Colors.background, borderTopWidth: 1, borderTopColor: Colors.gray.light },
+  continueButton: { flexDirection: 'row', backgroundColor: Colors.accent1, paddingVertical: Spacing.lg, paddingHorizontal: Spacing.xl, borderRadius: 12, alignItems: 'center', justifyContent: 'center', gap: Spacing.sm, shadowColor: Colors.accent1, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 5 },
+  continueButtonText: { fontSize: Typography.fontSize.lg, fontWeight: Typography.fontWeight.bold, color: Colors.white },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.5)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: Colors.white, borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '60%' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: Spacing.lg, paddingVertical: Spacing.md, borderBottomWidth: 1, borderBottomColor: Colors.gray.light },
+  modalTitle: { fontSize: Typography.fontSize.lg, fontWeight: Typography.fontWeight.semibold, color: Colors.primaryText },
+  modalCancelText: { fontSize: Typography.fontSize.base, color: Colors.gray.dark },
+  timeList: { maxHeight: 400 },
+  timeOption: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: Spacing.lg, paddingHorizontal: Spacing.xl, borderBottomWidth: 1, borderBottomColor: Colors.gray.light },
+  timeOptionSelected: { backgroundColor: Colors.accent1 },
+  timeOptionText: { fontSize: Typography.fontSize.lg, color: Colors.primaryText, fontWeight: Typography.fontWeight.medium },
+  timeOptionTextSelected: { color: Colors.white, fontWeight: Typography.fontWeight.bold },
 });
