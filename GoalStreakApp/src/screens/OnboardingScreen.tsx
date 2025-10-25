@@ -119,7 +119,9 @@ export default function OnboardingScreen() {
 
       // Complete onboarding with selected template IDs
       const templateIds = selectedHabits.map(h => h.id);
+      console.log('✅ Habits created, calling completeHabitSuggestions with:', templateIds);
       await completeHabitSuggestions(templateIds);
+      console.log('✅ completeHabitSuggestions finished - should now be on notification_setup');
 
       // Track successful habit creation
       trackEvent('onboarding_habits_created_successfully', {
@@ -189,8 +191,13 @@ export default function OnboardingScreen() {
   };
 
   const renderCurrentStep = () => {
+    // DEBUG: Log current step
+    console.log('🎬 OnboardingScreen - Current step:', onboardingState.onboardingStep);
+    console.log('🎬 OnboardingScreen - Full state:', onboardingState);
+    
     switch (onboardingState.onboardingStep) {
       case 'welcome':
+        console.log('→ Rendering WelcomeCarousel');
         return (
           <WelcomeCarousel
             onComplete={handleWelcomeComplete}
@@ -199,6 +206,7 @@ export default function OnboardingScreen() {
         );
       
       case 'habit_suggestions':
+        console.log('→ Rendering HabitSuggestions');
         return (
           <HabitSuggestions
             onSelectHabits={handleHabitsSelected}
@@ -207,6 +215,7 @@ export default function OnboardingScreen() {
         );
       
       case 'notification_setup':
+        console.log('→ Rendering NotificationSetup');
         return (
           <NotificationSetup
             onComplete={handleNotificationSetupComplete}
@@ -215,6 +224,7 @@ export default function OnboardingScreen() {
         );
       
       default:
+        console.log('→ Default case - Rendering WelcomeCarousel');
         // This shouldn't happen, but handle it gracefully
         return (
           <WelcomeCarousel

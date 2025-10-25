@@ -142,13 +142,18 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   }, [onboardingState, user?.id]);
 
   const completeHabitSuggestions = useCallback(async (selectedTemplates: string[]) => {
+    console.log('🔄 useOnboarding - completeHabitSuggestions called');
+    console.log('🔄 Current state:', onboardingState);
+    
     const newState: OnboardingState = {
       ...onboardingState,
       selectedHabitTemplates: selectedTemplates,
       onboardingStep: 'notification_setup', // Move to notification setup instead of completed
     };
-
+    
+    console.log('🔄 New state to save:', newState);
     await saveOnboardingState(newState);
+    console.log('✅ State saved successfully');
 
     // Track habit suggestions completion and overall completion
     const completionTime = new Date().toISOString();

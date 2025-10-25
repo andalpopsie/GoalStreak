@@ -209,6 +209,42 @@ export default function ProfileScreen() {
     );
   };
 
+  const handleForceNotificationSetup = async () => {
+    Alert.alert(
+      'Force Notification Setup',
+      'This will force the app to show the notification setup screen. You must FULLY RESTART the app after this.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Force', 
+          style: 'default',
+          onPress: async () => {
+            try {
+              const testState = {
+                hasSeenWelcome: true,
+                hasCompletedOnboarding: false,
+                selectedHabitTemplates: ['test-1', 'test-2', 'test-3'],
+                onboardingStep: 'notification_setup',
+              };
+              
+              await AsyncStorage.setItem('onboarding_state', JSON.stringify(testState));
+              
+              Alert.alert(
+                'State Set',
+                'Notification setup state has been set. Please FULLY RESTART the app (close and reopen).',
+                [{ text: 'OK' }]
+              );
+              
+              console.log('✅ Forced notification_setup state:', testState);
+            } catch (error) {
+              Alert.alert('Error', 'Failed to set state. Please try again.');
+            }
+          }
+        },
+      ]
+    );
+  };
+
   const handleLogout = async () => {
     Alert.alert(
       'Sign Out',
@@ -313,6 +349,11 @@ export default function ProfileScreen() {
             <TouchableOpacity style={styles.menuItem} onPress={handleResetOnboarding}>
               <Ionicons name="refresh-outline" size={24} color={Colors.accent1} />
               <Text style={[styles.menuText, { color: Colors.accent1 }]}>Reset Onboarding</Text>
+              <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem} onPress={handleForceNotificationSetup}>
+              <Ionicons name="flask-outline" size={24} color={Colors.accent1} />
+              <Text style={[styles.menuText, { color: Colors.accent1 }]}>Force Notification Setup</Text>
               <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
             </TouchableOpacity>
           </View>
