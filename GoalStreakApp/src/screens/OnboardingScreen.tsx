@@ -7,7 +7,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../constants/theme';
-import { WelcomeCarousel, HabitSuggestions } from '../components/onboarding';
+import { WelcomeCarousel, HabitSuggestions, NotificationSetup } from '../components/onboarding';
+import { motivationalNotificationService } from '../services/motivationalNotificationService';
 import { useOnboarding } from '../hooks/useOnboarding';
 import { useAuth } from '../hooks/useAuth';
 import { trackEvent, trackScreenView } from '../services/enhancedAnalyticsService';
@@ -27,7 +28,7 @@ interface HabitTemplate {
 
 export default function OnboardingScreen() {
   const { user } = useAuth();
-  const { onboardingState, completeWelcome, completeHabitSuggestions, skipOnboarding } = useOnboarding();
+  const { onboardingState, completeWelcome, completeHabitSuggestions, completeNotificationSetup, skipOnboarding } = useOnboarding();
   const [isCreatingHabits, setIsCreatingHabits] = useState(false);
 
   useEffect(() => {
@@ -166,6 +167,27 @@ export default function OnboardingScreen() {
     }
   };
 
+  const handleNotificationSetupComplete = async (enabled: boolean, hour: number, minute: number) => {
+    try {
+      if (enabled) {
+        // Initialize notification service and schedule
+        const initialized = await motivationalNotificationService.initialize();
+        if (initialized) {
+          await motivationalNotificationService.scheduleDailyNotification(hour, minute);
+        }
+      }
+      await completeNotificationSetup();
+    } catch (error) {
+      console.error('Error setting up notifications:', error);
+      // Still complete onboarding even if notifications fail
+      await completeNotificationSetup();
+    }
+  };
+
+  const handleNotificationSetupSkip = async () => {
+    await completeNotificationSetup();
+  };
+
   const renderCurrentStep = () => {
     switch (onboardingState.onboardingStep) {
       case 'welcome':
@@ -181,6 +203,14 @@ export default function OnboardingScreen() {
           <HabitSuggestions
             onSelectHabits={handleHabitsSelected}
             onSkip={handleHabitsSkip}
+          />
+        );
+      
+      case 'notification_setup':
+        return (
+          <NotificationSetup
+            onComplete={handleNotificationSetupComplete}
+            onSkip={handleNotificationSetupSkip}
           />
         );
       

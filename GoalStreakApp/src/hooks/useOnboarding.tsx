@@ -10,7 +10,7 @@ interface OnboardingState {
   onboardingStep: OnboardingStep;
 }
 
-type OnboardingStep = 'welcome' | 'habit_suggestions' | 'completed';
+type OnboardingStep = 'welcome' | 'habit_suggestions' | 'notification_setup' | 'completed';
 
 interface OnboardingContextType {
   onboardingState: OnboardingState;
@@ -18,6 +18,7 @@ interface OnboardingContextType {
   isLoading: boolean;
   completeWelcome: () => Promise<void>;
   completeHabitSuggestions: (selectedTemplates: string[]) => Promise<void>;
+  completeNotificationSetup: () => Promise<void>;
   skipOnboarding: () => Promise<void>;
   resetOnboarding: () => Promise<void>;
 }
@@ -144,8 +145,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     const newState: OnboardingState = {
       ...onboardingState,
       selectedHabitTemplates: selectedTemplates,
-      onboardingStep: 'completed',
-      hasCompletedOnboarding: true,
+      onboardingStep: 'notification_setup', // Move to notification setup instead of completed
     };
 
     await saveOnboardingState(newState);
@@ -170,6 +170,22 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     } catch (error) {
       console.warn('Analytics tracking failed:', error);
     }
+  }, [onboardingState, user?.id]);
+
+  const completeNotificationSetup = useCallback(async () => {
+    const newState: OnboardingState = {
+      ...onboardingState,
+      onboardingStep: 'completed',
+      hasCompletedOnboarding: true,
+    };
+
+    await saveOnboardingState(newState);
+
+    // Track notification setup completion
+    trackEvent('onboarding_notification_setup_completed', {
+      user_id: user?.id,
+      completion_time: new Date().toISOString(),
+    });
   }, [onboardingState, user?.id]);
 
   const skipOnboarding = useCallback(async () => {
@@ -220,6 +236,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     isLoading,
     completeWelcome,
     completeHabitSuggestions,
+    completeNotificationSetup,
     skipOnboarding,
     resetOnboarding,
   };
