@@ -31,7 +31,13 @@ export default function OnboardingScreen() {
   const { onboardingState, completeWelcome, completeHabitSuggestions, completeNotificationSetup, skipOnboarding } = useOnboarding();
   const [isCreatingHabits, setIsCreatingHabits] = useState(false);
 
+  // DEBUG: Log when component re-renders
+  console.log('🔄 OnboardingScreen RENDER - Step:', onboardingState.onboardingStep);
+
   useEffect(() => {
+    // DEBUG: Log when step changes
+    console.log('🔄 OnboardingScreen useEffect - Step changed to:', onboardingState.onboardingStep);
+    
     // Track onboarding screen view
     trackScreenView('OnboardingScreen', {
       onboarding_step: onboardingState.onboardingStep,
@@ -58,10 +64,12 @@ export default function OnboardingScreen() {
 
   const handleWelcomeSkip = async () => {
     try {
-      await skipOnboarding();
+      // Move to habit suggestions instead of skipping everything
+      console.log('⏭️ Skipping welcome, moving to habit suggestions');
+      await completeWelcome();
     } catch (error) {
-      console.error('Error skipping onboarding:', error);
-      Alert.alert('Error', 'Failed to skip onboarding. Please try again.');
+      console.error('Error skipping welcome:', error);
+      Alert.alert('Error', 'Failed to skip welcome. Please try again.');
     }
   };
 
@@ -162,7 +170,9 @@ export default function OnboardingScreen() {
 
   const handleHabitsSkip = async () => {
     try {
-      await skipOnboarding();
+      // Don't skip entire onboarding, just move to notification setup with no habits
+      console.log('⏭️ Skipping habit suggestions, moving to notification setup');
+      await completeHabitSuggestions([]); // Empty array = no habits selected
     } catch (error) {
       console.error('Error skipping habit suggestions:', error);
       Alert.alert('Error', 'Failed to skip habit suggestions. Please try again.');
