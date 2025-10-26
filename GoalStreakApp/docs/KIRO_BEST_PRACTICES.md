@@ -1,5 +1,8 @@
 # Kiro AI Development Best Practices
 
+> **Quick Reference**: See `.kiro/steering/development-workflow.md` for the concise version used by AI.
+> This document provides detailed context and examples.
+
 ## 🔍 What Went Wrong: Post-Mortem Analysis
 
 ### The Issue
