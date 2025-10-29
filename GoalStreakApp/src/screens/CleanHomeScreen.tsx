@@ -101,17 +101,22 @@ export default function CleanHomeScreen({ navigation }: any) {
         // Track habit completion
         const currentStreak = getHabitStreak(habitId);
         trackFeature('habit_tracking', 'habit_completed', 1);
+        
+        // Safely get streak count (handle null case)
+        const streakCount = currentStreak 
+          ? (typeof currentStreak === 'object' ? currentStreak.currentStreak : currentStreak)
+          : 0;
+        
         trackEvent('habit_completed', {
           habit_id: habitId,
           habit_name: habit?.name,
           habit_category: habit?.category,
-          streak_count: currentStreak,
+          streak_count: streakCount,
           user_id: user?.id,
           completion_time: new Date().toISOString()
         });
         
         // Track streak milestones
-        const streakCount = typeof currentStreak === 'object' ? currentStreak.currentStreak : currentStreak;
         if (streakCount > 0 && [7, 30, 100, 365].includes(streakCount)) {
           trackEvent('streak_milestone_achieved', {
             habit_id: habitId,
