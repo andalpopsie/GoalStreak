@@ -245,6 +245,31 @@ export default function ProfileScreen() {
     );
   };
 
+  const handleDeleteDuplicateHabit = async () => {
+    Alert.alert(
+      'Delete Duplicate Habit',
+      'Delete the duplicate "Drink 8 glasses of water" habit (ID: p8LUJ6uqG7f0v1aufia8)?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Delete', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Import habitService
+              const { habitService } = require('../services/habitService');
+              await habitService.deleteHabit('p8LUJ6uqG7f0v1aufia8');
+              Alert.alert('Success', 'Duplicate habit deleted! You can now create a new habit.');
+            } catch (error) {
+              Alert.alert('Error', 'Failed to delete habit. Please try again.');
+              console.error('Delete error:', error);
+            }
+          }
+        },
+      ]
+    );
+  };
+
   const handleLogout = async () => {
     Alert.alert(
       'Sign Out',
@@ -354,6 +379,11 @@ export default function ProfileScreen() {
             <TouchableOpacity style={styles.menuItem} onPress={handleForceNotificationSetup}>
               <Ionicons name="flask-outline" size={24} color={Colors.accent1} />
               <Text style={[styles.menuText, { color: Colors.accent1 }]}>Force Notification Setup</Text>
+              <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem} onPress={handleDeleteDuplicateHabit}>
+              <Ionicons name="trash-outline" size={24} color={Colors.error} />
+              <Text style={[styles.menuText, { color: Colors.error }]}>Delete Duplicate Habit</Text>
               <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
             </TouchableOpacity>
           </View>
