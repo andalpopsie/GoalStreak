@@ -45,89 +45,102 @@ export const Typography = {
     medium: 'Montserrat_500Medium', 
     semibold: 'Montserrat_600SemiBold',
     bold: 'Montserrat_700Bold',
-    heavy: 'Montserrat_800ExtraBold',    // For design inspiration match
-    black: 'Montserrat_900Black',        // For design inspiration match
-    
-    // Fallbacks
+    heavy: 'Montserrat_800ExtraBold',
+    black: 'Montserrat_900Black',
     fallback: 'System',
   },
   
-  // Font Sizes
+  // Simplified Font Scale (Industry Standard - 5 sizes)
+  // Use weight and color for hierarchy, not more sizes
   fontSize: {
-    xs: 12,
-    sm: 14,
-    base: 16,
-    md: 16,              // Added for backward compatibility
-    lg: 18,
-    xl: 20,
-    '2xl': 24,
-    '3xl': 30,
-    '4xl': 36,
+    // Primary scale (use these)
+    heading: 24,      // H1 - Screen titles, primary headers
+    subheading: 20,   // H2 - Section headers, card titles
+    body: 16,         // Body - All standard readable content
+    caption: 14,      // Caption - Secondary info, labels
+    small: 12,        // Small - Disclaimers only (use sparingly)
+    
+    // Legacy support (map to new scale)
+    xs: 12,           // → small
+    sm: 14,           // → caption
+    base: 16,         // → body
+    md: 16,           // → body
+    lg: 20,           // → subheading
+    xl: 24,           // → heading
+    '2xl': 24,        // → heading
+    '3xl': 24,        // → heading (avoid, use weight instead)
+    '4xl': 24,        // → heading (avoid, use weight instead)
   },
   
-  // Typography styles for backward compatibility
+  // Typography Styles (Semantic)
   h1: {
-    fontSize: 36,
-    fontWeight: '700',
+    fontSize: 24,     // heading
+    fontWeight: '700', // bold
     lineHeight: 1.2,
   },
   h2: {
-    fontSize: 30,
-    fontWeight: '700',
-    lineHeight: 1.2,
-  },
-  h3: {
-    fontSize: 24,
-    fontWeight: '600',
-    lineHeight: 1.3,
-  },
-  h4: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 20,     // subheading
+    fontWeight: '600', // semibold
     lineHeight: 1.3,
   },
   body: {
-    fontSize: 16,
-    fontWeight: '400',
-    lineHeight: 1.4,
+    fontSize: 16,     // body
+    fontWeight: '400', // regular
+    lineHeight: 1.5,
   },
   caption: {
-    fontSize: 14,
-    fontWeight: '400',
+    fontSize: 14,     // caption
+    fontWeight: '400', // regular
     lineHeight: 1.4,
   },
+  small: {
+    fontSize: 12,     // small
+    fontWeight: '400', // regular
+    lineHeight: 1.3,
+  },
   
-  // Font Weights
+  // Font Weights (Use these for hierarchy)
   fontWeight: {
-    light: '300',
-    regular: '400',
-    medium: '500',
-    semibold: '600',
-    bold: '700',
-    heavy: '800',        // Added for design inspiration
-    black: '900',        // Added for design inspiration
+    regular: '400',   // Body text
+    medium: '500',    // Subtle emphasis
+    semibold: '600',  // Section headers
+    bold: '700',      // Primary headers, CTAs
+    heavy: '800',     // Rare, special emphasis
+    black: '900',     // Rare, hero text
   },
   
   // Line Heights
   lineHeight: {
-    tight: 1.2,
-    normal: 1.4,
-    relaxed: 1.6,
+    tight: 1.2,       // Headers
+    normal: 1.5,      // Body text (increased for readability)
+    relaxed: 1.6,     // Long-form content
   },
 } as const;
 
 export const Spacing = {
-  // Base spacing unit (4px)
-  unit: 4,
+  // 8pt Grid System (Industry Standard)
+  // All spacing should be multiples of 8px
+  unit: 8,              // Base unit
   
-  // Spacing scale
-  xs: 4,
-  sm: 8,
-  md: 16,
-  lg: 24,
-  xl: 32,
-  '2xl': 48,
-  '3xl': 64,
+  // Primary spacing scale (use these)
+  tight: 8,             // Icon-text pairs, closely related elements
+  base: 16,             // Between related content sections (most common)
+  comfortable: 24,      // Separating major content groups
+  loose: 32,            // Clear visual breaks between sections
+  spacious: 48,         // Major page sections, screen padding
+  
+  // Legacy support (map to 8pt grid)
+  xs: 8,                // → tight
+  sm: 8,                // → tight
+  md: 16,               // → base
+  lg: 24,               // → comfortable
+  xl: 32,               // → loose
+  '2xl': 48,            // → spacious
+  '3xl': 64,            // → avoid, use spacious instead
+  
+  // Screen margins (space between content and edges)
+  screenMargin: 16,     // Standard mobile margin
+  screenMarginLarge: 24, // Larger screens
 } as const;
 
 export const BorderRadius = {
@@ -164,24 +177,33 @@ export const Shadows = {
 } as const;
 
 export const Layout = {
-  // Screen padding
-  screenPadding: Spacing.md,
+  // Screen padding (8pt grid)
+  screenPadding: 16,        // Standard mobile padding
+  screenPaddingLarge: 24,   // Larger screens
   
-  // Component spacing
-  componentSpacing: Spacing.md,
+  // Component spacing (8pt grid)
+  componentSpacing: 16,     // Between components
+  sectionSpacing: 24,       // Between sections
   
-  // Header height
-  headerHeight: 60,
+  // Header height (8pt grid)
+  headerHeight: 64,         // 8 * 8
   
-  // Tab bar height
-  tabBarHeight: 80,
+  // Tab bar height (8pt grid)
+  tabBarHeight: 80,         // 8 * 10
   
-  // Button heights
+  // Button heights (8pt grid)
   buttonHeight: {
-    sm: 36,
-    md: 44,
-    lg: 52,
+    sm: 40,                 // 8 * 5
+    md: 48,                 // 8 * 6 (recommended touch target)
+    lg: 56,                 // 8 * 7
   },
+  
+  // Touch targets (minimum 44px for accessibility)
+  minTouchTarget: 48,       // 8 * 6 (iOS/Android recommendation)
+  
+  // Card padding
+  cardPadding: 16,          // Internal card padding
+  cardMargin: 16,           // Between cards
 } as const;
 
 // Theme object combining all constants
