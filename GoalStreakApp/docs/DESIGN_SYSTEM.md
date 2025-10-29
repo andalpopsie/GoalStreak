@@ -1,0 +1,321 @@
+# GoalStreak Design System
+
+## Overview
+
+GoalStreak follows industry-standard design principles with an 8pt grid system and simplified font scale for a clean, professional mobile UI.
+
+## 🎨 Typography
+
+### Simplified Font Scale (5 Sizes)
+
+Use font **weight** and **color** for hierarchy, not more sizes.
+
+| Name | Size | Usage | Weight |
+|------|------|-------|--------|
+| **Heading** | 24px | Screen titles, primary headers | Bold (700) |
+| **Subheading** | 20px | Section headers, card titles | Semibold (600) |
+| **Body** | 16px | All standard readable content | Regular (400) |
+| **Caption** | 14px | Secondary info, labels | Regular (400) |
+| **Small** | 12px | Disclaimers only (use sparingly) | Regular (400) |
+
+### Font Weights
+
+| Weight | Value | Usage |
+|--------|-------|-------|
+| Regular | 400 | Body text |
+| Medium | 500 | Subtle emphasis |
+| Semibold | 600 | Section headers |
+| Bold | 700 | Primary headers, CTAs |
+
+### Line Heights
+
+| Name | Value | Usage |
+|------|-------|-------|
+| Tight | 1.2 | Headers |
+| Normal | 1.5 | Body text (improved readability) |
+| Relaxed | 1.6 | Long-form content |
+
+### Examples
+
+```typescript
+// ✅ Good - Use weight for hierarchy
+<Text style={{ fontSize: 24, fontWeight: '700' }}>Title</Text>
+<Text style={{ fontSize: 24, fontWeight: '600' }}>Subtitle</Text>
+
+// ❌ Bad - Don't create more sizes
+<Text style={{ fontSize: 22 }}>Title</Text>
+<Text style={{ fontSize: 26 }}>Bigger Title</Text>
+```
+
+## 📏 Spacing (8pt Grid System)
+
+All spacing should be **multiples of 8px** for consistency across screen sizes.
+
+### Primary Spacing Scale
+
+| Name | Value | Usage |
+|------|-------|-------|
+| **Tight** | 8px | Icon-text pairs, closely related elements |
+| **Base** | 16px | Between related content sections (most common) |
+| **Comfortable** | 24px | Separating major content groups |
+| **Loose** | 32px | Clear visual breaks between sections |
+| **Spacious** | 48px | Major page sections, screen padding |
+
+### Screen Margins
+
+| Type | Value | Usage |
+|------|-------|-------|
+| Standard | 16px | Mobile devices (most common) |
+| Large | 24px | Tablets, larger screens |
+
+### Internal ≤ External Rule
+
+**Padding inside elements should be ≤ margin around them**
+
+```typescript
+// ✅ Good
+<View style={{ padding: 16, margin: 24 }}>  // 16 ≤ 24
+
+// ❌ Bad
+<View style={{ padding: 24, margin: 16 }}>  // 24 > 16
+```
+
+### Examples
+
+```typescript
+// ✅ Good - Use 8pt multiples
+paddingVertical: 16,    // 8 * 2
+marginBottom: 24,       // 8 * 3
+gap: 8,                 // 8 * 1
+
+// ❌ Bad - Arbitrary values
+paddingVertical: 15,
+marginBottom: 22,
+gap: 10,
+```
+
+## 🎯 Touch Targets
+
+### Minimum Sizes
+
+| Element | Minimum | Recommended |
+|---------|---------|-------------|
+| Buttons | 44px | 48-56px |
+| Icons | 44px | 48px |
+| List items | 44px | 56px |
+
+### Examples
+
+```typescript
+// ✅ Good - Proper touch targets
+button: {
+  minHeight: 56,        // 8 * 7
+  paddingVertical: 16,  // 8 * 2
+}
+
+// ❌ Bad - Too small
+button: {
+  height: 32,           // Too small for fingers
+}
+```
+
+## 🎨 Colors
+
+### Primary Palette
+
+```typescript
+primaryText: '#154D71'    // Dark blue for text
+background: '#FDFDFD'     // Light gray background
+accent1: '#B771E5'        // Purple primary accent
+accent2: '#154D71'        // Dark blue secondary
+accent3: '#4A90A4'        // Teal for completed states
+```
+
+### Usage
+
+- **Primary Text**: All body text, headers
+- **Accent1**: CTAs, primary actions, highlights
+- **Accent2**: Secondary actions, icons
+- **Accent3**: Success states, completed items
+
+## 📦 Components
+
+### Cards
+
+```typescript
+card: {
+  backgroundColor: Colors.white,
+  borderRadius: 16,           // 8 * 2
+  padding: 16,                // Base spacing
+  marginBottom: 24,           // Comfortable spacing
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 8,
+  elevation: 3,
+}
+```
+
+### Buttons
+
+```typescript
+button: {
+  paddingVertical: 16,        // 8 * 2
+  paddingHorizontal: 24,      // Comfortable
+  borderRadius: 12,
+  minHeight: 56,              // 8 * 7 (touch target)
+}
+```
+
+### Lists
+
+```typescript
+listItem: {
+  paddingVertical: 16,        // Base spacing
+  paddingHorizontal: 24,      // Comfortable
+  minHeight: 56,              // Touch target
+  borderBottomWidth: 1,
+  borderBottomColor: Colors.gray.light,
+}
+```
+
+## 📐 Layout
+
+### Screen Structure
+
+```typescript
+screen: {
+  paddingHorizontal: 16,      // Screen margin
+  paddingTop: 64,             // 8 * 8
+  paddingBottom: 120,         // 8 * 15
+}
+```
+
+### Vertical Rhythm
+
+```typescript
+// Between list items
+marginBottom: 16,             // Base
+
+// Between sections
+marginBottom: 24,             // Comfortable
+
+// Between major sections
+marginBottom: 32,             // Loose
+
+// Screen sections
+marginBottom: 48,             // Spacious
+```
+
+## ✅ Best Practices
+
+### Do's
+
+✅ Use the 5-size font scale
+✅ Use weight and color for hierarchy
+✅ Use 8pt grid for all spacing
+✅ Ensure 48px+ touch targets
+✅ Follow internal ≤ external rule
+✅ Test on actual devices
+
+### Don'ts
+
+❌ Create custom font sizes
+❌ Use arbitrary spacing values
+❌ Make touch targets < 44px
+❌ Use padding > margin
+❌ Rely on desktop preview only
+
+## 🔧 Implementation
+
+### Using the Theme
+
+```typescript
+import { Colors, Typography, Spacing } from '../constants/theme';
+
+const styles = StyleSheet.create({
+  title: {
+    fontSize: Typography.fontSize.heading,      // 24px
+    fontWeight: Typography.fontWeight.bold,     // 700
+    color: Colors.primaryText,
+    marginBottom: Spacing.tight,                // 8px
+  },
+  container: {
+    padding: Spacing.base,                      // 16px
+    gap: Spacing.tight,                         // 8px
+  },
+  button: {
+    paddingVertical: 16,                        // 8 * 2
+    paddingHorizontal: Spacing.comfortable,     // 24px
+    minHeight: 56,                              // 8 * 7
+  },
+});
+```
+
+### Inline Comments
+
+Add comments showing 8pt multiples for clarity:
+
+```typescript
+paddingTop: 96,              // 8 * 12
+marginBottom: Spacing.base,  // 16px
+minHeight: 56,               // 8 * 7 (touch target)
+```
+
+## 📱 Mobile Considerations
+
+### Breathing Room
+
+Mobile apps need **more space** than desktop:
+- Increase padding by 1.5x for mobile
+- Use 16px minimum screen margins
+- Add 48px+ between major sections
+
+### Testing
+
+Always test on actual devices:
+- What looks spacious on desktop feels cramped on 5" phone
+- Touch targets feel smaller on device
+- Text readability differs on small screens
+
+## 📊 Before & After
+
+### Before (Inconsistent)
+
+```typescript
+// Multiple font sizes
+fontSize: 18, 19, 21, 22, 23, 25
+
+// Arbitrary spacing
+padding: 15, 18, 22, 27
+
+// Small touch targets
+height: 36, 40, 42
+```
+
+### After (8pt Grid)
+
+```typescript
+// Simplified font scale
+fontSize: 12, 14, 16, 20, 24
+
+// 8pt grid spacing
+padding: 8, 16, 24, 32, 48
+
+// Proper touch targets
+minHeight: 48, 56, 64
+```
+
+## 🎯 Results
+
+- ✅ Cleaner, more professional UI
+- ✅ Better visual hierarchy
+- ✅ Easier to maintain
+- ✅ Consistent across screens
+- ✅ Better mobile usability
+- ✅ Follows industry standards
+
+---
+
+**Last Updated**: January 2025
+**Status**: ✅ Active Design System
