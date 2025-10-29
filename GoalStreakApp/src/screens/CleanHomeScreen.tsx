@@ -67,6 +67,19 @@ export default function CleanHomeScreen({ navigation }: any) {
     }, [] as typeof todayHabits);
   }, [todayHabits]);
   
+  // Debug logging to find hidden habit
+  useEffect(() => {
+    if (habits.length > 0) {
+      console.log(`📊 Habit counts: Total=${habits.length}, Daily=${todayHabits.length}, Unique=${uniqueHabits.length}`);
+      console.log(`📋 All habits:`, habits.map(h => `"${h.name}" (${h.frequency})`));
+      if (habits.length !== uniqueHabits.length) {
+        console.warn(`⚠️ Hidden habits detected! ${habits.length - uniqueHabits.length} habit(s) not showing`);
+        const hiddenHabits = habits.filter(h => !uniqueHabits.find(uh => uh.id === h.id));
+        console.log(`🔍 Hidden habits:`, hiddenHabits.map(h => `"${h.name}" (${h.frequency}, ${h.id})`));
+      }
+    }
+  }, [habits.length, todayHabits.length, uniqueHabits.length]);
+  
   const completedToday = uniqueHabits.filter(habit => isHabitCompletedToday(habit.id));
 
   const handleToggleHabit = async (habitId: string) => {
@@ -188,7 +201,10 @@ export default function CleanHomeScreen({ navigation }: any) {
         {uniqueHabits.length > 0 && (
           <View style={styles.progressSection}>
             <Text style={styles.progressText}>
-              {completedToday.length} of {uniqueHabits.length} habits completed today
+              {completedToday.length} of {uniqueHabits.length} daily habits completed today
+            </Text>
+            <Text style={styles.totalHabitsText}>
+              {habits.length} of {LIMITS.MAX_HABITS} total habits created
             </Text>
           </View>
         )}
@@ -307,6 +323,12 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.lg,
     color: Colors.primaryText,
     fontWeight: Typography.fontWeight.medium,
+  },
+  totalHabitsText: {
+    fontSize: Typography.fontSize.caption,
+    color: Colors.gray.dark,
+    fontWeight: Typography.fontWeight.regular,
+    marginTop: Spacing.tight,
   },
   habitsGrid: {
     flexDirection: 'row',
