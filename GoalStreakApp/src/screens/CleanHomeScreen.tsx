@@ -195,9 +195,6 @@ export default function CleanHomeScreen({ navigation }: any) {
             <Text style={styles.progressText}>
               {completedToday.length} of {uniqueHabits.length} daily habits completed today
             </Text>
-            <Text style={styles.totalHabitsText}>
-              {habits.length} of {LIMITS.MAX_HABITS} total habits created
-            </Text>
           </View>
         )}
 
@@ -315,12 +312,6 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.lg,
     color: Colors.primaryText,
     fontWeight: Typography.fontWeight.medium,
-  },
-  totalHabitsText: {
-    fontSize: Typography.fontSize.caption,
-    color: Colors.gray.dark,
-    fontWeight: Typography.fontWeight.regular,
-    marginTop: Spacing.tight,
   },
   habitsGrid: {
     flexDirection: 'row',
