@@ -196,17 +196,8 @@ export function useHabits(): UseHabitsReturn {
       throw new Error('User not authenticated');
     }
 
-    // Check for duplicate habit names (case-insensitive)
-    const duplicateHabit = habits.find(
-      h => h.name.toLowerCase().trim() === habitData.name.toLowerCase().trim()
-    );
-    
-    if (duplicateHabit) {
-      console.error(`❌ Duplicate habit name: "${habitData.name}" already exists`);
-      throw new Error(`A habit named "${habitData.name}" already exists. Please choose a different name.`);
-    }
-
     // Check habit limit (6 habits for initial launch)
+    // Users can have habits with same name, but total count cannot exceed limit
     console.log(`🔍 Habit limit check: Current habits = ${habits.length}, MAX = ${LIMITS.MAX_HABITS}`);
     
     if (habits.length >= LIMITS.MAX_HABITS) {
@@ -215,7 +206,7 @@ export function useHabits(): UseHabitsReturn {
       throw new Error(`You can create up to ${LIMITS.MAX_HABITS} habits. This helps you stay focused on what matters most!`);
     }
     
-    console.log(`✅ Checks passed: No duplicates, ${habits.length} < ${LIMITS.MAX_HABITS}`);
+    console.log(`✅ Limit check passed: ${habits.length} < ${LIMITS.MAX_HABITS}`);
 
 
     try {
