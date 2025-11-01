@@ -32,11 +32,9 @@ export default function OnboardingScreen() {
   const [isCreatingHabits, setIsCreatingHabits] = useState(false);
 
   // DEBUG: Log when component re-renders
-  console.log('🔄 OnboardingScreen RENDER - Step:', onboardingState.onboardingStep);
 
   useEffect(() => {
     // DEBUG: Log when step changes
-    console.log('🔄 OnboardingScreen useEffect - Step changed to:', onboardingState.onboardingStep);
     
     // Track onboarding screen view
     trackScreenView('OnboardingScreen', {
@@ -65,7 +63,6 @@ export default function OnboardingScreen() {
   const handleWelcomeSkip = async () => {
     try {
       // Move to habit suggestions instead of skipping everything
-      console.log('⏭️ Skipping welcome, moving to habit suggestions');
       await completeWelcome();
     } catch (error) {
       console.error('Error skipping welcome:', error);
@@ -127,9 +124,7 @@ export default function OnboardingScreen() {
 
       // Complete onboarding with selected template IDs
       const templateIds = selectedHabits.map(h => h.id);
-      console.log('✅ Habits created, calling completeHabitSuggestions with:', templateIds);
       await completeHabitSuggestions(templateIds);
-      console.log('✅ completeHabitSuggestions finished - should now be on notification_setup');
 
       // Track successful habit creation
       trackEvent('onboarding_habits_created_successfully', {
@@ -171,7 +166,6 @@ export default function OnboardingScreen() {
   const handleHabitsSkip = async () => {
     try {
       // Don't skip entire onboarding, just move to notification setup with no habits
-      console.log('⏭️ Skipping habit suggestions, moving to notification setup');
       await completeHabitSuggestions([]); // Empty array = no habits selected
     } catch (error) {
       console.error('Error skipping habit suggestions:', error);
@@ -202,12 +196,9 @@ export default function OnboardingScreen() {
 
   const renderCurrentStep = () => {
     // DEBUG: Log current step
-    console.log('🎬 OnboardingScreen - Current step:', onboardingState.onboardingStep);
-    console.log('🎬 OnboardingScreen - Full state:', onboardingState);
     
     switch (onboardingState.onboardingStep) {
       case 'welcome':
-        console.log('→ Rendering WelcomeCarousel');
         return (
           <WelcomeCarousel
             onComplete={handleWelcomeComplete}
@@ -216,7 +207,6 @@ export default function OnboardingScreen() {
         );
       
       case 'habit_suggestions':
-        console.log('→ Rendering HabitSuggestions');
         return (
           <HabitSuggestions
             onSelectHabits={handleHabitsSelected}
@@ -225,7 +215,6 @@ export default function OnboardingScreen() {
         );
       
       case 'notification_setup':
-        console.log('→ Rendering NotificationSetup');
         return (
           <NotificationSetup
             onComplete={handleNotificationSetupComplete}
@@ -234,7 +223,6 @@ export default function OnboardingScreen() {
         );
       
       default:
-        console.log('→ Default case - Rendering WelcomeCarousel');
         // This shouldn't happen, but handle it gracefully
         return (
           <WelcomeCarousel

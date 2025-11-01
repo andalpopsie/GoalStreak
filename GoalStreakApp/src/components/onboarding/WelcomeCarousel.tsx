@@ -14,9 +14,6 @@ import { Colors, Typography, Spacing } from '../../constants/theme';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-// Debug: Log screen dimensions
-console.log('📱 Screen dimensions:', { width: screenWidth, height: screenHeight });
-
 // Calculate responsive sizes as percentages of screen dimensions
 const getResponsiveIconSize = () => {
   // Icon size scales between 60-80px based on screen height
@@ -105,12 +102,6 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
     () => getResponsiveSpacing(140),
     []
   );
-  
-  // Debug logging
-  console.log('📱 Safe area insets:', insets);
-  console.log('📏 Footer bottom padding:', footerBottomPadding);
-  console.log('📐 Screen height:', screenHeight);
-
   const handleNext = () => {
     if (currentSlide < welcomeSlides.length - 1) {
       const nextSlide = currentSlide + 1;
