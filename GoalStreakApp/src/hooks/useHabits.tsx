@@ -197,16 +197,9 @@ export function useHabits(): UseHabitsReturn {
     }
 
     // Check habit limit (6 habits for initial launch)
-    // Users can have habits with same name, but total count cannot exceed limit
-    console.log(`🔍 Habit limit check: Current habits = ${habits.length}, MAX = ${LIMITS.MAX_HABITS}`);
-    
     if (habits.length >= LIMITS.MAX_HABITS) {
-      console.error(`❌ Limit reached: ${habits.length} >= ${LIMITS.MAX_HABITS}`);
-      console.error(`📋 All habits:`, habits.map(h => `"${h.name}" (${h.id})`).join(', '));
       throw new Error(`You can create up to ${LIMITS.MAX_HABITS} habits. This helps you stay focused on what matters most!`);
     }
-    
-    console.log(`✅ Limit check passed: ${habits.length} < ${LIMITS.MAX_HABITS}`);
 
 
     try {

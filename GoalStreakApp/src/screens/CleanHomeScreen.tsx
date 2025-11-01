@@ -67,19 +67,6 @@ export default function CleanHomeScreen({ navigation }: any) {
     }, [] as typeof todayHabits);
   }, [todayHabits]);
   
-  // Debug logging to find hidden habit
-  useEffect(() => {
-    if (habits.length > 0) {
-      console.log(`📊 Habit counts: Total=${habits.length}, Daily=${todayHabits.length}, Unique=${uniqueHabits.length}`);
-      console.log(`📋 All habits:`, habits.map(h => `"${h.name}" (${h.frequency})`));
-      if (habits.length !== uniqueHabits.length) {
-        console.warn(`⚠️ Hidden habits detected! ${habits.length - uniqueHabits.length} habit(s) not showing`);
-        const hiddenHabits = habits.filter(h => !uniqueHabits.find(uh => uh.id === h.id));
-        console.log(`🔍 Hidden habits:`, hiddenHabits.map(h => `"${h.name}" (${h.frequency}, ${h.id})`));
-      }
-    }
-  }, [habits.length, todayHabits.length, uniqueHabits.length]);
-  
   const completedToday = uniqueHabits.filter(habit => isHabitCompletedToday(habit.id));
 
   const handleToggleHabit = async (habitId: string) => {

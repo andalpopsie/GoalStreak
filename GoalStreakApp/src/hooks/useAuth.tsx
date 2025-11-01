@@ -93,7 +93,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error: any) {
-      throw new Error(error.message || 'Failed to sign in');
+      // Convert Firebase errors to user-friendly messages
+      const errorCode = error.code;
+      let userMessage = 'Failed to sign in. Please try again.';
+      
+      switch (errorCode) {
+        case 'auth/invalid-credential':
+        case 'auth/wrong-password':
+        case 'auth/user-not-found':
+          userMessage = 'Invalid email or password. Please check your credentials and try again.';
+          break;
+        case 'auth/invalid-email':
+          userMessage = 'Invalid email address. Please enter a valid email.';
+          break;
+        case 'auth/user-disabled':
+          userMessage = 'This account has been disabled. Please contact support.';
+          break;
+        case 'auth/too-many-requests':
+          userMessage = 'Too many failed attempts. Please try again later or reset your password.';
+          break;
+        case 'auth/network-request-failed':
+          userMessage = 'Network error. Please check your internet connection and try again.';
+          break;
+        default:
+          // Log technical error for debugging, but show user-friendly message
+          console.error('Sign in error:', errorCode, error.message);
+          userMessage = 'Unable to sign in. Please try again later.';
+      }
+      
+      throw new Error(userMessage);
     }
   };
 
@@ -121,7 +149,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Create user profile for social features
       await friendService.createUserProfile(firebaseUser.uid, email, displayName);
     } catch (error: any) {
-      throw new Error(error.message || 'Failed to create account');
+      // Convert Firebase errors to user-friendly messages
+      const errorCode = error.code;
+      let userMessage = 'Failed to create account. Please try again.';
+      
+      switch (errorCode) {
+        case 'auth/email-already-in-use':
+          userMessage = 'This email is already registered. Please sign in or use a different email.';
+          break;
+        case 'auth/invalid-email':
+          userMessage = 'Invalid email address. Please enter a valid email.';
+          break;
+        case 'auth/weak-password':
+          userMessage = 'Password is too weak. Please use at least 6 characters.';
+          break;
+        case 'auth/operation-not-allowed':
+          userMessage = 'Email/password accounts are not enabled. Please contact support.';
+          break;
+        case 'auth/network-request-failed':
+          userMessage = 'Network error. Please check your internet connection and try again.';
+          break;
+        default:
+          // Log technical error for debugging, but show user-friendly message
+          console.error('Sign up error:', errorCode, error.message);
+          userMessage = 'Unable to create account. Please try again later.';
+      }
+      
+      throw new Error(userMessage);
     }
   };
 
@@ -145,7 +199,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await sendPasswordResetEmail(auth, email);
     } catch (error: any) {
-      throw new Error(error.message || 'Failed to send password reset email');
+      // Convert Firebase errors to user-friendly messages
+      const errorCode = error.code;
+      let userMessage = 'Failed to send password reset email. Please try again.';
+      
+      switch (errorCode) {
+        case 'auth/invalid-email':
+          userMessage = 'Invalid email address. Please enter a valid email.';
+          break;
+        case 'auth/user-not-found':
+          userMessage = 'No account found with this email address.';
+          break;
+        case 'auth/network-request-failed':
+          userMessage = 'Network error. Please check your internet connection and try again.';
+          break;
+        default:
+          // Log technical error for debugging, but show user-friendly message
+          console.error('Password reset error:', errorCode, error.message);
+          userMessage = 'Unable to send reset email. Please try again later.';
+      }
+      
+      throw new Error(userMessage);
     }
   };
 
