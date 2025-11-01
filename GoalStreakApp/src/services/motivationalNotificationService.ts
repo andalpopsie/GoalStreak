@@ -11,47 +11,127 @@ interface NotificationSettings {
   lastScheduledDate: string;
 }
 
-// Motivational messages for notifications
+// Motivational messages for notifications - Rotates daily for variety
 const MOTIVATIONAL_MESSAGES = [
   {
-    title: '🌟 Good Morning!',
-    body: 'Today is a new opportunity to build great habits. Let\'s make it count!',
+    title: '🌅 Rise and Shine!',
+    body: 'Your future self will thank you for the habits you build today. Start now!',
   },
   {
-    title: '💪 You\'ve Got This!',
-    body: 'Small steps every day lead to big changes. Keep going!',
+    title: '💪 You\'re Unstoppable!',
+    body: 'Every small action compounds into extraordinary results. Take the first step!',
   },
   {
-    title: '🔥 Stay Consistent!',
-    body: 'Your habits are shaping your future. Make today count!',
+    title: '🔥 Ignite Your Day!',
+    body: 'Champions are built one habit at a time. Show up and make it happen!',
   },
   {
-    title: '⭐ Believe in Yourself!',
-    body: 'You\'re capable of amazing things. Start with one habit today!',
+    title: '⚡ Power Up Your Morning!',
+    body: 'The best time to start was yesterday. The next best time is right now!',
   },
   {
-    title: '🎯 Focus on Progress!',
-    body: 'Every completion brings you closer to your goals. You\'re doing great!',
+    title: '🎯 Hit Your Targets!',
+    body: 'Success is the sum of small efforts repeated daily. You\'ve got this!',
   },
   {
-    title: '🚀 Keep Moving Forward!',
-    body: 'Consistency beats perfection. Just show up today!',
+    title: '🚀 Launch Into Action!',
+    body: 'Don\'t wait for motivation—create momentum with one habit at a time!',
   },
   {
-    title: '💚 Take Care of Yourself!',
-    body: 'Your habits are investments in your future self. Keep it up!',
+    title: '💎 Build Your Best Self!',
+    body: 'Your habits are sculpting your future. Make today\'s choices count!',
   },
   {
-    title: '🌈 Make Today Great!',
-    body: 'Your daily habits are building the life you want. Let\'s go!',
+    title: '🌟 Shine Bright Today!',
+    body: 'Greatness is built in the daily grind. Check off your habits and level up!',
   },
   {
-    title: '✨ You\'re Making Progress!',
-    body: 'Every day you show up is a win. Keep building those habits!',
+    title: '⭐ Own Your Day!',
+    body: 'Small wins create big victories. Start with one habit and dominate!',
   },
   {
-    title: '🎊 Celebrate Small Wins!',
-    body: 'Each habit completed is a step forward. You\'re doing amazing!',
+    title: '🎊 Make Magic Happen!',
+    body: 'Your consistency is your superpower. Use it to transform your life today!',
+  },
+  {
+    title: '🏆 Chase Excellence!',
+    body: 'Winners don\'t wait—they act. Complete your habits and claim your day!',
+  },
+  {
+    title: '🌈 Create Your Rainbow!',
+    body: 'Every habit is a color in your masterpiece. Paint your day with purpose!',
+  },
+  {
+    title: '💫 Spark Your Potential!',
+    body: 'You\'re one habit away from a breakthrough. Take action now!',
+  },
+  {
+    title: '🔆 Radiate Positivity!',
+    body: 'Your habits shape your destiny. Choose wisely and act boldly today!',
+  },
+  {
+    title: '🎪 Perform at Your Peak!',
+    body: 'Excellence is a habit, not an act. Show the world what you\'re made of!',
+  },
+  {
+    title: '🌺 Bloom Where You Are!',
+    body: 'Growth happens in the daily routine. Water your habits and watch yourself flourish!',
+  },
+  {
+    title: '⚔️ Conquer Your Goals!',
+    body: 'Warriors win battles one day at a time. Suit up and complete your habits!',
+  },
+  {
+    title: '🎨 Paint Your Success!',
+    body: 'Your life is your canvas. Each habit is a brushstroke toward your masterpiece!',
+  },
+  {
+    title: '🌊 Ride the Wave!',
+    body: 'Momentum builds with consistency. Catch the wave and keep your streak alive!',
+  },
+  {
+    title: '🎭 Be Your Best Character!',
+    body: 'You\'re the author of your story. Write today\'s chapter with powerful habits!',
+  },
+  {
+    title: '🦅 Soar Higher Today!',
+    body: 'Eagles don\'t fly with sparrows. Elevate your game with your habits!',
+  },
+  {
+    title: '🌙 Dream Big, Act Now!',
+    body: 'Your dreams need daily action. Turn aspirations into achievements today!',
+  },
+  {
+    title: '🎯 Lock In and Execute!',
+    body: 'Focus + Action = Results. Complete your habits and win the day!',
+  },
+  {
+    title: '🔱 Unleash Your Power!',
+    body: 'You have everything you need to succeed. Start with one habit right now!',
+  },
+  {
+    title: '🌻 Grow Stronger Daily!',
+    body: 'Like a seed becoming a tree, your habits are growing your future. Keep going!',
+  },
+  {
+    title: '⚡ Electrify Your Routine!',
+    body: 'Ordinary days + Extraordinary habits = Exceptional life. Make it happen!',
+  },
+  {
+    title: '🎪 Step Into Greatness!',
+    body: 'The spotlight is on you. Perform your habits and take center stage!',
+  },
+  {
+    title: '🌠 Reach for the Stars!',
+    body: 'Your potential is limitless. Start with today\'s habits and aim higher!',
+  },
+  {
+    title: '🏅 Earn Your Victory!',
+    body: 'Champions are made in the morning routine. Complete your habits and win!',
+  },
+  {
+    title: '🎁 Gift Yourself Success!',
+    body: 'The best investment is in yourself. Complete your habits and reap the rewards!',
   },
 ];
 
@@ -111,8 +191,10 @@ export const motivationalNotificationService = {
       // Cancel existing notifications first
       await this.cancelDailyNotification();
 
-      // Get a random motivational message
-      const message = MOTIVATIONAL_MESSAGES[Math.floor(Math.random() * MOTIVATIONAL_MESSAGES.length)];
+      // Get message based on day of year for daily rotation
+      const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
+      const messageIndex = dayOfYear % MOTIVATIONAL_MESSAGES.length;
+      const message = MOTIVATIONAL_MESSAGES[messageIndex];
 
       // Schedule notification
       const notificationId = await Notifications.scheduleNotificationAsync({
