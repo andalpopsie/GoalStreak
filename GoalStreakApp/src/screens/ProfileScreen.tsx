@@ -7,7 +7,6 @@ import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
-import { useOnboarding } from '../hooks/useOnboarding';
 import { photoService } from '../services/photoService';
 import { openPrivacyPolicy, openTermsOfService, openSupport } from '../utils/linkingUtils';
 import { trackScreen, trackEvent } from '../services/enhancedAnalyticsService';
@@ -15,7 +14,6 @@ import { motivationalNotificationService } from '../services/motivationalNotific
 
 export default function ProfileScreen() {
   const { user, isAuthenticated, logout } = useAuth();
-  const { resetOnboarding } = useOnboarding();
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
@@ -183,93 +181,6 @@ export default function ProfileScreen() {
     }
   };
 
-  const handleResetOnboarding = async () => {
-    Alert.alert(
-      'Reset Onboarding',
-      'This will reset your onboarding state and show the welcome flow again. This is for testing purposes only.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Reset', 
-          style: 'default',
-          onPress: async () => {
-            try {
-              await resetOnboarding();
-              Alert.alert(
-                'Onboarding Reset',
-                'Onboarding has been reset. Please restart the app to see the welcome flow.',
-                [{ text: 'OK' }]
-              );
-            } catch (error) {
-              Alert.alert('Error', 'Failed to reset onboarding. Please try again.');
-            }
-          }
-        },
-      ]
-    );
-  };
-
-  const handleForceNotificationSetup = async () => {
-    Alert.alert(
-      'Force Notification Setup',
-      'This will force the app to show the notification setup screen. You must FULLY RESTART the app after this.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Force', 
-          style: 'default',
-          onPress: async () => {
-            try {
-              const testState = {
-                hasSeenWelcome: true,
-                hasCompletedOnboarding: false,
-                selectedHabitTemplates: ['test-1', 'test-2', 'test-3'],
-                onboardingStep: 'notification_setup',
-              };
-              
-              await AsyncStorage.setItem('onboarding_state', JSON.stringify(testState));
-              
-              Alert.alert(
-                'State Set',
-                'Notification setup state has been set. Please FULLY RESTART the app (close and reopen).',
-                [{ text: 'OK' }]
-              );
-              
-              console.log('✅ Forced notification_setup state:', testState);
-            } catch (error) {
-              Alert.alert('Error', 'Failed to set state. Please try again.');
-            }
-          }
-        },
-      ]
-    );
-  };
-
-  const handleDeleteDuplicateHabit = async () => {
-    Alert.alert(
-      'Delete Duplicate Habit',
-      'Delete the duplicate "Drink 8 glasses of water" habit (ID: p8LUJ6uqG7f0v1aufia8)?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Delete', 
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              // Import habitService
-              const { habitService } = require('../services/habitService');
-              await habitService.deleteHabit('p8LUJ6uqG7f0v1aufia8');
-              Alert.alert('Success', 'Duplicate habit deleted! You can now create a new habit.');
-            } catch (error) {
-              Alert.alert('Error', 'Failed to delete habit. Please try again.');
-              console.error('Delete error:', error);
-            }
-          }
-        },
-      ]
-    );
-  };
-
   const handleLogout = async () => {
     Alert.alert(
       'Sign Out',
@@ -366,28 +277,6 @@ export default function ProfileScreen() {
             <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
           </TouchableOpacity>
         </View>
-
-        {/* Testing Section - Only show in development */}
-        {__DEV__ && (
-          <View style={styles.menuSection}>
-            <Text style={styles.sectionTitle}>Testing & Development</Text>
-            <TouchableOpacity style={styles.menuItem} onPress={handleResetOnboarding}>
-              <Ionicons name="refresh-outline" size={24} color={Colors.accent1} />
-              <Text style={[styles.menuText, { color: Colors.accent1 }]}>Reset Onboarding</Text>
-              <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} onPress={handleForceNotificationSetup}>
-              <Ionicons name="flask-outline" size={24} color={Colors.accent1} />
-              <Text style={[styles.menuText, { color: Colors.accent1 }]}>Force Notification Setup</Text>
-              <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.menuItem} onPress={handleDeleteDuplicateHabit}>
-              <Ionicons name="trash-outline" size={24} color={Colors.error} />
-              <Text style={[styles.menuText, { color: Colors.error }]}>Delete Duplicate Habit</Text>
-              <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
-            </TouchableOpacity>
-          </View>
-        )}
 
         <View style={styles.menuSection}>
           <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
@@ -648,13 +537,5 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.sm,
     color: Colors.gray.dark,
     marginTop: 4,
-  },
-  sectionTitle: {
-    fontSize: Typography.fontSize.lg,
-    fontWeight: Typography.fontWeight.semibold,
-    color: Colors.primaryText,
-    marginBottom: Spacing.md,
-    marginTop: Spacing.lg,
-    marginHorizontal: Spacing.lg,
   },
 });
