@@ -133,6 +133,86 @@ const MOTIVATIONAL_MESSAGES = [
     title: '🎁 Gift Yourself Success!',
     body: 'The best investment is in yourself. Complete your habits and reap the rewards!',
   },
+  {
+    title: '🌋 Erupt With Energy!',
+    body: 'Your potential is volcanic. Let your habits be the force that changes everything!',
+  },
+  {
+    title: '🎬 Action! Take One!',
+    body: 'Life is happening now. Direct your day with intention and complete your habits!',
+  },
+  {
+    title: '🔮 Shape Your Future!',
+    body: 'Today\'s habits are tomorrow\'s reality. Create the future you want right now!',
+  },
+  {
+    title: '🎸 Rock Your Routine!',
+    body: 'Legends are made in the practice room. Tune up your habits and perform!',
+  },
+  {
+    title: '🌪️ Create Your Storm!',
+    body: 'Be the force of nature in your own life. Unleash your habits and dominate!',
+  },
+  {
+    title: '🎓 Master Your Craft!',
+    body: 'Mastery is built through daily practice. Study your habits and graduate to greatness!',
+  },
+  {
+    title: '🏔️ Climb Your Mountain!',
+    body: 'Every peak is reached one step at a time. Take today\'s step with your habits!',
+  },
+  {
+    title: '🎤 Speak Your Success!',
+    body: 'Your actions speak louder than words. Let your habits do the talking today!',
+  },
+  {
+    title: '🌍 Change Your World!',
+    body: 'World-changers start with self-change. Transform yourself through your habits!',
+  },
+  {
+    title: '🎮 Level Up Your Life!',
+    body: 'You\'re the player, life is the game. Complete your habits and unlock new levels!',
+  },
+  {
+    title: '🔬 Experiment With Excellence!',
+    body: 'Success is a science. Test your limits and prove your potential with habits!',
+  },
+  {
+    title: '🎺 Sound Your Victory!',
+    body: 'Champions announce themselves through action. Trumpet your habits today!',
+  },
+  {
+    title: '🌿 Cultivate Greatness!',
+    body: 'You\'re the gardener of your life. Plant habits today, harvest success tomorrow!',
+  },
+  {
+    title: '🎯 Bullseye Your Goals!',
+    body: 'Precision comes from practice. Aim true and hit your habit targets today!',
+  },
+  {
+    title: '🔥 Fuel Your Fire!',
+    body: 'Your passion needs action to burn bright. Feed the flames with your habits!',
+  },
+  {
+    title: '🎪 Center Stage Awaits!',
+    body: 'The world is watching. Give them a show with your incredible habits today!',
+  },
+  {
+    title: '🌌 Explore Your Universe!',
+    body: 'Your potential is infinite. Navigate toward greatness with your daily habits!',
+  },
+  {
+    title: '🎵 Compose Your Symphony!',
+    body: 'Life is music, habits are the notes. Create your masterpiece one day at a time!',
+  },
+  {
+    title: '⚡ Charge Your Battery!',
+    body: 'Energy comes from action, not rest. Power up with your habits and stay charged!',
+  },
+  {
+    title: '🎯 Strike While Hot!',
+    body: 'Opportunity favors the prepared. Forge your future with red-hot habits today!',
+  },
 ];
 
 // Configure notification handler
