@@ -1,16 +1,14 @@
 {
   "expo": {
-    "name": "GoalStreak",
-    "slug": "goalstreak",
+    "name": "Goalfer",
+    "slug": "goalfer",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "sdkVersion": "54.0.0",
-    "description": "Transform your life with GoalStreak - the social habit tracker that helps you build lasting routines through accountability, motivation, and community support.",
-    "keywords": ["habit tracker", "habits", "goals", "productivity", "streaks", "motivation", "social accountability", "friends", "wellness", "fitness", "mindfulness", "routine", "progress", "self improvement"],
-    "privacy": "public",
+    "description": "Transform your life with Goalfer - the social habit tracker that helps you build lasting routines through accountability, motivation, and community support.",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -19,26 +17,25 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.goalstreak.app",
-      "buildNumber": "1",
+      "buildNumber": "5",
       "config": {
         "usesNonExemptEncryption": false
       },
       "infoPlist": {
-        "NSUserTrackingUsageDescription": "GoalStreak uses analytics to improve your experience, provide personalized habit insights, and help us understand how to make the app better for building lasting habits. This data helps us optimize features like streak tracking, social accountability, and progress analytics. You can opt out anytime in Settings.",
-        "NSCameraUsageDescription": "GoalStreak requests camera access to let you take profile pictures that personalize your experience and help friends recognize you in the social features. Camera access is completely optional and only used when you choose to update your profile picture.",
-        "NSPhotoLibraryUsageDescription": "GoalStreak requests photo library access to let you choose existing photos for your profile picture. This helps personalize your experience and makes it easier for friends to recognize you in social features. Photo access is completely optional and only used when you choose to update your profile picture.",
-        "NSLocationWhenInUseUsageDescription": "GoalStreak can use your location to provide location-based habit reminders and suggestions, helping you stay consistent with location-specific habits like 'exercise at the gym' or 'meditate in the park'. Location access is completely optional and can be disabled anytime in Settings.",
-        "NSContactsUsageDescription": "GoalStreak can access your contacts to help you easily find and connect with friends who also use the app for mutual accountability and motivation. Contact access is completely optional and only used when you choose to find friends.",
-        "NSMicrophoneUsageDescription": "GoalStreak may request microphone access for future features like voice notes or audio reminders. Microphone access is completely optional and will only be used with your explicit permission.",
-        "NSCalendarsUsageDescription": "GoalStreak can access your calendar to help schedule habit reminders and integrate with your existing routine. Calendar access is completely optional and helps optimize your habit timing.",
-        "NSRemindersUsageDescription": "GoalStreak can access your reminders to help integrate habit tracking with your existing reminder system. This access is completely optional and helps consolidate your productivity tools.",
-        "NSFaceIDUsageDescription": "GoalStreak can use Face ID or Touch ID to securely and conveniently log you into your account, protecting your habit data and progress. Biometric authentication is optional and can be disabled in Settings.",
+        "NSUserTrackingUsageDescription": "Goalfer uses analytics to improve your experience, provide personalized habit insights, and help us understand how to make the app better for building lasting habits. This data helps us optimize features like streak tracking, social accountability, and progress analytics. You can opt out anytime in Settings.",
+        "NSCameraUsageDescription": "Goalfer requests camera access to let you take profile pictures that personalize your experience and help friends recognize you in the social features. Camera access is completely optional and only used when you choose to update your profile picture.",
+        "NSPhotoLibraryUsageDescription": "Goalfer requests photo library access to let you choose existing photos for your profile picture. This helps personalize your experience and makes it easier for friends to recognize you in social features. Photo access is completely optional and only used when you choose to update your profile picture.",
+        "NSLocationWhenInUseUsageDescription": "Goalfer can use your location to provide location-based habit reminders and suggestions, helping you stay consistent with location-specific habits like 'exercise at the gym' or 'meditate in the park'. Location access is completely optional and can be disabled anytime in Settings.",
+        "NSContactsUsageDescription": "Goalfer can access your contacts to help you easily find and connect with friends who also use the app for mutual accountability and motivation. Contact access is completely optional and only used when you choose to find friends.",
+        "NSMicrophoneUsageDescription": "Goalfer may request microphone access for future features like voice notes or audio reminders. Microphone access is completely optional and will only be used with your explicit permission.",
+        "NSCalendarsUsageDescription": "Goalfer can access your calendar to help schedule habit reminders and integrate with your existing routine. Calendar access is completely optional and helps optimize your habit timing.",
+        "NSRemindersUsageDescription": "Goalfer can access your reminders to help integrate habit tracking with your existing reminder system. This access is completely optional and helps consolidate your productivity tools.",
+        "NSFaceIDUsageDescription": "Goalfer can use Face ID or Touch ID to securely and conveniently log you into your account, protecting your habit data and progress. Biometric authentication is optional and can be disabled in Settings.",
         "ITSAppUsesNonExemptEncryption": false,
-        "CFBundleDisplayName": "GoalStreak",
-        "CFBundleName": "GoalStreak"
+        "CFBundleDisplayName": "Goalfer",
+        "CFBundleName": "Goalfer"
       },
-      "appStoreUrl": "https://apps.apple.com/app/goalstreak/id[APP_ID]",
-      "category": "Health & Fitness"
+      "appStoreUrl": "https://apps.apple.com/app/goalfer/id6754788637"
     },
     "android": {
       "adaptiveIcon": {
@@ -64,14 +61,12 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "your-project-id-here"
+        "projectId": "e30ab03a-583e-46e7-a9f7-ca993ff4e37f"
       }
-    },
-    "updates": {
-      "url": "https://u.expo.dev/your-project-id-here"
     },
     "runtimeVersion": {
       "policy": "sdkVersion"
-    }
+    },
+    "owner": "andalpopsie"
   }
 }
