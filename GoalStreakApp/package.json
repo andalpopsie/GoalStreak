@@ -45,6 +45,7 @@
     "ios:full-deployment": "npm run ios:validate && npm run ios:configure-app-store && npm run ios:build-and-submit",
     "increment-build": "node scripts/increment-build.js",
     "sync-build-number": "node scripts/sync-build-number.js",
+    "sync-app-icon": "node scripts/sync-app-icon.js",
     "cleanup:storage": "node scripts/cleanup-storage.js",
     "cleanup:directory": "node scripts/cleanup-and-organize-directory.js",
     "cleanup:all": "npm run cleanup:directory && npm run lint --fix"
