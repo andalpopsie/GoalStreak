@@ -1,6 +1,8 @@
 {
   "cli": {
-    "version": ">= 5.0.0"
+    "version": ">= 5.0.0",
+    "appVersionSource": "local",
+    "promptToConfigurePushNotifications": false
   },
   "build": {
     "development": {
@@ -25,6 +27,9 @@
       "extends": "production",
       "ios": {
         "resourceClass": "m-medium"
+      },
+      "cache": {
+        "disabled": true
       }
     },
     "production-android": {
@@ -37,9 +42,9 @@
   "submit": {
     "production": {
       "ios": {
-        "appleId": "[APPLE_ID_EMAIL]",
-        "ascAppId": "[APP_STORE_CONNECT_APP_ID]",
-        "appleTeamId": "[APPLE_DEVELOPER_TEAM_ID]"
+        "appleId": "popsie_09@yahoo.com",
+        "ascAppId": "6754788637",
+        "appleTeamId": "NX988Z5GUA"
       },
       "android": {
         "serviceAccountKeyPath": "./google-service-account.json",

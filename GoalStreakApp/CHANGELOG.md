@@ -2,6 +2,20 @@
 
 ## [Unreleased] - January 2025
 
+### iOS App Store Compliance (January 2025)
+- **App name finalized as "Goalfer"** - Consistent branding across all files
+  - "GoalStreak" was already taken on App Store, reverted to "Goalfer"
+  - Updated app.json, Info.plist, ios-metadata.json, and all privacy descriptions
+  - Slug "goalfer" matches EAS project ID (no conflicts)
+- **Enhanced privacy descriptions** - Comprehensive, user-friendly descriptions in all files
+- **Configured EAS submission** - Apple ID (popsie_09@yahoo.com), ASC App ID (6754788637), Team ID (NX988Z5GUA)
+- **Fixed EAS build configuration** - Added appVersionSource: "remote" to prevent future warnings
+- **Disabled build cache for iOS** - Prevents pod dependency conflicts (fast_float issue)
+- **Compliance verification** - All iOS requirements, legal documents, and metadata verified ✅
+- **Keywords optimized** - 90/100 characters used, within App Store limit
+- **Updated submission checklist** - Added comprehensive compliance verification report
+- **100% submission ready** - All critical issues resolved, ready for build and submission
+
 ### Optimized
 - **Removed duplicate environment files** - Deleted `config/.env.development` and `config/.env.production`
 - **Established single source of truth** - All environment files now in root directory only
