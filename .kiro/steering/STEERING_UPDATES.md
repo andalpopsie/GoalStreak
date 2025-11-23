@@ -1,3 +1,7 @@
+---
+inclusion: on-demand
+---
+
 # Steering Documents Update Log
 
 ## Updates Made (January 2025)

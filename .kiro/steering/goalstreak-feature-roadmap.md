@@ -1,3 +1,7 @@
+---
+inclusion: on-demand
+---
+
 # GoalStreak Feature Roadmap
 
 ## Roadmap Overview

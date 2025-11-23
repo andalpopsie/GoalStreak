@@ -1,3 +1,7 @@
+---
+inclusion: on-demand
+---
+
 # GoalStreak Development Standards & Guidelines
 
 ## Project Overview

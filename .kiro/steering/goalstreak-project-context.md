@@ -1,3 +1,7 @@
+---
+inclusion: on-demand
+---
+
 # GoalStreak Project Context & Architecture
 
 ## Current Project State (January 2025)

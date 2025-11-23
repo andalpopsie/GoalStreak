@@ -1,3 +1,7 @@
+---
+inclusion: on-demand
+---
+
 # GoalStreak Deployment Guide
 
 ## Deployment Overview
