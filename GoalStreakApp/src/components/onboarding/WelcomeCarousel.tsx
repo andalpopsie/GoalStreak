@@ -99,7 +99,7 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
   }, [insets.bottom]);
   
   const slideBottomPadding = useMemo(
-    () => getResponsiveSpacing(140),
+    () => getResponsiveSpacing(180), // Increased from 140 to 180 for more space
     []
   );
   const handleNext = () => {
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing.lg,
+    paddingTop: Spacing.md, // Reduced from lg to md
     // paddingBottom is set dynamically via inline style
     alignItems: 'center',
     backgroundColor: Colors.white,
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
   },
   pagination: {
     flexDirection: 'row',
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.md, // Reduced from xl to md
   },
   paginationDot: {
     width: 10,
