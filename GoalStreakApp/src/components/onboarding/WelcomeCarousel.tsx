@@ -92,14 +92,14 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
   );
   
   const footerBottomPadding = useMemo(() => {
-    const baseFooterPadding = getResponsiveSpacing(40);
+    const baseFooterPadding = getResponsiveSpacing(24);
     return insets.bottom > 0 
-      ? Math.max(baseFooterPadding, insets.bottom + getResponsiveSpacing(30))
+      ? Math.max(baseFooterPadding, insets.bottom + getResponsiveSpacing(16))
       : baseFooterPadding;
   }, [insets.bottom]);
   
   const slideBottomPadding = useMemo(
-    () => getResponsiveSpacing(180), // Increased from 140 to 180 for more space
+    () => getResponsiveSpacing(200), // Increased to ensure content clears footer
     []
   );
   const handleNext = () => {
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing.md, // Reduced from lg to md
+    paddingTop: Spacing.sm,
     // paddingBottom is set dynamically via inline style
     alignItems: 'center',
     backgroundColor: Colors.white,
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
   },
   pagination: {
     flexDirection: 'row',
-    marginBottom: Spacing.md, // Reduced from xl to md
+    marginBottom: Spacing.sm,
   },
   paginationDot: {
     width: 10,
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing['2xl'],
-    paddingVertical: Spacing.lg,
+    paddingVertical: Spacing.md,
     borderRadius: 16,
     minWidth: 160,
     justifyContent: 'center',

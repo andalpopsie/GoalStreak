@@ -7,6 +7,7 @@ import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
+import { useOnboarding } from '../hooks/useOnboarding';
 import { photoService } from '../services/photoService';
 import { openPrivacyPolicy, openTermsOfService, openSupport } from '../utils/linkingUtils';
 import { trackScreen, trackEvent } from '../services/enhancedAnalyticsService';
@@ -14,6 +15,7 @@ import { motivationalNotificationService } from '../services/motivationalNotific
 
 export default function ProfileScreen() {
   const { user, isAuthenticated, logout } = useAuth();
+  const { resetOnboarding } = useOnboarding();
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
@@ -211,6 +213,30 @@ export default function ProfileScreen() {
     );
   };
 
+  // TEMPORARY: Reset onboarding for testing
+  const handleResetOnboarding = async () => {
+    Alert.alert(
+      'Reset Onboarding',
+      'This will reset your onboarding progress. Restart the app to see the welcome carousel again.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await resetOnboarding();
+              Alert.alert('Success', 'Onboarding reset! Restart the app to see the welcome carousel.');
+            } catch (error) {
+              console.error('Error resetting onboarding:', error);
+              Alert.alert('Error', 'Failed to reset onboarding.');
+            }
+          }
+        }
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
@@ -279,6 +305,12 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.menuSection}>
+          {/* TEMPORARY: Reset Onboarding Button for Testing */}
+          <TouchableOpacity style={styles.menuItem} onPress={handleResetOnboarding}>
+            <Ionicons name="refresh-outline" size={24} color={Colors.accent2} />
+            <Text style={[styles.menuText, { color: Colors.accent2 }]}>🔄 Reset Onboarding (Test)</Text>
+          </TouchableOpacity>
+          
           <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
             <Ionicons name="log-out-outline" size={24} color={Colors.error} />
             <Text style={[styles.menuText, { color: Colors.error }]}>Sign Out</Text>
