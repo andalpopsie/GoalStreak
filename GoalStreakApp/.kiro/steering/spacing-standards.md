@@ -1,4 +1,8 @@
-# Mobile Spacing & Layout Standards
+---
+inclusion: always
+---
+
+# Spacing Standards
 
 ## Base Grid System
 **4px base unit** → Use multiples: 8, 16, 24, 32

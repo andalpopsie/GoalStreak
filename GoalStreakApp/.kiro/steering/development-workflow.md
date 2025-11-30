@@ -1,6 +1,10 @@
-# GoalStreak Development Workflow
+---
+inclusion: always
+---
 
-## Critical Rules for AI Development
+# Development Workflow
+
+## Critical Rules
 
 ### 1. Verify Every File Change
 ```bash
