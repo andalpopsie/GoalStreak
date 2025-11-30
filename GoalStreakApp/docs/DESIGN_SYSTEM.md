@@ -113,30 +113,186 @@ gap: 10,
 
 > 📖 **Detailed Guide**: See `.kiro/steering/spacing-standards.md` for comprehensive spacing patterns and examples
 
-## 🎯 Touch Targets
+## 🎯 Touch Targets & Fitts's Law
 
-### Minimum Sizes
+### Fitts's Law Principle
+**"The bigger and closer a button is, the easier and faster it is to tap."**
 
-| Element | Minimum | Recommended |
-|---------|---------|-------------|
-| Buttons | 44px | 48-56px |
-| Icons | 44px | 48px |
-| List items | 44px | 56px |
+Fitts's Law states that the time to acquire a target is a function of:
+- **Size**: Larger targets are easier to hit
+- **Distance**: Closer targets are faster to reach
 
-### Examples
+**Impact on UX:**
+- Small or distant buttons → Harder to use → User frustration → App abandonment
+- Large, well-placed buttons → Faster interaction → Smoother experience → Higher engagement
 
+### Touch Target Sizes
+
+| Element | Minimum | Recommended | Optimal |
+|---------|---------|-------------|---------|
+| Primary Buttons | 48px | 56px | 64px |
+| Secondary Buttons | 44px | 48px | 56px |
+| Icons (standalone) | 44px | 48px | 56px |
+| Icons with labels | 40px icon | 48px total | 56px total |
+| List items | 48px | 56px | 64px |
+| Tab bar items | 48px | 56px | 64px |
+
+### Fitts's Law Best Practices
+
+#### 1. Make Buttons Large
 ```typescript
-// ✅ Good - Proper touch targets
-button: {
-  minHeight: 56,        // 8 * 7
-  paddingVertical: 16,  // 8 * 2
+// ✅ Excellent - Large, easy to tap
+primaryButton: {
+  minHeight: 64,           // 8 * 8 (optimal)
+  paddingVertical: 20,     // Generous padding
+  paddingHorizontal: 32,   // Wide touch area
+}
+
+// ✅ Good - Adequate size
+secondaryButton: {
+  minHeight: 56,           // 8 * 7 (recommended)
+  paddingVertical: 16,     // Good padding
+  paddingHorizontal: 24,   // Comfortable width
 }
 
 // ❌ Bad - Too small
-button: {
-  height: 32,           // Too small for fingers
+tinyButton: {
+  height: 32,              // Too small for fingers
+  padding: 8,              // Insufficient touch area
 }
 ```
+
+#### 2. Use Icons with Text Labels
+```typescript
+// ✅ Good - Icon + label increases tap area
+iconButton: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  minHeight: 56,           // Large tap area
+  paddingHorizontal: 16,
+  gap: 8,                  // Icon-text spacing
+}
+
+// Icon: 24px + Label text = ~56px total height
+// Easier to understand AND larger tap target
+```
+
+#### 3. Position Important Buttons Strategically
+```typescript
+// ✅ Good - Bottom placement (thumb-friendly)
+bottomActions: {
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  right: 0,
+  padding: 16,
+  // Easy to reach without stretching
+}
+
+// ✅ Good - Edge placement for quick access
+floatingAction: {
+  position: 'absolute',
+  bottom: 24,
+  right: 24,
+  // Within natural thumb zone
+}
+
+// ❌ Bad - Top center (hard to reach on large phones)
+topCenterButton: {
+  position: 'absolute',
+  top: 100,
+  alignSelf: 'center',
+  // Requires stretching or two-handed use
+}
+```
+
+#### 4. Maintain Adequate Spacing
+```typescript
+// ✅ Good - Clear separation prevents mis-taps
+buttonGroup: {
+  gap: 16,                 // Clear space between buttons
+  padding: 16,             // Space from edges
+}
+
+// ❌ Bad - Too close together
+crammedButtons: {
+  gap: 4,                  // Easy to tap wrong button
+  padding: 4,              // No breathing room
+}
+```
+
+### Mobile Thumb Zones
+
+**Easy to Reach (Green Zone):**
+- Bottom third of screen
+- Center area
+- Natural thumb arc
+
+**Stretch Required (Yellow Zone):**
+- Top corners
+- Far edges
+- Requires hand repositioning
+
+**Hard to Reach (Red Zone):**
+- Top center
+- Opposite top corner
+- Requires two hands
+
+### Implementation Examples
+
+```typescript
+// Primary CTA - Maximum accessibility
+primaryCTA: {
+  minHeight: 64,              // 8 * 8 (optimal size)
+  paddingVertical: 20,        // Generous vertical padding
+  paddingHorizontal: 32,      // Wide horizontal padding
+  borderRadius: 16,           // Rounded for visual appeal
+  marginHorizontal: 16,       // Screen edge spacing
+  marginBottom: 24,           // Bottom spacing
+  // Result: Large, easy-to-tap button
+}
+
+// Icon button with label
+iconButtonWithLabel: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  minHeight: 56,              // 8 * 7 (recommended)
+  paddingVertical: 16,
+  paddingHorizontal: 16,
+  gap: 8,                     // Icon-text spacing
+  // Icon (24px) + Text = larger tap area
+}
+
+// List item - Full width tap area
+listItem: {
+  minHeight: 64,              // 8 * 8 (comfortable)
+  paddingVertical: 16,
+  paddingHorizontal: 24,
+  flexDirection: 'row',
+  alignItems: 'center',
+  // Entire row is tappable
+}
+
+// Tab bar item - Bottom navigation
+tabBarItem: {
+  flex: 1,
+  minHeight: 64,              // 8 * 8 (easy to reach)
+  justifyContent: 'center',
+  alignItems: 'center',
+  // Bottom placement + large size = optimal
+}
+```
+
+### Testing Checklist
+
+- [ ] All primary buttons ≥ 56px height
+- [ ] All interactive elements ≥ 48px touch area
+- [ ] Buttons have adequate spacing (≥ 16px)
+- [ ] Important actions near bottom/edges
+- [ ] Icons paired with text labels where possible
+- [ ] Tested on actual device (not just simulator)
+- [ ] Comfortable for one-handed use
+- [ ] No accidental taps during testing
 
 ## 🎨 Colors
 

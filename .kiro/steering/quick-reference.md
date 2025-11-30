@@ -48,9 +48,13 @@ titleMarginBottom: 16    // Title → Description
 descriptionMarginBottom: 24  // Description → CTA
 ```
 
-### Touch Targets
-- Minimum: 48px
-- Comfortable: 56px for primary actions
+### Touch Targets (Fitts's Law)
+- **Principle**: Bigger + closer = easier + faster
+- Primary buttons: 56-64px (optimal)
+- Secondary buttons: 48-56px
+- Icons with labels: Larger tap area
+- Spacing between buttons: ≥16px
+- Position important actions: Bottom/edges (thumb-friendly)
 
 ## Project Structure
 ```
