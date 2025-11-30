@@ -47,18 +47,18 @@ Use font **weight** and **color** for hierarchy, not more sizes.
 <Text style={{ fontSize: 26 }}>Bigger Title</Text>
 ```
 
-## 📏 Spacing (8pt Grid System)
+## 📏 Spacing (4px Base Grid → 8, 16, 24, 32)
 
-All spacing should be **multiples of 8px** for consistency across screen sizes.
+All spacing should be **multiples of 4px** (preferably 8px) for consistency across screen sizes.
 
 ### Primary Spacing Scale
 
 | Name | Value | Usage |
 |------|-------|-------|
-| **Tight** | 8px | Icon-text pairs, closely related elements |
-| **Base** | 16px | Between related content sections (most common) |
-| **Comfortable** | 24px | Separating major content groups |
-| **Loose** | 32px | Clear visual breaks between sections |
+| **Tight** | 8px | Icon + label pairs, tightly coupled UI elements |
+| **Base** | 16px | Related content pairs (title/subtitle, button/helper text) |
+| **Comfortable** | 24px | Moderate section breaks within a card |
+| **Loose** | 32px | Major section dividers (top padding, hero blocks) |
 | **Spacious** | 48px | Major page sections, screen padding |
 
 ### Screen Margins
@@ -67,6 +67,23 @@ All spacing should be **multiples of 8px** for consistency across screen sizes.
 |------|-------|-------|
 | Standard | 16px | Mobile devices (most common) |
 | Large | 24px | Tablets, larger screens |
+
+### Card Layout Recipe
+
+Standard card structure following mobile best practices:
+
+```typescript
+card: {
+  marginHorizontal: 16,        // Outer margin from screen edge
+  padding: 16,                 // Inner padding (use 24 for larger cards)
+  
+  // Internal spacing
+  titleMarginBottom: 16,       // Title → Description
+  descriptionMarginBottom: 24, // Description → Price/Value
+  priceMarginBottom: 24,       // Price → CTA Button
+  ctaMarginBottom: 16,         // CTA → Footer note
+}
+```
 
 ### Internal ≤ External Rule
 
@@ -93,6 +110,8 @@ paddingVertical: 15,
 marginBottom: 22,
 gap: 10,
 ```
+
+> 📖 **Detailed Guide**: See `.kiro/steering/spacing-standards.md` for comprehensive spacing patterns and examples
 
 ## 🎯 Touch Targets
 

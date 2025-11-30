@@ -29,9 +29,10 @@ const getResponsiveFontSize = (baseSize: number) => {
 };
 
 const getResponsiveSpacing = (baseSpacing: number) => {
-  // Spacing scales with screen height
+  // Spacing scales with screen height, always rounds to nearest 4px
   const scale = Math.min(1.1, Math.max(0.85, screenHeight / 850));
-  return Math.round(baseSpacing * scale);
+  const scaled = baseSpacing * scale;
+  return Math.round(scaled / 4) * 4; // Round to nearest 4px for grid consistency
 };
 
 interface WelcomeSlide {
@@ -81,25 +82,26 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
   const insets = useSafeAreaInsets();
   
   // Memoized dynamic calculations based on safe area and screen size
+  // Following 4px base grid: 8, 16, 24, 32
   const skipButtonTop = useMemo(
-    () => Math.max(getResponsiveSpacing(20), insets.top + 10),
+    () => Math.max(getResponsiveSpacing(16), insets.top + 8), // 16px base
     [insets.top]
   );
   
   const slideTopPadding = useMemo(
-    () => Math.max(getResponsiveSpacing(70), insets.top + getResponsiveSpacing(50)),
+    () => Math.max(getResponsiveSpacing(64), insets.top + getResponsiveSpacing(48)), // 64px = 8*8
     [insets.top]
   );
   
   const footerBottomPadding = useMemo(() => {
-    const baseFooterPadding = getResponsiveSpacing(24);
+    const baseFooterPadding = getResponsiveSpacing(24); // 24px = comfortable
     return insets.bottom > 0 
-      ? Math.max(baseFooterPadding, insets.bottom + getResponsiveSpacing(16))
+      ? Math.max(baseFooterPadding, insets.bottom + getResponsiveSpacing(16)) // 16px = base
       : baseFooterPadding;
   }, [insets.bottom]);
   
   const slideBottomPadding = useMemo(
-    () => getResponsiveSpacing(200), // Increased to ensure content clears footer
+    () => getResponsiveSpacing(200), // 200px = 8*25 (ensures footer clearance)
     []
   );
   const handleNext = () => {
@@ -221,12 +223,12 @@ const styles = StyleSheet.create({
   skipButton: {
     position: 'absolute',
     // top is set dynamically via inline style
-    right: 20,
+    right: 16,              // 16px = base spacing
     zIndex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: 16,  // 16px = base
+    paddingVertical: 8,     // 8px = tight
     backgroundColor: Colors.white + '90',
-    borderRadius: 20,
+    borderRadius: 20,       // 20px = 5*4 (grid aligned)
   },
   skipText: {
     ...Typography.body,
@@ -241,16 +243,16 @@ const styles = StyleSheet.create({
   },
   slide: {
     alignItems: 'center',
-    paddingHorizontal: Spacing.xl,
+    paddingHorizontal: 24,  // 24px = comfortable spacing
     // paddingTop and paddingBottom are set dynamically via inline style
   },
   iconContainer: {
-    width: getResponsiveSpacing(160), // Fully dynamic size
+    width: getResponsiveSpacing(160),  // 160px = 8*20
     height: getResponsiveSpacing(160),
-    borderRadius: getResponsiveSpacing(80),
+    borderRadius: getResponsiveSpacing(80), // 80px = 8*10
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: getResponsiveSpacing(32), // Reduced margin to bring content closer
+    marginBottom: getResponsiveSpacing(24), // 24px = comfortable spacing
     shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
@@ -280,19 +282,19 @@ const styles = StyleSheet.create({
   benefitsContainer: {
     alignSelf: 'stretch',
     backgroundColor: Colors.background,
-    borderRadius: 16,
-    padding: Spacing.lg,
+    borderRadius: 16,       // 16px = 4*4
+    padding: 16,            // 16px = base spacing (card padding)
   },
   benefitItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Spacing.md,
-    paddingVertical: 4,
+    marginBottom: 8,        // 8px = tight spacing (related items)
+    paddingVertical: 4,     // 4px = base unit
   },
   benefitText: {
-    fontSize: 16,
+    fontSize: 16,           // 16px = body text
     color: Colors.primaryText,
-    marginLeft: Spacing.md,
+    marginLeft: 8,          // 8px = tight (icon-text pair)
     flex: 1,
     fontWeight: '500',
   },
@@ -301,8 +303,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing.sm,
+    paddingHorizontal: 24,  // 24px = comfortable spacing
+    paddingTop: 8,          // 8px = tight spacing
     // paddingBottom is set dynamically via inline style
     alignItems: 'center',
     backgroundColor: Colors.white,
@@ -311,27 +313,28 @@ const styles = StyleSheet.create({
   },
   pagination: {
     flexDirection: 'row',
-    marginBottom: Spacing.sm,
+    marginBottom: 8,        // 8px = tight spacing
   },
   paginationDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 8,               // 8px = base unit
+    height: 8,
+    borderRadius: 4,        // 4px = base unit
     backgroundColor: Colors.gray.light,
-    marginHorizontal: 6,
+    marginHorizontal: 4,    // 4px = base unit
   },
   paginationDotActive: {
     backgroundColor: Colors.accent1,
-    width: 30,
+    width: 24,              // 24px = 6*4
   },
   nextButton: {
     backgroundColor: Colors.accent1,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: Spacing['2xl'],
-    paddingVertical: Spacing.md,
-    borderRadius: 16,
-    minWidth: 160,
+    paddingHorizontal: 32,  // 32px = loose spacing
+    paddingVertical: 16,    // 16px = base spacing
+    borderRadius: 16,       // 16px = 4*4
+    minWidth: 160,          // 160px = 8*20
+    minHeight: 56,          // 56px = 8*7 (touch target)
     justifyContent: 'center',
     shadowColor: Colors.accent1,
     shadowOffset: { width: 0, height: 4 },
@@ -340,9 +343,9 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   nextButtonText: {
-    fontSize: 18,
+    fontSize: 18,           // 18px (slightly larger than body)
     fontWeight: '600',
     color: Colors.white,
-    marginRight: Spacing.sm,
+    marginRight: 8,         // 8px = tight spacing (icon-text)
   },
 });

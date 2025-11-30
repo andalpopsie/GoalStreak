@@ -13,6 +13,15 @@ These documents guide AI development for GoalStreak. They are automatically incl
 - Add verification logs
 - Clear cache properly
 
+### `spacing-standards.md`
+**Purpose**: Mobile spacing and layout standards for consistent UI
+**When Applied**: Always (for all UI/component development)
+**Key Rules**:
+- Use 4px base grid → 8, 16, 24, 32
+- Follow card layout recipe (16px margins, 16-24px padding)
+- Minimum 48px touch targets
+- Consistent spacing hierarchy
+
 ## How Steering Works
 
 Steering documents are automatically included in AI context to ensure consistent development practices. Keep them:
@@ -22,6 +31,7 @@ Steering documents are automatically included in AI context to ensure consistent
 
 ## Related Documentation
 
+- **Design System**: `docs/DESIGN_SYSTEM.md` - Complete design guidelines
 - **Detailed Guide**: `docs/KIRO_BEST_PRACTICES.md` - Full context and examples
 - **Project Context**: See user rules for project-specific guidelines
 

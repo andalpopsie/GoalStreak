@@ -81,6 +81,11 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
   // Icon picker state
   const [showIconPicker, setShowIconPicker] = useState(false);
 
+  // Collapsible sections state
+  const [isCategoryExpanded, setIsCategoryExpanded] = useState(false);
+  const [isIconExpanded, setIsIconExpanded] = useState(false);
+  const [isOptionsExpanded, setIsOptionsExpanded] = useState(false);
+
   // Time picker state
   const [selectedHour] = useState(DEFAULT_REMINDER_HOUR);
   const [selectedMinute] = useState(DEFAULT_REMINDER_MINUTE);
@@ -334,95 +339,182 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
             />
           </View>
 
-          {/* Visual Category Selection */}
-          <View style={styles.categoryGrid}>
-            {categoryOptions.map(renderCategoryCard)}
-          </View>
-
-          {/* Icon Selection - Minimalist */}
-          <TouchableOpacity
-            style={styles.iconSelector}
-            onPress={() => setShowIconPicker(true)}
-          >
-            <View style={styles.iconPreview}>
-              <Ionicons name={form.icon as any} size={24} color={getCategoryColor(form.category)} />
-            </View>
-            <Text style={styles.iconText}>Choose icon</Text>
-            <Ionicons name="chevron-forward" size={16} color={Colors.secondaryText} />
-          </TouchableOpacity>
-
-          {/* Timer - Minimalist */}
-          <View style={styles.featureSection}>
-            <TimerToggle
-              timerConfig={form.timer}
-              onTimerConfigChange={handleTimerConfigChange}
-              habitName={form.name || 'New Habit'}
-            />
-          </View>
-
-          {/* Quick Settings - Minimalist */}
-          <View style={styles.settingsRow}>
+          {/* Collapsible Category Selection */}
+          <View style={styles.collapsibleSection}>
             <TouchableOpacity
-              style={[styles.settingCard, form.isPublic && styles.settingCardActive]}
-              onPress={() => setForm({ ...form, isPublic: !form.isPublic })}
+              style={styles.collapsibleHeader}
+              onPress={() => setIsCategoryExpanded(!isCategoryExpanded)}
             >
+              <View style={styles.collapsibleHeaderLeft}>
+                <View style={[styles.categoryIconContainer, { backgroundColor: getCategoryColor(form.category) + '15' }]}>
+                  <Ionicons
+                    name={categoryOptions.find(c => c.value === form.category)?.icon as any}
+                    size={20}
+                    color={getCategoryColor(form.category)}
+                  />
+                </View>
+                <View>
+                  <Text style={styles.collapsibleLabel}>Category</Text>
+                  <Text style={styles.collapsibleValue}>
+                    {categoryOptions.find(c => c.value === form.category)?.label}
+                  </Text>
+                </View>
+              </View>
               <Ionicons
-                name={form.isPublic ? "people" : "people-outline"}
+                name={isCategoryExpanded ? "chevron-up" : "chevron-down"}
                 size={20}
-                color={form.isPublic ? Colors.accent1 : Colors.secondaryText}
+                color={Colors.secondaryText}
               />
-              <Text style={[
-                styles.settingText,
-                form.isPublic && styles.settingTextActive
-              ]}>
-                Share
-              </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.settingCard, form.reminderEnabled && styles.settingCardActive]}
-              onPress={() => setForm({ ...form, reminderEnabled: !form.reminderEnabled })}
-            >
-              <Ionicons
-                name={form.reminderEnabled ? "notifications" : "notifications-outline"}
-                size={20}
-                color={form.reminderEnabled ? Colors.accent1 : Colors.secondaryText}
-              />
-              <Text style={[
-                styles.settingText,
-                form.reminderEnabled && styles.settingTextActive
-              ]}>
-                Remind
-              </Text>
-            </TouchableOpacity>
+            {isCategoryExpanded && (
+              <View style={styles.categoryGrid}>
+                {categoryOptions.map(renderCategoryCard)}
+              </View>
+            )}
           </View>
 
-          {form.reminderEnabled && (
+          {/* Collapsible Icon Selection */}
+          <View style={styles.collapsibleSection}>
             <TouchableOpacity
-              style={styles.timeSelector}
-              onPress={() => {
-                const hour24 = selectedPeriod === 'PM' && selectedHour !== 12
-                  ? selectedHour + 12
-                  : selectedPeriod === 'AM' && selectedHour === 12
-                    ? 0
-                    : selectedHour;
-                const timeString = `${hour24.toString().padStart(2, '0')}:${selectedMinute.toString().padStart(2, '0')}`;
-                setForm({ ...form, reminderTime: timeString });
-              }}
-              accessibilityRole="button"
-              accessibilityLabel="Set reminder time"
-              accessibilityHint="Tap to set the time for habit reminders"
+              style={styles.collapsibleHeader}
+              onPress={() => setIsIconExpanded(!isIconExpanded)}
             >
-              <Ionicons name="time" size={20} color={Colors.accent1} />
-              <Text style={styles.timeText}>
-                {form.reminderTime
-                  ? formatTimeForDisplay(form.reminderTime)
-                  : `${selectedHour}:${selectedMinute.toString().padStart(2, '0')} ${selectedPeriod}`
-                }
-              </Text>
-              <Ionicons name="chevron-forward" size={16} color={Colors.secondaryText} />
+              <View style={styles.collapsibleHeaderLeft}>
+                <View style={styles.iconPreview}>
+                  <Ionicons name={form.icon as any} size={20} color={getCategoryColor(form.category)} />
+                </View>
+                <View>
+                  <Text style={styles.collapsibleLabel}>Icon</Text>
+                  <Text style={styles.collapsibleValue}>Tap to change</Text>
+                </View>
+              </View>
+              <Ionicons
+                name={isIconExpanded ? "chevron-up" : "chevron-down"}
+                size={20}
+                color={Colors.secondaryText}
+              />
             </TouchableOpacity>
-          )}
+
+            {isIconExpanded && (
+              <View style={styles.expandedContent}>
+                <TouchableOpacity
+                  style={styles.iconSelectorButton}
+                  onPress={() => {
+                    setShowIconPicker(true);
+                    setIsIconExpanded(false);
+                  }}
+                >
+                  <Text style={styles.iconSelectorButtonText}>Choose Icon</Text>
+                  <Ionicons name="chevron-forward" size={16} color={Colors.accent1} />
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+
+          {/* Collapsible Options Section */}
+          <View style={styles.collapsibleSection}>
+            <TouchableOpacity
+              style={styles.collapsibleHeader}
+              onPress={() => setIsOptionsExpanded(!isOptionsExpanded)}
+            >
+              <View style={styles.collapsibleHeaderLeft}>
+                <Ionicons name="options-outline" size={20} color={Colors.primaryText} />
+                <View style={{ marginLeft: Spacing.md }}>
+                  <Text style={styles.collapsibleLabel}>Options</Text>
+                  <Text style={styles.collapsibleValue}>
+                    {[
+                      form.timer && 'Timer',
+                      form.isPublic && 'Share',
+                      form.reminderEnabled && 'Remind'
+                    ].filter(Boolean).join(', ') || 'None selected'}
+                  </Text>
+                </View>
+              </View>
+              <Ionicons
+                name={isOptionsExpanded ? "chevron-up" : "chevron-down"}
+                size={20}
+                color={Colors.secondaryText}
+              />
+            </TouchableOpacity>
+
+            {isOptionsExpanded && (
+              <View style={styles.expandedContent}>
+                {/* Timer Toggle */}
+                <View style={styles.optionItem}>
+                  <TimerToggle
+                    timerConfig={form.timer}
+                    onTimerConfigChange={handleTimerConfigChange}
+                    habitName={form.name || 'New Habit'}
+                  />
+                </View>
+
+                {/* Quick Settings */}
+                <View style={styles.settingsRow}>
+                  <TouchableOpacity
+                    style={[styles.settingCard, form.isPublic && styles.settingCardActive]}
+                    onPress={() => setForm({ ...form, isPublic: !form.isPublic })}
+                  >
+                    <Ionicons
+                      name={form.isPublic ? "people" : "people-outline"}
+                      size={20}
+                      color={form.isPublic ? Colors.accent1 : Colors.secondaryText}
+                    />
+                    <Text style={[
+                      styles.settingText,
+                      form.isPublic && styles.settingTextActive
+                    ]}>
+                      Share
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.settingCard, form.reminderEnabled && styles.settingCardActive]}
+                    onPress={() => setForm({ ...form, reminderEnabled: !form.reminderEnabled })}
+                  >
+                    <Ionicons
+                      name={form.reminderEnabled ? "notifications" : "notifications-outline"}
+                      size={20}
+                      color={form.reminderEnabled ? Colors.accent1 : Colors.secondaryText}
+                    />
+                    <Text style={[
+                      styles.settingText,
+                      form.reminderEnabled && styles.settingTextActive
+                    ]}>
+                      Remind
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {form.reminderEnabled && (
+                  <TouchableOpacity
+                    style={styles.timeSelector}
+                    onPress={() => {
+                      const hour24 = selectedPeriod === 'PM' && selectedHour !== 12
+                        ? selectedHour + 12
+                        : selectedPeriod === 'AM' && selectedHour === 12
+                          ? 0
+                          : selectedHour;
+                      const timeString = `${hour24.toString().padStart(2, '0')}:${selectedMinute.toString().padStart(2, '0')}`;
+                      setForm({ ...form, reminderTime: timeString });
+                    }}
+                    accessibilityRole="button"
+                    accessibilityLabel="Set reminder time"
+                    accessibilityHint="Tap to set the time for habit reminders"
+                  >
+                    <Ionicons name="time" size={20} color={Colors.accent1} />
+                    <Text style={styles.timeText}>
+                      {form.reminderTime
+                        ? formatTimeForDisplay(form.reminderTime)
+                        : `${selectedHour}:${selectedMinute.toString().padStart(2, '0')} ${selectedPeriod}`
+                      }
+                    </Text>
+                    <Ionicons name="chevron-forward" size={16} color={Colors.secondaryText} />
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+          </View>
 
           {/* Create Button */}
           <View style={styles.buttonContainer}>
@@ -494,24 +586,64 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
 
-  // Category Grid - Compact 3x2 Layout
+  // Collapsible Section Styles
+  collapsibleSection: {
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    marginBottom: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.gray.medium,
+    overflow: 'hidden',
+  },
+  collapsibleHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: Spacing.md,
+  },
+  collapsibleHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  collapsibleLabel: {
+    fontSize: Typography.fontSize.caption,
+    color: Colors.secondaryText,
+    marginBottom: 2,
+  },
+  collapsibleValue: {
+    fontSize: Typography.fontSize.body,
+    color: Colors.primaryText,
+    fontWeight: Typography.fontWeight.medium,
+  },
+  expandedContent: {
+    paddingHorizontal: Spacing.md,
+    paddingBottom: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.gray.light,
+  },
+
+  // Category Grid - Compact 3x2 Layout (inside collapsible)
   categoryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    marginBottom: Spacing.lg,
+    padding: Spacing.md,
+    paddingTop: Spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: Colors.gray.light,
   },
   categoryCard: {
     width: '48%',
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.background,
     borderRadius: BorderRadius.md,
-    padding: Spacing.md,
+    padding: Spacing.sm,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: Colors.gray.medium,
+    borderColor: Colors.gray.light,
     position: 'relative',
-    minHeight: 60,
+    minHeight: 56,
     marginBottom: Spacing.sm,
   },
   categoryCardSelected: {
@@ -519,15 +651,15 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   categoryIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.sm,
   },
   categoryLabel: {
-    fontSize: Typography.fontSize.base,
+    fontSize: Typography.fontSize.body,
     fontWeight: Typography.fontWeight.semibold,
     color: Colors.primaryText,
     flex: 1,
@@ -537,35 +669,34 @@ const styles = StyleSheet.create({
   },
 
   // Icon Selector - Minimalist
-  iconSelector: {
-    backgroundColor: Colors.white,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.md,
-    borderWidth: 1,
-    borderColor: Colors.gray.medium,
-  },
   iconPreview: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: Colors.background,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.md,
   },
-  iconText: {
-    flex: 1,
-    fontSize: Typography.fontSize.base,
-    color: Colors.primaryText,
+  iconSelectorButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.background,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    marginTop: Spacing.sm,
+  },
+  iconSelectorButtonText: {
+    fontSize: Typography.fontSize.body,
+    color: Colors.accent1,
     fontWeight: Typography.fontWeight.medium,
   },
 
-  // Feature Section
-  featureSection: {
-    marginBottom: Spacing.md,
+  // Option Item
+  optionItem: {
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.sm,
   },
 
   // Settings Row - Minimalist
@@ -588,7 +719,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accent1 + '08',
   },
   settingText: {
-    fontSize: Typography.fontSize.sm,
+    fontSize: Typography.fontSize.caption,
     color: Colors.secondaryText,
     marginTop: Spacing.xs,
     fontWeight: Typography.fontWeight.medium,
@@ -610,7 +741,7 @@ const styles = StyleSheet.create({
   },
   timeText: {
     flex: 1,
-    fontSize: Typography.fontSize.base,
+    fontSize: Typography.fontSize.body,
     color: Colors.primaryText,
     fontWeight: Typography.fontWeight.medium,
     marginLeft: Spacing.md,

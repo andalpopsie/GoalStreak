@@ -15,12 +15,22 @@ Production Ready | App Store Prep | React Native + Expo 54 + Firebase
 ## Design System
 ```typescript
 colors = {
-  primaryText: '#001BB7',
-  background: '#FFF6E9',
-  accent1: '#FF7F3E',    // CTA
-  accent2: '#80C4E9',
-  accent3: '#37B5B6'     // Success
+  primaryText: '#154D71',
+  background: '#FDFDFD',
+  accent1: '#B771E5',    // Purple CTA
+  accent2: '#154D71',    // Dark blue
+  accent3: '#4A90A4'     // Teal success
 }
+
+spacing = {
+  tight: 8,        // Icon-text pairs
+  base: 16,        // Related content (most common)
+  comfortable: 24, // Section breaks
+  loose: 32,       // Major dividers
+}
+
+// Card Recipe: 16px margin, 16-24px padding
+// Touch targets: 48px minimum
 ```
 
 ## Structure
