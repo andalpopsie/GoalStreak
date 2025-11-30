@@ -48,13 +48,18 @@ titleMarginBottom: 16    // Title → Description
 descriptionMarginBottom: 24  // Description → CTA
 ```
 
-### Touch Targets (Fitts's Law)
-- **Principle**: Bigger + closer = easier + faster
-- Primary buttons: 56-64px (optimal)
-- Secondary buttons: 48-56px
-- Icons with labels: Larger tap area
+### UX Laws
+
+**Fitts's Law** - Bigger + closer = easier + faster
+- Primary buttons: 56-64px
+- Bottom/edge placement for important actions
 - Spacing between buttons: ≥16px
-- Position important actions: Bottom/edges (thumb-friendly)
+
+**Hick's Law** - More choices = longer decisions
+- Limit to 3-7 primary options per screen
+- Group related options into categories
+- Hide advanced features (progressive disclosure)
+- Show most-used actions first (80/20 rule)
 
 ## Project Structure
 ```
