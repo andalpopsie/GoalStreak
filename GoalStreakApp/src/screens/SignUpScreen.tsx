@@ -7,10 +7,10 @@ import {
   TouchableOpacity, 
   Alert,
   KeyboardAvoidingView,
-  Platform 
+  Platform,
+  Image
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
 import { Button, SimpleInput } from '../components/common';
@@ -140,9 +140,11 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
           bounces={false}
         >
           <View style={styles.header}>
-            <View style={styles.logoContainer}>
-              <Ionicons name="person-add" size={48} color={Colors.accent1} />
-            </View>
+            <Image 
+              source={require('../../assets/icon.png')} 
+              style={styles.logo}
+              resizeMode="contain"
+            />
             <Text style={styles.title}>Join GoalStreak</Text>
             <Text style={styles.subtitle}>Start building healthy habits today</Text>
           </View>
@@ -233,19 +235,10 @@ const styles = StyleSheet.create({
     marginBottom: 32,               // 8 * 4 (loose)
     paddingTop: 16,                 // 8 * 2 (base)
   },
-  logoContainer: {
-    width: 80,                      // 8 * 10
-    height: 80,                     // 8 * 10
-    borderRadius: 40,
-    backgroundColor: Colors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
+  logo: {
+    width: 96,                      // 8 * 12 (larger for brand presence)
+    height: 96,                     // 8 * 12
     marginBottom: 24,               // 8 * 3 (comfortable)
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
   },
   title: {
     fontSize: 24,                   // heading
