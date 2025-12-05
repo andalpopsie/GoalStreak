@@ -220,9 +220,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,               // 8 * 3 (comfortable)
     minHeight: 44,                  // Touch target
     justifyContent: 'center',
+    paddingVertical: 8,             // 8 * 1 (easier to tap)
   },
   forgotPasswordText: {
-    fontSize: 14,                   // caption
+    fontSize: 16,                   // body (readable, interactive text)
     color: Colors.accent1,
     fontWeight: '500',              // medium
   },
