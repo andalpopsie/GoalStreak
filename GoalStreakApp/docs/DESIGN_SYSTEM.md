@@ -113,6 +113,366 @@ gap: 10,
 
 > 📖 **Detailed Guide**: See `.kiro/steering/spacing-standards.md` for comprehensive spacing patterns and examples
 
+## 🧮 Miller's Law - Chunking Information
+
+### Miller's Law Principle
+**"The average person can only hold 7 (±2) items in working memory at once."**
+
+Miller's Law states that short-term memory has limited capacity:
+- **Too much information** → Cognitive overload → Confusion → Abandonment
+- **Chunked information** → Easier processing → Better comprehension → Higher completion
+
+**Impact on UX:**
+- Users can't process everything at once
+- Grouping related items reduces cognitive load
+- Breaking content into chunks improves scanning and understanding
+
+### The Magic Number: 7 ± 2
+
+**Working Memory Capacity:**
+- **5-9 items** - Maximum most people can hold
+- **7 items** - The sweet spot for most users
+- **3-5 items** - Optimal for complex or unfamiliar content
+
+**Why It Matters:**
+- Phone numbers: 555-1234 (chunked into 3-4 digits)
+- Credit cards: 1234 5678 9012 3456 (chunked into 4 groups)
+- Navigation: 4-5 main tabs (not 10+)
+
+### Miller's Law Best Practices
+
+#### 1. Chunk Related Content
+```typescript
+// ✅ Good - Grouped into logical chunks
+settingsScreen: {
+  sections: [
+    {
+      title: 'App Settings',        // Chunk 1 (2 items)
+      items: ['Dark Mode', 'Sound']
+    },
+    {
+      title: 'Notifications',       // Chunk 2 (2 items)
+      items: ['Daily Reminder', 'New Releases']
+    },
+    {
+      title: 'Account',             // Chunk 3 (2 items)
+      items: ['Profile', 'Privacy']
+    }
+  ]
+  // 3 chunks of 2 items = Easy to process
+}
+
+// ❌ Bad - Flat list of 12 items
+flatList: {
+  items: [
+    'Dark Mode', 'Sound', 'Reminder', 'Releases',
+    'Profile', 'Privacy', 'Language', 'Storage',
+    'Backup', 'Security', 'Help', 'About'
+  ]
+  // 12 items = Cognitive overload
+}
+```
+
+#### 2. Use Visual Grouping
+```typescript
+// ✅ Good - Visual separation between chunks
+form: {
+  personalInfo: {
+    heading: 'Personal Information',
+    spacing: 24,                    // Space before section
+    fields: ['Name', 'Email', 'Phone'],
+    marginBottom: 32,               // Space after section
+  },
+  preferences: {
+    heading: 'Preferences',
+    spacing: 24,
+    fields: ['Language', 'Timezone'],
+    marginBottom: 32,
+  }
+  // Clear visual chunks
+}
+
+// ❌ Bad - No visual grouping
+crammedForm: {
+  fields: [
+    'Name', 'Email', 'Phone', 'Language',
+    'Timezone', 'Notifications', 'Privacy'
+  ],
+  spacing: 8,                       // Minimal spacing
+  // All fields blur together
+}
+```
+
+#### 3. Limit Items Per Group
+```typescript
+// ✅ Good - 3-5 items per group
+navigation: {
+  mainTabs: ['Home', 'Social', 'Analytics', 'Profile'],
+  // 4 tabs = Easy to remember
+}
+
+categoryList: {
+  categories: [
+    'Fitness', 'Wellness', 'Nutrition',
+    'Social', 'Productivity', 'Other'
+  ],
+  // 6 categories = Manageable
+}
+
+// ❌ Bad - Too many items
+overwhelmingNav: {
+  tabs: [
+    'Home', 'Discover', 'Social', 'Messages',
+    'Notifications', 'Analytics', 'Goals',
+    'Habits', 'Profile', 'Settings'
+  ],
+  // 10 tabs = Can't remember them all
+}
+```
+
+#### 4. Use Headings & Hierarchy
+```typescript
+// ✅ Good - Clear hierarchy
+content: {
+  structure: [
+    { type: 'heading', text: 'Getting Started' },
+    { type: 'body', text: 'Step 1: Create account' },
+    { type: 'body', text: 'Step 2: Add first habit' },
+    { type: 'body', text: 'Step 3: Track progress' },
+    
+    { type: 'heading', text: 'Advanced Features' },
+    { type: 'body', text: 'Social connections' },
+    { type: 'body', text: 'Analytics dashboard' },
+  ]
+  // Headings create mental chunks
+}
+
+// ❌ Bad - Wall of text
+textWall: {
+  content: 'Create account add habit track progress...',
+  // No structure = Hard to scan
+}
+```
+
+#### 5. Progressive Disclosure
+```typescript
+// ✅ Good - Show 5-7 items, hide rest
+habitList: {
+  visible: 6,                       // Show 6 habits
+  action: 'View All (12)',          // Access to rest
+  // Manageable initial view
+}
+
+// ✅ Good - Collapsible sections (GoalStreak!)
+createHabit: {
+  alwaysVisible: [
+    'Habit Name',                   // 1
+    'Category (collapsed)',         // 2
+    'Icon (collapsed)',             // 3
+    'Options (collapsed)',          // 4
+    'Create Button'                 // 5
+  ],
+  // 5 items initially = Perfect!
+  expandable: {
+    category: 6,                    // 6 categories when expanded
+    options: 4,                     // 4 options when expanded
+  }
+  // Complexity revealed progressively
+}
+```
+
+### Chunking Techniques
+
+#### Phone Number Pattern
+```typescript
+// ✅ Good - Chunked for readability
+phoneInput: {
+  format: '(555) 123-4567',         // 3-3-4 pattern
+  // Easier to remember and verify
+}
+
+// ❌ Bad - No chunking
+flatPhone: {
+  format: '5551234567',             // Hard to read
+}
+```
+
+#### Card Number Pattern
+```typescript
+// ✅ Good - 4-digit chunks
+cardInput: {
+  format: '1234 5678 9012 3456',    // 4-4-4-4 pattern
+  // Standard, easy to verify
+}
+```
+
+#### List Pagination
+```typescript
+// ✅ Good - Limit items per page
+list: {
+  itemsPerPage: 10,                 // Manageable chunk
+  pagination: true,
+  // Users can process one page at a time
+}
+
+// ❌ Bad - Infinite scroll with no breaks
+endlessList: {
+  itemsPerPage: 100,                // Overwhelming
+  // Users lose track of position
+}
+```
+
+### Context-Dependent Chunking
+
+#### For New/Complex Content
+```typescript
+// ✅ Good - Fewer items for complex content
+onboarding: {
+  stepsPerScreen: 1,                // One concept at a time
+  totalSteps: 3,                    // Short onboarding
+  // Don't overwhelm new users
+}
+
+tutorial: {
+  conceptsPerLesson: 3,             // 3 new concepts max
+  // Complex = smaller chunks
+}
+```
+
+#### For Familiar Content
+```typescript
+// ✅ Good - More items for familiar patterns
+settingsScreen: {
+  itemsPerSection: 5-7,             // Users know settings
+  // Familiar = can handle more
+}
+
+habitList: {
+  visibleHabits: 8,                 // Users know their habits
+  // Familiar content = larger chunks
+}
+```
+
+### Visual Chunking with Spacing
+
+```typescript
+// ✅ Good - Use spacing to create chunks
+layout: {
+  withinChunk: 8,                   // Tight spacing (related items)
+  betweenChunks: 24,                // Comfortable spacing (separate groups)
+  betweenSections: 32,              // Loose spacing (major divisions)
+  // Spacing creates visual grouping
+}
+
+// Example: Settings screen
+settings: {
+  appSettings: {
+    items: ['Dark Mode', 'Sound'],
+    itemSpacing: 8,                 // Within chunk
+    sectionSpacing: 24,             // After chunk
+  },
+  notifications: {
+    items: ['Reminder', 'Releases'],
+    itemSpacing: 8,
+    sectionSpacing: 24,
+  }
+  // Clear visual chunks through spacing
+}
+```
+
+### GoalStreak Applications
+
+#### ✅ Already Following Miller's Law
+1. **Bottom Navigation** - 4 tabs (perfect!)
+2. **Habit Categories** - 6 categories (within 7±2)
+3. **CreateHabitScreen** - Collapsible sections reduce cognitive load
+4. **Settings Groups** - Organized into logical sections
+5. **Onboarding Steps** - 3 slides (manageable)
+
+#### 🎯 Opportunities to Apply
+1. **Habit List** - Show 6-8 habits initially, "View All" for more
+2. **Analytics** - Group metrics into 3-4 categories
+3. **Social Feed** - Paginate or limit initial items
+4. **Form Fields** - Group related fields with headings
+
+### Testing Checklist
+
+- [ ] No more than 7 items in any single group
+- [ ] Related items grouped together
+- [ ] Visual spacing between chunks (24-32px)
+- [ ] Headings clearly separate sections
+- [ ] Complex content broken into smaller chunks (3-5 items)
+- [ ] Familiar content can have larger chunks (5-7 items)
+- [ ] Progressive disclosure for additional items
+- [ ] Users can scan and understand quickly
+- [ ] No cognitive overload during testing
+
+### Examples from GoalStreak
+
+```typescript
+// ✅ Excellent - Bottom navigation (4 items)
+<Tab.Navigator>
+  <Tab.Screen name="Habits" />      // 1
+  <Tab.Screen name="Social" />      // 2
+  <Tab.Screen name="Analytics" />   // 3
+  <Tab.Screen name="Profile" />     // 4
+</Tab.Navigator>
+// 4 tabs = Well within 7±2 limit
+
+// ✅ Excellent - Collapsible sections reduce cognitive load
+<View>
+  <TextInput placeholder="Habit Name" />           // 1
+  <CollapsibleSection title="Category" />          // 2
+  <CollapsibleSection title="Icon" />              // 3
+  <CollapsibleSection title="Options" />           // 4
+  <Button title="Create Habit" />                  // 5
+</View>
+// 5 visible items initially (perfect!)
+// Complexity hidden until needed
+
+// ✅ Good - Habit categories (6 items)
+categories: [
+  'Fitness',      // 1
+  'Wellness',     // 2
+  'Nutrition',    // 3
+  'Social',       // 4
+  'Productivity', // 5
+  'Other'         // 6
+]
+// 6 categories = Within optimal range
+
+// ✅ Good - Settings grouped by category
+<ScrollView>
+  <Section title="App Settings">
+    <Setting name="Dark Mode" />
+    <Setting name="Sound Effects" />
+  </Section>
+  
+  <Section title="Notifications">
+    <Setting name="Daily Reminder" />
+    <Setting name="New Releases" />
+  </Section>
+  
+  <Section title="Account">
+    <Setting name="Profile Information" />
+    <Setting name="Privacy" />
+  </Section>
+</ScrollView>
+// 3 sections, 2 items each = Easy to process
+```
+
+### Miller's Law + Other Laws
+
+**Combined with Hick's Law:**
+- Hick's Law: Limit choices to reduce decision time
+- Miller's Law: Chunk choices into groups of 5-7
+- Result: Fast decisions with organized options
+
+**Combined with Jakob's Law:**
+- Jakob's Law: Use familiar patterns
+- Miller's Law: Group familiar patterns together
+- Result: Instant recognition of organized content
+
 ## 🔄 Jakob's Law - Leveraging Familiarity
 
 ### Jakob's Law Principle

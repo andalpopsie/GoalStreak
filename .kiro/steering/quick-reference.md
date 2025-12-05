@@ -68,6 +68,14 @@ descriptionMarginBottom: 24  // Description → CTA
 - Balance familiarity with brand identity
 - Guide users through new patterns with tutorials
 
+**Miller's Law** - Working memory holds 7±2 items
+- Limit groups to 5-7 items maximum
+- Chunk related content together
+- Use headings and spacing to separate chunks
+- Complex content: 3-5 items per chunk
+- Familiar content: 5-7 items per chunk
+- Progressive disclosure for additional items
+
 ## Project Structure
 ```
 GoalStreakApp/
