@@ -65,8 +65,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderWidth: 1,
     borderColor: Colors.gray.medium,
-    borderRadius: 12,               // 8 * 1.5
-    paddingHorizontal: 16,          // 8 * 2
+    borderRadius: 28,               // Fully rounded (pill-shaped)
+    paddingHorizontal: 20,          // More padding for rounded look
     paddingVertical: 16,            // 8 * 2
     fontSize: 16,                   // body
     color: Colors.primaryText,

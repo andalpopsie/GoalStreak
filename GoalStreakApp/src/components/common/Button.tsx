@@ -61,7 +61,7 @@ export default function Button({
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: 12,               // 8 * 1.5
+    borderRadius: 32,               // Fully rounded (pill-shaped)
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',

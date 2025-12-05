@@ -126,8 +126,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
 
           <View style={styles.form}>
             <SimpleInput
-              label="Email"
-              placeholder="Enter your email"
+              placeholder="Username or Email"
               value={form.email}
               onChangeText={(email) => setForm({ ...form, email })}
               keyboardType="email-address"
@@ -136,25 +135,24 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
             />
 
             <SimpleInput
-              label="Password"
-              placeholder="Enter your password"
+              placeholder="Password"
               value={form.password}
               onChangeText={(password) => setForm({ ...form, password })}
               secureTextEntry
               error={errors.password}
             />
 
-            <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotPassword}>
-              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-            </TouchableOpacity>
-
             <Button
-              title="Sign In"
+              title="Submit"
               onPress={handleSignIn}
               loading={isLoading}
               variant="primary"
               size="lg"
             />
+
+            <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotPassword}>
+              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.footer}>
@@ -216,15 +214,15 @@ const styles = StyleSheet.create({
     marginBottom: 32,               // 8 * 4 (loose)
   },
   forgotPassword: {
-    alignSelf: 'flex-end',
-    marginBottom: 24,               // 8 * 3 (comfortable)
+    alignSelf: 'center',            // Centered (modern pattern)
+    marginTop: 16,                  // 8 * 2 (base)
     minHeight: 44,                  // Touch target
     justifyContent: 'center',
     paddingVertical: 8,             // 8 * 1 (easier to tap)
   },
   forgotPasswordText: {
     fontSize: 16,                   // body (readable, interactive text)
-    color: Colors.accent1,
+    color: Colors.primaryText,      // Darker, more subtle
     fontWeight: '500',              // medium
   },
   footer: {
