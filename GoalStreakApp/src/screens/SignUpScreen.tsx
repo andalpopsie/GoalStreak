@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
-import { Button, Input } from '../components/common';
+import { Button, SimpleInput } from '../components/common';
 import { SignUpForm } from '../types';
 import { openPrivacyPolicy, openTermsOfService } from '../utils/linkingUtils';
 import { trackScreen, trackEvent, trackConversion } from '../services/enhancedAnalyticsService';
@@ -148,60 +148,46 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
           </View>
 
           <View style={styles.form}>
-            <Input
-              label="Full Name"
-              placeholder="Enter your full name"
+            <SimpleInput
+              placeholder="Full Name"
               value={form.displayName}
               onChangeText={(displayName: string) => setForm({ ...form, displayName })}
               autoCapitalize="words"
-              autoComplete="name"
               error={errors.displayName}
-              returnKeyType="next"
             />
 
-            <Input
-              label="Email"
-              placeholder="Enter your email"
+            <SimpleInput
+              placeholder="Email"
               value={form.email}
               onChangeText={(email: string) => setForm({ ...form, email })}
               keyboardType="email-address"
               autoCapitalize="none"
-              autoComplete="email"
               error={errors.email}
-              returnKeyType="next"
             />
 
-            <Input
-              label="Password"
-              placeholder="Create a password"
+            <SimpleInput
+              placeholder="Password"
               value={form.password}
               onChangeText={(password: string) => setForm({ ...form, password })}
               secureTextEntry
-              autoComplete="new-password"
               error={errors.password}
-              returnKeyType="next"
             />
 
-            <Input
-              label="Confirm Password"
-              placeholder="Confirm your password"
+            <SimpleInput
+              placeholder="Confirm Password"
               value={form.confirmPassword}
               onChangeText={(confirmPassword: string) => setForm({ ...form, confirmPassword })}
               secureTextEntry
-              autoComplete="new-password"
               error={errors.confirmPassword}
-              returnKeyType="done"
             />
 
-            <View style={styles.buttonContainer}>
-              <Button
-                title="Create Account"
-                onPress={handleSignUp}
-                loading={isLoading}
-                variant="primary"
-                size="lg"
-              />
-            </View>
+            <Button
+              title="Create Account"
+              onPress={handleSignUp}
+              loading={isLoading}
+              variant="primary"
+              size="lg"
+            />
           </View>
 
           <View style={styles.footer}>
@@ -275,9 +261,6 @@ const styles = StyleSheet.create({
   },
   form: {
     marginBottom: 24,               // 8 * 3 (comfortable)
-  },
-  buttonContainer: {
-    marginTop: 16,                  // 8 * 2 (base)
   },
   footer: {
     flexDirection: 'row',
