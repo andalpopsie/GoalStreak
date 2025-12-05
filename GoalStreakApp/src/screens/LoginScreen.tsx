@@ -179,21 +179,21 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    padding: Spacing.lg,
+    padding: 16,                    // 8 * 2 (base spacing)
     justifyContent: 'center',
   },
   header: {
     alignItems: 'center',
-    marginBottom: Spacing['2xl'],
+    marginBottom: 48,               // 8 * 6 (spacious)
   },
   logoContainer: {
-    width: 80,
-    height: 80,
+    width: 80,                      // 8 * 10
+    height: 80,                     // 8 * 10
     borderRadius: 40,
     backgroundColor: Colors.white,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: Spacing.lg,
+    marginBottom: 24,               // 8 * 3 (comfortable)
     shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -201,40 +201,44 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   title: {
-    fontSize: Typography.fontSize['3xl'],
-    fontWeight: Typography.fontWeight.bold,
+    fontSize: 24,                   // heading
+    fontWeight: '700',              // bold
     color: Colors.primaryText,
-    marginBottom: Spacing.sm,
+    marginBottom: 8,                // 8 * 1 (tight)
   },
   subtitle: {
-    fontSize: Typography.fontSize.lg,
+    fontSize: 16,                   // body
     color: Colors.accent2,
     textAlign: 'center',
+    lineHeight: 24,                 // 1.5 line height
   },
   form: {
-    marginBottom: Spacing.xl,
+    marginBottom: 32,               // 8 * 4 (loose)
   },
   forgotPassword: {
     alignSelf: 'flex-end',
-    marginBottom: Spacing.lg,
+    marginBottom: 24,               // 8 * 3 (comfortable)
+    minHeight: 44,                  // Touch target
+    justifyContent: 'center',
   },
   forgotPasswordText: {
-    fontSize: Typography.fontSize.base,
+    fontSize: 14,                   // caption
     color: Colors.accent1,
-    fontWeight: Typography.fontWeight.medium,
+    fontWeight: '500',              // medium
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 16,                  // 8 * 2 (base)
   },
   footerText: {
-    fontSize: Typography.fontSize.base,
+    fontSize: 16,                   // body
     color: Colors.gray.dark,
   },
   signUpLink: {
-    fontSize: Typography.fontSize.base,
+    fontSize: 16,                   // body
     color: Colors.accent1,
-    fontWeight: Typography.fontWeight.semibold,
+    fontWeight: '600',              // semibold
   },
 });

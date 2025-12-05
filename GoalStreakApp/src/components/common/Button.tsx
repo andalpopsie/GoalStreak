@@ -61,7 +61,7 @@ export default function Button({
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: BorderRadius.md,
+    borderRadius: 12,               // 8 * 1.5
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
@@ -80,21 +80,21 @@ const styles = StyleSheet.create({
     borderColor: Colors.accent1,
   },
   
-  // Sizes
+  // Sizes (Fitts's Law - larger touch targets)
   sm: {
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    minHeight: 36,
+    paddingHorizontal: 16,          // 8 * 2
+    paddingVertical: 12,            // 8 * 1.5
+    minHeight: 48,                  // 8 * 6 (minimum touch target)
   },
   md: {
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-    minHeight: 44,
+    paddingHorizontal: 24,          // 8 * 3
+    paddingVertical: 16,            // 8 * 2
+    minHeight: 56,                  // 8 * 7 (recommended)
   },
   lg: {
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.lg,
-    minHeight: 52,
+    paddingHorizontal: 32,          // 8 * 4
+    paddingVertical: 20,            // 8 * 2.5
+    minHeight: 64,                  // 8 * 8 (optimal)
   },
   
   // Disabled state
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   
   // Text styles
   text: {
-    fontWeight: Typography.fontWeight.semibold,
+    fontWeight: '600',              // semibold
     textAlign: 'center',
   },
   
@@ -119,15 +119,15 @@ const styles = StyleSheet.create({
     color: Colors.accent1,
   },
   
-  // Text sizes
+  // Text sizes (simplified scale)
   smText: {
-    fontSize: Typography.fontSize.sm,
+    fontSize: 14,                   // caption
   },
   mdText: {
-    fontSize: Typography.fontSize.base,
+    fontSize: 16,                   // body
   },
   lgText: {
-    fontSize: Typography.fontSize.lg,
+    fontSize: 16,                   // body (use weight for hierarchy)
   },
   
   // Disabled text

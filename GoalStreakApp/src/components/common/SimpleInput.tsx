@@ -53,35 +53,35 @@ export default function SimpleInput({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: Spacing.md,
+    marginBottom: 16,               // 8 * 2 (base spacing)
   },
   label: {
-    fontSize: Typography.fontSize.lg,
-    fontWeight: Typography.fontWeight.semibold,
+    fontSize: 16,                   // body
+    fontWeight: '600',              // semibold
     color: Colors.primaryText,
-    marginBottom: Spacing.sm,
+    marginBottom: 8,                // 8 * 1 (tight)
   },
   input: {
     backgroundColor: Colors.white,
     borderWidth: 1,
     borderColor: Colors.gray.medium,
-    borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.md,
-    fontSize: Typography.fontSize.lg,
+    borderRadius: 12,               // 8 * 1.5
+    paddingHorizontal: 16,          // 8 * 2
+    paddingVertical: 16,            // 8 * 2
+    fontSize: 16,                   // body
     color: Colors.primaryText,
-    minHeight: 50,
+    minHeight: 56,                  // 8 * 7 (good touch target)
   },
   multilineInput: {
-    minHeight: 80,
-    paddingTop: Spacing.md,
+    minHeight: 96,                  // 8 * 12
+    paddingTop: 16,                 // 8 * 2
   },
   inputError: {
     borderColor: Colors.error,
   },
   errorText: {
-    fontSize: Typography.fontSize.sm,
+    fontSize: 14,                   // caption
     color: Colors.error,
-    marginTop: Spacing.xs,
+    marginTop: 8,                   // 8 * 1 (tight)
   },
 });
