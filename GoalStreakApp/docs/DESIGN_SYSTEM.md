@@ -113,6 +113,317 @@ gap: 10,
 
 > 📖 **Detailed Guide**: See `.kiro/steering/spacing-standards.md` for comprehensive spacing patterns and examples
 
+## 🔄 Jakob's Law - Leveraging Familiarity
+
+### Jakob's Law Principle
+**"Users spend most of their time on other apps. They prefer your app to work the same way."**
+
+Jakob's Law states that users transfer expectations from familiar products to new ones:
+- **Familiar patterns** → Instant understanding → Comfortable experience → Higher adoption
+- **Unfamiliar patterns** → Confusion → Frustration → Abandonment
+
+**Impact on UX:**
+- Users have mental models from apps they already use
+- Breaking conventions requires extra cognitive effort
+- Familiarity reduces learning curve and increases confidence
+
+### Jakob's Law Best Practices
+
+#### 1. Use Standard Patterns & Conventions
+```typescript
+// ✅ Good - Standard iOS/Android patterns
+navigation: {
+  type: 'BottomTabs',           // Familiar mobile pattern
+  icons: 'Ionicons',            // Standard icon library
+  placement: 'bottom',          // Expected location
+  // Users know how to use this immediately
+}
+
+searchBar: {
+  icon: 'search',               // Universal search icon
+  placeholder: 'Search...',     // Standard placeholder
+  position: 'top',              // Expected location
+  // No explanation needed
+}
+
+// ❌ Bad - Unconventional patterns
+weirdNavigation: {
+  type: 'CircularMenu',         // Unfamiliar
+  placement: 'center',          // Unexpected
+  gestures: 'swipe-diagonal',   // Non-standard
+  // Users will be confused
+}
+```
+
+#### 2. Follow Platform Guidelines
+```typescript
+// ✅ Good - iOS Human Interface Guidelines
+iosButton: {
+  minHeight: 44,                // Apple's minimum
+  borderRadius: 10,             // iOS style
+  hapticFeedback: true,         // Expected feedback
+  // Feels native to iOS users
+}
+
+// ✅ Good - Material Design (Android)
+androidButton: {
+  minHeight: 48,                // Material guideline
+  elevation: 2,                 // Material shadow
+  rippleEffect: true,           // Expected feedback
+  // Feels native to Android users
+}
+
+// ❌ Bad - Custom that breaks conventions
+customButton: {
+  shape: 'hexagon',             // Unusual
+  feedback: 'bounce',           // Non-standard
+  // Feels foreign and confusing
+}
+```
+
+#### 3. Use Familiar Icons & Symbols
+```typescript
+// ✅ Good - Universal icons
+icons: {
+  home: 'home',                 // House icon
+  search: 'search',             // Magnifying glass
+  settings: 'settings',         // Gear icon
+  profile: 'person',            // Person silhouette
+  add: 'add',                   // Plus sign
+  delete: 'trash',              // Trash can
+  edit: 'pencil',               // Pencil
+  share: 'share',               // Share arrow
+  // Everyone recognizes these
+}
+
+// ❌ Bad - Unconventional icons
+confusingIcons: {
+  home: 'rocket',               // Not intuitive
+  search: 'eye',                // Misleading
+  delete: 'star',               // Wrong meaning
+  // Users won't understand
+}
+```
+
+#### 4. Balance Familiarity with Brand Identity
+```typescript
+// ✅ Good - Familiar structure + unique style
+app: {
+  structure: {
+    navigation: 'BottomTabs',   // Familiar
+    layout: 'CardBased',        // Standard
+    gestures: 'SwipeToDelete',  // Expected
+  },
+  branding: {
+    colors: '#B771E5',          // Unique purple
+    typography: 'Montserrat',   // Distinctive font
+    illustrations: 'Custom',    // Brand personality
+  }
+  // Familiar to use, memorable to see
+}
+
+// ❌ Bad - Everything custom
+overlyUnique: {
+  navigation: 'CustomGestures', // Confusing
+  layout: 'Experimental',       // Unfamiliar
+  interactions: 'Novel',        // Requires learning
+  // Too different = high friction
+}
+```
+
+#### 5. Guide Users Through New Patterns
+```typescript
+// ✅ Good - Introduce unfamiliar features carefully
+newFeature: {
+  firstUse: {
+    tooltip: 'Swipe left to see friend activity',
+    animation: 'ShowGesture',
+    dismissible: true,
+  },
+  onboarding: {
+    tutorial: 'Interactive walkthrough',
+    skippable: true,
+  }
+  // Help users learn new patterns
+}
+
+// ✅ Good - Progressive disclosure of complexity
+advancedFeature: {
+  basic: 'Simple, familiar interface',
+  advanced: 'Hidden until user is ready',
+  help: 'Always accessible',
+  // Don't overwhelm with novelty
+}
+```
+
+### Common Familiar Patterns
+
+#### Navigation Patterns
+```typescript
+// ✅ Standard mobile navigation
+bottomTabs: {
+  items: ['Home', 'Search', 'Profile'],
+  position: 'bottom',
+  // Used by Instagram, Twitter, Facebook
+}
+
+hamburgerMenu: {
+  icon: '☰',
+  position: 'top-left',
+  // Universal "more options" pattern
+}
+
+backButton: {
+  icon: '←',
+  position: 'top-left',
+  // Standard navigation hierarchy
+}
+```
+
+#### Interaction Patterns
+```typescript
+// ✅ Familiar gestures
+gestures: {
+  swipeToDelete: 'left',        // Email apps
+  pullToRefresh: 'down',        // Social feeds
+  pinchToZoom: 'two-finger',    // Photos
+  doubleTapToLike: 'quick',     // Instagram
+  // Users already know these
+}
+```
+
+#### Form Patterns
+```typescript
+// ✅ Standard form conventions
+form: {
+  labelPosition: 'above',       // Expected
+  requiredIndicator: '*',       // Universal
+  errorColor: 'red',            // Standard
+  successColor: 'green',        // Standard
+  submitButton: 'bottom',       // Expected
+  // No surprises
+}
+```
+
+#### Feedback Patterns
+```typescript
+// ✅ Universal feedback
+feedback: {
+  loading: 'spinner',           // Standard
+  success: 'checkmark',         // Universal
+  error: 'X or !',              // Recognized
+  warning: '⚠',                 // Standard
+  // Instant recognition
+}
+```
+
+### GoalStreak Applications
+
+#### ✅ Already Following Jakob's Law
+1. **Bottom Tab Navigation** - Standard mobile pattern (Home, Social, Analytics, Profile)
+2. **Swipe Gestures** - Familiar interactions
+3. **Card-Based Layout** - Common in modern apps
+4. **Standard Icons** - Ionicons (universally recognized)
+5. **Pull to Refresh** - Expected social feed behavior
+6. **Settings Gear Icon** - Universal convention
+
+#### 🎯 Opportunities to Apply
+1. **Onboarding** - Use familiar tutorial patterns (you already have WelcomeCarousel!)
+2. **Habit Creation** - Follow standard form patterns (already good with collapsible sections)
+3. **Notifications** - Use platform-standard notification styles
+4. **Search** - Standard search bar at top with magnifying glass icon
+
+### Platform-Specific Conventions
+
+#### iOS Conventions
+```typescript
+ios: {
+  navigation: 'Bottom tabs or top navigation bar',
+  backButton: 'Top-left with "<" chevron',
+  actionButton: 'Top-right',
+  modals: 'Slide up from bottom',
+  alerts: 'Center with blur background',
+  switches: 'iOS-style toggle',
+  // Follow Apple HIG
+}
+```
+
+#### Android Conventions
+```typescript
+android: {
+  navigation: 'Bottom tabs or drawer',
+  backButton: 'Hardware back button or top-left arrow',
+  actionButton: 'Floating action button (FAB)',
+  modals: 'Slide up or fade in',
+  alerts: 'Material dialog',
+  switches: 'Material toggle',
+  // Follow Material Design
+}
+```
+
+### When to Break Conventions
+
+**Only break conventions when:**
+1. You have a significantly better solution
+2. The improvement is worth the learning curve
+3. You provide clear guidance/tutorials
+4. It's not a core interaction pattern
+5. User testing validates the new approach
+
+**Example:**
+```typescript
+// ✅ Acceptable innovation
+uniqueFeature: {
+  pattern: 'Novel circular progress indicator',
+  reason: 'Better visualizes habit streaks',
+  guidance: 'Tooltip on first use',
+  fallback: 'Standard list view available',
+  // Innovation with safety net
+}
+
+// ❌ Risky innovation
+riskyChange: {
+  pattern: 'Reinvent navigation',
+  reason: 'Looks cool',
+  guidance: 'None',
+  fallback: 'None',
+  // High risk of user confusion
+}
+```
+
+### Testing Checklist
+
+- [ ] Navigation follows platform conventions
+- [ ] Icons use universal symbols
+- [ ] Gestures match user expectations
+- [ ] Forms follow standard patterns
+- [ ] Feedback uses familiar indicators
+- [ ] New patterns have tutorials/tooltips
+- [ ] Brand identity doesn't override usability
+- [ ] Tested with users unfamiliar with the app
+- [ ] No "how do I...?" questions during testing
+
+### Examples from GoalStreak
+
+```typescript
+// ✅ Excellent - Standard bottom tab navigation
+<Tab.Navigator>
+  <Tab.Screen name="Habits" icon="home" />
+  <Tab.Screen name="Social" icon="people" />
+  <Tab.Screen name="Analytics" icon="analytics" />
+  <Tab.Screen name="Profile" icon="person" />
+</Tab.Navigator>
+// Users immediately understand this pattern
+
+// ✅ Good - Familiar card-based habit display
+<HabitCard
+  onPress={handleComplete}      // Tap to complete (expected)
+  onLongPress={showOptions}     // Long press for options (standard)
+  swipeActions={['edit', 'delete']}  // Swipe actions (familiar)
+/>
+// Follows patterns from email, todo apps
+```
+
 ## 🧠 Hick's Law - Simplifying Choices
 
 ### Hick's Law Principle

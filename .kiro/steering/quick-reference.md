@@ -61,6 +61,13 @@ descriptionMarginBottom: 24  // Description → CTA
 - Hide advanced features (progressive disclosure)
 - Show most-used actions first (80/20 rule)
 
+**Jakob's Law** - Users prefer familiar patterns
+- Use standard navigation (bottom tabs, back button)
+- Follow platform guidelines (iOS HIG, Material Design)
+- Use universal icons (home, search, settings, profile)
+- Balance familiarity with brand identity
+- Guide users through new patterns with tutorials
+
 ## Project Structure
 ```
 GoalStreakApp/
