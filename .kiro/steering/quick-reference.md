@@ -76,6 +76,14 @@ descriptionMarginBottom: 24  // Description → CTA
 - Familiar content: 5-7 items per chunk
 - Progressive disclosure for additional items
 
+**Zeigarnik Effect** - Incomplete tasks motivate completion
+- Show progress indicators (5/7 days, 85% complete)
+- Use gamification (streaks, points, badges, levels)
+- Save progress automatically (no lost work)
+- Send gentle reminders (helpful, not annoying)
+- Break large tasks into visible steps
+- Balance motivation with psychological comfort
+
 ## Project Structure
 ```
 GoalStreakApp/

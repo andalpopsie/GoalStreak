@@ -113,6 +113,352 @@ gap: 10,
 
 > 📖 **Detailed Guide**: See `.kiro/steering/spacing-standards.md` for comprehensive spacing patterns and examples
 
+## 🎯 Zeigarnik Effect - Leveraging Incomplete Tasks
+
+### Zeigarnik Effect Principle
+**"People remember incomplete tasks better than completed ones."**
+
+The Zeigarnik Effect states that the brain keeps thinking about unfinished tasks:
+- **Incomplete tasks** → Mental tension → Desire to complete → Return to app
+- **Progress indicators** → Motivation to finish → Higher engagement → Better retention
+
+**Impact on UX:**
+- Unfinished tasks create psychological tension (in a good way)
+- Progress visualization motivates completion
+- Saved progress reduces friction for returning users
+- Gentle reminders bring users back without annoyance
+
+### Zeigarnik Effect Best Practices
+
+#### 1. Show Progress Indicators
+```typescript
+// ✅ Good - Visual progress creates desire to complete
+habitStreak: {
+  current: 5,
+  goal: 7,
+  display: '5/7 days',
+  progressBar: 71,              // 5/7 = 71%
+  message: 'Only 2 more days to reach your weekly goal!',
+  // Creates tension to complete
+}
+
+onboarding: {
+  steps: [
+    { title: 'Welcome', completed: true },
+    { title: 'Create Habit', completed: true },
+    { title: 'Set Reminder', completed: false },
+  ],
+  progress: '2/3',
+  // User wants to finish that last step
+}
+
+// ❌ Bad - No progress indication
+noProgress: {
+  status: 'In Progress',
+  // No motivation to complete
+}
+```
+
+#### 2. Use Gamification Elements
+```typescript
+// ✅ Good - Points, badges, levels create goals
+gamification: {
+  points: {
+    current: 850,
+    nextMilestone: 1000,
+    message: '150 points to next level!',
+  },
+  badges: {
+    earned: 5,
+    available: 12,
+    next: 'Complete 7-day streak',
+  },
+  level: {
+    current: 3,
+    progress: 85,               // 85% to level 4
+    message: 'Almost level 4!',
+  }
+  // Multiple incomplete goals = engagement
+}
+
+// ✅ Good - Streak tracking (GoalStreak!)
+streak: {
+  current: 12,
+  best: 15,
+  message: 'Only 3 days to beat your record!',
+  // Psychological pull to continue
+}
+
+// ❌ Bad - No gamification
+plain: {
+  status: 'Active',
+  // No motivation or goals
+}
+```
+
+#### 3. Save Progress Automatically
+```typescript
+// ✅ Good - Auto-save reduces friction
+formProgress: {
+  autoSave: true,
+  saveInterval: 2000,           // Save every 2 seconds
+  savedFields: ['name', 'category', 'icon'],
+  message: 'Progress saved',
+  // Users can leave and return easily
+}
+
+habitCreation: {
+  draft: {
+    name: 'Morning Meditation',
+    category: 'Wellness',
+    savedAt: Date.now(),
+  },
+  restoreOnReturn: true,
+  // No need to start over
+}
+
+// ❌ Bad - No save, must complete in one session
+noSave: {
+  warning: 'Progress will be lost if you leave',
+  // Creates anxiety, not motivation
+}
+```
+
+#### 4. Send Gentle Reminders
+```typescript
+// ✅ Good - Helpful, not annoying
+reminder: {
+  type: 'incomplete_habit',
+  message: 'You\'re on a 5-day streak! Don\'t break it today.',
+  timing: 'evening',            // When user usually completes
+  frequency: 'once_per_day',
+  dismissible: true,
+  // Gentle nudge to complete
+}
+
+notification: {
+  title: 'Almost there!',
+  body: 'Complete 2 more habits to reach your daily goal',
+  action: 'Open App',
+  // Reminds of incomplete task
+}
+
+// ❌ Bad - Annoying, pushy
+spammy: {
+  frequency: 'every_hour',
+  dismissible: false,
+  message: 'COMPLETE YOUR HABITS NOW!!!',
+  // Creates resentment, not motivation
+}
+```
+
+#### 5. Break Large Tasks into Steps
+```typescript
+// ✅ Good - Multi-step process shows progress
+onboarding: {
+  steps: [
+    { id: 1, title: 'Create Account', status: 'complete' },
+    { id: 2, title: 'Add First Habit', status: 'complete' },
+    { id: 3, title: 'Set Reminder', status: 'current' },
+    { id: 4, title: 'Invite Friends', status: 'pending' },
+  ],
+  currentStep: 3,
+  totalSteps: 4,
+  progress: 75,                 // 3/4 = 75%
+  // Clear path to completion
+}
+
+// ✅ Good - Checklist creates completion desire
+setupChecklist: {
+  items: [
+    { task: 'Add profile picture', done: true },
+    { task: 'Create first habit', done: true },
+    { task: 'Complete first day', done: false },
+    { task: 'Invite a friend', done: false },
+  ],
+  completed: 2,
+  total: 4,
+  // Users want to check off remaining items
+}
+
+// ❌ Bad - One big task, no progress
+bigTask: {
+  title: 'Complete Setup',
+  status: 'In Progress',
+  // No sense of progress
+}
+```
+
+### Implementation Patterns
+
+#### Progress Bars
+```typescript
+// ✅ Good - Visual progress indicator
+<View style={styles.progressContainer}>
+  <Text>5/7 days this week</Text>
+  <View style={styles.progressBar}>
+    <View style={[styles.progressFill, { width: '71%' }]} />
+  </View>
+  <Text>2 more days to reach your goal!</Text>
+</View>
+// Creates desire to fill that bar
+```
+
+#### Streak Counters
+```typescript
+// ✅ Good - Streak visualization (GoalStreak!)
+<View style={styles.streakCard}>
+  <Text style={styles.streakNumber}>12</Text>
+  <Text>Day Streak</Text>
+  <Text style={styles.record}>Best: 15 days</Text>
+  <Text style={styles.motivation}>
+    Keep going! Only 3 days to beat your record!
+  </Text>
+</View>
+// Psychological pull to continue streak
+```
+
+#### Step Indicators
+```typescript
+// ✅ Good - Multi-step progress
+<View style={styles.stepIndicator}>
+  {steps.map((step, index) => (
+    <View key={index} style={styles.step}>
+      <View style={[
+        styles.stepCircle,
+        step.completed && styles.stepCompleted,
+        step.current && styles.stepCurrent,
+      ]}>
+        {step.completed ? '✓' : index + 1}
+      </View>
+      {index < steps.length - 1 && (
+        <View style={[
+          styles.stepLine,
+          step.completed && styles.lineCompleted
+        ]} />
+      )}
+    </View>
+  ))}
+</View>
+// Shows progress and what's left
+```
+
+#### Completion Percentage
+```typescript
+// ✅ Good - Percentage creates urgency
+<View style={styles.completionCard}>
+  <CircularProgress
+    percentage={85}
+    size={120}
+    strokeWidth={12}
+  />
+  <Text>85% Complete</Text>
+  <Text>Just 15% more to finish!</Text>
+</View>
+// So close! Must complete!
+```
+
+### GoalStreak Applications
+
+#### ✅ Already Using Zeigarnik Effect
+1. **Streak Tracking** - Shows current streak, creates desire to continue
+2. **Progress Circles** - Visual completion indicators
+3. **Daily Goals** - Incomplete habits create tension to complete
+4. **Onboarding Steps** - 3-step process shows progress
+5. **Milestone Celebrations** - Acknowledges completion, sets new goals
+
+#### 🎯 Opportunities to Enhance
+1. **Weekly Goals** - "4/7 habits completed this week"
+2. **Profile Completion** - "Your profile is 60% complete"
+3. **Achievement Progress** - "2 more days to earn 7-day streak badge"
+4. **Friend Challenges** - "You're ahead by 3 habits!"
+5. **Monthly Streaks** - "15/30 days completed this month"
+
+### Psychological Balance
+
+#### ✅ Good - Motivating, Not Stressful
+```typescript
+motivation: {
+  tone: 'encouraging',
+  message: 'You\'re doing great! Keep it up!',
+  frequency: 'appropriate',
+  dismissible: true,
+  // Positive reinforcement
+}
+```
+
+#### ❌ Bad - Creates Anxiety
+```typescript
+pressure: {
+  tone: 'demanding',
+  message: 'You\'re falling behind!',
+  frequency: 'constant',
+  dismissible: false,
+  // Negative pressure
+}
+```
+
+### Testing Checklist
+
+- [ ] Progress indicators show completion percentage
+- [ ] Streaks and goals create desire to continue
+- [ ] Progress is saved automatically
+- [ ] Users can resume where they left off
+- [ ] Reminders are helpful, not annoying
+- [ ] Large tasks broken into visible steps
+- [ ] Gamification elements motivate without pressure
+- [ ] Completion feels rewarding
+- [ ] Incomplete tasks are visible but not stressful
+- [ ] Users return to complete unfinished tasks
+
+### Examples from GoalStreak
+
+```typescript
+// ✅ Excellent - Streak tracking creates Zeigarnik Effect
+<HabitCard
+  habit={habit}
+  streak={12}
+  bestStreak={15}
+  message="3 days to beat your record!"
+/>
+// Creates psychological pull to continue
+
+// ✅ Good - Progress circle shows incomplete task
+<CircularProgress
+  percentage={habit.completedToday ? 100 : 0}
+  size={80}
+/>
+// Incomplete circle creates desire to complete
+
+// ✅ Good - Onboarding progress
+<OnboardingScreen
+  currentStep={2}
+  totalSteps={3}
+  progress={67}
+/>
+// Users want to finish that last step
+
+// 🎯 Opportunity - Weekly progress
+<WeeklyProgress
+  completed={4}
+  total={7}
+  message="Complete 3 more habits to reach your weekly goal!"
+/>
+// Creates motivation to complete week
+```
+
+### Zeigarnik Effect + Other Laws
+
+**Combined with Miller's Law:**
+- Miller's Law: Break into 5-7 chunks
+- Zeigarnik Effect: Show progress through chunks
+- Result: Manageable steps with clear progress
+
+**Combined with Gamification:**
+- Gamification: Points, badges, levels
+- Zeigarnik Effect: Incomplete achievements motivate
+- Result: Engaging progression system
+
 ## 🧮 Miller's Law - Chunking Information
 
 ### Miller's Law Principle
