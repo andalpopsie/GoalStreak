@@ -239,22 +239,22 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    padding: Spacing.lg,
-    paddingBottom: Spacing.xl, // Extra padding at bottom
+    padding: 16,                    // 8 * 2 (base spacing)
+    paddingBottom: 32,              // 8 * 4 (loose)
   },
   header: {
     alignItems: 'center',
-    marginBottom: Spacing.xl,
-    paddingTop: Spacing.md,
+    marginBottom: 32,               // 8 * 4 (loose)
+    paddingTop: 16,                 // 8 * 2 (base)
   },
   logoContainer: {
-    width: 80,
-    height: 80,
+    width: 80,                      // 8 * 10
+    height: 80,                     // 8 * 10
     borderRadius: 40,
     backgroundColor: Colors.white,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: Spacing.lg,
+    marginBottom: 24,               // 8 * 3 (comfortable)
     shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -262,53 +262,54 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   title: {
-    fontSize: Typography.fontSize['3xl'],
-    fontWeight: Typography.fontWeight.bold,
+    fontSize: 24,                   // heading
+    fontWeight: '700',              // bold
     color: Colors.primaryText,
-    marginBottom: Spacing.sm,
+    marginBottom: 8,                // 8 * 1 (tight)
   },
   subtitle: {
-    fontSize: Typography.fontSize.lg,
+    fontSize: 16,                   // body
     color: Colors.accent2,
     textAlign: 'center',
+    lineHeight: 24,                 // 1.5 line height
   },
   form: {
-    marginBottom: Spacing.lg,
+    marginBottom: 24,               // 8 * 3 (comfortable)
   },
   buttonContainer: {
-    marginTop: Spacing.md,
+    marginTop: 16,                  // 8 * 2 (base)
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: Spacing.lg,
+    marginBottom: 24,               // 8 * 3 (comfortable)
   },
   footerText: {
-    fontSize: Typography.fontSize.base,
+    fontSize: 16,                   // body
     color: Colors.gray.dark,
   },
   signInLink: {
-    fontSize: Typography.fontSize.base,
+    fontSize: 16,                   // body
     color: Colors.accent1,
-    fontWeight: Typography.fontWeight.semibold,
+    fontWeight: '600',              // semibold
   },
   terms: {
-    paddingHorizontal: Spacing.md,
-    marginBottom: Spacing.xl, // Extra margin at bottom
+    paddingHorizontal: 16,          // 8 * 2 (base)
+    marginBottom: 32,               // 8 * 4 (loose)
   },
   termsText: {
-    fontSize: Typography.fontSize.sm,
+    fontSize: 14,                   // caption
     color: Colors.gray.dark,
     textAlign: 'center',
-    lineHeight: Typography.lineHeight.relaxed * Typography.fontSize.sm,
+    lineHeight: 22,                 // ~1.6 line height
   },
   linkContainer: {
     // Inline display for text links
   },
   termsLink: {
     color: Colors.accent1,
-    fontWeight: Typography.fontWeight.medium,
+    fontWeight: '500',              // medium
     textDecorationLine: 'underline',
   },
 });
