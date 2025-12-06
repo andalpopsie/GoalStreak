@@ -340,8 +340,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,               // 8 * 1.5
   },
   habitCategoryText: {
-    fontSize: 12,                   // small
-    color: Colors.gray.dark,
+    fontSize: 12,                   // small (OK for category badge)
+    color: Colors.primaryText,      // Darker for better contrast
     fontWeight: '500',              // medium
     fontFamily: Typography.fontFamily.medium,
   },
@@ -360,8 +360,8 @@ const styles = StyleSheet.create({
     fontFamily: Typography.fontFamily.bold,
   },
   habitStatLabel: {
-    fontSize: 12,                   // small
-    color: Colors.gray.medium,
+    fontSize: 14,                   // caption (proper for labels)
+    color: Colors.gray.dark,        // Darker for better readability
     fontFamily: Typography.fontFamily.regular,
     marginTop: 4,                   // 8 * 0.5
   },
@@ -374,8 +374,8 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.gray.light,
   },
   habitFooterText: {
-    fontSize: 12,                   // small
-    color: Colors.gray.medium,
+    fontSize: 14,                   // caption (proper for labels)
+    color: Colors.gray.dark,        // Darker for better readability
     fontFamily: Typography.fontFamily.regular,
     marginLeft: 4,                  // 8 * 0.5
   },
