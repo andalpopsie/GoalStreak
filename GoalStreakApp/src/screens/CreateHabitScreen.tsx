@@ -601,7 +601,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
         >
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Timer Duration</Text>
+              <Text style={styles.modalTitle}>Timer Duration (in minutes)</Text>
               <TouchableOpacity onPress={() => setShowTimerPicker(false)}>
                 <Ionicons name="close" size={24} color={Colors.primaryText} />
               </TouchableOpacity>
