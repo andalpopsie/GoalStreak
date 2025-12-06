@@ -472,35 +472,41 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
 
                 {/* Timer Duration Selector - Only show when enabled */}
                 {form.timer && (
-                  <View style={styles.timerDurationContainer}>
-                    <Text style={styles.timerDurationLabel}>Duration</Text>
-                    <View style={styles.timerDurationOptions}>
-                      {[5, 10, 15, 30, 60].map((minutes) => (
-                        <TouchableOpacity
-                          key={minutes}
-                          style={[
-                            styles.durationOption,
-                            form.timer?.durationMinutes === minutes && styles.durationOptionActive
-                          ]}
-                          onPress={() => {
-                            if (form.timer) {
-                              handleTimerConfigChange({
-                                ...form.timer,
-                                durationMinutes: minutes
-                              });
+                  <TouchableOpacity
+                    style={styles.timerDurationSelector}
+                    onPress={() => {
+                      Alert.alert(
+                        'Timer Duration',
+                        'Select duration in minutes',
+                        [
+                          ...Array.from({ length: 60 }, (_, i) => i + 1).map(minutes => ({
+                            text: `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`,
+                            onPress: () => {
+                              if (form.timer) {
+                                handleTimerConfigChange({
+                                  ...form.timer,
+                                  durationMinutes: minutes
+                                });
+                              }
                             }
-                          }}
-                        >
-                          <Text style={[
-                            styles.durationOptionText,
-                            form.timer?.durationMinutes === minutes && styles.durationOptionTextActive
-                          ]}>
-                            {minutes < 60 ? `${minutes}m` : `${minutes / 60}h`}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
+                          })),
+                          { text: 'Cancel', style: 'cancel' }
+                        ],
+                        { cancelable: true }
+                      );
+                    }}
+                  >
+                    <View style={styles.timerDurationLeft}>
+                      <Ionicons name="time-outline" size={20} color={Colors.accent1} />
+                      <Text style={styles.timerDurationLabel}>Duration</Text>
                     </View>
-                  </View>
+                    <View style={styles.timerDurationRight}>
+                      <Text style={styles.timerDurationValue}>
+                        {form.timer.durationMinutes} {form.timer.durationMinutes === 1 ? 'min' : 'mins'}
+                      </Text>
+                      <Ionicons name="chevron-forward" size={16} color={Colors.secondaryText} />
+                    </View>
+                  </TouchableOpacity>
                 )}
 
                 {/* Share Option - Settings Style */}
@@ -793,46 +799,34 @@ const styles = StyleSheet.create({
   },
 
   // Timer Duration Selector
-  timerDurationContainer: {
-    paddingHorizontal: 16,          // 8 * 2 (base)
+  timerDurationSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingVertical: 12,            // 8 * 1.5
-    backgroundColor: Colors.background,
+    paddingHorizontal: 16,          // 8 * 2 (base)
+    backgroundColor: Colors.white,
     borderRadius: 12,               // 8 * 1.5
     marginBottom: 8,                // 8 * 1 (tight)
+    minHeight: 56,                  // 8 * 7 (touch target)
+  },
+  timerDurationLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,                        // 8 * 1.5
   },
   timerDurationLabel: {
-    fontSize: 14,                   // caption
-    color: Colors.secondaryText,
-    marginBottom: 8,                // 8 * 1 (tight)
-    fontWeight: '500',              // medium
-  },
-  timerDurationOptions: {
-    flexDirection: 'row',
-    gap: 8,                         // 8 * 1 (tight)
-  },
-  durationOption: {
-    flex: 1,
-    paddingVertical: 12,            // 8 * 1.5
-    paddingHorizontal: 8,           // 8 * 1 (tight)
-    backgroundColor: Colors.white,
-    borderRadius: 8,                // 8 * 1
-    borderWidth: 1,
-    borderColor: Colors.gray.medium,
-    alignItems: 'center',
-    minHeight: 48,                  // 8 * 6 (touch target)
-    justifyContent: 'center',
-  },
-  durationOptionActive: {
-    backgroundColor: Colors.accent1 + '10',
-    borderColor: Colors.accent1,
-    borderWidth: 2,
-  },
-  durationOptionText: {
     fontSize: 16,                   // body
     color: Colors.primaryText,
     fontWeight: '500',              // medium
   },
-  durationOptionTextActive: {
+  timerDurationRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,                         // 8 * 1 (tight)
+  },
+  timerDurationValue: {
+    fontSize: 16,                   // body
     color: Colors.accent1,
     fontWeight: '600',              // semibold
   },
