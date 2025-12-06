@@ -218,6 +218,17 @@ export default function ProfileScreen() {
     );
   };
 
+  // TEMPORARY: Test inactivity nudge
+  const handleTestNudge = async () => {
+    try {
+      await inactivityNudgeService.sendTestNudge();
+      Alert.alert('Test Nudge Sent! 🦉', 'Check your notifications in a few seconds. The owl is coming for you!');
+    } catch (error) {
+      console.error('Error sending test nudge:', error);
+      Alert.alert('Error', 'Failed to send test nudge. Make sure notifications are enabled.');
+    }
+  };
+
   // TEMPORARY: Reset onboarding for testing
   const handleResetOnboarding = async () => {
     Alert.alert(
@@ -292,7 +303,12 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.menuSection}>
-          {/* TEMPORARY: Reset Onboarding Button for Testing */}
+          {/* TEMPORARY: Test Buttons */}
+          <TouchableOpacity style={styles.menuItem} onPress={handleTestNudge}>
+            <Ionicons name="notifications-outline" size={24} color={Colors.accent1} />
+            <Text style={[styles.menuText, { color: Colors.accent1 }]}>🦉 Test Inactivity Nudge</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.menuItem} onPress={handleResetOnboarding}>
             <Ionicons name="refresh-outline" size={24} color={Colors.accent2} />
             <Text style={[styles.menuText, { color: Colors.accent2 }]}>🔄 Reset Onboarding (Test)</Text>
