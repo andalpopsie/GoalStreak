@@ -57,13 +57,13 @@ function MainTabNavigator() {
           let iconName: keyof typeof Ionicons.glyphMap;
 
           if (route.name === 'Home') {
-            iconName = focused ? 'sparkles' : 'sparkles-outline';  // Cuter, more playful
+            iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Social') {
-            iconName = focused ? 'heart' : 'heart-outline';  // Friendlier than people
+            iconName = focused ? 'people' : 'people-outline';
           } else if (route.name === 'Analytics') {
-            iconName = focused ? 'stats-chart' : 'stats-chart-outline';  // Modern, rounded
+            iconName = focused ? 'bar-chart' : 'bar-chart-outline';
           } else if (route.name === 'Profile') {
-            iconName = focused ? 'person-circle' : 'person-circle-outline';  // Softer, rounder
+            iconName = focused ? 'person' : 'person-outline';
           } else {
             iconName = 'help-outline';
           }
