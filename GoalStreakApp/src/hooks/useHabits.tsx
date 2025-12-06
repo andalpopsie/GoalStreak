@@ -261,6 +261,14 @@ export function useHabits(): UseHabitsReturn {
       
       await completionService.completeHabit(habitId, user.id, value, notes);
       
+      // Record activity for inactivity nudge tracking
+      try {
+        const { inactivityNudgeService } = await import('../services/inactivityNudgeService');
+        await inactivityNudgeService.recordActivity();
+      } catch (error) {
+        console.error('Error recording activity:', error);
+      }
+      
       // Refresh data to get updated streak and completion
       const [completion, streak] = await Promise.all([
         completionService.getTodayCompletion(habitId, user.id),

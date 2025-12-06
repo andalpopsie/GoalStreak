@@ -27,6 +27,23 @@ Notifications.setNotificationHandler({
 function AppContent() {
   const { user } = useAuth();
   
+  // Check for inactivity nudges when app opens
+  useEffect(() => {
+    if (user?.id) {
+      checkInactivityNudge();
+    }
+  }, [user?.id]);
+
+  const checkInactivityNudge = async () => {
+    try {
+      const { inactivityNudgeService } = await import('./src/services/inactivityNudgeService');
+      await inactivityNudgeService.initialize();
+      await inactivityNudgeService.checkAndSendNudge(user!.id);
+    } catch (error) {
+      console.error('Error checking inactivity nudge:', error);
+    }
+  };
+  
   return (
     <OnboardingProvider>
       <TimerProvider userId={user?.id}>

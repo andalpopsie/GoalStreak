@@ -12,6 +12,7 @@ import { photoService } from '../services/photoService';
 import { openPrivacyPolicy, openTermsOfService, openSupport } from '../utils/linkingUtils';
 import { trackScreen, trackEvent } from '../services/enhancedAnalyticsService';
 import { motivationalNotificationService } from '../services/motivationalNotificationService';
+import { inactivityNudgeService } from '../services/inactivityNudgeService';
 
 export default function ProfileScreen() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -29,7 +30,8 @@ export default function ProfileScreen() {
     badge: true,
     dailyReminder: true,
     streakAlerts: true,
-    dailyMotivation: false, // New: Daily motivational notifications
+    dailyMotivation: false, // Daily motivational notifications
+    inactivityNudges: true, // Playful nudges when inactive
   });
 
   useEffect(() => {
@@ -90,6 +92,9 @@ export default function ProfileScreen() {
       } else {
         await motivationalNotificationService.cancelDailyNotification();
       }
+
+      // Handle inactivity nudges
+      await inactivityNudgeService.setEnabled(newSettings.inactivityNudges);
     } catch (error) {
       console.error('Error saving notification settings:', error);
     }
@@ -411,6 +416,21 @@ export default function ProfileScreen() {
               <Switch
                 value={notificationSettings.dailyMotivation}
                 onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, dailyMotivation: value })}
+                trackColor={{ false: Colors.accent3, true: Colors.primary }}
+                thumbColor={Colors.white}
+              />
+            </View>
+
+            <View style={styles.settingItem}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.settingLabel}>Inactivity Nudges 🦉</Text>
+                <Text style={styles.settingDescription}>
+                  Get playful reminders if you haven't logged habits for 3+ days
+                </Text>
+              </View>
+              <Switch
+                value={notificationSettings.inactivityNudges}
+                onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, inactivityNudges: value })}
                 trackColor={{ false: Colors.accent3, true: Colors.primary }}
                 thumbColor={Colors.white}
               />
