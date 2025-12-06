@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Switch,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -86,6 +87,9 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
   const [isCategoryExpanded, setIsCategoryExpanded] = useState(false);
   const [isIconExpanded, setIsIconExpanded] = useState(false);
   const [isOptionsExpanded, setIsOptionsExpanded] = useState(false);
+
+  // Timer duration picker state
+  const [showTimerPicker, setShowTimerPicker] = useState(false);
 
   // Time picker state
   const [selectedHour] = useState(DEFAULT_REMINDER_HOUR);
@@ -474,27 +478,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                 {form.timer && (
                   <TouchableOpacity
                     style={styles.timerDurationSelector}
-                    onPress={() => {
-                      Alert.alert(
-                        'Timer Duration',
-                        'Select duration in minutes',
-                        [
-                          ...Array.from({ length: 60 }, (_, i) => i + 1).map(minutes => ({
-                            text: `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`,
-                            onPress: () => {
-                              if (form.timer) {
-                                handleTimerConfigChange({
-                                  ...form.timer,
-                                  durationMinutes: minutes
-                                });
-                              }
-                            }
-                          })),
-                          { text: 'Cancel', style: 'cancel' }
-                        ],
-                        { cancelable: true }
-                      );
-                    }}
+                    onPress={() => setShowTimerPicker(true)}
                   >
                     <View style={styles.timerDurationLeft}>
                       <Ionicons name="time-outline" size={20} color={Colors.accent1} />
@@ -602,6 +586,59 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
           onClose={() => setShowIconPicker(false)}
         />
       )}
+
+      {/* Timer Duration Picker Modal */}
+      <Modal
+        visible={showTimerPicker}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowTimerPicker(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowTimerPicker(false)}
+        >
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Timer Duration</Text>
+              <TouchableOpacity onPress={() => setShowTimerPicker(false)}>
+                <Ionicons name="close" size={24} color={Colors.primaryText} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalScroll}>
+              {Array.from({ length: 60 }, (_, i) => i + 1).map((minutes) => (
+                <TouchableOpacity
+                  key={minutes}
+                  style={[
+                    styles.durationOption,
+                    form.timer?.durationMinutes === minutes && styles.durationOptionSelected
+                  ]}
+                  onPress={() => {
+                    if (form.timer) {
+                      handleTimerConfigChange({
+                        ...form.timer,
+                        durationMinutes: minutes
+                      });
+                    }
+                    setShowTimerPicker(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.durationOptionText,
+                    form.timer?.durationMinutes === minutes && styles.durationOptionTextSelected
+                  ]}>
+                    {minutes}
+                  </Text>
+                  {form.timer?.durationMinutes === minutes && (
+                    <Ionicons name="checkmark" size={24} color={Colors.accent1} />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -854,5 +891,57 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 16,                  // 8 * 2 (base)
     marginBottom: 16,               // 8 * 2 (base)
+  },
+
+  // Timer Duration Picker Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: Colors.white,
+    borderTopLeftRadius: 24,        // 8 * 3
+    borderTopRightRadius: 24,       // 8 * 3
+    maxHeight: '50%',               // Half screen
+    paddingBottom: 32,              // 8 * 4 (safe area)
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,                    // 8 * 2 (base)
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.gray.light,
+  },
+  modalTitle: {
+    fontSize: 20,                   // subheading
+    fontWeight: '600',              // semibold
+    color: Colors.primaryText,
+  },
+  modalScroll: {
+    flex: 1,
+  },
+  durationOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,            // 8 * 2 (base)
+    paddingHorizontal: 24,          // 8 * 3 (comfortable)
+    minHeight: 56,                  // 8 * 7 (touch target)
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.gray.light,
+  },
+  durationOptionSelected: {
+    backgroundColor: Colors.accent1 + '08',
+  },
+  durationOptionText: {
+    fontSize: 20,                   // subheading (larger for easy reading)
+    color: Colors.primaryText,
+    fontWeight: '400',              // regular
+  },
+  durationOptionTextSelected: {
+    color: Colors.accent1,
+    fontWeight: '600',              // semibold
   },
 });
