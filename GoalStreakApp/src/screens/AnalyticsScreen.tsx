@@ -18,10 +18,10 @@ import { useAuth } from '../hooks/useAuth';
 
 // Helper function to get performance color
 const getPerformanceColor = (rate: number) => {
-  if (rate >= 80) return '#4A90A4';      // Teal - Excellent
-  if (rate >= 60) return '#FFDE59';      // Yellow - Good
-  if (rate >= 40) return '#FF9013';      // Orange - Needs work
-  return '#FF4444';                      // Red - Struggling
+  if (rate >= 80) return '#B771E5';      // Purple - Excellent
+  if (rate >= 60) return '#8B5BA8';      // Dark gray to purple - Good
+  if (rate >= 40) return '#666666';      // Gray to dark gray - Fair
+  return '#CCCCCC';                      // Light gray - Needs Focus
 };
 
 // Helper function to get performance label
