@@ -556,41 +556,45 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: Spacing.md,
+    padding: 16,                    // 8 * 2 (base)
     backgroundColor: Colors.white,
   },
   backButton: {
-    padding: Spacing.sm,
+    padding: 8,                     // 8 * 1 (tight)
+    minHeight: 44,                  // Touch target
+    minWidth: 44,                   // Touch target
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
-    fontSize: Typography.fontSize.lg,
-    fontWeight: Typography.fontWeight.semibold,
+    fontSize: 20,                   // subheading
+    fontWeight: '600',              // semibold
     color: Colors.primaryText,
   },
   habitCounter: {
-    fontSize: Typography.fontSize.sm,
+    fontSize: 14,                   // caption
     color: Colors.secondaryText,
-    fontWeight: Typography.fontWeight.medium,
+    fontWeight: '500',              // medium
   },
 
   scrollView: {
     flex: 1,
   },
   content: {
-    padding: Spacing.md,
+    padding: 16,                    // 8 * 2 (base)
   },
   section: {
-    marginBottom: Spacing.md,
+    marginBottom: 16,               // 8 * 2 (base)
   },
   nameSection: {
-    marginBottom: Spacing.md,
+    marginBottom: 16,               // 8 * 2 (base)
   },
 
   // Collapsible Section Styles
   collapsibleSection: {
     backgroundColor: Colors.white,
-    borderRadius: BorderRadius.lg,
-    marginBottom: Spacing.md,
+    borderRadius: 16,               // 8 * 2 (comfortable rounded)
+    marginBottom: 16,               // 8 * 2 (base)
     borderWidth: 1,
     borderColor: Colors.gray.medium,
     overflow: 'hidden',
@@ -599,7 +603,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: Spacing.md,
+    padding: 16,                    // 8 * 2 (base)
+    minHeight: 64,                  // 8 * 8 (good touch target)
   },
   collapsibleHeaderLeft: {
     flexDirection: 'row',
@@ -607,18 +612,18 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   collapsibleLabel: {
-    fontSize: Typography.fontSize.caption,
+    fontSize: 14,                   // caption
     color: Colors.secondaryText,
-    marginBottom: 2,
+    marginBottom: 4,                // 8 * 0.5
   },
   collapsibleValue: {
-    fontSize: Typography.fontSize.body,
+    fontSize: 16,                   // body
     color: Colors.primaryText,
-    fontWeight: Typography.fontWeight.medium,
+    fontWeight: '500',              // medium
   },
   expandedContent: {
-    paddingHorizontal: Spacing.md,
-    paddingBottom: Spacing.md,
+    paddingHorizontal: 16,          // 8 * 2 (base)
+    paddingBottom: 16,              // 8 * 2 (base)
     borderTopWidth: 1,
     borderTopColor: Colors.gray.light,
   },
@@ -628,101 +633,103 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    padding: Spacing.md,
-    paddingTop: Spacing.sm,
+    padding: 16,                    // 8 * 2 (base)
+    paddingTop: 8,                  // 8 * 1 (tight)
     borderTopWidth: 1,
     borderTopColor: Colors.gray.light,
   },
   categoryCard: {
     width: '48%',
     backgroundColor: Colors.background,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.sm,
+    borderRadius: 12,               // 8 * 1.5
+    padding: 12,                    // 8 * 1.5
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 2,
     borderColor: Colors.gray.light,
     position: 'relative',
-    minHeight: 56,
-    marginBottom: Spacing.sm,
+    minHeight: 56,                  // 8 * 7 (touch target)
+    marginBottom: 8,                // 8 * 1 (tight)
   },
   categoryCardSelected: {
     borderWidth: 2,
     backgroundColor: Colors.white,
   },
   categoryIconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,                      // 8 * 5
+    height: 40,                     // 8 * 5
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: Spacing.sm,
+    marginRight: 8,                 // 8 * 1 (tight)
   },
   categoryLabel: {
-    fontSize: Typography.fontSize.body,
-    fontWeight: Typography.fontWeight.semibold,
+    fontSize: 16,                   // body
+    fontWeight: '600',              // semibold
     color: Colors.primaryText,
     flex: 1,
   },
   selectedIndicator: {
-    marginLeft: Spacing.xs,
+    marginLeft: 4,                  // 8 * 0.5
   },
 
   // Icon Selector - Minimalist
   iconPreview: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,                      // 8 * 5
+    height: 40,                     // 8 * 5
+    borderRadius: 20,
     backgroundColor: Colors.background,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: Spacing.md,
+    marginRight: 16,                // 8 * 2 (base)
   },
   iconSelectorButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: Colors.background,
-    padding: Spacing.md,
-    borderRadius: BorderRadius.md,
-    marginTop: Spacing.sm,
+    padding: 16,                    // 8 * 2 (base)
+    borderRadius: 12,               // 8 * 1.5
+    marginTop: 8,                   // 8 * 1 (tight)
+    minHeight: 56,                  // 8 * 7 (touch target)
   },
   iconSelectorButtonText: {
-    fontSize: Typography.fontSize.body,
+    fontSize: 16,                   // body
     color: Colors.accent1,
-    fontWeight: Typography.fontWeight.medium,
+    fontWeight: '500',              // medium
   },
 
   // Option Item
   optionItem: {
-    marginTop: Spacing.sm,
-    marginBottom: Spacing.sm,
+    marginTop: 8,                   // 8 * 1 (tight)
+    marginBottom: 8,                // 8 * 1 (tight)
   },
 
   // Settings Row - Minimalist
   settingsRow: {
     flexDirection: 'row',
-    gap: Spacing.md,
-    marginBottom: Spacing.md,
+    gap: 16,                        // 8 * 2 (base)
+    marginBottom: 16,               // 8 * 2 (base)
   },
   settingCard: {
     flex: 1,
     backgroundColor: Colors.white,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
+    borderRadius: 16,               // 8 * 2
+    padding: 16,                    // 8 * 2 (base)
     alignItems: 'center',
     borderWidth: 1,
     borderColor: Colors.gray.medium,
+    minHeight: 72,                  // 8 * 9 (good touch target)
   },
   settingCardActive: {
     borderColor: Colors.accent1,
     backgroundColor: Colors.accent1 + '08',
   },
   settingText: {
-    fontSize: Typography.fontSize.caption,
+    fontSize: 14,                   // caption
     color: Colors.secondaryText,
-    marginTop: Spacing.xs,
-    fontWeight: Typography.fontWeight.medium,
+    marginTop: 8,                   // 8 * 1 (tight)
+    fontWeight: '500',              // medium
   },
   settingTextActive: {
     color: Colors.accent1,
@@ -733,22 +740,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.white,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    marginBottom: Spacing.md,
+    borderRadius: 16,               // 8 * 2
+    padding: 16,                    // 8 * 2 (base)
+    marginBottom: 16,               // 8 * 2 (base)
     borderWidth: 1,
     borderColor: Colors.gray.medium,
+    minHeight: 56,                  // 8 * 7 (touch target)
   },
   timeText: {
     flex: 1,
-    fontSize: Typography.fontSize.body,
+    fontSize: 16,                   // body
     color: Colors.primaryText,
-    fontWeight: Typography.fontWeight.medium,
-    marginLeft: Spacing.md,
+    fontWeight: '500',              // medium
+    marginLeft: 16,                 // 8 * 2 (base)
   },
 
   buttonContainer: {
-    marginTop: Spacing.md,
-    marginBottom: Spacing.md,
+    marginTop: 16,                  // 8 * 2 (base)
+    marginBottom: 16,               // 8 * 2 (base)
   },
 });
