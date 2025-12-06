@@ -276,33 +276,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.xs,
-    paddingBottom: Spacing.md,
+    paddingHorizontal: 24,          // 8 * 3 (comfortable)
+    paddingTop: 8,                  // 8 * 1 (tight)
+    paddingBottom: 16,              // 8 * 2 (base)
   },
   title: {
-    fontSize: Typography.fontSize['2xl'],
-    fontWeight: Typography.fontWeight.bold,
+    fontSize: 24,                   // heading
+    fontWeight: '700',              // bold
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.bold,
   },
   section: {
-    marginVertical: Spacing.sm,
+    marginVertical: 8,              // 8 * 1 (tight)
   },
   sectionTitle: {
-    fontSize: Typography.fontSize.lg,
-    fontWeight: Typography.fontWeight.semibold,
+    fontSize: 20,                   // subheading
+    fontWeight: '600',              // semibold
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,
-    marginHorizontal: Spacing.lg,
-    marginBottom: Spacing.md,
+    marginHorizontal: 24,           // 8 * 3 (comfortable)
+    marginBottom: 16,               // 8 * 2 (base)
   },
   habitAnalyticsCard: {
     backgroundColor: Colors.white,
-    borderRadius: 12,
-    padding: Spacing.md,
-    marginHorizontal: Spacing.lg,
-    marginVertical: Spacing.xs,
+    borderRadius: 16,               // 8 * 2
+    padding: 16,                    // 8 * 2 (base)
+    marginHorizontal: 16,           // 8 * 2 (base)
+    marginVertical: 8,              // 8 * 1 (tight)
     shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
@@ -313,25 +313,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: Spacing.sm,
+    marginBottom: 16,               // 8 * 2 (base)
   },
   habitName: {
-    fontSize: Typography.fontSize.md,
-    fontWeight: Typography.fontWeight.semibold,
+    fontSize: 16,                   // body
+    fontWeight: '600',              // semibold
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,
     flex: 1,
   },
   habitCategory: {
     backgroundColor: Colors.gray.light,
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: 4,
-    borderRadius: 12,
+    paddingHorizontal: 12,          // 8 * 1.5
+    paddingVertical: 4,             // 8 * 0.5
+    borderRadius: 12,               // 8 * 1.5
   },
   habitCategoryText: {
-    fontSize: Typography.fontSize.xs,
+    fontSize: 12,                   // small
     color: Colors.gray.dark,
-    fontWeight: Typography.fontWeight.medium,
+    fontWeight: '500',              // medium
     fontFamily: Typography.fontFamily.medium,
   },
   habitStats: {
@@ -343,109 +343,112 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   habitStatValue: {
-    fontSize: Typography.fontSize.lg,
-    fontWeight: Typography.fontWeight.bold,
+    fontSize: 20,                   // subheading
+    fontWeight: '700',              // bold
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.bold,
   },
   habitStatLabel: {
-    fontSize: Typography.fontSize.xs,
+    fontSize: 12,                   // small
     color: Colors.gray.medium,
     fontFamily: Typography.fontFamily.regular,
-    marginTop: 2,
+    marginTop: 4,                   // 8 * 0.5
   },
   habitFooter: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: Spacing.sm,
-    paddingTop: Spacing.sm,
+    marginTop: 12,                  // 8 * 1.5
+    paddingTop: 12,                 // 8 * 1.5
     borderTopWidth: 1,
     borderTopColor: Colors.gray.light,
   },
   habitFooterText: {
-    fontSize: Typography.fontSize.xs,
+    fontSize: 12,                   // small
     color: Colors.gray.medium,
     fontFamily: Typography.fontFamily.regular,
-    marginLeft: 4,
+    marginLeft: 4,                  // 8 * 0.5
   },
   viewMoreButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: Spacing.md,
-    marginHorizontal: Spacing.lg,
+    paddingVertical: 16,            // 8 * 2 (base)
+    marginHorizontal: 16,           // 8 * 2 (base)
+    minHeight: 48,                  // 8 * 6 (touch target)
   },
   viewMoreText: {
-    fontSize: Typography.fontSize.md,
-    fontWeight: Typography.fontWeight.medium,
+    fontSize: 16,                   // body
+    fontWeight: '500',              // medium
     color: Colors.accent1,
     fontFamily: Typography.fontFamily.medium,
-    marginRight: Spacing.xs,
+    marginRight: 8,                 // 8 * 1 (tight)
   },
   emptySection: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: Spacing.xl,
-    paddingHorizontal: Spacing.lg,
+    paddingVertical: 48,            // 8 * 6 (spacious)
+    paddingHorizontal: 24,          // 8 * 3 (comfortable)
   },
   emptyTitle: {
-    fontSize: Typography.fontSize.lg,
-    fontWeight: Typography.fontWeight.semibold,
+    fontSize: 20,                   // subheading
+    fontWeight: '600',              // semibold
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,
-    marginTop: Spacing.md,
-    marginBottom: Spacing.sm,
+    marginTop: 16,                  // 8 * 2 (base)
+    marginBottom: 8,                // 8 * 1 (tight)
   },
   emptyText: {
-    fontSize: Typography.fontSize.md,
+    fontSize: 16,                   // body
     color: Colors.gray.dark,
     fontFamily: Typography.fontFamily.regular,
     textAlign: 'center',
-    lineHeight: Typography.fontSize.md * 1.4,
-    marginBottom: Spacing.lg,
+    lineHeight: 24,                 // 1.5 line height
+    marginBottom: 24,               // 8 * 3 (comfortable)
   },
   refreshButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.accent1,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-    borderRadius: 8,
+    paddingHorizontal: 24,          // 8 * 3 (comfortable)
+    paddingVertical: 16,            // 8 * 2 (base)
+    borderRadius: 32,               // Pill-shaped (modern)
+    minHeight: 56,                  // 8 * 7 (touch target)
   },
   refreshButtonText: {
     color: Colors.white,
-    fontSize: Typography.fontSize.md,
-    fontWeight: Typography.fontWeight.medium,
+    fontSize: 16,                   // body
+    fontWeight: '500',              // medium
   },
   errorContainer: {
     alignItems: 'center',
-    padding: Spacing.lg,
-    margin: Spacing.lg,
+    padding: 24,                    // 8 * 3 (comfortable)
+    margin: 16,                     // 8 * 2 (base)
     backgroundColor: Colors.white,
-    borderRadius: 12,
+    borderRadius: 16,               // 8 * 2
     borderWidth: 1,
     borderColor: Colors.error + '30',
   },
   errorText: {
-    fontSize: Typography.fontSize.md,
+    fontSize: 16,                   // body
     color: Colors.error,
     fontFamily: Typography.fontFamily.regular,
     textAlign: 'center',
-    marginVertical: Spacing.sm,
+    marginVertical: 12,             // 8 * 1.5
   },
   retryButton: {
     backgroundColor: Colors.error,
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.sm,
-    borderRadius: 8,
+    paddingHorizontal: 24,          // 8 * 3 (comfortable)
+    paddingVertical: 12,            // 8 * 1.5
+    borderRadius: 32,               // Pill-shaped
+    minHeight: 48,                  // 8 * 6 (touch target)
   },
   retryButtonText: {
-    fontSize: Typography.fontSize.sm,
-    fontWeight: Typography.fontWeight.semibold,
+    fontSize: 14,                   // caption
+    fontWeight: '600',              // semibold
     color: Colors.white,
     fontFamily: Typography.fontFamily.semibold,
   },
   bottomSpacing: {
-    height: Spacing.xl,
+    height: 32,                     // 8 * 4 (loose)
   },
 });
