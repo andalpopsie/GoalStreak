@@ -903,7 +903,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderTopLeftRadius: 24,        // 8 * 3
     borderTopRightRadius: 24,       // 8 * 3
-    maxHeight: '50%',               // Half screen
+    height: '50%',                  // Fixed half screen height
     paddingBottom: 32,              // 8 * 4 (safe area)
   },
   modalHeader: {
