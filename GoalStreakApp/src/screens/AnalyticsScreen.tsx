@@ -110,49 +110,6 @@ export default function AnalyticsScreen() {
     setSelectedPeriod(period);
   };
 
-  const renderQuickSummary = () => {
-    if (habitAnalytics.length === 0) return null;
-
-    // Find best and worst performing habits
-    const sortedByRate = [...habitAnalytics].sort((a, b) => b.completionRate - a.completionRate);
-    const bestHabit = sortedByRate[0];
-    const needsAttention = sortedByRate[sortedByRate.length - 1];
-    const totalStreakDays = habitAnalytics.reduce((sum, h) => sum + h.currentStreak, 0);
-
-    return (
-      <View style={styles.quickSummaryContainer}>
-        <Text style={styles.sectionTitle}>Quick Insights</Text>
-        <View style={styles.quickSummaryCards}>
-          {/* Best Habit */}
-          <View style={[styles.summaryCard, { borderLeftColor: '#4A90A4' }]}>
-            <Ionicons name="trophy" size={20} color="#FFDE59" />
-            <Text style={styles.summaryLabel}>Top Performer</Text>
-            <Text style={styles.summaryValue}>{bestHabit.habitName}</Text>
-            <Text style={styles.summarySubtext}>{bestHabit.completionRate.toFixed(0)}% success</Text>
-          </View>
-
-          {/* Total Streaks */}
-          <View style={[styles.summaryCard, { borderLeftColor: '#B771E5' }]}>
-            <Ionicons name="flame" size={20} color="#FF9013" />
-            <Text style={styles.summaryLabel}>Total Streaks</Text>
-            <Text style={styles.summaryValue}>{totalStreakDays}</Text>
-            <Text style={styles.summarySubtext}>days combined</Text>
-          </View>
-
-          {/* Needs Attention */}
-          {needsAttention.completionRate < 60 && (
-            <View style={[styles.summaryCard, { borderLeftColor: '#FF9013' }]}>
-              <Ionicons name="alert-circle" size={20} color="#FF9013" />
-              <Text style={styles.summaryLabel}>Needs Focus</Text>
-              <Text style={styles.summaryValue}>{needsAttention.habitName}</Text>
-              <Text style={styles.summarySubtext}>{needsAttention.completionRate.toFixed(0)}% success</Text>
-            </View>
-          )}
-        </View>
-      </View>
-    );
-  };
-
   const renderHabitAnalytics = () => {
     if (habitAnalytics.length === 0) {
       return (
@@ -294,9 +251,6 @@ export default function AnalyticsScreen() {
           data={trendData}
           title="7-Day Completion Trend"
         />
-
-        {/* Quick Summary */}
-        {renderQuickSummary()}
 
         {/* Insights */}
         {insights.length > 0 && (
@@ -532,46 +486,6 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: 32,                     // 8 * 4 (loose)
-  },
-
-  // Quick Summary Styles
-  quickSummaryContainer: {
-    marginVertical: 16,             // 8 * 2 (base)
-  },
-  quickSummaryCards: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: 16,          // 8 * 2 (base)
-    gap: 12,                        // 8 * 1.5
-  },
-  summaryCard: {
-    flex: 1,
-    minWidth: '45%',
-    backgroundColor: Colors.white,
-    borderRadius: 16,               // 8 * 2
-    padding: 16,                    // 8 * 2 (base)
-    borderLeftWidth: 4,
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
-    elevation: 2,
-  },
-  summaryLabel: {
-    fontSize: 12,                   // small
-    color: Colors.gray.dark,
-    marginTop: 8,                   // 8 * 1 (tight)
-    marginBottom: 4,                // 8 * 0.5
-  },
-  summaryValue: {
-    fontSize: 20,                   // subheading
-    fontWeight: '700',              // bold
-    color: Colors.primaryText,
-    marginBottom: 4,                // 8 * 0.5
-  },
-  summarySubtext: {
-    fontSize: 12,                   // small
-    color: Colors.gray.dark,
   },
 
   // Progress Bar Styles
