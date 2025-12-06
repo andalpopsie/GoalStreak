@@ -182,28 +182,36 @@ export default function FriendCard({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 12,                // 8 * 1.5
+    paddingHorizontal: 16,              // 8 * 2 (base)
+    backgroundColor: Colors.white,
+    borderRadius: 16,                   // Modern rounded
+    marginBottom: 8,                    // 8 * 1 (tight)
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
   },
   profilePhoto: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,                          // 8 * 6 (larger)
+    height: 48,                         // 8 * 6 (larger)
+    borderRadius: 24,
     backgroundColor: Colors.accent3,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 16,                    // 8 * 2 (base)
     overflow: 'hidden',
   },
   profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,                          // 8 * 6
+    height: 48,                         // 8 * 6
+    borderRadius: 24,
   },
   initials: {
     color: Colors.white,
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 18,                       // Slightly larger
+    fontWeight: '600',                  // semibold
   },
   content: {
     flex: 1,
@@ -213,34 +221,36 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     flex: 1,
-    marginRight: 12,
+    marginRight: 16,                    // 8 * 2 (base)
   },
   name: {
-    fontSize: Typography.fontSize.base,
-    fontWeight: Typography.fontWeight.semibold,
+    fontSize: 16,                       // body
+    fontWeight: '600',                  // semibold
     color: Colors.primaryText,
-    marginBottom: 2,
+    marginBottom: 4,                    // 8 * 0.5 (extra tight)
   },
   email: {
-    fontSize: Typography.fontSize.sm,
+    fontSize: 14,                       // small
     color: Colors.secondaryText,
-    marginBottom: 2,
+    marginBottom: 4,                    // 8 * 0.5 (extra tight)
   },
   message: {
-    fontSize: Typography.fontSize.sm,
+    fontSize: 14,                       // small
     color: Colors.accent2,
     fontStyle: 'italic',
+    lineHeight: 20,                     // Comfortable reading
   },
   actionsContainer: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 8,                             // 8 * 1 (tight)
   },
   iconButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 48,                          // 8 * 6 (touch target)
+    height: 48,                         // 8 * 6 (touch target)
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: Colors.gray.light,
   },
   acceptButton: {
     backgroundColor: '#22C55E',

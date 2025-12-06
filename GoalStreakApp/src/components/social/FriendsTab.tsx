@@ -76,69 +76,78 @@ export default function FriendsTab({
 
 const styles = StyleSheet.create({
   sectionTitle: {
-    ...Typography.h4,
+    fontSize: 20,                       // subheading
+    fontWeight: '600',                  // semibold
     color: Colors.primaryText,
-    marginBottom: 12,
-    marginTop: 8,
+    marginBottom: 16,                   // 8 * 2 (base)
+    marginTop: 16,                      // 8 * 2 (base)
   },
   requestCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginBottom: 8,
-    backgroundColor: Colors.surface,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.border + '30',
+    paddingVertical: 16,                // 8 * 2 (base)
+    paddingHorizontal: 16,              // 8 * 2 (base)
+    marginBottom: 16,                   // 8 * 2 (base)
+    backgroundColor: Colors.white,
+    borderRadius: 16,                   // Modern rounded
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   requestInfo: {
     flex: 1,
+    marginRight: 16,                    // 8 * 2 (base)
   },
   requestName: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 16,                       // body
+    fontWeight: '600',                  // semibold
     color: Colors.primaryText,
+    marginBottom: 4,                    // 8 * 0.5 (extra tight)
   },
   requestEmail: {
-    fontSize: 14,
+    fontSize: 14,                       // small
     color: Colors.secondaryText,
-    marginTop: 2,
+    marginBottom: 4,                    // 8 * 0.5 (extra tight)
   },
   requestMessage: {
-    fontSize: 14,
+    fontSize: 14,                       // small
     color: Colors.secondaryText,
     fontStyle: 'italic',
-    marginTop: 4,
+    marginTop: 8,                       // 8 * 1 (tight)
+    lineHeight: 20,                     // Comfortable reading
   },
   requestActions: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 8,                             // 8 * 1 (tight)
   },
   requestButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    minWidth: 70,
+    paddingHorizontal: 20,              // 8 * 2.5
+    paddingVertical: 12,                // 8 * 1.5
+    borderRadius: 24,                   // Pill-shaped
+    minWidth: 80,                       // 8 * 10
+    minHeight: 48,                      // 8 * 6 (touch target)
     alignItems: 'center',
+    justifyContent: 'center',
   },
   acceptButton: {
     backgroundColor: Colors.accent3,
   },
   declineButton: {
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.white,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: Colors.gray.light,
   },
   acceptButtonText: {
     color: Colors.white,
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 14,                       // small
+    fontWeight: '600',                  // semibold
   },
   declineButtonText: {
     color: Colors.secondaryText,
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 14,                       // small
+    fontWeight: '600',                  // semibold
   },
 });
