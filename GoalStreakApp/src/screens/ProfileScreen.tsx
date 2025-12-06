@@ -431,32 +431,32 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    paddingBottom: Spacing.xl,
+    paddingBottom: 32,                  // 8 * 4 (loose)
   },
   profileHeader: {
     alignItems: 'center',
-    paddingVertical: Spacing.xl,
-    paddingHorizontal: Spacing.lg,
+    paddingVertical: 32,                // 8 * 4 (loose)
+    paddingHorizontal: 24,              // 8 * 3 (comfortable)
   },
   avatarContainer: {
     position: 'relative',
-    marginBottom: Spacing.lg,
+    marginBottom: 24,                   // 8 * 3 (comfortable)
   },
   avatar: {
-    width: 120,
-    height: 120,
+    width: 120,                         // 8 * 15
+    height: 120,                        // 8 * 15
     borderRadius: 60,
-    borderWidth: 4,
+    borderWidth: 4,                     // 8 * 0.5
     borderColor: Colors.white,
   },
   avatarPlaceholder: {
-    width: 120,
-    height: 120,
+    width: 120,                         // 8 * 15
+    height: 120,                        // 8 * 15
     borderRadius: 60,
     backgroundColor: Colors.accent3,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 4,
+    borderWidth: 4,                     // 8 * 0.5
     borderColor: Colors.white,
   },
   cameraIcon: {
@@ -465,42 +465,44 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: Colors.primary,
     borderRadius: 20,
-    width: 40,
-    height: 40,
+    width: 40,                          // 8 * 5
+    height: 40,                         // 8 * 5
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
     borderColor: Colors.white,
   },
   userName: {
-    fontSize: Typography.fontSize.xl,
-    fontWeight: Typography.fontWeight.bold,
+    fontSize: 24,                       // heading
+    fontWeight: '700',                  // bold
     color: Colors.primaryText,
-    marginBottom: Spacing.xs,
+    marginBottom: 8,                    // 8 * 1 (tight)
   },
   userEmail: {
-    fontSize: Typography.fontSize.base,
+    fontSize: 16,                       // body
     color: Colors.accent2,
   },
   menuSection: {
-    marginHorizontal: Spacing.lg,
+    marginHorizontal: 16,               // 8 * 2 (base)
+    marginBottom: 16,                   // 8 * 2 (base)
     backgroundColor: Colors.white,
-    borderRadius: 12,
+    borderRadius: 16,                   // 8 * 2
     overflow: 'hidden',
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: Spacing.lg,
-    paddingHorizontal: Spacing.lg,
+    paddingVertical: 16,                // 8 * 2 (base)
+    paddingHorizontal: 16,              // 8 * 2 (base)
+    minHeight: 64,                      // 8 * 8 (touch target)
     borderBottomWidth: 1,
-    borderBottomColor: Colors.accent3,
+    borderBottomColor: Colors.gray.light,
   },
   menuText: {
     flex: 1,
-    fontSize: Typography.fontSize.base,
+    fontSize: 16,                       // body
     color: Colors.primaryText,
-    marginLeft: Spacing.md,
+    marginLeft: 16,                     // 8 * 2 (base)
   },
   modalContainer: {
     flex: 1,
@@ -510,64 +512,74 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
+    paddingHorizontal: 24,              // 8 * 3 (comfortable)
+    paddingVertical: 16,                // 8 * 2 (base)
     borderBottomWidth: 1,
-    borderBottomColor: Colors.accent3,
+    borderBottomColor: Colors.gray.light,
   },
   modalTitle: {
-    fontSize: Typography.fontSize.lg,
-    fontWeight: Typography.fontWeight.semibold,
+    fontSize: 20,                       // subheading
+    fontWeight: '600',                  // semibold
     color: Colors.primaryText,
   },
   cancelButton: {
-    fontSize: Typography.fontSize.base,
+    fontSize: 16,                       // body
     color: Colors.accent2,
+    minWidth: 60,                       // Touch target
+    minHeight: 44,                      // Touch target
+    textAlign: 'center',
+    textAlignVertical: 'center',
   },
   saveButton: {
-    fontSize: Typography.fontSize.base,
+    fontSize: 16,                       // body
     color: Colors.primary,
-    fontWeight: Typography.fontWeight.medium,
+    fontWeight: '500',                  // medium
+    minWidth: 60,                       // Touch target
+    minHeight: 44,                      // Touch target
+    textAlign: 'center',
+    textAlignVertical: 'center',
   },
   modalContent: {
     flex: 1,
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.lg,
+    paddingHorizontal: 24,              // 8 * 3 (comfortable)
+    paddingTop: 24,                     // 8 * 3 (comfortable)
   },
   inputGroup: {
-    marginBottom: Spacing.lg,
+    marginBottom: 24,                   // 8 * 3 (comfortable)
   },
   inputLabel: {
-    fontSize: Typography.fontSize.base,
-    fontWeight: Typography.fontWeight.medium,
+    fontSize: 16,                       // body
+    fontWeight: '500',                  // medium
     color: Colors.primaryText,
-    marginBottom: Spacing.sm,
+    marginBottom: 8,                    // 8 * 1 (tight)
   },
   textInput: {
     borderWidth: 1,
-    borderColor: Colors.accent3,
-    borderRadius: 8,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.md,
-    fontSize: Typography.fontSize.base,
+    borderColor: Colors.gray.medium,
+    borderRadius: 12,                   // 8 * 1.5
+    paddingHorizontal: 16,              // 8 * 2 (base)
+    paddingVertical: 16,                // 8 * 2 (base)
+    fontSize: 16,                       // body
     color: Colors.primaryText,
     backgroundColor: Colors.white,
+    minHeight: 56,                      // 8 * 7 (touch target)
   },
   settingItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: Spacing.lg,
+    paddingVertical: 16,                // 8 * 2 (base)
+    minHeight: 64,                      // 8 * 8 (touch target)
     borderBottomWidth: 1,
-    borderBottomColor: Colors.accent3,
+    borderBottomColor: Colors.gray.light,
   },
   settingLabel: {
-    fontSize: Typography.fontSize.base,
+    fontSize: 16,                       // body
     color: Colors.primaryText,
   },
   settingDescription: {
-    fontSize: Typography.fontSize.sm,
+    fontSize: 14,                       // caption
     color: Colors.gray.dark,
-    marginTop: 4,
+    marginTop: 4,                       // 8 * 0.5
   },
 });
