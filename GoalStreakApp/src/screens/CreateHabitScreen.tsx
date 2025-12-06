@@ -470,6 +470,39 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                   />
                 </View>
 
+                {/* Timer Duration Selector - Only show when enabled */}
+                {form.timer && (
+                  <View style={styles.timerDurationContainer}>
+                    <Text style={styles.timerDurationLabel}>Duration</Text>
+                    <View style={styles.timerDurationOptions}>
+                      {[5, 10, 15, 30, 60].map((minutes) => (
+                        <TouchableOpacity
+                          key={minutes}
+                          style={[
+                            styles.durationOption,
+                            form.timer?.durationMinutes === minutes && styles.durationOptionActive
+                          ]}
+                          onPress={() => {
+                            if (form.timer) {
+                              handleTimerConfigChange({
+                                ...form.timer,
+                                durationMinutes: minutes
+                              });
+                            }
+                          }}
+                        >
+                          <Text style={[
+                            styles.durationOptionText,
+                            form.timer?.durationMinutes === minutes && styles.durationOptionTextActive
+                          ]}>
+                            {minutes < 60 ? `${minutes}m` : `${minutes / 60}h`}
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </View>
+                )}
+
                 {/* Share Option - Settings Style */}
                 <View style={styles.optionRow}>
                   <View style={styles.optionLeft}>
@@ -757,6 +790,51 @@ const styles = StyleSheet.create({
   optionDescription: {
     fontSize: 14,                   // caption
     color: Colors.secondaryText,
+  },
+
+  // Timer Duration Selector
+  timerDurationContainer: {
+    paddingHorizontal: 16,          // 8 * 2 (base)
+    paddingVertical: 12,            // 8 * 1.5
+    backgroundColor: Colors.background,
+    borderRadius: 12,               // 8 * 1.5
+    marginBottom: 8,                // 8 * 1 (tight)
+  },
+  timerDurationLabel: {
+    fontSize: 14,                   // caption
+    color: Colors.secondaryText,
+    marginBottom: 8,                // 8 * 1 (tight)
+    fontWeight: '500',              // medium
+  },
+  timerDurationOptions: {
+    flexDirection: 'row',
+    gap: 8,                         // 8 * 1 (tight)
+  },
+  durationOption: {
+    flex: 1,
+    paddingVertical: 12,            // 8 * 1.5
+    paddingHorizontal: 8,           // 8 * 1 (tight)
+    backgroundColor: Colors.white,
+    borderRadius: 8,                // 8 * 1
+    borderWidth: 1,
+    borderColor: Colors.gray.medium,
+    alignItems: 'center',
+    minHeight: 48,                  // 8 * 6 (touch target)
+    justifyContent: 'center',
+  },
+  durationOptionActive: {
+    backgroundColor: Colors.accent1 + '10',
+    borderColor: Colors.accent1,
+    borderWidth: 2,
+  },
+  durationOptionText: {
+    fontSize: 16,                   // body
+    color: Colors.primaryText,
+    fontWeight: '500',              // medium
+  },
+  durationOptionTextActive: {
+    color: Colors.accent1,
+    fontWeight: '600',              // semibold
   },
 
   // Time Selector - Minimalist
