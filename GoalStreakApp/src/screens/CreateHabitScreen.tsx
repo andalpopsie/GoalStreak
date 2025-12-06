@@ -8,6 +8,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -440,52 +441,74 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
 
             {isOptionsExpanded && (
               <View style={styles.expandedContent}>
-                {/* Timer Toggle */}
-                <View style={styles.optionItem}>
-                  <TimerToggle
-                    timerConfig={form.timer}
-                    onTimerConfigChange={handleTimerConfigChange}
-                    habitName={form.name || 'New Habit'}
+                {/* Timer Option - Settings Style */}
+                <View style={styles.optionRow}>
+                  <View style={styles.optionLeft}>
+                    <View style={styles.optionIconContainer}>
+                      <Ionicons name="timer-outline" size={20} color={Colors.accent1} />
+                    </View>
+                    <View>
+                      <Text style={styles.optionLabel}>Timer</Text>
+                      <Text style={styles.optionDescription}>Track time spent</Text>
+                    </View>
+                  </View>
+                  <Switch
+                    value={!!form.timer}
+                    onValueChange={(value) => {
+                      if (value) {
+                        handleTimerConfigChange({ 
+                          enabled: true, 
+                          durationMinutes: 5, 
+                          autoComplete: false 
+                        });
+                      } else {
+                        handleTimerConfigChange(undefined);
+                      }
+                    }}
+                    trackColor={{ false: Colors.gray.medium, true: Colors.accent1 + '40' }}
+                    thumbColor={form.timer ? Colors.accent1 : Colors.white}
                   />
                 </View>
 
-                {/* Quick Settings */}
-                <View style={styles.settingsRow}>
-                  <TouchableOpacity
-                    style={[styles.settingCard, form.isPublic && styles.settingCardActive]}
-                    onPress={() => setForm({ ...form, isPublic: !form.isPublic })}
-                  >
-                    <Ionicons
-                      name={form.isPublic ? "people" : "people-outline"}
-                      size={20}
-                      color={form.isPublic ? Colors.accent1 : Colors.secondaryText}
-                    />
-                    <Text style={[
-                      styles.settingText,
-                      form.isPublic && styles.settingTextActive
-                    ]}>
-                      Share
-                    </Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={[styles.settingCard, form.reminderEnabled && styles.settingCardActive]}
-                    onPress={() => setForm({ ...form, reminderEnabled: !form.reminderEnabled })}
-                  >
-                    <Ionicons
-                      name={form.reminderEnabled ? "notifications" : "notifications-outline"}
-                      size={20}
-                      color={form.reminderEnabled ? Colors.accent1 : Colors.secondaryText}
-                    />
-                    <Text style={[
-                      styles.settingText,
-                      form.reminderEnabled && styles.settingTextActive
-                    ]}>
-                      Remind
-                    </Text>
-                  </TouchableOpacity>
+                {/* Share Option - Settings Style */}
+                <View style={styles.optionRow}>
+                  <View style={styles.optionLeft}>
+                    <View style={styles.optionIconContainer}>
+                      <Ionicons name="people-outline" size={20} color={Colors.accent1} />
+                    </View>
+                    <View>
+                      <Text style={styles.optionLabel}>Share with Friends</Text>
+                      <Text style={styles.optionDescription}>Make habit visible</Text>
+                    </View>
+                  </View>
+                  <Switch
+                    value={form.isPublic}
+                    onValueChange={(value) => setForm({ ...form, isPublic: value })}
+                    trackColor={{ false: Colors.gray.medium, true: Colors.accent1 + '40' }}
+                    thumbColor={form.isPublic ? Colors.accent1 : Colors.white}
+                  />
                 </View>
 
+                {/* Reminder Option - Settings Style */}
+                <View style={styles.optionRow}>
+                  <View style={styles.optionLeft}>
+                    <View style={styles.optionIconContainer}>
+                      <Ionicons name="notifications-outline" size={20} color={Colors.accent1} />
+                    </View>
+                    <View>
+                      <Text style={styles.optionLabel}>Daily Reminder</Text>
+                      <Text style={styles.optionDescription}>Get notified</Text>
+                    </View>
+                  </View>
+                  <Switch
+                    value={form.reminderEnabled}
+                    onValueChange={(value) => setForm({ ...form, reminderEnabled: value })}
+                    trackColor={{ false: Colors.gray.medium, true: Colors.accent1 + '40' }}
+                    thumbColor={form.reminderEnabled ? Colors.accent1 : Colors.white}
+                  />
+                </View>
+
+                {/* Reminder Time Selector - Only show when enabled */}
                 {form.reminderEnabled && (
                   <TouchableOpacity
                     style={styles.timeSelector}
@@ -502,7 +525,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                     accessibilityLabel="Set reminder time"
                     accessibilityHint="Tap to set the time for habit reminders"
                   >
-                    <Ionicons name="time" size={20} color={Colors.accent1} />
+                    <Ionicons name="time-outline" size={20} color={Colors.accent1} />
                     <Text style={styles.timeText}>
                       {form.reminderTime
                         ? formatTimeForDisplay(form.reminderTime)
@@ -699,40 +722,41 @@ const styles = StyleSheet.create({
     fontWeight: '500',              // medium
   },
 
-  // Option Item
-  optionItem: {
-    marginTop: 8,                   // 8 * 1 (tight)
-    marginBottom: 8,                // 8 * 1 (tight)
-  },
-
-  // Settings Row - Minimalist
-  settingsRow: {
+  // Option Row - iOS Settings Style
+  optionRow: {
     flexDirection: 'row',
-    gap: 16,                        // 8 * 2 (base)
-    marginBottom: 16,               // 8 * 2 (base)
-  },
-  settingCard: {
-    flex: 1,
-    backgroundColor: Colors.white,
-    borderRadius: 16,               // 8 * 2
-    padding: 16,                    // 8 * 2 (base)
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.gray.medium,
-    minHeight: 72,                  // 8 * 9 (good touch target)
+    justifyContent: 'space-between',
+    paddingVertical: 12,            // 8 * 1.5
+    paddingHorizontal: 16,          // 8 * 2 (base)
+    backgroundColor: Colors.white,
+    borderRadius: 12,               // 8 * 1.5
+    marginBottom: 8,                // 8 * 1 (tight)
+    minHeight: 64,                  // 8 * 8 (good touch target)
   },
-  settingCardActive: {
-    borderColor: Colors.accent1,
-    backgroundColor: Colors.accent1 + '08',
+  optionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
-  settingText: {
+  optionIconContainer: {
+    width: 40,                      // 8 * 5
+    height: 40,                     // 8 * 5
+    borderRadius: 20,
+    backgroundColor: Colors.accent1 + '10',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,                // 8 * 1.5
+  },
+  optionLabel: {
+    fontSize: 16,                   // body
+    fontWeight: '500',              // medium
+    color: Colors.primaryText,
+    marginBottom: 2,                // Tight spacing
+  },
+  optionDescription: {
     fontSize: 14,                   // caption
     color: Colors.secondaryText,
-    marginTop: 8,                   // 8 * 1 (tight)
-    fontWeight: '500',              // medium
-  },
-  settingTextActive: {
-    color: Colors.accent1,
   },
 
   // Time Selector - Minimalist
