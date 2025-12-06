@@ -8,14 +8,29 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Typography, Spacing } from '../constants/theme';
+import { Colors, Typography } from '../constants/theme';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { StatsOverview, ProgressChart, InsightsCard, MilestoneCelebration } from '../components/analytics';
 import { useMilestones } from '../hooks/useMilestones';
 import { trackScreen, trackEvent, trackFeature } from '../services/enhancedAnalyticsService';
 import { useAuth } from '../hooks/useAuth';
+
+// Helper function to get performance color
+const getPerformanceColor = (rate: number) => {
+  if (rate >= 80) return '#4A90A4';      // Teal - Excellent
+  if (rate >= 60) return '#FFDE59';      // Yellow - Good
+  if (rate >= 40) return '#FF9013';      // Orange - Needs work
+  return '#FF4444';                      // Red - Struggling
+};
+
+// Helper function to get performance label
+const getPerformanceLabel = (rate: number) => {
+  if (rate >= 80) return 'Excellent';
+  if (rate >= 60) return 'Good';
+  if (rate >= 40) return 'Fair';
+  return 'Needs Focus';
+};
 
 export default function AnalyticsScreen() {
   const { user } = useAuth();
@@ -24,8 +39,6 @@ export default function AnalyticsScreen() {
     trendData,
     insights,
     isLoadingAnalytics,
-    isLoadingTrends,
-    isLoadingInsights,
     refreshAnalytics,
     refreshTrends,
     refreshInsights,
@@ -63,7 +76,7 @@ export default function AnalyticsScreen() {
 
   // Track screen view and analytics usage
   useEffect(() => {
-    trackScreen('Analytics', 'AnalyticsScreen');
+    trackScreen('Analytics', { source: 'AnalyticsScreen' });
     trackFeature('analytics', 'analytics_screen_viewed', 1);
     
     trackEvent('analytics_screen_viewed', {
@@ -95,6 +108,49 @@ export default function AnalyticsScreen() {
     });
     
     setSelectedPeriod(period);
+  };
+
+  const renderQuickSummary = () => {
+    if (habitAnalytics.length === 0) return null;
+
+    // Find best and worst performing habits
+    const sortedByRate = [...habitAnalytics].sort((a, b) => b.completionRate - a.completionRate);
+    const bestHabit = sortedByRate[0];
+    const needsAttention = sortedByRate[sortedByRate.length - 1];
+    const totalStreakDays = habitAnalytics.reduce((sum, h) => sum + h.currentStreak, 0);
+
+    return (
+      <View style={styles.quickSummaryContainer}>
+        <Text style={styles.sectionTitle}>Quick Insights</Text>
+        <View style={styles.quickSummaryCards}>
+          {/* Best Habit */}
+          <View style={[styles.summaryCard, { borderLeftColor: '#4A90A4' }]}>
+            <Ionicons name="trophy" size={20} color="#FFDE59" />
+            <Text style={styles.summaryLabel}>Top Performer</Text>
+            <Text style={styles.summaryValue}>{bestHabit.habitName}</Text>
+            <Text style={styles.summarySubtext}>{bestHabit.completionRate.toFixed(0)}% success</Text>
+          </View>
+
+          {/* Total Streaks */}
+          <View style={[styles.summaryCard, { borderLeftColor: '#B771E5' }]}>
+            <Ionicons name="flame" size={20} color="#FF9013" />
+            <Text style={styles.summaryLabel}>Total Streaks</Text>
+            <Text style={styles.summaryValue}>{totalStreakDays}</Text>
+            <Text style={styles.summarySubtext}>days combined</Text>
+          </View>
+
+          {/* Needs Attention */}
+          {needsAttention.completionRate < 60 && (
+            <View style={[styles.summaryCard, { borderLeftColor: '#FF9013' }]}>
+              <Ionicons name="alert-circle" size={20} color="#FF9013" />
+              <Text style={styles.summaryLabel}>Needs Focus</Text>
+              <Text style={styles.summaryValue}>{needsAttention.habitName}</Text>
+              <Text style={styles.summarySubtext}>{needsAttention.completionRate.toFixed(0)}% success</Text>
+            </View>
+          )}
+        </View>
+      </View>
+    );
   };
 
   const renderHabitAnalytics = () => {
@@ -144,10 +200,30 @@ export default function AnalyticsScreen() {
                 </Text>
               </View>
               {habit.completionRate >= 80 && (
-                <Ionicons name="star" size={16} color="#FFDE59" style={{ marginLeft: 8 }} />
+                <View style={{ marginLeft: 8 }}>
+                  <Ionicons name="star" size={16} color="#FFDE59" />
+                </View>
               )}
             </View>
             
+            {/* Progress Bar */}
+            <View style={styles.progressBarContainer}>
+              <View style={styles.progressBarBackground}>
+                <View 
+                  style={[
+                    styles.progressBarFill, 
+                    { 
+                      width: `${habit.completionRate}%`,
+                      backgroundColor: getPerformanceColor(habit.completionRate)
+                    }
+                  ]} 
+                />
+              </View>
+              <Text style={[styles.performanceLabel, { color: getPerformanceColor(habit.completionRate) }]}>
+                {getPerformanceLabel(habit.completionRate)}
+              </Text>
+            </View>
+
             <View style={styles.habitStats}>
               <View style={styles.habitStat}>
                 <Text style={styles.habitStatValue}>{habit.totalCompletions}</Text>
@@ -155,8 +231,8 @@ export default function AnalyticsScreen() {
               </View>
               
               <View style={styles.habitStat}>
-                <Text style={[styles.habitStatValue, { color: Colors.accent3 }]}>
-                  {habit.completionRate.toFixed(1)}%
+                <Text style={[styles.habitStatValue, { color: getPerformanceColor(habit.completionRate) }]}>
+                  {habit.completionRate.toFixed(0)}%
                 </Text>
                 <Text style={styles.habitStatLabel}>Success Rate</Text>
               </View>
@@ -190,14 +266,6 @@ export default function AnalyticsScreen() {
     );
   };
 
-  // Calculate if user is improving (simple check: current > 50% completion rate)
-  const isImproving = currentPeriodAnalytics ? currentPeriodAnalytics.completionRate > 50 : false;
-  
-  // Get longest streak from habit analytics
-  const longestStreak = habitAnalytics.length > 0 
-    ? Math.max(...habitAnalytics.map(h => h.currentStreak))
-    : 0;
-
   return (
     <>
       <ScrollView
@@ -226,6 +294,9 @@ export default function AnalyticsScreen() {
           data={trendData}
           title="7-Day Completion Trend"
         />
+
+        {/* Quick Summary */}
+        {renderQuickSummary()}
 
         {/* Insights */}
         {insights.length > 0 && (
@@ -461,5 +532,66 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: 32,                     // 8 * 4 (loose)
+  },
+
+  // Quick Summary Styles
+  quickSummaryContainer: {
+    marginVertical: 16,             // 8 * 2 (base)
+  },
+  quickSummaryCards: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 16,          // 8 * 2 (base)
+    gap: 12,                        // 8 * 1.5
+  },
+  summaryCard: {
+    flex: 1,
+    minWidth: '45%',
+    backgroundColor: Colors.white,
+    borderRadius: 16,               // 8 * 2
+    padding: 16,                    // 8 * 2 (base)
+    borderLeftWidth: 4,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  summaryLabel: {
+    fontSize: 12,                   // small
+    color: Colors.gray.dark,
+    marginTop: 8,                   // 8 * 1 (tight)
+    marginBottom: 4,                // 8 * 0.5
+  },
+  summaryValue: {
+    fontSize: 20,                   // subheading
+    fontWeight: '700',              // bold
+    color: Colors.primaryText,
+    marginBottom: 4,                // 8 * 0.5
+  },
+  summarySubtext: {
+    fontSize: 12,                   // small
+    color: Colors.gray.dark,
+  },
+
+  // Progress Bar Styles
+  progressBarContainer: {
+    marginBottom: 16,               // 8 * 2 (base)
+  },
+  progressBarBackground: {
+    height: 8,                      // 8 * 1
+    backgroundColor: Colors.gray.light,
+    borderRadius: 4,                // 8 * 0.5
+    overflow: 'hidden',
+    marginBottom: 8,                // 8 * 1 (tight)
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 4,                // 8 * 0.5
+  },
+  performanceLabel: {
+    fontSize: 14,                   // caption
+    fontWeight: '600',              // semibold
+    textAlign: 'right',
   },
 });
