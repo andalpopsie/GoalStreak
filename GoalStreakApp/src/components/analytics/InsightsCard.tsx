@@ -27,8 +27,18 @@ export default function InsightsCard({ insight, onPress }: InsightsCardProps) {
   };
 
   const getInsightColor = () => {
-    // Use yellow for all insight icons to add pop of color
-    return '#FFDE59';
+    switch (insight.type) {
+      case 'achievement':
+        return Colors.accent1;
+      case 'streak':
+        return Colors.accent1;
+      case 'consistency':
+        return Colors.accent3;
+      case 'improvement':
+        return Colors.accent3;
+      default:
+        return Colors.primaryText;
+    }
   };
 
   const getTrendIcon = () => {
