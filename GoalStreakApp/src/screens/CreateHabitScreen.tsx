@@ -91,6 +91,9 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
   // Timer duration picker state
   const [showTimerPicker, setShowTimerPicker] = useState(false);
 
+  // Reminder time picker state
+  const [showReminderPicker, setShowReminderPicker] = useState(false);
+
   // Time picker state
   const [selectedHour] = useState(DEFAULT_REMINDER_HOUR);
   const [selectedMinute] = useState(DEFAULT_REMINDER_MINUTE);
@@ -535,15 +538,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                 {form.reminderEnabled && (
                   <TouchableOpacity
                     style={styles.timeSelector}
-                    onPress={() => {
-                      const hour24 = selectedPeriod === 'PM' && selectedHour !== 12
-                        ? selectedHour + 12
-                        : selectedPeriod === 'AM' && selectedHour === 12
-                          ? 0
-                          : selectedHour;
-                      const timeString = `${hour24.toString().padStart(2, '0')}:${selectedMinute.toString().padStart(2, '0')}`;
-                      setForm({ ...form, reminderTime: timeString });
-                    }}
+                    onPress={() => setShowReminderPicker(true)}
                     accessibilityRole="button"
                     accessibilityLabel="Set reminder time"
                     accessibilityHint="Tap to set the time for habit reminders"
@@ -631,6 +626,101 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                     {minutes}
                   </Text>
                   {form.timer?.durationMinutes === minutes && (
+                    <Ionicons name="checkmark" size={24} color={Colors.accent1} />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Reminder Time Picker Modal */}
+      <Modal
+        visible={showReminderPicker}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowReminderPicker(false)}
+      >
+        <TouchableOpacity 
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowReminderPicker(false)}
+        >
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Reminder Time</Text>
+              <TouchableOpacity onPress={() => setShowReminderPicker(false)}>
+                <Ionicons name="close" size={24} color={Colors.primaryText} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalScroll}>
+              {/* Morning times (6 AM - 11 AM) */}
+              {Array.from({ length: 6 }, (_, i) => i + 6).map((hour) => (
+                <TouchableOpacity
+                  key={`${hour}-AM`}
+                  style={[
+                    styles.durationOption,
+                    form.reminderTime === `${hour.toString().padStart(2, '0')}:00` && styles.durationOptionSelected
+                  ]}
+                  onPress={() => {
+                    setForm({ ...form, reminderTime: `${hour.toString().padStart(2, '0')}:00` });
+                    setShowReminderPicker(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.durationOptionText,
+                    form.reminderTime === `${hour.toString().padStart(2, '0')}:00` && styles.durationOptionTextSelected
+                  ]}>
+                    {hour === 12 ? 12 : hour} AM
+                  </Text>
+                  {form.reminderTime === `${hour.toString().padStart(2, '0')}:00` && (
+                    <Ionicons name="checkmark" size={24} color={Colors.accent1} />
+                  )}
+                </TouchableOpacity>
+              ))}
+              {/* Noon */}
+              <TouchableOpacity
+                key="12-PM"
+                style={[
+                  styles.durationOption,
+                  form.reminderTime === '12:00' && styles.durationOptionSelected
+                ]}
+                onPress={() => {
+                  setForm({ ...form, reminderTime: '12:00' });
+                  setShowReminderPicker(false);
+                }}
+              >
+                <Text style={[
+                  styles.durationOptionText,
+                  form.reminderTime === '12:00' && styles.durationOptionTextSelected
+                ]}>
+                  12 PM
+                </Text>
+                {form.reminderTime === '12:00' && (
+                  <Ionicons name="checkmark" size={24} color={Colors.accent1} />
+                )}
+              </TouchableOpacity>
+              {/* Afternoon/Evening times (1 PM - 11 PM) */}
+              {Array.from({ length: 11 }, (_, i) => i + 13).map((hour) => (
+                <TouchableOpacity
+                  key={`${hour}-PM`}
+                  style={[
+                    styles.durationOption,
+                    form.reminderTime === `${hour.toString().padStart(2, '0')}:00` && styles.durationOptionSelected
+                  ]}
+                  onPress={() => {
+                    setForm({ ...form, reminderTime: `${hour.toString().padStart(2, '0')}:00` });
+                    setShowReminderPicker(false);
+                  }}
+                >
+                  <Text style={[
+                    styles.durationOptionText,
+                    form.reminderTime === `${hour.toString().padStart(2, '0')}:00` && styles.durationOptionTextSelected
+                  ]}>
+                    {hour - 12} PM
+                  </Text>
+                  {form.reminderTime === `${hour.toString().padStart(2, '0')}:00` && (
                     <Ionicons name="checkmark" size={24} color={Colors.accent1} />
                   )}
                 </TouchableOpacity>
