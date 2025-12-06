@@ -284,24 +284,6 @@ export default function ProfileScreen() {
             <Text style={styles.menuText}>Notifications</Text>
             <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} onPress={openPrivacyPolicy}>
-            <Ionicons name="shield-outline" size={24} color={Colors.primaryText} />
-            <Text style={styles.menuText}>Privacy Policy</Text>
-            <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} onPress={openTermsOfService}>
-            <Ionicons name="document-text-outline" size={24} color={Colors.primaryText} />
-            <Text style={styles.menuText}>Terms of Service</Text>
-            <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} onPress={openSupport}>
-            <Ionicons name="help-circle-outline" size={24} color={Colors.primaryText} />
-            <Text style={styles.menuText}>Help & Support</Text>
-            <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
-          </TouchableOpacity>
         </View>
 
         <View style={styles.menuSection}>
@@ -315,6 +297,24 @@ export default function ProfileScreen() {
             <Ionicons name="log-out-outline" size={24} color={Colors.error} />
             <Text style={[styles.menuText, { color: Colors.error }]}>Sign Out</Text>
           </TouchableOpacity>
+        </View>
+
+        {/* Footer Links - Like modern apps */}
+        <View style={styles.footer}>
+          <View style={styles.footerLinks}>
+            <TouchableOpacity onPress={openPrivacyPolicy} style={styles.footerLink}>
+              <Text style={styles.footerLinkText}>Privacy Policy</Text>
+            </TouchableOpacity>
+            <Text style={styles.footerDivider}>•</Text>
+            <TouchableOpacity onPress={openTermsOfService} style={styles.footerLink}>
+              <Text style={styles.footerLinkText}>Terms of Service</Text>
+            </TouchableOpacity>
+            <Text style={styles.footerDivider}>•</Text>
+            <TouchableOpacity onPress={openSupport} style={styles.footerLink}>
+              <Text style={styles.footerLinkText}>Help & Support</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.footerCopyright}>© 2024 GoalStreak</Text>
         </View>
       </ScrollView>
 
@@ -581,5 +581,35 @@ const styles = StyleSheet.create({
     fontSize: 14,                       // caption
     color: Colors.gray.dark,
     marginTop: 4,                       // 8 * 0.5
+  },
+  footer: {
+    alignItems: 'center',
+    paddingVertical: 32,                // 8 * 4 (loose)
+    paddingHorizontal: 24,              // 8 * 3 (comfortable)
+  },
+  footerLinks: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    marginBottom: 12,                   // 8 * 1.5
+  },
+  footerLink: {
+    paddingVertical: 8,                 // 8 * 1 (tight)
+    paddingHorizontal: 4,               // 8 * 0.5
+  },
+  footerLinkText: {
+    fontSize: 13,                       // small
+    color: Colors.secondaryText,
+    textDecorationLine: 'underline',
+  },
+  footerDivider: {
+    fontSize: 13,                       // small
+    color: Colors.secondaryText,
+    marginHorizontal: 8,                // 8 * 1 (tight)
+  },
+  footerCopyright: {
+    fontSize: 12,                       // caption
+    color: Colors.gray.medium,
   },
 });
