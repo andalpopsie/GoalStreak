@@ -28,6 +28,7 @@ export const Colors = {
   warning: '#B771E5',          // New purple (was orange)
   error: '#FF4444',
   info: '#154D71',             // Dark blue
+  highlight: '#FFDE59',        // Warm yellow for highlights/accents
   
   // Category Colors - 6-category system (Final Perfect Palette)
   fitnessOrange: '#B771E5',    // Fitness category - Purple

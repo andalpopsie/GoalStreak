@@ -132,7 +132,10 @@ export default function AnalyticsScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Habit Performance</Text>
         {habitAnalytics.slice(0, 5).map((habit) => (
-          <View key={habit.habitId} style={styles.habitAnalyticsCard}>
+          <View key={habit.habitId} style={[
+            styles.habitAnalyticsCard,
+            habit.completionRate >= 80 && styles.habitAnalyticsCardHighlight
+          ]}>
             <View style={styles.habitHeader}>
               <Text style={styles.habitName}>{habit.habitName}</Text>
               <View style={styles.habitCategory}>
@@ -140,6 +143,9 @@ export default function AnalyticsScreen() {
                   {habit.category.charAt(0).toUpperCase() + habit.category.slice(1)}
                 </Text>
               </View>
+              {habit.completionRate >= 80 && (
+                <Ionicons name="star" size={16} color="#FFDE59" style={{ marginLeft: 8 }} />
+              )}
             </View>
             
             <View style={styles.habitStats}>
@@ -165,7 +171,7 @@ export default function AnalyticsScreen() {
             
             {habit.longestStreak > habit.currentStreak && (
               <View style={styles.habitFooter}>
-                <Ionicons name="trophy-outline" size={14} color={Colors.gray.medium} />
+                <Ionicons name="trophy" size={14} color="#FFDE59" />
                 <Text style={styles.habitFooterText}>
                   Best streak: {habit.longestStreak} days
                 </Text>
@@ -308,6 +314,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 3,
     elevation: 2,
+  },
+  habitAnalyticsCardHighlight: {
+    borderLeftWidth: 4,
+    borderLeftColor: '#FFDE59',     // Yellow accent for high performers
+    backgroundColor: '#FFDE59' + '08', // Very subtle yellow tint
   },
   habitHeader: {
     flexDirection: 'row',
