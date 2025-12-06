@@ -61,67 +61,76 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   header: {
-    padding: Spacing.md,
+    padding: 16,                        // 8 * 2 (base)
     borderBottomWidth: 1,
-    borderBottomColor: Colors.accent2,
+    borderBottomColor: Colors.gray.light,  // Lighter, more subtle
   },
   title: {
-    fontSize: Typography.fontSize['2xl'],
-    fontWeight: Typography.fontWeight.bold,
+    fontSize: 24,                       // heading
+    fontWeight: '700',                  // bold
     color: Colors.primaryText,
   },
   scrollView: {
     flex: 1,
   },
   content: {
-    padding: Spacing.md,
+    padding: 16,                        // 8 * 2 (base)
   },
   placeholder: {
     backgroundColor: Colors.white,
-    padding: Spacing.xl,
-    borderRadius: 12,
+    padding: 32,                        // 8 * 4 (loose)
+    borderRadius: 16,                   // Modern rounded
     alignItems: 'center',
-    marginBottom: Spacing.xl,
-    borderWidth: 1,
-    borderColor: Colors.accent2,
-    borderStyle: 'dashed',
+    marginBottom: 24,                   // 8 * 3 (comfortable)
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   placeholderTitle: {
-    fontSize: Typography.fontSize.lg,
-    fontWeight: Typography.fontWeight.semibold,
+    fontSize: 20,                       // subheading
+    fontWeight: '600',                  // semibold
     color: Colors.primaryText,
-    marginTop: Spacing.md,
-    marginBottom: Spacing.sm,
+    marginTop: 16,                      // 8 * 2 (base)
+    marginBottom: 8,                    // 8 * 1 (tight)
   },
   placeholderText: {
-    fontSize: Typography.fontSize.base,
-    color: Colors.gray.dark,
+    fontSize: 16,                       // body
+    color: Colors.secondaryText,
     textAlign: 'center',
-    lineHeight: Typography.lineHeight.relaxed * Typography.fontSize.base,
+    lineHeight: 24,                     // 1.5 line height
   },
   section: {
-    marginBottom: Spacing.xl,
+    marginBottom: 24,                   // 8 * 3 (comfortable)
   },
   sectionTitle: {
-    fontSize: Typography.fontSize.xl,
-    fontWeight: Typography.fontWeight.semibold,
+    fontSize: 20,                       // subheading
+    fontWeight: '600',                  // semibold
     color: Colors.primaryText,
-    marginBottom: Spacing.md,
+    marginBottom: 16,                   // 8 * 2 (base)
   },
   featureList: {
     backgroundColor: Colors.white,
-    borderRadius: 12,
-    padding: Spacing.md,
+    borderRadius: 16,                   // Modern rounded
+    padding: 16,                        // 8 * 2 (base)
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   featureItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: Spacing.sm,
+    paddingVertical: 12,                // 8 * 1.5 (between tight and base)
+    paddingHorizontal: 8,               // 8 * 1 (tight)
   },
   featureText: {
-    fontSize: Typography.fontSize.base,
+    fontSize: 16,                       // body
     color: Colors.primaryText,
-    marginLeft: Spacing.md,
+    marginLeft: 16,                     // 8 * 2 (base)
     flex: 1,
+    lineHeight: 22,                     // Comfortable reading
   },
 });
