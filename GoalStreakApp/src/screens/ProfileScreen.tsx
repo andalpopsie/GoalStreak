@@ -13,6 +13,8 @@ import { openPrivacyPolicy, openTermsOfService, openSupport } from '../utils/lin
 import { trackScreen, trackEvent } from '../services/enhancedAnalyticsService';
 import { motivationalNotificationService } from '../services/motivationalNotificationService';
 import { inactivityNudgeService } from '../services/inactivityNudgeService';
+import BadgeShowcase from '../components/profile/BadgeShowcase';
+import { achievementsService } from '../services/achievementsService';
 
 export default function ProfileScreen() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -221,6 +223,46 @@ export default function ProfileScreen() {
     );
   };
 
+  // TEMPORARY: Test badges
+  const handleTestBadges = async () => {
+    Alert.alert(
+      'Test Achievements',
+      'Choose an action:',
+      [
+        {
+          text: 'Unlock First Step',
+          onPress: async () => {
+            await achievementsService.unlockAchievement('first_step');
+            Alert.alert('🏆 Achievement Unlocked!', 'First Step badge earned!');
+          }
+        },
+        {
+          text: 'Unlock Week Warrior',
+          onPress: async () => {
+            await achievementsService.unlockAchievement('week_warrior');
+            Alert.alert('🏆 Achievement Unlocked!', 'Week Warrior badge earned!');
+          }
+        },
+        {
+          text: 'Unlock Social Butterfly',
+          onPress: async () => {
+            await achievementsService.unlockAchievement('social_butterfly');
+            Alert.alert('🏆 Achievement Unlocked!', 'Social Butterfly badge earned!');
+          }
+        },
+        {
+          text: 'Reset All Badges',
+          style: 'destructive',
+          onPress: async () => {
+            await achievementsService.resetAchievements();
+            Alert.alert('🔄 Reset Complete', 'All achievements cleared!');
+          }
+        },
+        { text: 'Cancel', style: 'cancel' }
+      ]
+    );
+  };
+
   // TEMPORARY: Test inactivity nudge
   const handleTestNudge = async () => {
     try {
@@ -291,6 +333,9 @@ export default function ProfileScreen() {
           <Text style={styles.userEmail}>{user?.email}</Text>
         </View>
 
+        {/* Badge Showcase */}
+        <BadgeShowcase onViewAll={() => Alert.alert('Coming Soon', 'Full achievements view coming soon!')} />
+
         <View style={styles.menuSection}>
           <TouchableOpacity style={styles.menuItem} onPress={() => setShowEditModal(true)}>
             <Ionicons name="person-outline" size={24} color={Colors.primaryText} />
@@ -307,6 +352,11 @@ export default function ProfileScreen() {
 
         <View style={styles.menuSection}>
           {/* TEMPORARY: Test Buttons */}
+          <TouchableOpacity style={styles.menuItem} onPress={handleTestBadges}>
+            <Ionicons name="trophy-outline" size={24} color={Colors.accent1} />
+            <Text style={[styles.menuText, { color: Colors.accent1 }]}>🏆 Test Achievements</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity style={styles.menuItem} onPress={handleTestNudge}>
             <Ionicons name="notifications-outline" size={24} color={Colors.accent1} />
             <Text style={[styles.menuText, { color: Colors.accent1 }]}>🦉 Test Inactivity Nudge</Text>
