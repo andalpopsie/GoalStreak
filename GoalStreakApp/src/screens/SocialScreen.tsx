@@ -12,14 +12,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography } from '../constants/theme';
 import { useFriends } from '../hooks/useFriends';
 import { useAuth } from '../hooks/useAuth';
+import { useHabits } from '../hooks/useHabits';
 import { ReactionType, UserSearchResult } from '../types/social';
 import { SearchModal } from '../components/common';
 import { ActivityFeedTab, FriendsTab } from '../components/social';
+import { friendSuggestionsService, SuggestedFriend } from '../services/friendSuggestionsService';
 
 type TabType = 'feed' | 'friends';
 
 export default function SocialScreen() {
   const { user } = useAuth();
+  const { habits } = useHabits();
   
   const {
     friends,
@@ -41,6 +44,7 @@ export default function SocialScreen() {
   const [activeTab, setActiveTab] = useState<TabType>('feed');
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [sendingRequestTo, setSendingRequestTo] = useState<string | null>(null);
+  const [suggestedFriends, setSuggestedFriends] = useState<SuggestedFriend[]>([]);
 
   // Auto-load feed data when component mounts or tab changes
   useEffect(() => {
@@ -48,8 +52,27 @@ export default function SocialScreen() {
       refreshActivityFeed();
     } else {
       refreshFriends();
+      loadSuggestedFriends();
     }
   }, [activeTab, refreshActivityFeed, refreshFriends]);
+
+  // Load suggested friends
+  const loadSuggestedFriends = useCallback(async () => {
+    if (!user?.id || habits.length === 0) return;
+
+    try {
+      const friendIds = friends.map(f => f.friendId);
+      const suggestions = await friendSuggestionsService.getSuggestedFriends(
+        user.id,
+        habits,
+        friendIds,
+        5
+      );
+      setSuggestedFriends(suggestions);
+    } catch (error) {
+      console.error('Error loading suggested friends:', error);
+    }
+  }, [user?.id, habits, friends]);
 
   // Handle refresh
   const handleRefresh = useCallback(() => {
@@ -206,9 +229,20 @@ export default function SocialScreen() {
             <FriendsTab
               friends={friends}
               pendingRequests={pendingRequests}
+              suggestedFriends={suggestedFriends}
               onAcceptRequest={handleAcceptRequest}
               onDeclineRequest={handleDeclineRequest}
               onRemoveFriend={handleRemoveFriend}
+              onSendFriendRequest={async (email) => {
+                try {
+                  await sendFriendRequest(email, 'Hi! Let\'s connect on GoalStreak!');
+                  Alert.alert('Success', 'Friend request sent!');
+                  // Refresh suggestions
+                  loadSuggestedFriends();
+                } catch (error: any) {
+                  Alert.alert('Error', error.message || 'Failed to send request');
+                }
+              }}
             />
           )}
 
@@ -262,34 +296,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: Colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    borderBottomColor: Colors.gray.light,
   },
   tabButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    gap: 8,
+    paddingVertical: 16,                // 8 * 2 (base)
+    gap: 8,                             // 8 * 1 (tight)
+    minHeight: 56,                      // 8 * 7 (touch target)
   },
   activeTabButton: {
     borderBottomWidth: 2,
     borderBottomColor: Colors.primary,
   },
   tabButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 16,                       // body
+    fontWeight: '500',                  // medium
     color: Colors.secondaryText,
   },
   activeTabButtonText: {
     color: Colors.primary,
-    fontWeight: '600',
+    fontWeight: '600',                  // semibold
   },
   searchTabButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    paddingVertical: 16,                // 8 * 2 (base)
+    paddingHorizontal: 20,              // 8 * 2.5
+    minHeight: 56,                      // 8 * 7 (touch target)
+    minWidth: 56,                       // 8 * 7 (touch target)
   },
   content: {
     flex: 1,
@@ -299,36 +336,38 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   contentContainerPadded: {
-    paddingHorizontal: 12,
-    paddingTop: 8,
+    paddingHorizontal: 16,              // 8 * 2 (base)
+    paddingTop: 8,                      // 8 * 1 (tight)
   },
   emptyState: {
     alignItems: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 40,
+    paddingVertical: 64,                // 8 * 8 (spacious)
+    paddingHorizontal: 32,              // 8 * 4 (loose)
   },
   emptyStateTitle: {
-    ...Typography.h3,
+    fontSize: 20,                       // subheading
+    fontWeight: '600',                  // semibold
     color: Colors.primaryText,
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: 16,                      // 8 * 2 (base)
+    marginBottom: 8,                    // 8 * 1 (tight)
   },
   emptyStateText: {
-    ...Typography.body,
+    fontSize: 16,                       // body
     color: Colors.secondaryText,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 24,                     // 1.5 line height
   },
   emptyStateButton: {
     backgroundColor: Colors.primary,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 24,
-    marginTop: 24,
+    paddingHorizontal: 32,              // 8 * 4 (loose)
+    paddingVertical: 16,                // 8 * 2 (base)
+    borderRadius: 32,                   // Pill-shaped (modern)
+    marginTop: 24,                      // 8 * 3 (comfortable)
+    minHeight: 56,                      // 8 * 7 (touch target)
   },
   emptyStateButtonText: {
     color: Colors.white,
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 16,                       // body
+    fontWeight: '600',                  // semibold
   },
 });
