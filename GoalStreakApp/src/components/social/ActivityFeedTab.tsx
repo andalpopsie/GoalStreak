@@ -1,10 +1,12 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, Modal, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/theme';
 import { SocialActivity, ReactionType } from '../../types/social';
 import { formatRelativeTime } from '../../utils/timeUtils';
 import { photoService } from '../../services/photoService';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../services/firebase';
 
 interface ActivityFeedTabProps {
   activityFeed: SocialActivity[];
@@ -18,6 +20,10 @@ export default function ActivityFeedTab({
   currentUserId,
 }: ActivityFeedTabProps) {
   const [profilePhotos, setProfilePhotos] = useState<{[key: string]: string}>({});
+  const [showCommentModal, setShowCommentModal] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<SocialActivity | null>(null);
+  const [commentText, setCommentText] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     loadProfilePhotos();
@@ -86,6 +92,31 @@ export default function ActivityFeedTab({
       return 'is now friends with ' + friendName;
     }
     return 'had some activity';
+  };
+
+  const handleAddComment = async () => {
+    if (!commentText.trim() || !selectedActivity || !currentUserId) return;
+
+    try {
+      setIsSubmitting(true);
+      
+      await addDoc(collection(db, 'comments'), {
+        activityId: selectedActivity.id,
+        userId: currentUserId,
+        text: commentText.trim(),
+        createdAt: serverTimestamp(),
+      });
+
+      Alert.alert('Success', 'Comment added!');
+      setCommentText('');
+      setShowCommentModal(false);
+      setSelectedActivity(null);
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      Alert.alert('Error', 'Failed to add comment');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -184,7 +215,13 @@ export default function ActivityFeedTab({
                     </Text>
                   )}
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.reactionButton}>
+                <TouchableOpacity 
+                  style={styles.reactionButton}
+                  onPress={() => {
+                    setSelectedActivity(activity);
+                    setShowCommentModal(true);
+                  }}
+                >
                   <Ionicons name="chatbubble-outline" size={18} color={Colors.secondaryText} />
                 </TouchableOpacity>
               </View>
@@ -192,6 +229,46 @@ export default function ActivityFeedTab({
           </View>
         </View>
       ))}
+
+      {/* Comment Modal */}
+      <Modal
+        visible={showCommentModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowCommentModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Add Comment</Text>
+              <TouchableOpacity onPress={() => setShowCommentModal(false)}>
+                <Ionicons name="close" size={24} color={Colors.primaryText} />
+              </TouchableOpacity>
+            </View>
+            
+            <TextInput
+              style={styles.commentInput}
+              placeholder="Write a comment..."
+              placeholderTextColor={Colors.secondaryText}
+              value={commentText}
+              onChangeText={setCommentText}
+              multiline
+              maxLength={200}
+              autoFocus
+            />
+            
+            <TouchableOpacity
+              style={[styles.submitButton, (!commentText.trim() || isSubmitting) && styles.submitButtonDisabled]}
+              onPress={handleAddComment}
+              disabled={!commentText.trim() || isSubmitting}
+            >
+              <Text style={styles.submitButtonText}>
+                {isSubmitting ? 'Posting...' : 'Post Comment'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -291,5 +368,54 @@ const styles = StyleSheet.create({
   },
   reactionCountActive: {
     color: Colors.accent3,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: Colors.white,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    minHeight: 300,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: Colors.primaryText,
+  },
+  commentInput: {
+    borderWidth: 1,
+    borderColor: Colors.gray.light,
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    color: Colors.primaryText,
+    minHeight: 120,
+    textAlignVertical: 'top',
+    marginBottom: 16,
+  },
+  submitButton: {
+    backgroundColor: Colors.accent1,
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  submitButtonDisabled: {
+    backgroundColor: Colors.gray.medium,
+    opacity: 0.5,
+  },
+  submitButtonText: {
+    color: Colors.white,
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
