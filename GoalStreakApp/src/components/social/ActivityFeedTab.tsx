@@ -148,11 +148,17 @@ export default function ActivityFeedTab({
       try {
         const userDocRef = doc(db, 'users', currentUserId);
         const userDocSnap = await getDoc(userDocRef);
+        console.log('📝 User document exists:', userDocSnap.exists());
         if (userDocSnap.exists()) {
-          userName = userDocSnap.data()?.displayName || userDocSnap.data()?.name || 'User';
+          const userData = userDocSnap.data();
+          console.log('📝 User data:', userData);
+          userName = userData?.displayName || userData?.name || userData?.email?.split('@')[0] || 'User';
+          console.log('📝 Using userName:', userName);
+        } else {
+          console.log('📝 User document not found for ID:', currentUserId);
         }
       } catch (error) {
-        console.error('Error fetching user name:', error);
+        console.error('❌ Error fetching user name:', error);
       }
       
       await addDoc(collection(db, 'comments'), {
