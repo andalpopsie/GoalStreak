@@ -222,6 +222,14 @@ export default function ProfileScreen() {
 
   const [badgeRefreshKey, setBadgeRefreshKey] = useState(0);
 
+  const handleLearnPress = () => {
+    Alert.alert(
+      '📚 Learn & Insights',
+      'Coming soon! Read articles about building better habits, staying accountable, and achieving your goals.',
+      [{ text: 'OK' }]
+    );
+  };
+
 
 
   return (
@@ -275,6 +283,12 @@ export default function ProfileScreen() {
           <TouchableOpacity style={styles.menuItem} onPress={() => setShowNotificationsModal(true)}>
             <Ionicons name="notifications-outline" size={24} color={Colors.primaryText} />
             <Text style={styles.menuText}>Notifications</Text>
+            <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.menuItem} onPress={handleLearnPress}>
+            <Ionicons name="book-outline" size={24} color={Colors.primaryText} />
+            <Text style={styles.menuText}>Learn & Insights</Text>
             <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
           </TouchableOpacity>
         </View>
