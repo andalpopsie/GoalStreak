@@ -7,7 +7,7 @@ import { Colors } from '../../constants/theme';
 import { SocialActivity, ReactionType } from '../../types/social';
 import { formatRelativeTime } from '../../utils/timeUtils';
 import { photoService } from '../../services/photoService';
-import { addDoc, collection, serverTimestamp, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, query, where, getDocs, orderBy, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 
 interface ActivityFeedTabProps {
@@ -144,10 +144,16 @@ export default function ActivityFeedTab({
       setIsSubmitting(true);
       
       // Get current user's name from Firebase
-      const userDoc = await getDocs(
-        query(collection(db, 'users'), where('__name__', '==', currentUserId), limit(1))
-      );
-      const userName = userDoc.docs[0]?.data()?.displayName || 'User';
+      let userName = 'User';
+      try {
+        const userDocRef = doc(db, 'users', currentUserId);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          userName = userDocSnap.data()?.displayName || userDocSnap.data()?.name || 'User';
+        }
+      } catch (error) {
+        console.error('Error fetching user name:', error);
+      }
       
       await addDoc(collection(db, 'comments'), {
         activityId: selectedActivity.id,
