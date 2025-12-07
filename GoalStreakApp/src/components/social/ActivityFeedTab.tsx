@@ -147,6 +147,7 @@ export default function ActivityFeedTab({
       
       // Use the current user's name passed from parent
       const userName = currentUserName || 'User';
+      console.log('💬 Creating comment with userName:', userName);
       
       await addDoc(collection(db, 'comments'), {
         activityId: selectedActivity.id,
