@@ -39,6 +39,11 @@ export default function ActivityFeedTab({
   }, [activityFeed, currentUserId]);
 
   const loadProfilePhotos = async () => {
+    // Don't load if user is not authenticated
+    if (!currentUserId) {
+      return;
+    }
+
     const photos: {[key: string]: string} = {};
     
     for (const activity of activityFeed) {
@@ -100,6 +105,11 @@ export default function ActivityFeedTab({
   };
 
   const loadCommentCounts = async () => {
+    // Don't load if user is not authenticated
+    if (!currentUserId) {
+      return;
+    }
+
     const counts: {[activityId: string]: number} = {};
     
     for (const activity of activityFeed) {
@@ -119,6 +129,11 @@ export default function ActivityFeedTab({
   };
 
   const loadCommentsForActivity = async (activityId: string) => {
+    // Don't load if user is not authenticated
+    if (!currentUserId) {
+      return;
+    }
+
     try {
       setLoadingComments(true);
       const q = query(
