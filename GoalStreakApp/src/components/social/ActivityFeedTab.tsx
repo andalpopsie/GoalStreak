@@ -14,12 +14,14 @@ interface ActivityFeedTabProps {
   activityFeed: SocialActivity[];
   onReaction: (activityId: string, reactionType: ReactionType) => Promise<void>;
   currentUserId?: string;
+  currentUserName?: string;
 }
 
 export default function ActivityFeedTab({
   activityFeed,
   onReaction,
   currentUserId,
+  currentUserName,
 }: ActivityFeedTabProps) {
   const [profilePhotos, setProfilePhotos] = useState<{[key: string]: string}>({});
   const [showCommentModal, setShowCommentModal] = useState(false);
@@ -143,23 +145,8 @@ export default function ActivityFeedTab({
     try {
       setIsSubmitting(true);
       
-      // Get current user's name from Firebase
-      let userName = 'User';
-      try {
-        const userDocRef = doc(db, 'users', currentUserId);
-        const userDocSnap = await getDoc(userDocRef);
-        console.log('📝 User document exists:', userDocSnap.exists());
-        if (userDocSnap.exists()) {
-          const userData = userDocSnap.data();
-          console.log('📝 User data:', userData);
-          userName = userData?.displayName || userData?.name || userData?.email?.split('@')[0] || 'User';
-          console.log('📝 Using userName:', userName);
-        } else {
-          console.log('📝 User document not found for ID:', currentUserId);
-        }
-      } catch (error) {
-        console.error('❌ Error fetching user name:', error);
-      }
+      // Use the current user's name passed from parent
+      const userName = currentUserName || 'User';
       
       await addDoc(collection(db, 'comments'), {
         activityId: selectedActivity.id,
