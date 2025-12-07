@@ -222,7 +222,7 @@ export default function ProfileScreen() {
   const handleTestNudge = async () => {
     try {
       await inactivityNudgeService.sendTestNudge();
-      Alert.alert('Test Nudge Sent! 🍕', 'Check your notifications in a few seconds. Your streak is hungry!');
+      Alert.alert('Test Nudge Sent! ⚡', 'Check your notifications in a few seconds. Your habits are calling!');
     } catch (error) {
       console.error('Error sending test nudge:', error);
       Alert.alert('Error', 'Failed to send test nudge. Make sure notifications are enabled.');
@@ -306,7 +306,7 @@ export default function ProfileScreen() {
           {/* TEMPORARY: Test Buttons */}
           <TouchableOpacity style={styles.menuItem} onPress={handleTestNudge}>
             <Ionicons name="notifications-outline" size={24} color={Colors.accent1} />
-            <Text style={[styles.menuText, { color: Colors.accent1 }]}>🍕 Test Inactivity Nudge</Text>
+            <Text style={[styles.menuText, { color: Colors.accent1 }]}>⚡ Test Inactivity Nudge</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.menuItem} onPress={handleResetOnboarding}>
@@ -439,7 +439,7 @@ export default function ProfileScreen() {
 
             <View style={styles.settingItem}>
               <View style={{ flex: 1 }}>
-                <Text style={styles.settingLabel}>Inactivity Nudges 🍕</Text>
+                <Text style={styles.settingLabel}>Inactivity Nudges ⚡</Text>
                 <Text style={styles.settingDescription}>
                   Get playful reminders if you haven't logged habits for 3+ days
                 </Text>

@@ -46,8 +46,8 @@ const NUDGE_MESSAGES = {
   ],
   day7: [
     {
-      title: '🍕 Your Streak Is Getting Hungry!',
-      body: 'A whole week without progress? Feed your habits before they disappear!',
+      title: '⚡ Your Streak Is in Danger!',
+      body: 'A whole week without progress? Your goals are getting impatient. Time to come back!',
     },
     {
       title: '⚠️ This Is Your Final Warning',
