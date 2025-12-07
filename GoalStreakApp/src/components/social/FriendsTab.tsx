@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography } from '../../constants/theme';
 import { Friend, FriendRequest } from '../../types/social';
@@ -27,35 +27,57 @@ export default function FriendsTab({
 }: FriendsTabProps) {
   return (
     <>
-      {/* Suggested Friends Section */}
+      {/* Suggested Friends Section - Horizontal Scroll */}
       {suggestedFriends.length > 0 && (
         <>
           <Text style={styles.sectionTitle}>
             <Ionicons name="sparkles" size={20} color={Colors.accent1} /> Suggested Friends
           </Text>
-          {suggestedFriends.map((suggestion) => (
-            <View key={suggestion.id} style={styles.suggestionCard}>
-              <View style={styles.suggestionInfo}>
-                <Text style={styles.suggestionName}>{suggestion.name}</Text>
-                <Text style={styles.suggestionReason}>{suggestion.matchReason}</Text>
-                {suggestion.sharedCategories.length > 0 && (
-                  <View style={styles.categoriesContainer}>
-                    {suggestion.sharedCategories.slice(0, 3).map((cat, idx) => (
-                      <View key={idx} style={styles.categoryBadge}>
-                        <Text style={styles.categoryText}>{cat}</Text>
+          <ScrollView 
+            horizontal 
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            snapToInterval={359}
+            decelerationRate="fast"
+            contentContainerStyle={styles.suggestionsScroll}
+            style={styles.suggestionsContainer}
+          >
+            {suggestedFriends.map((suggestion) => (
+              <View key={suggestion.id} style={styles.suggestionCard}>
+                <View style={styles.suggestionLeft}>
+                  <View style={styles.suggestionAvatar}>
+                    {suggestion.photoURL ? (
+                      <Image 
+                        source={{ uri: suggestion.photoURL }} 
+                        style={styles.avatarImage}
+                      />
+                    ) : (
+                      <View style={styles.avatarPlaceholder}>
+                        <Text style={styles.avatarInitials}>
+                          {suggestion.name.charAt(0).toUpperCase()}
+                        </Text>
                       </View>
-                    ))}
+                    )}
                   </View>
-                )}
+                </View>
+                <View style={styles.suggestionRight}>
+                  <Text style={styles.suggestionName} numberOfLines={1}>
+                    {suggestion.name}
+                  </Text>
+                  <Text style={styles.suggestionReason} numberOfLines={1}>
+                    {suggestion.matchReason}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={() => onSendFriendRequest?.(suggestion.email)}
+                  >
+                    <Ionicons name="person-add" size={20} color={Colors.white} />
+                    <Text style={styles.addButtonText}>Add Friend</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={() => onSendFriendRequest?.(suggestion.email)}
-              >
-                <Ionicons name="person-add" size={20} color={Colors.white} />
-              </TouchableOpacity>
-            </View>
-          ))}
+            ))}
+          </ScrollView>
         </>
       )}
 
@@ -187,60 +209,83 @@ const styles = StyleSheet.create({
     fontSize: 14,                       // small
     fontWeight: '600',                  // semibold
   },
-  suggestionCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,                // 8 * 2 (base)
+  suggestionsContainer: {
+    marginBottom: 24,                   // 8 * 3 (comfortable)
+  },
+  suggestionsScroll: {
     paddingHorizontal: 16,              // 8 * 2 (base)
-    marginBottom: 12,                   // 8 * 1.5
+  },
+  suggestionCard: {
+    width: 343,                         // Full width minus margins (375 - 32)
     backgroundColor: Colors.white,
     borderRadius: 16,                   // Modern rounded
+    padding: 24,                        // 8 * 3 (comfortable)
+    marginRight: 16,                    // 8 * 2 (gap between cards)
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: Colors.accent1 + '20', // Subtle accent border
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
-    elevation: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  suggestionInfo: {
-    flex: 1,
+  suggestionLeft: {
     marginRight: 16,                    // 8 * 2 (base)
   },
+  suggestionRight: {
+    flex: 1,
+  },
+  suggestionAvatar: {
+    width: 72,                          // 8 * 9 (larger)
+    height: 72,                         // 8 * 9 (larger)
+    borderRadius: 36,
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+  },
+  avatarPlaceholder: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: Colors.accent1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarInitials: {
+    fontSize: 28,                       // Large
+    fontWeight: '700',                  // bold
+    color: Colors.white,
+  },
   suggestionName: {
-    fontSize: 16,                       // body
+    fontSize: 18,                       // Large body
     fontWeight: '600',                  // semibold
     color: Colors.primaryText,
     marginBottom: 4,                    // 8 * 0.5 (extra tight)
   },
   suggestionReason: {
-    fontSize: 13,                       // small
-    color: Colors.accent1,
-    marginBottom: 8,                    // 8 * 1 (tight)
-  },
-  categoriesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,                             // 8 * 0.75
-  },
-  categoryBadge: {
-    backgroundColor: Colors.accent3 + '20',
-    paddingHorizontal: 10,              // 8 * 1.25
-    paddingVertical: 4,                 // 8 * 0.5
-    borderRadius: 12,                   // Pill-shaped
-  },
-  categoryText: {
-    fontSize: 12,                       // caption
-    color: Colors.accent3,
-    fontWeight: '500',                  // medium
+    fontSize: 14,                       // small
+    color: Colors.secondaryText,
+    marginBottom: 16,                   // 8 * 2 (base)
   },
   addButton: {
-    width: 48,                          // 8 * 6 (touch target)
-    height: 48,                         // 8 * 6 (touch target)
-    borderRadius: 24,
-    backgroundColor: Colors.accent1,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 6,                             // 8 * 0.75
+    backgroundColor: Colors.accent1,
+    paddingHorizontal: 24,              // 8 * 3 (comfortable)
+    paddingVertical: 12,                // 8 * 1.5
+    borderRadius: 24,                   // Pill-shaped
+    minHeight: 48,                      // 8 * 6 (touch target)
+  },
+  addButtonText: {
+    color: Colors.white,
+    fontSize: 15,                       // body
+    fontWeight: '600',                  // semibold
   },
 });

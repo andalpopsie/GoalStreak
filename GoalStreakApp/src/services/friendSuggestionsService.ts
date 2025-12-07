@@ -63,7 +63,7 @@ export const friendSuggestionsService = {
       const shuffled = suggestions.sort(() => Math.random() - 0.5);
 
       console.log(`✅ Found ${shuffled.length} suggested friends`);
-      return shuffled.slice(0, maxSuggestions);
+      return shuffled.slice(0, 3); // Show 3 suggestions by default
     } catch (error) {
       console.error('❌ Error getting friend suggestions:', error);
       return [];
