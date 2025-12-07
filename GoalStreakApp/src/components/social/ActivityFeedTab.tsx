@@ -1,6 +1,8 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, Modal, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
 import { Colors } from '../../constants/theme';
 import { SocialActivity, ReactionType } from '../../types/social';
 import { formatRelativeTime } from '../../utils/timeUtils';
@@ -148,6 +150,22 @@ export default function ActivityFeedTab({
         createdAt: serverTimestamp(),
       });
 
+      // Send notification to activity owner (if not commenting on own post)
+      if (selectedActivity.userId !== currentUserId) {
+        try {
+          await sendNotification(selectedActivity.userId, {
+            title: '💬 New Comment',
+            body: `Someone commented on your activity`,
+            data: {
+              type: 'comment',
+              activityId: selectedActivity.id,
+            },
+          });
+        } catch (notifError) {
+          console.error('Error sending notification:', notifError);
+        }
+      }
+
       // Update comment count locally
       setCommentCounts(prev => ({
         ...prev,
@@ -163,6 +181,31 @@ export default function ActivityFeedTab({
       Alert.alert('Error', 'Failed to add comment');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const sendNotification = async (userId: string, notification: any) => {
+    // Check if user has comment notifications enabled
+    try {
+      const settingsStr = await AsyncStorage.getItem('notificationSettings');
+      if (settingsStr) {
+        const settings = JSON.parse(settingsStr);
+        if (!settings.comments) {
+          return; // User has disabled comment notifications
+        }
+      }
+
+      // Send push notification
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: notification.title,
+          body: notification.body,
+          data: notification.data,
+        },
+        trigger: null, // Send immediately
+      });
+    } catch (error) {
+      console.error('Error sending notification:', error);
     }
   };
 

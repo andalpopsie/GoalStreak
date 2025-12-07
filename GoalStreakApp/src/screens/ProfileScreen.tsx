@@ -32,6 +32,9 @@ export default function ProfileScreen() {
     streakAlerts: true,
     dailyMotivation: false, // Daily motivational notifications
     inactivityNudges: true, // Playful nudges when inactive
+    friendRequests: true, // Friend request notifications
+    comments: true, // Comment notifications
+    reactions: true, // Reaction notifications
   });
 
   useEffect(() => {
@@ -447,6 +450,55 @@ export default function ProfileScreen() {
               <Switch
                 value={notificationSettings.inactivityNudges}
                 onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, inactivityNudges: value })}
+                trackColor={{ false: Colors.accent3, true: Colors.primary }}
+                thumbColor={Colors.white}
+              />
+            </View>
+
+            <Text style={[styles.settingLabel, { paddingHorizontal: 24, paddingTop: 16, fontSize: 14, color: Colors.secondaryText }]}>
+              SOCIAL
+            </Text>
+
+            <View style={styles.settingItem}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.settingLabel}>Friend Requests</Text>
+                <Text style={styles.settingDescription}>
+                  Get notified when someone sends you a friend request
+                </Text>
+              </View>
+              <Switch
+                value={notificationSettings.friendRequests}
+                onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, friendRequests: value })}
+                trackColor={{ false: Colors.accent3, true: Colors.primary }}
+                thumbColor={Colors.white}
+              />
+            </View>
+
+            <View style={styles.settingItem}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.settingLabel}>Comments</Text>
+                <Text style={styles.settingDescription}>
+                  Get notified when someone comments on your activity
+                </Text>
+              </View>
+              <Switch
+                value={notificationSettings.comments}
+                onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, comments: value })}
+                trackColor={{ false: Colors.accent3, true: Colors.primary }}
+                thumbColor={Colors.white}
+              />
+            </View>
+
+            <View style={styles.settingItem}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.settingLabel}>Reactions</Text>
+                <Text style={styles.settingDescription}>
+                  Get notified when someone reacts to your activity
+                </Text>
+              </View>
+              <Switch
+                value={notificationSettings.reactions}
+                onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, reactions: value })}
                 trackColor={{ false: Colors.accent3, true: Colors.primary }}
                 thumbColor={Colors.white}
               />
