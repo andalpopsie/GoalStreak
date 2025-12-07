@@ -5,7 +5,7 @@ import { Colors } from '../../constants/theme';
 import { SocialActivity, ReactionType } from '../../types/social';
 import { formatRelativeTime } from '../../utils/timeUtils';
 import { photoService } from '../../services/photoService';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 
 interface ActivityFeedTabProps {
@@ -24,9 +24,11 @@ export default function ActivityFeedTab({
   const [selectedActivity, setSelectedActivity] = useState<SocialActivity | null>(null);
   const [commentText, setCommentText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [commentCounts, setCommentCounts] = useState<{[activityId: string]: number}>({});
 
   useEffect(() => {
     loadProfilePhotos();
+    loadCommentCounts();
   }, [activityFeed, currentUserId]);
 
   const loadProfilePhotos = async () => {
@@ -90,6 +92,25 @@ export default function ActivityFeedTab({
     return 'had some activity';
   };
 
+  const loadCommentCounts = async () => {
+    const counts: {[activityId: string]: number} = {};
+    
+    for (const activity of activityFeed) {
+      try {
+        const q = query(
+          collection(db, 'comments'),
+          where('activityId', '==', activity.id)
+        );
+        const snapshot = await getDocs(q);
+        counts[activity.id] = snapshot.size;
+      } catch (error) {
+        console.error('Error loading comment count:', error);
+      }
+    }
+    
+    setCommentCounts(counts);
+  };
+
   const handleAddComment = async () => {
     if (!commentText.trim() || !selectedActivity || !currentUserId) return;
 
@@ -102,6 +123,12 @@ export default function ActivityFeedTab({
         text: commentText.trim(),
         createdAt: serverTimestamp(),
       });
+
+      // Update comment count locally
+      setCommentCounts(prev => ({
+        ...prev,
+        [selectedActivity.id]: (prev[selectedActivity.id] || 0) + 1
+      }));
 
       Alert.alert('Success', 'Comment added!');
       setCommentText('');
@@ -218,7 +245,19 @@ export default function ActivityFeedTab({
                     setShowCommentModal(true);
                   }}
                 >
-                  <Ionicons name="chatbubble-outline" size={18} color={Colors.secondaryText} />
+                  <Ionicons 
+                    name={commentCounts[activity.id] > 0 ? "chatbubble" : "chatbubble-outline"} 
+                    size={18} 
+                    color={commentCounts[activity.id] > 0 ? Colors.accent1 : Colors.secondaryText} 
+                  />
+                  {commentCounts[activity.id] > 0 && (
+                    <Text style={[
+                      styles.reactionCount,
+                      commentCounts[activity.id] > 0 && styles.reactionCountActive
+                    ]}>
+                      {commentCounts[activity.id]}
+                    </Text>
+                  )}
                 </TouchableOpacity>
               </View>
             </View>
