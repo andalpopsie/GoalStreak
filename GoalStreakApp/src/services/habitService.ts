@@ -19,6 +19,7 @@ import { db } from './firebase';
 import { withRetry, RETRY_CONFIGS } from './retryService';
 import { Habit, HabitCompletion, Streak, CreateHabitForm, TimerConfig, TimerSession, TimerState } from '../types';
 import { notificationService } from './notificationService';
+import { achievementsService } from './achievementsService';
 
 // Collection references
 const HABITS_COLLECTION = 'habits';
@@ -74,6 +75,12 @@ export const habitService = {
       
       // Initialize streak data
       await this.initializeStreak(docRef.id);
+      
+      // Check for habit collector achievement
+      const userHabits = await this.getUserHabits(userId);
+      if (userHabits.length >= 5) {
+        await achievementsService.unlockAchievement('habit_collector');
+      }
       
       // Schedule notification if reminder is enabled
       if (habitData.reminderEnabled && habitData.reminderTime) {
@@ -483,6 +490,9 @@ export const completionService = {
       
       // Update streak
       await habitService.updateStreak(habitId);
+      
+      // Check for achievements
+      await this.checkCompletionAchievements(habitId, userId);
     } catch (error) {
       console.error('Error completing habit:', error);
       throw error;
@@ -605,6 +615,99 @@ export const streakService = {
     } catch (error) {
       console.error('Error getting streak:', error);
       return null;
+    }
+  },
+
+  // Check for completion-related achievements
+  async checkCompletionAchievements(habitId: string, userId: string): Promise<void> {
+    try {
+      // Check for first completion
+      const allCompletions = await this.getHabitCompletions(
+        habitId,
+        new Date(0),
+        new Date()
+      );
+      
+      if (allCompletions.length === 1) {
+        await achievementsService.unlockAchievement('first_step');
+      }
+
+      // Check for time-based achievements
+      const todayCompletion = await this.getTodayCompletion(habitId, userId);
+      if (todayCompletion) {
+        const hour = todayCompletion.completedAt.getHours();
+        
+        // Early bird (before 8 AM)
+        if (hour < 8) {
+          await achievementsService.unlockAchievement('early_bird');
+        }
+        
+        // Night owl (after 10 PM)
+        if (hour >= 22) {
+          await achievementsService.unlockAchievement('night_owl');
+        }
+
+        // Weekend warrior (Saturday or Sunday)
+        const day = todayCompletion.completedAt.getDay();
+        if (day === 0 || day === 6) {
+          await achievementsService.unlockAchievement('weekend_warrior');
+        }
+      }
+
+      // Check for streak achievements
+      const streak = await streakService.getStreak(habitId);
+      if (streak) {
+        if (streak.currentStreak >= 3) {
+          await achievementsService.unlockAchievement('first_streak');
+        }
+        if (streak.currentStreak >= 7) {
+          await achievementsService.unlockAchievement('week_warrior');
+        }
+        if (streak.currentStreak >= 30) {
+          await achievementsService.unlockAchievement('month_master');
+        }
+        if (streak.currentStreak >= 100) {
+          await achievementsService.unlockAchievement('century_club');
+        }
+
+        // Check for comeback kid (restarted after breaking a streak)
+        if (streak.currentStreak >= 3 && streak.longestStreak > streak.currentStreak) {
+          await achievementsService.unlockAchievement('comeback_kid');
+        }
+      }
+
+      // Check for perfect week (all habits completed for 7 days)
+      const userHabits = await habitService.getUserHabits(userId);
+      if (userHabits.length > 0) {
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        
+        let isPerfectWeek = true;
+        for (const habit of userHabits) {
+          const completions = await this.getHabitCompletions(
+            habit.id,
+            sevenDaysAgo,
+            new Date()
+          );
+          
+          // Check if completed every day for the past 7 days
+          const uniqueDays = new Set(
+            completions.map(c => c.completedAt.toDateString())
+          );
+          
+          if (uniqueDays.size < 7) {
+            isPerfectWeek = false;
+            break;
+          }
+        }
+        
+        if (isPerfectWeek) {
+          await achievementsService.unlockAchievement('perfect_week');
+        }
+      }
+    } catch (error) {
+      console.error('Error checking completion achievements:', error);
+      // Don't throw - achievement checking shouldn't break habit completion
     }
   },
 };

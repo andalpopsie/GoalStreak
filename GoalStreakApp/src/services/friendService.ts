@@ -18,6 +18,7 @@ import {
 } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { db } from './firebase';
+import { achievementsService } from './achievementsService';
 import { 
   Friend, 
   FriendRequest, 
@@ -177,6 +178,18 @@ class FriendService {
       });
 
       await batch.commit();
+
+      // Check for social butterfly achievement (first friend)
+      const friendsData = await this.getFriends(request.toUserId);
+      if (friendsData.friends.length === 1) {
+        await achievementsService.unlockAchievement('social_butterfly');
+      }
+      
+      // Also check for the person who sent the request
+      const senderFriendsData = await this.getFriends(request.fromUserId);
+      if (senderFriendsData.friends.length === 1) {
+        await achievementsService.unlockAchievement('social_butterfly');
+      }
     } catch (error) {
       console.error('Error accepting friend request:', error);
       throw error;
@@ -571,9 +584,36 @@ class FriendService {
         updatedAt: serverTimestamp(),
         lastReactionAt: serverTimestamp()
       });
+
+      // Check for cheerleader achievement (10 reactions)
+      await this.checkReactionAchievements(userId);
     } catch (error) {
       console.error('Error adding reaction:', error);
       throw error;
+    }
+  }
+
+  // Check for reaction-related achievements
+  async checkReactionAchievements(userId: string): Promise<void> {
+    try {
+      // Count total reactions given by user across all activities
+      const activitiesQuery = query(this.activitiesCollection);
+      const activitiesSnapshot = await getDocs(activitiesQuery);
+      
+      let totalReactions = 0;
+      activitiesSnapshot.forEach(doc => {
+        const activity = doc.data() as SocialActivity;
+        if (activity.reactions && activity.reactions[userId]) {
+          totalReactions += activity.reactions[userId].length;
+        }
+      });
+
+      if (totalReactions >= 10) {
+        await achievementsService.unlockAchievement('cheerleader');
+      }
+    } catch (error) {
+      console.error('Error checking reaction achievements:', error);
+      // Don't throw - achievement checking shouldn't break reactions
     }
   }
 

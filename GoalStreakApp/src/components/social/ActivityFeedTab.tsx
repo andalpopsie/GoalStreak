@@ -9,6 +9,7 @@ import { formatRelativeTime } from '../../utils/timeUtils';
 import { photoService } from '../../services/photoService';
 import { addDoc, collection, serverTimestamp, query, where, getDocs, orderBy, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../services/firebase';
+import { achievementsService } from '../../services/achievementsService';
 
 interface ActivityFeedTabProps {
   activityFeed: SocialActivity[];
@@ -181,12 +182,32 @@ export default function ActivityFeedTab({
       // Reload comments to show the new one
       await loadCommentsForActivity(selectedActivity.id);
 
+      // Check for conversation starter achievement (5 comments)
+      await checkCommentAchievements(currentUserId);
+
       setCommentText('');
     } catch (error) {
       console.error('Error adding comment:', error);
       Alert.alert('Error', 'Failed to add comment');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const checkCommentAchievements = async (userId: string) => {
+    try {
+      // Count total comments by user
+      const q = query(
+        collection(db, 'comments'),
+        where('userId', '==', userId)
+      );
+      const snapshot = await getDocs(q);
+      
+      if (snapshot.size >= 5) {
+        await achievementsService.unlockAchievement('conversation_starter');
+      }
+    } catch (error) {
+      console.error('Error checking comment achievements:', error);
     }
   };
 
