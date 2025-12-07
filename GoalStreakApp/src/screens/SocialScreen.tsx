@@ -58,9 +58,13 @@ export default function SocialScreen() {
 
   // Load suggested friends
   const loadSuggestedFriends = useCallback(async () => {
-    if (!user?.id || habits.length === 0) return;
+    if (!user?.id || habits.length === 0) {
+      console.log('⚠️ Cannot load suggestions:', { hasUser: !!user?.id, habitCount: habits.length });
+      return;
+    }
 
     try {
+      console.log('🔍 Loading suggested friends...');
       const friendIds = friends.map(f => f.friendId);
       const suggestions = await friendSuggestionsService.getSuggestedFriends(
         user.id,
@@ -68,9 +72,10 @@ export default function SocialScreen() {
         friendIds,
         5
       );
+      console.log('✅ Found suggestions:', suggestions.length);
       setSuggestedFriends(suggestions);
     } catch (error) {
-      console.error('Error loading suggested friends:', error);
+      console.error('❌ Error loading suggested friends:', error);
     }
   }, [user?.id, habits, friends]);
 
