@@ -1,11 +1,11 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, Modal, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, Modal, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/theme';
 import { SocialActivity, ReactionType } from '../../types/social';
 import { formatRelativeTime } from '../../utils/timeUtils';
 import { photoService } from '../../services/photoService';
-import { addDoc, collection, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 
 interface ActivityFeedTabProps {
@@ -25,6 +25,8 @@ export default function ActivityFeedTab({
   const [commentText, setCommentText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [commentCounts, setCommentCounts] = useState<{[activityId: string]: number}>({});
+  const [comments, setComments] = useState<any[]>([]);
+  const [loadingComments, setLoadingComments] = useState(false);
 
   useEffect(() => {
     loadProfilePhotos();
@@ -111,6 +113,28 @@ export default function ActivityFeedTab({
     setCommentCounts(counts);
   };
 
+  const loadCommentsForActivity = async (activityId: string) => {
+    try {
+      setLoadingComments(true);
+      const q = query(
+        collection(db, 'comments'),
+        where('activityId', '==', activityId),
+        orderBy('createdAt', 'desc')
+      );
+      const snapshot = await getDocs(q);
+      const loadedComments = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setComments(loadedComments);
+    } catch (error) {
+      console.error('Error loading comments:', error);
+      setComments([]);
+    } finally {
+      setLoadingComments(false);
+    }
+  };
+
   const handleAddComment = async () => {
     if (!commentText.trim() || !selectedActivity || !currentUserId) return;
 
@@ -130,10 +154,10 @@ export default function ActivityFeedTab({
         [selectedActivity.id]: (prev[selectedActivity.id] || 0) + 1
       }));
 
-      Alert.alert('Success', 'Comment added!');
+      // Reload comments to show the new one
+      await loadCommentsForActivity(selectedActivity.id);
+
       setCommentText('');
-      setShowCommentModal(false);
-      setSelectedActivity(null);
     } catch (error) {
       console.error('Error adding comment:', error);
       Alert.alert('Error', 'Failed to add comment');
@@ -242,6 +266,7 @@ export default function ActivityFeedTab({
                   style={styles.reactionButton}
                   onPress={() => {
                     setSelectedActivity(activity);
+                    loadCommentsForActivity(activity.id);
                     setShowCommentModal(true);
                   }}
                 >
@@ -314,6 +339,41 @@ export default function ActivityFeedTab({
                 </View>
               </View>
             )}
+
+            {/* Comments List */}
+            <ScrollView style={styles.commentsList}>
+              {loadingComments ? (
+                <ActivityIndicator size="small" color={Colors.accent1} style={{ marginVertical: 20 }} />
+              ) : comments.length > 0 ? (
+                comments.map((comment) => (
+                  <View key={comment.id} style={styles.commentItem}>
+                    <View style={styles.commentPhoto}>
+                      {profilePhotos[comment.userId] ? (
+                        <Image 
+                          source={{ uri: profilePhotos[comment.userId] }} 
+                          style={styles.commentImage}
+                        />
+                      ) : (
+                        <View style={styles.commentPlaceholder}>
+                          <Ionicons name="person" size={16} color={Colors.white} />
+                        </View>
+                      )}
+                    </View>
+                    <View style={styles.commentContent}>
+                      <Text style={styles.commentText}>
+                        <Text style={styles.commentUser}>User </Text>
+                        {comment.text}
+                      </Text>
+                      <Text style={styles.commentTime}>
+                        {comment.createdAt ? formatRelativeTime(comment.createdAt.toDate()) : 'Just now'}
+                      </Text>
+                    </View>
+                  </View>
+                ))
+              ) : (
+                <Text style={styles.noComments}>No comments yet. Be the first!</Text>
+              )}
+            </ScrollView>
 
             {/* Comment Input - Instagram Style */}
             <View style={styles.commentInputContainer}>
@@ -560,5 +620,57 @@ const styles = StyleSheet.create({
   },
   postButtonDisabled: {
     color: Colors.gray.medium,
+  },
+  commentsList: {
+    maxHeight: 300,
+    paddingHorizontal: 16,
+  },
+  commentItem: {
+    flexDirection: 'row',
+    paddingVertical: 12,
+    borderBottomWidth: 0.5,
+    borderBottomColor: Colors.gray.light,
+  },
+  commentPhoto: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginRight: 12,
+  },
+  commentImage: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+  },
+  commentPlaceholder: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.accent3,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  commentContent: {
+    flex: 1,
+  },
+  commentText: {
+    fontSize: 14,
+    color: Colors.primaryText,
+    lineHeight: 20,
+  },
+  commentUser: {
+    fontWeight: '600',
+  },
+  commentTime: {
+    fontSize: 12,
+    color: Colors.secondaryText,
+    marginTop: 4,
+  },
+  noComments: {
+    textAlign: 'center',
+    color: Colors.secondaryText,
+    fontSize: 14,
+    paddingVertical: 32,
   },
 });
