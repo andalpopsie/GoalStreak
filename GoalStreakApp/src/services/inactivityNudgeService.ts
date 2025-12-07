@@ -46,8 +46,8 @@ const NUDGE_MESSAGES = {
   ],
   day7: [
     {
-      title: '🦉 Don\'t Make Us Send the Owl',
-      body: 'You know what happens when you ignore us for a week. The owl is watching... 👀',
+      title: '⚡ Your Streak Is in Danger!',
+      body: 'A whole week without progress? Your goals are getting impatient. Time to come back!',
     },
     {
       title: '⚠️ This Is Your Final Warning',
