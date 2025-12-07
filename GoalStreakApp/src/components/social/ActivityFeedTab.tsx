@@ -5,7 +5,7 @@ import { Colors } from '../../constants/theme';
 import { SocialActivity, ReactionType } from '../../types/social';
 import { formatRelativeTime } from '../../utils/timeUtils';
 import { photoService } from '../../services/photoService';
-import { addDoc, collection, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 
 interface ActivityFeedTabProps {
@@ -118,21 +118,14 @@ export default function ActivityFeedTab({
       setLoadingComments(true);
       const q = query(
         collection(db, 'comments'),
-        where('activityId', '==', activityId)
+        where('activityId', '==', activityId),
+        orderBy('createdAt', 'desc')
       );
       const snapshot = await getDocs(q);
       const loadedComments = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
       }));
-      
-      // Sort in JavaScript instead of Firestore (no index needed)
-      loadedComments.sort((a: any, b: any) => {
-        const aTime = a.createdAt?.toDate?.()?.getTime() || 0;
-        const bTime = b.createdAt?.toDate?.()?.getTime() || 0;
-        return bTime - aTime; // Newest first
-      });
-      
       setComments(loadedComments);
     } catch (error) {
       console.error('Error loading comments:', error);
