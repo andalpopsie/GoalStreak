@@ -227,7 +227,11 @@ export default function SocialScreen() {
               activityFeed={activityFeed}
               onReaction={handleReaction}
               currentUserId={user?.id}
-              currentUserName={user?.displayName || user?.email?.split('@')[0] || 'User'}
+              currentUserName={(() => {
+                const name = user?.displayName || user?.email?.split('@')[0] || 'User';
+                console.log('🔍 Passing currentUserName:', name, 'from user:', user);
+                return name;
+              })()}
             />
           )}
 
