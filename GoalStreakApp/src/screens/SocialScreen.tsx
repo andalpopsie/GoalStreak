@@ -54,7 +54,7 @@ export default function SocialScreen() {
       refreshFriends();
       loadSuggestedFriends();
     }
-  }, [activeTab, refreshActivityFeed, refreshFriends]);
+  }, [activeTab, refreshActivityFeed, refreshFriends, loadSuggestedFriends]);
 
   // Load suggested friends
   const loadSuggestedFriends = useCallback(async () => {
