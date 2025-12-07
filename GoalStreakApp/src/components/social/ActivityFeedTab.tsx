@@ -7,7 +7,7 @@ import { Colors } from '../../constants/theme';
 import { SocialActivity, ReactionType } from '../../types/social';
 import { formatRelativeTime } from '../../utils/timeUtils';
 import { photoService } from '../../services/photoService';
-import { addDoc, collection, serverTimestamp, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 
 interface ActivityFeedTabProps {
@@ -143,9 +143,16 @@ export default function ActivityFeedTab({
     try {
       setIsSubmitting(true);
       
+      // Get current user's name from Firebase
+      const userDoc = await getDocs(
+        query(collection(db, 'users'), where('__name__', '==', currentUserId), limit(1))
+      );
+      const userName = userDoc.docs[0]?.data()?.displayName || 'User';
+      
       await addDoc(collection(db, 'comments'), {
         activityId: selectedActivity.id,
         userId: currentUserId,
+        userName: userName,
         text: commentText.trim(),
         createdAt: serverTimestamp(),
       });
@@ -404,7 +411,7 @@ export default function ActivityFeedTab({
                     </View>
                     <View style={styles.commentContent}>
                       <Text style={styles.commentText}>
-                        <Text style={styles.commentUser}>User </Text>
+                        <Text style={styles.commentUser}>{comment.userName || 'User'} </Text>
                         {comment.text}
                       </Text>
                       <Text style={styles.commentTime}>
