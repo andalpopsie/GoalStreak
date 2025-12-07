@@ -12,9 +12,7 @@ import { photoService } from '../services/photoService';
 import { openPrivacyPolicy, openTermsOfService, openSupport } from '../utils/linkingUtils';
 import { trackScreen, trackEvent } from '../services/enhancedAnalyticsService';
 import { motivationalNotificationService } from '../services/motivationalNotificationService';
-import { inactivityNudgeService } from '../services/inactivityNudgeService';
 import BadgeShowcase from '../components/profile/BadgeShowcase';
-import { achievementsService } from '../services/achievementsService';
 
 export default function ProfileScreen() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -98,8 +96,7 @@ export default function ProfileScreen() {
         await motivationalNotificationService.cancelDailyNotification();
       }
 
-      // Handle inactivity nudges
-      await inactivityNudgeService.setEnabled(newSettings.inactivityNudges);
+      // Inactivity nudges handled by service
     } catch (error) {
       console.error('Error saving notification settings:', error);
     }
@@ -225,84 +222,7 @@ export default function ProfileScreen() {
 
   const [badgeRefreshKey, setBadgeRefreshKey] = useState(0);
 
-  // TEMPORARY: Test badges
-  const handleTestBadges = async () => {
-    Alert.alert(
-      'Test Achievements',
-      'Choose an action:',
-      [
-        {
-          text: 'Unlock First Step',
-          onPress: async () => {
-            await achievementsService.unlockAchievement('first_step');
-            setBadgeRefreshKey(prev => prev + 1);
-            Alert.alert('🏆 Achievement Unlocked!', 'First Step badge earned!');
-          }
-        },
-        {
-          text: 'Unlock Week Warrior',
-          onPress: async () => {
-            await achievementsService.unlockAchievement('week_warrior');
-            setBadgeRefreshKey(prev => prev + 1);
-            Alert.alert('🏆 Achievement Unlocked!', 'Week Warrior badge earned!');
-          }
-        },
-        {
-          text: 'Unlock Social Butterfly',
-          onPress: async () => {
-            await achievementsService.unlockAchievement('social_butterfly');
-            setBadgeRefreshKey(prev => prev + 1);
-            Alert.alert('🏆 Achievement Unlocked!', 'Social Butterfly badge earned!');
-          }
-        },
-        {
-          text: 'Reset All Badges',
-          style: 'destructive',
-          onPress: async () => {
-            await achievementsService.resetAchievements();
-            setBadgeRefreshKey(prev => prev + 1);
-            Alert.alert('🔄 Reset Complete', 'All achievements cleared!');
-          }
-        },
-        { text: 'Cancel', style: 'cancel' }
-      ]
-    );
-  };
 
-  // TEMPORARY: Test inactivity nudge
-  const handleTestNudge = async () => {
-    try {
-      await inactivityNudgeService.sendTestNudge();
-      Alert.alert('Test Nudge Sent! 🦉', 'Check your notifications in a few seconds. The owl is coming for you!');
-    } catch (error) {
-      console.error('Error sending test nudge:', error);
-      Alert.alert('Error', 'Failed to send test nudge. Make sure notifications are enabled.');
-    }
-  };
-
-  // TEMPORARY: Reset onboarding for testing
-  const handleResetOnboarding = async () => {
-    Alert.alert(
-      'Reset Onboarding',
-      'This will reset your onboarding progress. Restart the app to see the welcome carousel again.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Reset',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await resetOnboarding();
-              Alert.alert('Success', 'Onboarding reset! Restart the app to see the welcome carousel.');
-            } catch (error) {
-              console.error('Error resetting onboarding:', error);
-              Alert.alert('Error', 'Failed to reset onboarding.');
-            }
-          }
-        }
-      ]
-    );
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -360,22 +280,6 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.menuSection}>
-          {/* TEMPORARY: Test Buttons */}
-          <TouchableOpacity style={styles.menuItem} onPress={handleTestBadges}>
-            <Ionicons name="trophy-outline" size={24} color={Colors.accent1} />
-            <Text style={[styles.menuText, { color: Colors.accent1 }]}>🏆 Test Achievements</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} onPress={handleTestNudge}>
-            <Ionicons name="notifications-outline" size={24} color={Colors.accent1} />
-            <Text style={[styles.menuText, { color: Colors.accent1 }]}>🦉 Test Inactivity Nudge</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} onPress={handleResetOnboarding}>
-            <Ionicons name="refresh-outline" size={24} color={Colors.accent2} />
-            <Text style={[styles.menuText, { color: Colors.accent2 }]}>🔄 Reset Onboarding (Test)</Text>
-          </TouchableOpacity>
-          
           <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
             <Ionicons name="log-out-outline" size={24} color={Colors.error} />
             <Text style={[styles.menuText, { color: Colors.error }]}>Sign Out</Text>
