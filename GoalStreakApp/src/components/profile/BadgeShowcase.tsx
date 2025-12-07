@@ -7,15 +7,16 @@ import { achievementsService, Achievement } from '../../services/achievementsSer
 
 interface BadgeShowcaseProps {
   onViewAll: () => void;
+  refreshKey?: number; // Add refresh trigger
 }
 
-export default function BadgeShowcase({ onViewAll }: BadgeShowcaseProps) {
+export default function BadgeShowcase({ onViewAll, refreshKey }: BadgeShowcaseProps) {
   const [topBadges, setTopBadges] = useState<Achievement[]>([]);
   const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     loadBadges();
-  }, []);
+  }, [refreshKey]); // Reload when refreshKey changes
 
   const loadBadges = async () => {
     const badges = await achievementsService.getTopAchievements();
@@ -24,9 +25,7 @@ export default function BadgeShowcase({ onViewAll }: BadgeShowcaseProps) {
     setTotalCount(count);
   };
 
-  if (topBadges.length === 0) {
-    return null; // Don't show if no badges
-  }
+  // Always show the showcase (with empty slots if no badges yet)
 
   return (
     <View style={styles.container}>

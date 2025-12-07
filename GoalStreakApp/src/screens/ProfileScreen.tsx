@@ -223,6 +223,8 @@ export default function ProfileScreen() {
     );
   };
 
+  const [badgeRefreshKey, setBadgeRefreshKey] = useState(0);
+
   // TEMPORARY: Test badges
   const handleTestBadges = async () => {
     Alert.alert(
@@ -233,6 +235,7 @@ export default function ProfileScreen() {
           text: 'Unlock First Step',
           onPress: async () => {
             await achievementsService.unlockAchievement('first_step');
+            setBadgeRefreshKey(prev => prev + 1);
             Alert.alert('🏆 Achievement Unlocked!', 'First Step badge earned!');
           }
         },
@@ -240,6 +243,7 @@ export default function ProfileScreen() {
           text: 'Unlock Week Warrior',
           onPress: async () => {
             await achievementsService.unlockAchievement('week_warrior');
+            setBadgeRefreshKey(prev => prev + 1);
             Alert.alert('🏆 Achievement Unlocked!', 'Week Warrior badge earned!');
           }
         },
@@ -247,6 +251,7 @@ export default function ProfileScreen() {
           text: 'Unlock Social Butterfly',
           onPress: async () => {
             await achievementsService.unlockAchievement('social_butterfly');
+            setBadgeRefreshKey(prev => prev + 1);
             Alert.alert('🏆 Achievement Unlocked!', 'Social Butterfly badge earned!');
           }
         },
@@ -255,6 +260,7 @@ export default function ProfileScreen() {
           style: 'destructive',
           onPress: async () => {
             await achievementsService.resetAchievements();
+            setBadgeRefreshKey(prev => prev + 1);
             Alert.alert('🔄 Reset Complete', 'All achievements cleared!');
           }
         },
@@ -334,7 +340,10 @@ export default function ProfileScreen() {
         </View>
 
         {/* Badge Showcase */}
-        <BadgeShowcase onViewAll={() => Alert.alert('Coming Soon', 'Full achievements view coming soon!')} />
+        <BadgeShowcase 
+          refreshKey={badgeRefreshKey}
+          onViewAll={() => Alert.alert('Coming Soon', 'Full achievements view coming soon!')} 
+        />
 
         <View style={styles.menuSection}>
           <TouchableOpacity style={styles.menuItem} onPress={() => setShowEditModal(true)}>
