@@ -107,17 +107,29 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     if (!user?.createdAt) return;
 
     try {
-      // Check if this is a new user (created within last 5 minutes)
+      // Check if this is a new user (created within last 24 hours)
       const userCreatedAt = user.createdAt instanceof Date 
         ? user.createdAt 
         : new Date(user.createdAt);
       const now = new Date();
       const timeDiff = now.getTime() - userCreatedAt.getTime();
-      const isNewUser = timeDiff < NEW_USER_THRESHOLD_MS;
+      const isNewUser = timeDiff < (24 * 60 * 60 * 1000); // 24 hours instead of 5 minutes
 
-      if (isNewUser && onboardingState.hasCompletedOnboarding) {
-        // Reset onboarding for new users
-        await resetOnboarding();
+      // Only reset onboarding if this is truly a new user AND they haven't completed onboarding
+      if (isNewUser && !onboardingState.hasCompletedOnboarding) {
+        // This is a new user who hasn't completed onboarding - keep them in onboarding
+        console.log('New user detected, keeping in onboarding flow');
+      } else if (!isNewUser && !onboardingState.hasCompletedOnboarding) {
+        // This is an existing user who somehow lost their onboarding completion status
+        // Mark onboarding as complete to skip it
+        console.log('Existing user detected, skipping onboarding');
+        const newState: OnboardingState = {
+          ...onboardingState,
+          hasSeenWelcome: true,
+          hasCompletedOnboarding: true,
+          onboardingStep: 'completed',
+        };
+        await saveOnboardingState(newState);
       }
     } catch (error) {
       console.error('Error checking if new user:', error);
