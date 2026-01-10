@@ -622,7 +622,7 @@ export const streakService = {
   async checkCompletionAchievements(habitId: string, userId: string): Promise<void> {
     try {
       // Check for first completion
-      const allCompletions = await this.getHabitCompletions(
+      const allCompletions = await completionService.getHabitCompletions(
         habitId,
         new Date(0),
         new Date()
@@ -633,7 +633,7 @@ export const streakService = {
       }
 
       // Check for time-based achievements
-      const todayCompletion = await this.getTodayCompletion(habitId, userId);
+      const todayCompletion = await completionService.getTodayCompletion(habitId, userId);
       if (todayCompletion) {
         const hour = todayCompletion.completedAt.getHours();
         
@@ -684,7 +684,7 @@ export const streakService = {
         
         let isPerfectWeek = true;
         for (const habit of userHabits) {
-          const completions = await this.getHabitCompletions(
+          const completions = await completionService.getHabitCompletions(
             habit.id,
             sevenDaysAgo,
             new Date()
