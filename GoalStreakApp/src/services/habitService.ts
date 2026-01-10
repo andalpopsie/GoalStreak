@@ -492,7 +492,7 @@ export const completionService = {
       await habitService.updateStreak(habitId);
       
       // Check for achievements
-      await this.checkCompletionAchievements(habitId, userId);
+      await streakService.checkCompletionAchievements(habitId, userId);
     } catch (error) {
       console.error('Error completing habit:', error);
       throw error;

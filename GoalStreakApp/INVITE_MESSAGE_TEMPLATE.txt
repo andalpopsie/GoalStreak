@@ -1,0 +1,80 @@
+Hey! 👋
+
+I built a habit tracking app called GoalStreak and would love your help testing it before launch!
+
+It's like a mix of Duolingo's streaks + Instagram's social features for building better habits.
+
+HOW TO TEST:
+1. Install TestFlight app from App Store (it's free)
+2. Tap this link: [YOUR_TESTFLIGHT_LINK]
+3. Install GoalStreak
+4. Use it for a few days and let me know what you think!
+
+WHAT I NEED:
+- Honest feedback (good and bad!)
+- Bug reports if you find any
+- Would you actually use this daily?
+
+Takes 5 min to set up, then just use it naturally. No pressure!
+
+Thanks so much! 🙏
+
+---
+
+ALTERNATIVE (If using email invites):
+
+Subject: Help me test my new app? 🚀
+
+Hey [Name]!
+
+I've been building a habit tracking app and would love your feedback before launching it publicly.
+
+It's called GoalStreak - think Duolingo streaks meets social accountability for building better habits.
+
+Can you help test it? Here's how:
+
+1. Check your email for a TestFlight invite (from Apple)
+2. Tap "View in TestFlight" 
+3. Install the app
+4. Use it for a few days
+5. Let me know what you think!
+
+I'm looking for honest feedback - what works, what's confusing, what's missing, and whether you'd actually use it daily.
+
+No pressure if you're too busy, but I'd really appreciate it!
+
+Thanks!
+[Your name]
+
+P.S. You'll need the TestFlight app from the App Store (it's free from Apple for testing beta apps)
+
+---
+
+ALTERNATIVE (For group chat):
+
+Hey everyone! 👋
+
+I need 10-20 people to test my new app before launch. 
+
+It's a habit tracker with social features - like Duolingo streaks + accountability buddies.
+
+If you can help:
+1. Install TestFlight (free app from Apple)
+2. Use this link: [YOUR_LINK]
+3. Test for a few days
+4. Send me feedback
+
+Takes 5 min to set up. Would really appreciate it! 🙏
+
+---
+
+FOLLOW-UP MESSAGE (After 2-3 days):
+
+Hey! Quick check-in on GoalStreak testing 👀
+
+Have you had a chance to try it yet? Would love to hear:
+- First impressions?
+- Any bugs or confusing parts?
+- Would you use it daily?
+
+Even quick feedback helps! Thanks again 🙏
