@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../services/firebase';
 import { trackEvent } from '../services/enhancedAnalyticsService';
 import { useAuth } from './useAuth';
 
@@ -33,8 +35,6 @@ const defaultOnboardingState: OnboardingState = {
 const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
 
 const ONBOARDING_STORAGE_KEY = 'onboarding_state';
-const NEW_USER_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
-
 /**
  * OnboardingProvider - Manages user onboarding state and flow
  * 
@@ -42,7 +42,7 @@ const NEW_USER_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
  * - Welcome carousel completion
  * - Habit suggestions selection
  * - Onboarding skip functionality
- * - New user detection and state reset
+ * - First-time user detection (standard mobile app pattern)
  * - Analytics tracking for onboarding events
  */
 export function OnboardingProvider({ children }: { children: React.ReactNode }) {
@@ -55,10 +55,10 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     loadOnboardingState();
   }, []);
 
-  // Reset onboarding for new users
+  // Check if user needs onboarding (standard mobile app pattern)
   useEffect(() => {
     if (isAuthenticated && user) {
-      checkIfNewUser();
+      checkOnboardingStatus();
     }
   }, [isAuthenticated, user]);
 
@@ -103,33 +103,18 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     }
   };
 
-  const checkIfNewUser = async () => {
-    if (!user?.createdAt) return;
+  const checkOnboardingStatus = async () => {
+    if (!user?.id) return;
 
     try {
-      // Check if this is a new user (created within last 24 hours)
-      const userCreatedAt = user.createdAt instanceof Date 
-        ? user.createdAt 
-        : new Date(user.createdAt);
-      const now = new Date();
-      const timeDiff = now.getTime() - userCreatedAt.getTime();
-      const isNewUser = timeDiff < (24 * 60 * 60 * 1000); // 24 hours instead of 5 minutes
+      // Check if user has completed onboarding (stored in Firestore)
+      const userDoc = await getDoc(doc(db, 'users', user.id));
+      const userData = userDoc.data();
+      const hasCompletedOnboardingInDB = userData?.hasCompletedOnboarding || false;
 
-      // Handle new vs existing users
-      if (isNewUser && !onboardingState.hasCompletedOnboarding) {
-        // This is a new user who hasn't completed onboarding - reset to show welcome carousel
-        console.log('New user detected, resetting onboarding to show welcome carousel');
-        const newState: OnboardingState = {
-          ...defaultOnboardingState,
-          hasSeenWelcome: false,
-          hasCompletedOnboarding: false,
-          onboardingStep: 'welcome',
-        };
-        await saveOnboardingState(newState);
-      } else if (!isNewUser && !onboardingState.hasCompletedOnboarding) {
-        // This is an existing user who somehow lost their onboarding completion status
-        // Mark onboarding as complete to skip it
-        console.log('Existing user detected, skipping onboarding');
+      // If user has completed onboarding in database, update local state
+      if (hasCompletedOnboardingInDB && !onboardingState.hasCompletedOnboarding) {
+        console.log('User has completed onboarding in database, updating local state');
         const newState: OnboardingState = {
           ...onboardingState,
           hasSeenWelcome: true,
@@ -137,10 +122,20 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
           onboardingStep: 'completed',
         };
         await saveOnboardingState(newState);
+      } else if (!hasCompletedOnboardingInDB && onboardingState.hasCompletedOnboarding) {
+        // If local state says completed but database says not completed, reset to show onboarding
+        console.log('Database shows onboarding not completed, resetting local state');
+        const newState: OnboardingState = {
+          ...defaultOnboardingState,
+          hasSeenWelcome: false,
+          hasCompletedOnboarding: false,
+          onboardingStep: 'welcome',
+        };
+        await saveOnboardingState(newState);
       }
     } catch (error) {
-      console.error('Error checking if new user:', error);
-      // Gracefully handle error by not resetting onboarding
+      console.error('Error checking onboarding status:', error);
+      // If we can't check database, rely on local storage
     }
   };
 
@@ -200,6 +195,18 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
 
     await saveOnboardingState(newState);
 
+    // Save completion status to Firestore (standard mobile app pattern)
+    if (user?.id) {
+      try {
+        await setDoc(doc(db, 'users', user.id), {
+          hasCompletedOnboarding: true,
+          onboardingCompletedAt: new Date(),
+        }, { merge: true });
+      } catch (error) {
+        console.error('Error saving onboarding completion to database:', error);
+      }
+    }
+
     // Track notification setup completion
     trackEvent('onboarding_notification_setup_completed', {
       user_id: user?.id,
@@ -216,6 +223,19 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     };
 
     await saveOnboardingState(newState);
+
+    // Save completion status to Firestore (standard mobile app pattern)
+    if (user?.id) {
+      try {
+        await setDoc(doc(db, 'users', user.id), {
+          hasCompletedOnboarding: true,
+          onboardingCompletedAt: new Date(),
+          onboardingSkipped: true,
+        }, { merge: true });
+      } catch (error) {
+        console.error('Error saving onboarding skip to database:', error);
+      }
+    }
 
     // Track onboarding skip and overall completion
     const completionTime = new Date().toISOString();
@@ -239,6 +259,18 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
 
   const resetOnboarding = useCallback(async () => {
     await saveOnboardingState(defaultOnboardingState);
+
+    // Reset completion status in Firestore
+    if (user?.id) {
+      try {
+        await setDoc(doc(db, 'users', user.id), {
+          hasCompletedOnboarding: false,
+          onboardingCompletedAt: null,
+        }, { merge: true });
+      } catch (error) {
+        console.error('Error resetting onboarding in database:', error);
+      }
+    }
 
     // Track onboarding reset
     trackEvent('onboarding_reset', {

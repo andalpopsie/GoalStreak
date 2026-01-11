@@ -142,6 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         displayName,
         createdAt: new Date(),
         updatedAt: new Date(),
+        hasCompletedOnboarding: false, // New users need onboarding
       };
 
       await setDoc(doc(db, 'users', firebaseUser.uid), userData);
