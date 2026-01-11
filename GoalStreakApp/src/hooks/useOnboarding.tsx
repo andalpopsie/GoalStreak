@@ -115,10 +115,17 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
       const timeDiff = now.getTime() - userCreatedAt.getTime();
       const isNewUser = timeDiff < (24 * 60 * 60 * 1000); // 24 hours instead of 5 minutes
 
-      // Only reset onboarding if this is truly a new user AND they haven't completed onboarding
+      // Handle new vs existing users
       if (isNewUser && !onboardingState.hasCompletedOnboarding) {
-        // This is a new user who hasn't completed onboarding - keep them in onboarding
-        console.log('New user detected, keeping in onboarding flow');
+        // This is a new user who hasn't completed onboarding - reset to show welcome carousel
+        console.log('New user detected, resetting onboarding to show welcome carousel');
+        const newState: OnboardingState = {
+          ...defaultOnboardingState,
+          hasSeenWelcome: false,
+          hasCompletedOnboarding: false,
+          onboardingStep: 'welcome',
+        };
+        await saveOnboardingState(newState);
       } else if (!isNewUser && !onboardingState.hasCompletedOnboarding) {
         // This is an existing user who somehow lost their onboarding completion status
         // Mark onboarding as complete to skip it
