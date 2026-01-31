@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { CreateHabitForm, Habit } from '../types';
+import { LIMITS } from '../constants/limits';
 
 // Validation constants
 const HABIT_NAME_MIN_LENGTH = 2;
@@ -12,6 +13,10 @@ interface ValidationErrors {
 }
 
 export function useHabitFormValidation(habits: Habit[]) {
+  const isAtHabitLimit = useCallback((): boolean => {
+    return habits.length >= LIMITS.MAX_HABITS;
+  }, [habits]);
+
   const validateHabitName = useCallback((name: string): string | null => {
     const trimmedName = name.trim()
       .replace(/[<>]/g, '') // Basic XSS prevention
@@ -66,6 +71,12 @@ export function useHabitFormValidation(habits: Habit[]) {
   const validateForm = useCallback((form: CreateHabitForm): ValidationErrors => {
     const errors: ValidationErrors = {};
 
+    // Check habit limit first
+    if (isAtHabitLimit()) {
+      errors.limit = `You've reached the maximum of ${LIMITS.MAX_HABITS} habits. Delete a habit to create a new one.`;
+      return errors;
+    }
+
     // Validate habit name
     const nameError = validateHabitName(form.name);
     if (nameError) {
@@ -82,11 +93,12 @@ export function useHabitFormValidation(habits: Habit[]) {
     }
 
     return errors;
-  }, [validateHabitName, validateTargetValue]);
+  }, [validateHabitName, validateTargetValue, isAtHabitLimit]);
 
   return {
     validateForm,
     validateHabitName,
     validateTargetValue,
+    isAtHabitLimit,
   };
 }

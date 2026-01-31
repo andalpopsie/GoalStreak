@@ -101,10 +101,29 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
 
   // Validation logic extracted for better maintainability
   const validation = useHabitFormValidation(habits);
+  const isAtLimit = validation.isAtHabitLimit();
+
+  // Show alert if user is at habit limit when screen opens
+  useEffect(() => {
+    if (isAtLimit) {
+      Alert.alert(
+        'Habit Limit Reached',
+        `You've reached the maximum of ${LIMITS.MAX_HABITS} habits. Delete a habit to create a new one.`,
+        [{ text: 'OK', onPress: () => navigation.goBack() }]
+      );
+    }
+  }, [isAtLimit, navigation]);
 
   const validateForm = useCallback((): boolean => {
     const newErrors = validation.validateForm(form);
     setErrors(newErrors);
+    
+    // Show specific alert for limit error
+    if (newErrors.limit) {
+      Alert.alert('Habit Limit Reached', newErrors.limit);
+      return false;
+    }
+    
     return Object.keys(newErrors).length === 0;
   }, [form, validation]);
 
