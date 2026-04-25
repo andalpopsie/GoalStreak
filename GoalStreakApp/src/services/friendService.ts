@@ -127,6 +127,25 @@ class FriendService {
 
       const request = requestDoc.data() as FriendRequest;
 
+      // Check if friendship already exists (prevent duplicates)
+      const existingFriendship = await getDocs(
+        query(
+          this.friendsCollection,
+          where('userId', '==', request.fromUserId),
+          where('friendId', '==', request.toUserId)
+        )
+      );
+
+      if (!existingFriendship.empty) {
+        // Friendship already exists — just mark the request as accepted
+        batch.update(doc(this.friendRequestsCollection, requestId), {
+          status: 'accepted',
+          updatedAt: serverTimestamp()
+        });
+        await batch.commit();
+        return;
+      }
+
       // Get user profiles for proper names
       const fromUserDoc = await getDoc(doc(this.userProfilesCollection, request.fromUserId));
       const toUserDoc = await getDoc(doc(this.userProfilesCollection, request.toUserId));
@@ -315,7 +334,7 @@ class FriendService {
           userName = userData?.name || userData?.email || 'Unknown User';
         }
       } catch (profileError) {
-        console.log('Could not fetch user profile, using fallback name');
+        // Fallback to default name if profile fetch fails
       }
 
       // Validate required parameters
@@ -724,6 +743,21 @@ class FriendService {
       );
       const displayNameSnapshot = await getDocs(displayNameQuery);
       displayNameSnapshot.forEach(addUserToResults);
+
+      // Search by username (strip @ prefix if present)
+      const usernameSearch = searchQuery.startsWith('@') 
+        ? searchQuery.slice(1).toLowerCase() 
+        : searchQuery.toLowerCase();
+      if (usernameSearch.length >= 2) {
+        const usernameQuery = query(
+          this.usersCollection,
+          where('username', '>=', usernameSearch),
+          where('username', '<=', usernameSearch + '\uf8ff'),
+          limit(10)
+        );
+        const usernameSnapshot = await getDocs(usernameQuery);
+        usernameSnapshot.forEach(addUserToResults);
+      }
 
       return results;
     } catch (error) {

@@ -17,6 +17,7 @@ import { Button, SimpleInput } from '../components/common';
 import { SignUpForm } from '../types';
 import { openPrivacyPolicy, openTermsOfService } from '../utils/linkingUtils';
 import { trackScreen, trackEvent, trackConversion } from '../services/enhancedAnalyticsService';
+import { validatePassword } from '../utils/inputValidation';
 
 interface SignUpScreenProps {
   navigation: any;
@@ -58,8 +59,11 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
 
     if (!form.password) {
       newErrors.password = 'Password is required';
-    } else if (form.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    } else {
+      const passwordValidation = validatePassword(form.password);
+      if (!passwordValidation.isValid) {
+        newErrors.password = passwordValidation.errors[0];
+      }
     }
 
     if (!form.confirmPassword) {

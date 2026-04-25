@@ -27,265 +27,357 @@ export default function FriendsTab({
 }: FriendsTabProps) {
   return (
     <>
-      {/* Suggested Friends Section - Horizontal Scroll */}
-      {suggestedFriends.length > 0 && (
-        <>
-          <Text style={styles.sectionTitle}>
-            <Ionicons name="sparkles" size={20} color={Colors.accent1} /> Suggested Friends
-          </Text>
-          <ScrollView 
-            horizontal 
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            snapToInterval={359}
-            decelerationRate="fast"
-            contentContainerStyle={styles.suggestionsScroll}
-            style={styles.suggestionsContainer}
-          >
-            {suggestedFriends.map((suggestion) => (
-              <View key={suggestion.id} style={styles.suggestionCard}>
-                <View style={styles.suggestionLeft}>
-                  <View style={styles.suggestionAvatar}>
-                    {suggestion.photoURL ? (
-                      <Image 
-                        source={{ uri: suggestion.photoURL }} 
-                        style={styles.avatarImage}
-                      />
-                    ) : (
-                      <View style={styles.avatarPlaceholder}>
-                        <Text style={styles.avatarInitials}>
-                          {suggestion.name.charAt(0).toUpperCase()}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                </View>
-                <View style={styles.suggestionRight}>
-                  <Text style={styles.suggestionName} numberOfLines={1}>
-                    {suggestion.name}
-                  </Text>
-                  <Text style={styles.suggestionReason} numberOfLines={1}>
-                    {suggestion.matchReason}
-                  </Text>
-                  <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={() => onSendFriendRequest?.(suggestion.email)}
-                  >
-                    <Ionicons name="person-add" size={20} color={Colors.white} />
-                    <Text style={styles.addButtonText}>Add Friend</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ))}
-          </ScrollView>
-        </>
-      )}
-
-      {/* Pending Requests Section */}
+      {/* ── Friend Requests Section ── */}
       {pendingRequests.length > 0 && (
-        <>
-          <Text style={styles.sectionTitle}>Friend Requests ({pendingRequests.length})</Text>
+        <View style={styles.requestsSection}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionTitleRow}>
+              <Ionicons name="person-add" size={20} color={Colors.accent1} />
+              <Text style={styles.sectionTitle}>Friend Requests</Text>
+            </View>
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{pendingRequests.length}</Text>
+            </View>
+          </View>
+
           {pendingRequests.map((request) => (
             <View key={request.id} style={styles.requestCard}>
+              <View style={styles.requestAvatar}>
+                <Text style={styles.requestAvatarText}>
+                  {(request.fromUserName || '?').charAt(0).toUpperCase()}
+                </Text>
+              </View>
               <View style={styles.requestInfo}>
-                <Text style={styles.requestName}>{request.fromUserName}</Text>
-                <Text style={styles.requestEmail}>{request.fromUserEmail}</Text>
+                <Text style={styles.requestName} numberOfLines={1}>
+                  {request.fromUserName}
+                </Text>
+                <Text style={styles.requestEmail} numberOfLines={1}>
+                  {request.fromUserEmail}
+                </Text>
                 {request.message && (
-                  <Text style={styles.requestMessage}>"{request.message}"</Text>
+                  <Text style={styles.requestMessage} numberOfLines={2}>
+                    "{request.message}"
+                  </Text>
                 )}
               </View>
               <View style={styles.requestActions}>
                 <TouchableOpacity
-                  style={[styles.requestButton, styles.acceptButton]}
+                  style={styles.acceptButton}
                   onPress={() => onAcceptRequest(request.id)}
+                  accessibilityLabel="Accept friend request"
+                  accessibilityRole="button"
                 >
+                  <Ionicons name="checkmark" size={20} color={Colors.white} />
                   <Text style={styles.acceptButtonText}>Accept</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.requestButton, styles.declineButton]}
+                  style={styles.declineButton}
                   onPress={() => onDeclineRequest(request.id)}
+                  accessibilityLabel="Decline friend request"
+                  accessibilityRole="button"
                 >
-                  <Text style={styles.declineButtonText}>Decline</Text>
+                  <Ionicons name="close" size={18} color={Colors.secondaryText} />
                 </TouchableOpacity>
               </View>
             </View>
           ))}
-        </>
+        </View>
       )}
 
-      {/* Friends List */}
-      {friends.length > 0 && (
-        <>
-          {pendingRequests.length > 0 && (
-            <Text style={styles.sectionTitle}>Friends ({friends.length})</Text>
-          )}
-          {friends.map((friend) => (
+      {/* ── My Friends Section ── */}
+      <View style={styles.friendsSection}>
+        <View style={styles.sectionHeader}>
+          <View style={styles.sectionTitleRow}>
+            <Ionicons name="people" size={20} color={Colors.primaryText} />
+            <Text style={styles.sectionTitle}>My Friends</Text>
+          </View>
+          <Text style={styles.friendCount}>{friends.length}</Text>
+        </View>
+
+        {friends.length > 0 ? (
+          friends.map((friend) => (
             <FriendCard
               key={friend.id}
               friend={friend}
               type="friend"
               onRemove={() => onRemoveFriend(friend.friendId)}
             />
-          ))}
-        </>
+          ))
+        ) : (
+          <View style={styles.emptyFriends}>
+            <Ionicons name="people-outline" size={40} color={Colors.gray.medium} />
+            <Text style={styles.emptyFriendsText}>
+              No friends yet. Search to find people you know!
+            </Text>
+          </View>
+        )}
+      </View>
+
+      {/* ── Suggested Friends Section ── */}
+      {suggestedFriends.length > 0 && (
+        <View style={styles.suggestionsSection}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionTitleRow}>
+              <Ionicons name="sparkles" size={20} color={Colors.accent1} />
+              <Text style={styles.sectionTitle}>People You May Know</Text>
+            </View>
+          </View>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.suggestionsScroll}
+          >
+            {suggestedFriends.map((suggestion) => (
+              <View key={suggestion.id} style={styles.suggestionCard}>
+                <View style={styles.suggestionAvatar}>
+                  {suggestion.photoURL ? (
+                    <Image
+                      source={{ uri: suggestion.photoURL }}
+                      style={styles.suggestionAvatarImage}
+                    />
+                  ) : (
+                    <Text style={styles.suggestionAvatarText}>
+                      {suggestion.name.charAt(0).toUpperCase()}
+                    </Text>
+                  )}
+                </View>
+                <Text style={styles.suggestionName} numberOfLines={1}>
+                  {suggestion.name}
+                </Text>
+                <Text style={styles.suggestionReason} numberOfLines={2}>
+                  {suggestion.matchReason}
+                </Text>
+                <TouchableOpacity
+                  style={styles.addFriendButton}
+                  onPress={() => onSendFriendRequest?.(suggestion.email)}
+                  accessibilityLabel={`Add ${suggestion.name} as friend`}
+                  accessibilityRole="button"
+                >
+                  <Ionicons name="person-add-outline" size={16} color={Colors.white} />
+                  <Text style={styles.addFriendButtonText}>Add</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
       )}
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionTitle: {
-    fontSize: 20,                       // subheading
-    fontWeight: '600',                  // semibold
-    color: Colors.primaryText,
-    marginBottom: 16,                   // 8 * 2 (base)
-    marginTop: 16,                      // 8 * 2 (base)
+  // ── Section Layout ──
+  requestsSection: {
+    marginBottom: 8,                    // 8 × 1 (tight gap before next section)
   },
-  requestCard: {
+  friendsSection: {
+    marginBottom: 8,                    // 8 × 1
+  },
+  suggestionsSection: {
+    marginBottom: 24,                   // 8 × 3 (comfortable)
+  },
+  sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 16,                // 8 * 2 (base)
-    paddingHorizontal: 16,              // 8 * 2 (base)
-    marginBottom: 16,                   // 8 * 2 (base)
+    paddingVertical: 16,               // 8 × 2 (base)
+  },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,                            // 8 × 1 (tight)
+  },
+  sectionTitle: {
+    fontSize: 20,                      // subheading
+    fontWeight: '600',                 // semibold
+    color: Colors.primaryText,
+  },
+
+  // ── Badge ──
+  badge: {
+    backgroundColor: Colors.accent1,
+    borderRadius: 12,                  // pill
+    minWidth: 24,                      // 8 × 3
+    height: 24,                        // 8 × 3
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 8,              // 8 × 1 (tight)
+  },
+  badgeText: {
+    color: Colors.white,
+    fontSize: 12,                      // small
+    fontWeight: '700',                 // bold
+  },
+  friendCount: {
+    fontSize: 16,                      // body
+    fontWeight: '600',                 // semibold
+    color: Colors.secondaryText,
+  },
+
+  // ── Request Cards ──
+  requestCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: Colors.white,
-    borderRadius: 16,                   // Modern rounded
+    borderRadius: 16,
+    padding: 16,                       // 8 × 2 (base)
+    marginBottom: 8,                   // 8 × 1 (tight)
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.accent1,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  requestAvatar: {
+    width: 48,                         // 8 × 6
+    height: 48,                        // 8 × 6
+    borderRadius: 24,
+    backgroundColor: Colors.accent1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,                   // 8 × 2 (base)
+  },
+  requestAvatarText: {
+    color: Colors.white,
+    fontSize: 20,                      // subheading
+    fontWeight: '700',                 // bold
   },
   requestInfo: {
     flex: 1,
-    marginRight: 16,                    // 8 * 2 (base)
+    marginRight: 8,                    // 8 × 1 (tight)
   },
   requestName: {
-    fontSize: 16,                       // body
-    fontWeight: '600',                  // semibold
+    fontSize: 16,                      // body
+    fontWeight: '600',                 // semibold
     color: Colors.primaryText,
-    marginBottom: 4,                    // 8 * 0.5 (extra tight)
+    marginBottom: 2,
   },
   requestEmail: {
-    fontSize: 14,                       // small
+    fontSize: 14,                      // caption
     color: Colors.secondaryText,
-    marginBottom: 4,                    // 8 * 0.5 (extra tight)
   },
   requestMessage: {
-    fontSize: 14,                       // small
+    fontSize: 14,                      // caption
     color: Colors.secondaryText,
     fontStyle: 'italic',
-    marginTop: 8,                       // 8 * 1 (tight)
-    lineHeight: 20,                     // Comfortable reading
+    marginTop: 4,
+    lineHeight: 20,
   },
   requestActions: {
     flexDirection: 'row',
-    gap: 8,                             // 8 * 1 (tight)
-  },
-  requestButton: {
-    paddingHorizontal: 20,              // 8 * 2.5
-    paddingVertical: 12,                // 8 * 1.5
-    borderRadius: 24,                   // Pill-shaped
-    minWidth: 80,                       // 8 * 10
-    minHeight: 48,                      // 8 * 6 (touch target)
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 8,                            // 8 × 1 (tight)
   },
   acceptButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     backgroundColor: Colors.accent3,
-  },
-  declineButton: {
-    backgroundColor: Colors.white,
-    borderWidth: 1,
-    borderColor: Colors.gray.light,
+    paddingHorizontal: 16,             // 8 × 2 (base)
+    paddingVertical: 10,               // comfortable tap
+    borderRadius: 24,                  // pill
+    minHeight: 40,                     // 8 × 5
   },
   acceptButtonText: {
     color: Colors.white,
-    fontSize: 14,                       // small
-    fontWeight: '600',                  // semibold
+    fontSize: 14,                      // caption
+    fontWeight: '600',                 // semibold
   },
-  declineButtonText: {
+  declineButton: {
+    width: 40,                         // 8 × 5
+    height: 40,                        // 8 × 5
+    borderRadius: 20,
+    backgroundColor: Colors.gray.light,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // ── Empty Friends ──
+  emptyFriends: {
+    alignItems: 'center',
+    paddingVertical: 32,               // 8 × 4 (loose)
+    paddingHorizontal: 24,             // 8 × 3 (comfortable)
+    backgroundColor: Colors.white,
+    borderRadius: 16,
+    gap: 8,                            // 8 × 1 (tight)
+  },
+  emptyFriendsText: {
+    fontSize: 16,                      // body
     color: Colors.secondaryText,
-    fontSize: 14,                       // small
-    fontWeight: '600',                  // semibold
+    textAlign: 'center',
+    lineHeight: 24,                    // 1.5 line height
   },
-  suggestionsContainer: {
-    marginBottom: 24,                   // 8 * 3 (comfortable)
-  },
+
+  // ── Suggestions ──
   suggestionsScroll: {
-    paddingHorizontal: 16,              // 8 * 2 (base)
+    paddingRight: 16,                  // 8 × 2 (base) trailing space
   },
   suggestionCard: {
-    width: 343,                         // Full width minus margins (375 - 32)
+    width: 152,                        // 8 × 19 (compact card)
     backgroundColor: Colors.white,
-    borderRadius: 16,                   // Modern rounded
-    padding: 24,                        // 8 * 3 (comfortable)
-    marginRight: 16,                    // 8 * 2 (gap between cards)
-    flexDirection: 'row',
+    borderRadius: 16,
+    padding: 16,                       // 8 × 2 (base)
+    marginRight: 12,                   // 8 × 1.5
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.accent1 + '20', // Subtle accent border
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  suggestionLeft: {
-    marginRight: 16,                    // 8 * 2 (base)
-  },
-  suggestionRight: {
-    flex: 1,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
   },
   suggestionAvatar: {
-    width: 72,                          // 8 * 9 (larger)
-    height: 72,                         // 8 * 9 (larger)
-    borderRadius: 36,
-    overflow: 'hidden',
-  },
-  avatarImage: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-  },
-  avatarPlaceholder: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 56,                         // 8 × 7
+    height: 56,                        // 8 × 7
+    borderRadius: 28,
     backgroundColor: Colors.accent1,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 8,                   // 8 × 1 (tight)
+    overflow: 'hidden',
   },
-  avatarInitials: {
-    fontSize: 28,                       // Large
-    fontWeight: '700',                  // bold
+  suggestionAvatarImage: {
+    width: 56,                         // 8 × 7
+    height: 56,                        // 8 × 7
+    borderRadius: 28,
+  },
+  suggestionAvatarText: {
     color: Colors.white,
+    fontSize: 24,                      // heading
+    fontWeight: '700',                 // bold
   },
   suggestionName: {
-    fontSize: 18,                       // Large body
-    fontWeight: '600',                  // semibold
+    fontSize: 14,                      // caption
+    fontWeight: '600',                 // semibold
     color: Colors.primaryText,
-    marginBottom: 4,                    // 8 * 0.5 (extra tight)
+    textAlign: 'center',
+    marginBottom: 4,
   },
   suggestionReason: {
-    fontSize: 14,                       // small
+    fontSize: 12,                      // small
     color: Colors.secondaryText,
-    marginBottom: 16,                   // 8 * 2 (base)
+    textAlign: 'center',
+    lineHeight: 16,
+    marginBottom: 12,                  // 8 × 1.5
+    minHeight: 32,                     // 2 lines
   },
-  addButton: {
+  addFriendButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,                             // 8 * 0.75
+    gap: 4,
     backgroundColor: Colors.accent1,
-    paddingHorizontal: 24,              // 8 * 3 (comfortable)
-    paddingVertical: 12,                // 8 * 1.5
-    borderRadius: 24,                   // Pill-shaped
-    minHeight: 48,                      // 8 * 6 (touch target)
+    paddingHorizontal: 16,             // 8 × 2 (base)
+    paddingVertical: 8,                // 8 × 1 (tight)
+    borderRadius: 16,                  // pill
+    minHeight: 36,                     // compact but tappable
+    width: '100%',
   },
-  addButtonText: {
+  addFriendButtonText: {
     color: Colors.white,
-    fontSize: 15,                       // body
-    fontWeight: '600',                  // semibold
+    fontSize: 14,                      // caption
+    fontWeight: '600',                 // semibold
   },
 });

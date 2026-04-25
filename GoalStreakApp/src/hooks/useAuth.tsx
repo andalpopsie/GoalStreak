@@ -12,6 +12,7 @@ import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from '../services/firebase';
 import { User as AppUser, AuthState } from '../types';
 import friendService from '../services/friendService';
+import { generateUsername, isUsernameAvailable, reserveUsername } from '../utils/usernameUtils';
 
 interface AuthContextType {
   user: AppUser | null;
@@ -55,10 +56,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             id: firebaseUser.uid,
             email: firebaseUser.email || '',
             displayName: firebaseUser.displayName || userData?.displayName || '',
+            username: userData?.username,
             profilePicture: firebaseUser.photoURL || userData?.profilePicture,
             createdAt: userData?.createdAt?.toDate() || new Date(),
             updatedAt: userData?.updatedAt?.toDate() || new Date(),
           };
+
+          // Backfill username for existing users who don't have one
+          if (!userData?.username && firebaseUser.displayName) {
+            let username = generateUsername(firebaseUser.displayName);
+            let attempts = 0;
+            while (!(await isUsernameAvailable(username)) && attempts < 5) {
+              username = generateUsername(firebaseUser.displayName);
+              attempts++;
+            }
+            await setDoc(doc(db, 'users', firebaseUser.uid), { username, updatedAt: new Date() }, { merge: true });
+            await reserveUsername(username, firebaseUser.uid);
+            appUser.username = username;
+          }
 
           setAuthState({
             user: appUser,
@@ -145,7 +160,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         hasCompletedOnboarding: false, // New users need onboarding
       };
 
+      // Generate a unique username
+      let username = generateUsername(displayName);
+      let attempts = 0;
+      while (!(await isUsernameAvailable(username)) && attempts < 5) {
+        username = generateUsername(displayName);
+        attempts++;
+      }
+
+      (userData as any).username = username;
       await setDoc(doc(db, 'users', firebaseUser.uid), userData);
+
+      // Reserve the username
+      await reserveUsername(username, firebaseUser.uid);
 
       // Create user profile for social features
       await friendService.createUserProfile(firebaseUser.uid, email, displayName);

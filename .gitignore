@@ -38,3 +38,11 @@ yarn-error.*
 # Large files that should not be committed
 goalstreak-landing/node_modules/
 GoalStreakApp/node_modules/
+
+# Large binary files
+*.pdf
+*.docx
+*.png
+*.svg
+!GoalStreakApp/assets/**
+!GoalStreakApp/app-store-assets/**

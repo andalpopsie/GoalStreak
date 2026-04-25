@@ -5,24 +5,41 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Colors, Typography, Spacing } from '../constants/theme';
+import { Colors } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
-import { useOnboarding } from '../hooks/useOnboarding';
+import { auth } from '../services/firebase';
+import { useHabits } from '../hooks/useHabits';
+import { useFriends } from '../hooks/useFriends';
 import { photoService } from '../services/photoService';
 import { openPrivacyPolicy, openTermsOfService, openSupport } from '../utils/linkingUtils';
 import { trackScreen, trackEvent } from '../services/enhancedAnalyticsService';
 import { motivationalNotificationService } from '../services/motivationalNotificationService';
 import BadgeShowcase from '../components/profile/BadgeShowcase';
+import { validateUsername, isUsernameAvailable, reserveUsername, releaseUsername } from '../utils/usernameUtils';
 
 export default function ProfileScreen() {
-  const { user, isAuthenticated, logout } = useAuth();
-  const { resetOnboarding } = useOnboarding();
+  const { user, isAuthenticated, logout, updateUserProfile } = useAuth();
+  const { habits, streaks } = useHabits();
+  const { friends } = useFriends();
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [editedName, setEditedName] = useState(user?.displayName || '');
   const [editedEmail, setEditedEmail] = useState(user?.email || '');
+  const [editedUsername, setEditedUsername] = useState(user?.username || '');
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Compute profile stats
+  const bestStreak = Object.values(streaks).reduce((max, s) => {
+    const current = (s as any)?.longestStreak || (s as any)?.currentStreak || 0;
+    return current > max ? current : max;
+  }, 0);
+
+  const memberSince = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    : '';
 
   const [notificationSettings, setNotificationSettings] = useState({
     enabled: true,
@@ -178,15 +195,86 @@ export default function ProfileScreen() {
     }
   };
 
+  const handleUsernameChange = async (value: string) => {
+    const normalized = value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+    setEditedUsername(normalized);
+    setUsernameError(null);
+
+    if (!normalized || normalized === user?.username) {
+      setIsCheckingUsername(false);
+      return;
+    }
+
+    const validation = validateUsername(normalized);
+    if (!validation.isValid) {
+      setUsernameError(validation.error || null);
+      return;
+    }
+
+    setIsCheckingUsername(true);
+    try {
+      const available = await isUsernameAvailable(normalized);
+      if (!available) {
+        setUsernameError('Username is already taken');
+      }
+    } catch {
+      setUsernameError('Could not check availability');
+    } finally {
+      setIsCheckingUsername(false);
+    }
+  };
+
   const handleSaveProfile = async () => {
     try {
-      // Here you would typically update the user profile
-      // For now, just close the modal
+      const updates: Partial<{ displayName: string; username: string }> = {};
+      
+      const trimmedName = editedName.trim();
+      const trimmedUsername = editedUsername.trim();
+
+      if (trimmedName && trimmedName !== user?.displayName) {
+        updates.displayName = trimmedName;
+      }
+
+      // Handle username change
+      if (trimmedUsername && trimmedUsername !== user?.username) {
+        const validation = validateUsername(trimmedUsername);
+        if (!validation.isValid) {
+          Alert.alert('Invalid Username', validation.error || 'Please check your username.');
+          return;
+        }
+
+        const available = await isUsernameAvailable(trimmedUsername);
+        if (!available) {
+          Alert.alert('Username Taken', 'This username is already in use. Please choose another.');
+          return;
+        }
+
+        // Release old username, reserve new one
+        if (user?.username) {
+          await releaseUsername(user.username);
+        }
+        await reserveUsername(trimmedUsername, user?.id || '');
+        updates.username = trimmedUsername;
+      }
+
+      if (Object.keys(updates).length === 0) {
+        setShowEditModal(false);
+        return;
+      }
+
+      await updateUserProfile(updates);
+
+      // Also update Firebase Auth display name
+      if (updates.displayName && auth.currentUser) {
+        const { updateProfile } = await import('firebase/auth');
+        await updateProfile(auth.currentUser, { displayName: updates.displayName });
+      }
+
       setShowEditModal(false);
       Alert.alert('Success', 'Profile updated successfully!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving profile:', error);
-      Alert.alert('Error', 'Failed to update profile. Please try again.');
+      Alert.alert('Error', error.message || 'Failed to update profile. Please try again.');
     }
   };
 
@@ -220,7 +308,7 @@ export default function ProfileScreen() {
     );
   };
 
-  const [badgeRefreshKey, setBadgeRefreshKey] = useState(0);
+  const [badgeRefreshKey] = useState(0);
 
   const handleLearnPress = () => {
     Alert.alert(
@@ -264,7 +352,31 @@ export default function ProfileScreen() {
           </TouchableOpacity>
 
           <Text style={styles.userName}>{user?.displayName || 'User'}</Text>
+          {user?.username && (
+            <Text style={styles.userUsername}>@{user.username}</Text>
+          )}
           <Text style={styles.userEmail}>{user?.email}</Text>
+          {memberSince ? (
+            <Text style={styles.memberSince}>Member since {memberSince}</Text>
+          ) : null}
+        </View>
+
+        {/* Stats Row */}
+        <View style={styles.statsRow}>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{habits.length}</Text>
+            <Text style={styles.statLabel}>Habits</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{bestStreak}</Text>
+            <Text style={styles.statLabel}>Best Streak</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>{friends.length}</Text>
+            <Text style={styles.statLabel}>Friends</Text>
+          </View>
         </View>
 
         {/* Badge Showcase */}
@@ -315,7 +427,7 @@ export default function ProfileScreen() {
               <Text style={styles.footerLinkText}>Help & Support</Text>
             </TouchableOpacity>
           </View>
-          <Text style={styles.footerCopyright}>© 2024 GoalStreak</Text>
+          <Text style={styles.footerCopyright}>© {new Date().getFullYear()} Goalfer</Text>
         </View>
       </ScrollView>
 
@@ -345,16 +457,43 @@ export default function ProfileScreen() {
             </View>
 
             <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Username</Text>
+              <View style={styles.usernameInputRow}>
+                <Text style={styles.usernamePrefix}>@</Text>
+                <TextInput
+                  style={[styles.textInput, styles.usernameInput]}
+                  value={editedUsername}
+                  onChangeText={handleUsernameChange}
+                  placeholder="username"
+                  placeholderTextColor={Colors.accent2}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  maxLength={20}
+                />
+                {isCheckingUsername && (
+                  <ActivityIndicator size="small" color={Colors.accent1} style={styles.usernameSpinner} />
+                )}
+              </View>
+              {usernameError && (
+                <Text style={styles.usernameErrorText}>{usernameError}</Text>
+              )}
+              {editedUsername && !usernameError && !isCheckingUsername && editedUsername !== user?.username && (
+                <Text style={styles.usernameAvailableText}>✓ Username available</Text>
+              )}
+            </View>
+
+            <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Email</Text>
               <TextInput
-                style={styles.textInput}
+                style={[styles.textInput, styles.textInputDisabled]}
                 value={editedEmail}
-                onChangeText={setEditedEmail}
+                editable={false}
                 placeholder="Enter your email"
                 placeholderTextColor={Colors.accent2}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
+              <Text style={styles.inputHint}>Email changes are not supported yet</Text>
             </View>
           </ScrollView>
         </SafeAreaView>
@@ -371,115 +510,192 @@ export default function ProfileScreen() {
             <View style={{ width: 60 }} />
           </View>
 
-          <ScrollView style={styles.modalContent}>
-            <View style={styles.settingItem}>
-              <Text style={styles.settingLabel}>Enable Notifications</Text>
+          <ScrollView style={styles.notifContent} showsVerticalScrollIndicator={false}>
+            {/* Master Toggle */}
+            <View style={styles.notifMasterCard}>
+              <View style={styles.notifMasterLeft}>
+                <View style={[styles.notifIconCircle, { backgroundColor: Colors.primary + '15' }]}>  
+                  <Ionicons name="notifications" size={24} color={Colors.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.notifMasterLabel}>Allow Notifications</Text>
+                  <Text style={styles.notifMasterDesc}>
+                    {notificationSettings.enabled ? 'Notifications are on' : 'All notifications are paused'}
+                  </Text>
+                </View>
+              </View>
               <Switch
                 value={notificationSettings.enabled}
                 onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, enabled: value })}
-                trackColor={{ false: Colors.accent3, true: Colors.primary }}
+                trackColor={{ false: Colors.gray.light, true: Colors.primary }}
                 thumbColor={Colors.white}
               />
             </View>
 
-            <View style={styles.settingItem}>
-              <Text style={styles.settingLabel}>Sound</Text>
-              <Switch
-                value={notificationSettings.sound}
-                onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, sound: value })}
-                trackColor={{ false: Colors.accent3, true: Colors.primary }}
-                thumbColor={Colors.white}
-              />
-            </View>
-
-            <View style={styles.settingItem}>
-              <Text style={styles.settingLabel}>Badge</Text>
-              <Switch
-                value={notificationSettings.badge}
-                onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, badge: value })}
-                trackColor={{ false: Colors.accent3, true: Colors.primary }}
-                thumbColor={Colors.white}
-              />
-            </View>
-            
-            <View style={styles.settingItem}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.settingLabel}>Daily Motivation</Text>
-                <Text style={styles.settingDescription}>
-                  Get an encouraging message every morning at 9:00 AM
-                </Text>
+            {/* General Section */}
+            <Text style={styles.notifSectionLabel}>GENERAL</Text>
+            <View style={[styles.notifSection, !notificationSettings.enabled && styles.notifSectionDisabled]}>
+              <View style={styles.notifRow}>
+                <View style={[styles.notifIconCircle, { backgroundColor: Colors.otherPink + '15' }]}>  
+                  <Ionicons name="volume-high" size={20} color={Colors.otherPink} />
+                </View>
+                <View style={styles.notifRowContent}>
+                  <Text style={styles.notifRowLabel}>Sound</Text>
+                </View>
+                <Switch
+                  value={notificationSettings.sound}
+                  onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, sound: value })}
+                  trackColor={{ false: Colors.gray.light, true: Colors.primary }}
+                  thumbColor={Colors.white}
+                  disabled={!notificationSettings.enabled}
+                />
               </View>
-              <Switch
-                value={notificationSettings.dailyMotivation}
-                onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, dailyMotivation: value })}
-                trackColor={{ false: Colors.accent3, true: Colors.primary }}
-                thumbColor={Colors.white}
-              />
-            </View>
-
-            <View style={styles.settingItem}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.settingLabel}>Inactivity Nudges 🦉</Text>
-                <Text style={styles.settingDescription}>
-                  Get playful reminders if you haven't logged habits for 3+ days
-                </Text>
+              <View style={styles.notifDivider} />
+              <View style={styles.notifRow}>
+                <View style={[styles.notifIconCircle, { backgroundColor: Colors.error + '15' }]}>  
+                  <Ionicons name="ellipse" size={20} color={Colors.error} />
+                </View>
+                <View style={styles.notifRowContent}>
+                  <Text style={styles.notifRowLabel}>Badge Count</Text>
+                </View>
+                <Switch
+                  value={notificationSettings.badge}
+                  onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, badge: value })}
+                  trackColor={{ false: Colors.gray.light, true: Colors.primary }}
+                  thumbColor={Colors.white}
+                  disabled={!notificationSettings.enabled}
+                />
               </View>
-              <Switch
-                value={notificationSettings.inactivityNudges}
-                onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, inactivityNudges: value })}
-                trackColor={{ false: Colors.accent3, true: Colors.primary }}
-                thumbColor={Colors.white}
-              />
             </View>
 
-            <Text style={[styles.settingLabel, { paddingHorizontal: 24, paddingTop: 16, fontSize: 14, color: Colors.secondaryText }]}>
-              SOCIAL
-            </Text>
-
-            <View style={styles.settingItem}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.settingLabel}>Friend Requests</Text>
-                <Text style={styles.settingDescription}>
-                  Get notified when someone sends you a friend request
-                </Text>
+            {/* Habits & Motivation Section */}
+            <Text style={styles.notifSectionLabel}>HABITS & MOTIVATION</Text>
+            <View style={[styles.notifSection, !notificationSettings.enabled && styles.notifSectionDisabled]}>
+              <View style={styles.notifRow}>
+                <View style={[styles.notifIconCircle, { backgroundColor: Colors.accent1 + '15' }]}>  
+                  <Ionicons name="sunny" size={20} color={Colors.accent1} />
+                </View>
+                <View style={styles.notifRowContent}>
+                  <Text style={styles.notifRowLabel}>Daily Motivation</Text>
+                  <Text style={styles.notifRowDesc}>Encouraging message every morning at 9 AM</Text>
+                </View>
+                <Switch
+                  value={notificationSettings.dailyMotivation}
+                  onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, dailyMotivation: value })}
+                  trackColor={{ false: Colors.gray.light, true: Colors.primary }}
+                  thumbColor={Colors.white}
+                  disabled={!notificationSettings.enabled}
+                />
               </View>
-              <Switch
-                value={notificationSettings.friendRequests}
-                onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, friendRequests: value })}
-                trackColor={{ false: Colors.accent3, true: Colors.primary }}
-                thumbColor={Colors.white}
-              />
+              <View style={styles.notifDivider} />
+              <View style={styles.notifRow}>
+                <View style={[styles.notifIconCircle, { backgroundColor: Colors.wellnessTeal + '15' }]}>  
+                  <Ionicons name="alarm" size={20} color={Colors.wellnessTeal} />
+                </View>
+                <View style={styles.notifRowContent}>
+                  <Text style={styles.notifRowLabel}>Daily Reminder</Text>
+                  <Text style={styles.notifRowDesc}>Remind you to complete today's habits</Text>
+                </View>
+                <Switch
+                  value={notificationSettings.dailyReminder}
+                  onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, dailyReminder: value })}
+                  trackColor={{ false: Colors.gray.light, true: Colors.primary }}
+                  thumbColor={Colors.white}
+                  disabled={!notificationSettings.enabled}
+                />
+              </View>
+              <View style={styles.notifDivider} />
+              <View style={styles.notifRow}>
+                <View style={[styles.notifIconCircle, { backgroundColor: Colors.accent3 + '15' }]}>  
+                  <Ionicons name="flame" size={20} color={Colors.accent3} />
+                </View>
+                <View style={styles.notifRowContent}>
+                  <Text style={styles.notifRowLabel}>Streak Alerts</Text>
+                  <Text style={styles.notifRowDesc}>Warn you before a streak is about to break</Text>
+                </View>
+                <Switch
+                  value={notificationSettings.streakAlerts}
+                  onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, streakAlerts: value })}
+                  trackColor={{ false: Colors.gray.light, true: Colors.primary }}
+                  thumbColor={Colors.white}
+                  disabled={!notificationSettings.enabled}
+                />
+              </View>
+              <View style={styles.notifDivider} />
+              <View style={styles.notifRow}>
+                <View style={[styles.notifIconCircle, { backgroundColor: Colors.socialPurple + '15' }]}>  
+                  <Ionicons name="moon" size={20} color={Colors.socialPurple} />
+                </View>
+                <View style={styles.notifRowContent}>
+                  <Text style={styles.notifRowLabel}>Inactivity Nudges</Text>
+                  <Text style={styles.notifRowDesc}>Playful reminders after 3+ days of inactivity</Text>
+                </View>
+                <Switch
+                  value={notificationSettings.inactivityNudges}
+                  onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, inactivityNudges: value })}
+                  trackColor={{ false: Colors.gray.light, true: Colors.primary }}
+                  thumbColor={Colors.white}
+                  disabled={!notificationSettings.enabled}
+                />
+              </View>
             </View>
 
-            <View style={styles.settingItem}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.settingLabel}>Comments</Text>
-                <Text style={styles.settingDescription}>
-                  Get notified when someone comments on your activity
-                </Text>
+            {/* Social Section */}
+            <Text style={styles.notifSectionLabel}>SOCIAL</Text>
+            <View style={[styles.notifSection, !notificationSettings.enabled && styles.notifSectionDisabled]}>
+              <View style={styles.notifRow}>
+                <View style={[styles.notifIconCircle, { backgroundColor: Colors.accent1 + '15' }]}>  
+                  <Ionicons name="person-add" size={20} color={Colors.accent1} />
+                </View>
+                <View style={styles.notifRowContent}>
+                  <Text style={styles.notifRowLabel}>Friend Requests</Text>
+                  <Text style={styles.notifRowDesc}>When someone wants to connect</Text>
+                </View>
+                <Switch
+                  value={notificationSettings.friendRequests}
+                  onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, friendRequests: value })}
+                  trackColor={{ false: Colors.gray.light, true: Colors.primary }}
+                  thumbColor={Colors.white}
+                  disabled={!notificationSettings.enabled}
+                />
               </View>
-              <Switch
-                value={notificationSettings.comments}
-                onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, comments: value })}
-                trackColor={{ false: Colors.accent3, true: Colors.primary }}
-                thumbColor={Colors.white}
-              />
+              <View style={styles.notifDivider} />
+              <View style={styles.notifRow}>
+                <View style={[styles.notifIconCircle, { backgroundColor: Colors.productivityNavy + '15' }]}>  
+                  <Ionicons name="chatbubble" size={20} color={Colors.productivityNavy} />
+                </View>
+                <View style={styles.notifRowContent}>
+                  <Text style={styles.notifRowLabel}>Comments</Text>
+                  <Text style={styles.notifRowDesc}>When someone comments on your activity</Text>
+                </View>
+                <Switch
+                  value={notificationSettings.comments}
+                  onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, comments: value })}
+                  trackColor={{ false: Colors.gray.light, true: Colors.primary }}
+                  thumbColor={Colors.white}
+                  disabled={!notificationSettings.enabled}
+                />
+              </View>
+              <View style={styles.notifDivider} />
+              <View style={styles.notifRow}>
+                <View style={[styles.notifIconCircle, { backgroundColor: Colors.nutritionGreen + '30' }]}>  
+                  <Ionicons name="heart" size={20} color={Colors.nutritionGreen} />
+                </View>
+                <View style={styles.notifRowContent}>
+                  <Text style={styles.notifRowLabel}>Reactions</Text>
+                  <Text style={styles.notifRowDesc}>When someone reacts to your activity</Text>
+                </View>
+                <Switch
+                  value={notificationSettings.reactions}
+                  onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, reactions: value })}
+                  trackColor={{ false: Colors.gray.light, true: Colors.primary }}
+                  thumbColor={Colors.white}
+                  disabled={!notificationSettings.enabled}
+                />
+              </View>
             </View>
 
-            <View style={styles.settingItem}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.settingLabel}>Reactions</Text>
-                <Text style={styles.settingDescription}>
-                  Get notified when someone reacts to your activity
-                </Text>
-              </View>
-              <Switch
-                value={notificationSettings.reactions}
-                onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, reactions: value })}
-                trackColor={{ false: Colors.accent3, true: Colors.primary }}
-                thumbColor={Colors.white}
-              />
-            </View>
+            <View style={{ height: 32 }} />
           </ScrollView>
         </SafeAreaView>
       </Modal>
@@ -541,11 +757,61 @@ const styles = StyleSheet.create({
     fontSize: 24,                       // heading
     fontWeight: '700',                  // bold
     color: Colors.primaryText,
-    marginBottom: 8,                    // 8 * 1 (tight)
+    marginBottom: 4,
+  },
+  userUsername: {
+    fontSize: 16,                       // body
+    color: Colors.accent1,
+    fontWeight: '500',                  // medium
+    marginBottom: 4,
   },
   userEmail: {
     fontSize: 16,                       // body
     color: Colors.accent2,
+  },
+  memberSince: {
+    fontSize: 14,                       // caption
+    color: Colors.secondaryText,
+    marginTop: 4,
+  },
+  // ── Stats Row ──
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 16,              // 8 × 2 (base)
+    marginBottom: 16,                  // 8 × 2 (base)
+    backgroundColor: Colors.white,
+    borderRadius: 16,
+    paddingVertical: 20,               // 8 × 2.5
+    paddingHorizontal: 16,             // 8 × 2 (base)
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  statItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: 24,                      // heading
+    fontWeight: '700',                 // bold
+    color: Colors.primaryText,
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 12,                      // small
+    color: Colors.secondaryText,
+    fontWeight: '500',                 // medium
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  statDivider: {
+    width: 1,
+    height: 32,                        // 8 × 4
+    backgroundColor: Colors.gray.light,
   },
   menuSection: {
     marginHorizontal: 16,               // 8 * 2 (base)
@@ -629,6 +895,43 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     minHeight: 56,                      // 8 * 7 (touch target)
   },
+  textInputDisabled: {
+    backgroundColor: Colors.gray.light,
+    color: Colors.secondaryText,
+  },
+  inputHint: {
+    fontSize: 12,                       // small
+    color: Colors.secondaryText,
+    marginTop: 4,
+  },
+  usernameInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  usernamePrefix: {
+    fontSize: 16,                       // body
+    fontWeight: '600',                  // semibold
+    color: Colors.accent1,
+    marginRight: 4,
+    minWidth: 20,
+  },
+  usernameInput: {
+    flex: 1,
+  },
+  usernameSpinner: {
+    position: 'absolute',
+    right: 16,                          // 8 × 2 (base)
+  },
+  usernameErrorText: {
+    fontSize: 13,                       // small
+    color: Colors.error,
+    marginTop: 4,
+  },
+  usernameAvailableText: {
+    fontSize: 13,                       // small
+    color: Colors.accent3,
+    marginTop: 4,
+  },
   settingItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -646,6 +949,94 @@ const styles = StyleSheet.create({
     fontSize: 14,                       // caption
     color: Colors.gray.dark,
     marginTop: 4,                       // 8 * 0.5
+  },
+  // ── Notification Modal Styles ──
+  notifContent: {
+    flex: 1,
+    paddingHorizontal: 16,             // 8 × 2 (base)
+    paddingTop: 16,                    // 8 × 2 (base)
+  },
+  notifMasterCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.white,
+    borderRadius: 16,
+    padding: 16,                       // 8 × 2 (base)
+    marginBottom: 24,                  // 8 × 3 (comfortable)
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  notifMasterLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 12,                           // 8 × 1.5
+    marginRight: 16,                   // 8 × 2 (base)
+  },
+  notifMasterLabel: {
+    fontSize: 16,                      // body
+    fontWeight: '600',                 // semibold
+    color: Colors.primaryText,
+  },
+  notifMasterDesc: {
+    fontSize: 14,                      // caption
+    color: Colors.secondaryText,
+    marginTop: 2,
+  },
+  notifSectionLabel: {
+    fontSize: 12,                      // small
+    fontWeight: '600',                 // semibold
+    color: Colors.secondaryText,
+    letterSpacing: 0.5,
+    marginBottom: 8,                   // 8 × 1 (tight)
+    marginLeft: 4,
+  },
+  notifSection: {
+    backgroundColor: Colors.white,
+    borderRadius: 16,
+    marginBottom: 24,                  // 8 × 3 (comfortable)
+    overflow: 'hidden',
+  },
+  notifSectionDisabled: {
+    opacity: 0.5,
+  },
+  notifRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,               // comfortable vertical
+    paddingHorizontal: 16,             // 8 × 2 (base)
+    minHeight: 56,                     // 8 × 7 (touch target)
+  },
+  notifRowContent: {
+    flex: 1,
+    marginRight: 8,                    // 8 × 1 (tight)
+  },
+  notifRowLabel: {
+    fontSize: 16,                      // body
+    color: Colors.primaryText,
+  },
+  notifRowDesc: {
+    fontSize: 13,                      // small
+    color: Colors.secondaryText,
+    marginTop: 2,
+    lineHeight: 18,
+  },
+  notifIconCircle: {
+    width: 36,                         // 8 × 4.5
+    height: 36,                        // 8 × 4.5
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,                   // 8 × 1.5
+  },
+  notifDivider: {
+    height: 1,
+    backgroundColor: Colors.gray.light,
+    marginLeft: 64,                    // icon width + margins
   },
   footer: {
     alignItems: 'center',

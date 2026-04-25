@@ -55,10 +55,10 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     loadOnboardingState();
   }, []);
 
-  // Check if user needs onboarding (standard mobile app pattern)
+  // Sync onboarding state with database
   useEffect(() => {
     if (isAuthenticated && user) {
-      checkOnboardingStatus();
+      syncOnboardingWithDatabase();
     }
   }, [isAuthenticated, user]);
 
@@ -103,7 +103,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     }
   };
 
-  const checkOnboardingStatus = async () => {
+  const syncOnboardingWithDatabase = async () => {
     if (!user?.id) return;
 
     try {
@@ -134,8 +134,16 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
         await saveOnboardingState(newState);
       }
     } catch (error) {
-      console.error('Error checking onboarding status:', error);
+      console.error('Error syncing onboarding with database:', error);
+      
+      // Track sync errors for monitoring
+      trackEvent('onboarding_sync_error', {
+        error_message: error instanceof Error ? error.message : 'Unknown error',
+        user_id: user?.id,
+      });
+      
       // If we can't check database, rely on local storage
+      // Don't reset state on network errors to avoid disrupting user experience
     }
   };
 

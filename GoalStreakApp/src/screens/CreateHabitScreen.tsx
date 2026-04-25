@@ -109,7 +109,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
       Alert.alert(
         'Habit Limit Reached',
         `You've reached the maximum of ${LIMITS.MAX_HABITS} habits. Delete a habit to create a new one.`,
-        [{ text: 'OK', onPress: () => navigation.goBack() }]
+        [{ text: 'OK', onPress: () => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MainTabs') }]
       );
     }
   }, [isAtLimit, navigation]);
@@ -221,7 +221,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
           Alert.alert(
             'Habit Created',
             'Habit created successfully, but notification scheduling failed. You can enable notifications later in settings.',
-            [{ text: 'OK', onPress: () => navigation.goBack() }]
+            [{ text: 'OK', onPress: () => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MainTabs') }]
           );
           return;
         }
@@ -242,7 +242,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
       });
 
       Alert.alert('Success', 'Habit created successfully!', [
-        { text: 'OK', onPress: () => navigation.goBack() }
+        { text: 'OK', onPress: () => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MainTabs') }
       ]);
     } catch (error: any) {
       console.error('Error creating habit:', error);
@@ -331,16 +331,27 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
     setForm({ ...form, timer: timerConfig });
   };
 
+  // Derive the active category color for the hero preview
+  const activeCategoryColor = getCategoryColor(form.category);
+  const activeCategoryLabel = categoryOptions.find(c => c.value === form.category)?.label || 'Fitness';
+  const activeCategoryIcon = categoryOptions.find(c => c.value === form.category)?.icon || 'fitness';
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        {/* Minimalist Header */}
+        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => navigation.goBack()}
+            onPress={() => {
+              if (navigation.canGoBack()) {
+                navigation.goBack();
+              } else {
+                navigation.navigate('MainTabs');
+              }
+            }}
             style={styles.backButton}
             accessibilityLabel="Go back to previous screen"
             accessibilityRole="button"
@@ -348,48 +359,68 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
             <Ionicons name="arrow-back" size={24} color={Colors.primaryText} />
           </TouchableOpacity>
           <Text style={styles.title}>New Habit</Text>
-          <Text style={styles.habitCounter}>{habits.length + 1}/{LIMITS.MAX_HABITS}</Text>
+          <View style={styles.habitCounterBadge}>
+            <Text style={styles.habitCounter}>{habits.length + 1}/{LIMITS.MAX_HABITS}</Text>
+          </View>
         </View>
 
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          {/* Habit Name - Minimalist */}
+          {/* Hero Preview Card */}
+          <View style={[styles.heroCard, { borderColor: activeCategoryColor + '30' }]}>
+            <View style={[styles.heroIconCircle, { backgroundColor: activeCategoryColor + '15' }]}>
+              <Ionicons name={form.icon as any} size={32} color={activeCategoryColor} />
+            </View>
+            <Text style={styles.heroName} numberOfLines={1}>
+              {form.name || 'Your new habit'}
+            </Text>
+            <View style={[styles.heroCategoryPill, { backgroundColor: activeCategoryColor + '12' }]}>
+              <Ionicons name={activeCategoryIcon as any} size={14} color={activeCategoryColor} />
+              <Text style={[styles.heroCategoryText, { color: activeCategoryColor }]}>
+                {activeCategoryLabel}
+              </Text>
+            </View>
+          </View>
+
+          {/* Habit Name Input */}
           <View style={styles.nameSection}>
+            <Text style={styles.sectionLabel}>NAME</Text>
             <SimpleInput
-              placeholder="Habit name"
+              placeholder="e.g. Morning Meditation"
               value={form.name}
               onChangeText={(name: string) => setForm({ ...form, name })}
               error={errors.name}
             />
           </View>
 
-          {/* Collapsible Category Selection */}
-          <View style={styles.collapsibleSection}>
+          {/* Category Selection */}
+          <View style={styles.card}>
             <TouchableOpacity
-              style={styles.collapsibleHeader}
+              style={styles.cardHeader}
               onPress={() => setIsCategoryExpanded(!isCategoryExpanded)}
             >
-              <View style={styles.collapsibleHeaderLeft}>
-                <View style={[styles.categoryIconContainer, { backgroundColor: getCategoryColor(form.category) + '15' }]}>
+              <View style={styles.cardHeaderLeft}>
+                <View style={[styles.cardHeaderIcon, { backgroundColor: activeCategoryColor + '12' }]}>
                   <Ionicons
-                    name={categoryOptions.find(c => c.value === form.category)?.icon as any}
-                    size={20}
-                    color={getCategoryColor(form.category)}
+                    name={activeCategoryIcon as any}
+                    size={18}
+                    color={activeCategoryColor}
                   />
                 </View>
                 <View>
-                  <Text style={styles.collapsibleLabel}>Category</Text>
-                  <Text style={styles.collapsibleValue}>
-                    {categoryOptions.find(c => c.value === form.category)?.label}
+                  <Text style={styles.cardHeaderTitle}>Category</Text>
+                  <Text style={[styles.cardHeaderValue, { color: activeCategoryColor }]}>
+                    {activeCategoryLabel}
                   </Text>
                 </View>
               </View>
               <Ionicons
                 name={isCategoryExpanded ? "chevron-up" : "chevron-down"}
-                size={20}
+                size={18}
                 color={Colors.secondaryText}
               />
             </TouchableOpacity>
@@ -401,24 +432,24 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
             )}
           </View>
 
-          {/* Collapsible Icon Selection */}
-          <View style={styles.collapsibleSection}>
+          {/* Icon Selection */}
+          <View style={styles.card}>
             <TouchableOpacity
-              style={styles.collapsibleHeader}
+              style={styles.cardHeader}
               onPress={() => setIsIconExpanded(!isIconExpanded)}
             >
-              <View style={styles.collapsibleHeaderLeft}>
-                <View style={styles.iconPreview}>
-                  <Ionicons name={form.icon as any} size={20} color={getCategoryColor(form.category)} />
+              <View style={styles.cardHeaderLeft}>
+                <View style={[styles.cardHeaderIcon, { backgroundColor: activeCategoryColor + '12' }]}>
+                  <Ionicons name={form.icon as any} size={18} color={activeCategoryColor} />
                 </View>
                 <View>
-                  <Text style={styles.collapsibleLabel}>Icon</Text>
-                  <Text style={styles.collapsibleValue}>Tap to change</Text>
+                  <Text style={styles.cardHeaderTitle}>Icon</Text>
+                  <Text style={styles.cardHeaderValue}>Tap to change</Text>
                 </View>
               </View>
               <Ionicons
                 name={isIconExpanded ? "chevron-up" : "chevron-down"}
-                size={20}
+                size={18}
                 color={Colors.secondaryText}
               />
             </TouchableOpacity>
@@ -432,46 +463,51 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                     setIsIconExpanded(false);
                   }}
                 >
-                  <Text style={styles.iconSelectorButtonText}>Choose Icon</Text>
+                  <View style={styles.iconSelectorLeft}>
+                    <Ionicons name="grid-outline" size={18} color={Colors.accent1} />
+                    <Text style={styles.iconSelectorButtonText}>Browse Icons</Text>
+                  </View>
                   <Ionicons name="chevron-forward" size={16} color={Colors.accent1} />
                 </TouchableOpacity>
               </View>
             )}
           </View>
 
-          {/* Collapsible Options Section */}
-          <View style={styles.collapsibleSection}>
+          {/* Options Section */}
+          <View style={styles.card}>
             <TouchableOpacity
-              style={styles.collapsibleHeader}
+              style={styles.cardHeader}
               onPress={() => setIsOptionsExpanded(!isOptionsExpanded)}
             >
-              <View style={styles.collapsibleHeaderLeft}>
-                <Ionicons name="options-outline" size={20} color={Colors.primaryText} />
-                <View style={{ marginLeft: Spacing.md }}>
-                  <Text style={styles.collapsibleLabel}>Options</Text>
-                  <Text style={styles.collapsibleValue}>
+              <View style={styles.cardHeaderLeft}>
+                <View style={[styles.cardHeaderIcon, { backgroundColor: Colors.accent1 + '12' }]}>
+                  <Ionicons name="settings-outline" size={18} color={Colors.accent1} />
+                </View>
+                <View>
+                  <Text style={styles.cardHeaderTitle}>Options</Text>
+                  <Text style={styles.cardHeaderValue}>
                     {[
                       form.timer && 'Timer',
                       form.isPublic && 'Share',
                       form.reminderEnabled && 'Remind'
-                    ].filter(Boolean).join(', ') || 'None selected'}
+                    ].filter(Boolean).join(' · ') || 'None selected'}
                   </Text>
                 </View>
               </View>
               <Ionicons
                 name={isOptionsExpanded ? "chevron-up" : "chevron-down"}
-                size={20}
+                size={18}
                 color={Colors.secondaryText}
               />
             </TouchableOpacity>
 
             {isOptionsExpanded && (
               <View style={styles.expandedContent}>
-                {/* Timer Option - Settings Style */}
+                {/* Timer Option */}
                 <View style={styles.optionRow}>
                   <View style={styles.optionLeft}>
-                    <View style={styles.optionIconContainer}>
-                      <Ionicons name="timer-outline" size={20} color={Colors.accent1} />
+                    <View style={[styles.optionIconContainer, { backgroundColor: '#F3E8FF' }]}>
+                      <Ionicons name="timer-outline" size={18} color={Colors.accent1} />
                     </View>
                     <View>
                       <Text style={styles.optionLabel}>Timer</Text>
@@ -491,69 +527,69 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                         handleTimerConfigChange(undefined);
                       }
                     }}
-                    trackColor={{ false: Colors.gray.medium, true: Colors.accent1 + '40' }}
-                    thumbColor={form.timer ? Colors.accent1 : Colors.white}
+                    trackColor={{ false: Colors.gray.light, true: Colors.accent1 + '40' }}
+                    thumbColor={form.timer ? Colors.accent1 : '#F4F4F4'}
                   />
                 </View>
 
-                {/* Timer Duration Selector - Only show when enabled */}
+                {/* Timer Duration Selector */}
                 {form.timer && (
                   <TouchableOpacity
                     style={styles.timerDurationSelector}
                     onPress={() => setShowTimerPicker(true)}
                   >
                     <View style={styles.timerDurationLeft}>
-                      <Ionicons name="time-outline" size={20} color={Colors.accent1} />
+                      <Ionicons name="time-outline" size={18} color={Colors.accent1} />
                       <Text style={styles.timerDurationLabel}>Duration</Text>
                     </View>
                     <View style={styles.timerDurationRight}>
                       <Text style={styles.timerDurationValue}>
                         {form.timer.durationMinutes} {form.timer.durationMinutes === 1 ? 'min' : 'mins'}
                       </Text>
-                      <Ionicons name="chevron-forward" size={16} color={Colors.secondaryText} />
+                      <Ionicons name="chevron-forward" size={14} color={Colors.secondaryText} />
                     </View>
                   </TouchableOpacity>
                 )}
 
-                {/* Share Option - Settings Style */}
+                {/* Share Option */}
                 <View style={styles.optionRow}>
                   <View style={styles.optionLeft}>
-                    <View style={styles.optionIconContainer}>
-                      <Ionicons name="people-outline" size={20} color={Colors.accent1} />
+                    <View style={[styles.optionIconContainer, { backgroundColor: '#E8F4F8' }]}>
+                      <Ionicons name="people-outline" size={18} color={Colors.accent3} />
                     </View>
                     <View>
                       <Text style={styles.optionLabel}>Share with Friends</Text>
-                      <Text style={styles.optionDescription}>Make habit visible</Text>
+                      <Text style={styles.optionDescription}>Visible on social feed</Text>
                     </View>
                   </View>
                   <Switch
                     value={form.isPublic}
                     onValueChange={(value) => setForm({ ...form, isPublic: value })}
-                    trackColor={{ false: Colors.gray.medium, true: Colors.accent1 + '40' }}
-                    thumbColor={form.isPublic ? Colors.accent1 : Colors.white}
+                    trackColor={{ false: Colors.gray.light, true: Colors.accent3 + '40' }}
+                    thumbColor={form.isPublic ? Colors.accent3 : '#F4F4F4'}
                   />
                 </View>
 
-                {/* Reminder Option - Settings Style */}
+                {/* Reminder Option */}
                 <View style={styles.optionRow}>
                   <View style={styles.optionLeft}>
-                    <View style={styles.optionIconContainer}>
-                      <Ionicons name="notifications-outline" size={20} color={Colors.accent1} />
+                    <View style={[styles.optionIconContainer, { backgroundColor: '#FFF4E8' }]}>
+                      <Ionicons name="notifications-outline" size={18} color="#FF9013" />
                     </View>
                     <View>
                       <Text style={styles.optionLabel}>Daily Reminder</Text>
-                      <Text style={styles.optionDescription}>Get notified</Text>
+                      <Text style={styles.optionDescription}>Get notified daily</Text>
                     </View>
                   </View>
                   <Switch
                     value={form.reminderEnabled}
                     onValueChange={(value) => setForm({ ...form, reminderEnabled: value })}
-                    trackColor={{ false: Colors.gray.medium, true: Colors.accent1 + '40' }}
-                    thumbColor={form.reminderEnabled ? Colors.accent1 : Colors.white}
+                    trackColor={{ false: Colors.gray.light, true: '#FF9013' + '40' }}
+                    thumbColor={form.reminderEnabled ? '#FF9013' : '#F4F4F4'}
                   />
                 </View>
 
-                {/* Reminder Time Selector - Only show when enabled */}
+                {/* Reminder Time Selector */}
                 {form.reminderEnabled && (
                   <TouchableOpacity
                     style={styles.timeSelector}
@@ -562,14 +598,14 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                     accessibilityLabel="Set reminder time"
                     accessibilityHint="Tap to set the time for habit reminders"
                   >
-                    <Ionicons name="time-outline" size={20} color={Colors.accent1} />
+                    <Ionicons name="time-outline" size={18} color="#FF9013" />
                     <Text style={styles.timeText}>
                       {form.reminderTime
                         ? formatTimeForDisplay(form.reminderTime)
                         : `${selectedHour}:${selectedMinute.toString().padStart(2, '0')} ${selectedPeriod}`
                       }
                     </Text>
-                    <Ionicons name="chevron-forward" size={16} color={Colors.secondaryText} />
+                    <Ionicons name="chevron-forward" size={14} color={Colors.secondaryText} />
                   </TouchableOpacity>
                 )}
               </View>
@@ -760,164 +796,241 @@ const styles = StyleSheet.create({
   keyboardView: {
     flex: 1,
   },
+
+  // Header
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,                    // 8 * 2 (base)
+    paddingHorizontal: 16,          // 8 × 2
+    paddingVertical: 12,            // 8 × 1.5
     backgroundColor: Colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.gray.light,
   },
   backButton: {
-    padding: 8,                     // 8 * 1 (tight)
-    minHeight: 44,                  // Touch target
-    minWidth: 44,                   // Touch target
+    width: 40,                      // 8 × 5
+    height: 40,                     // 8 × 5
+    borderRadius: 20,
+    backgroundColor: Colors.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
   title: {
     fontSize: 20,                   // subheading
-    fontWeight: '600',              // semibold
+    fontWeight: '700',              // bold
     color: Colors.primaryText,
+    letterSpacing: -0.3,
+  },
+  habitCounterBadge: {
+    backgroundColor: Colors.accent1 + '12',
+    paddingHorizontal: 10,          // 8 × 1.25
+    paddingVertical: 4,
+    borderRadius: 12,
   },
   habitCounter: {
-    fontSize: 14,                   // caption
-    color: Colors.secondaryText,
-    fontWeight: '500',              // medium
+    fontSize: 12,                   // small
+    color: Colors.accent1,
+    fontWeight: '600',              // semibold
   },
 
   scrollView: {
     flex: 1,
   },
   content: {
-    padding: 16,                    // 8 * 2 (base)
-  },
-  section: {
-    marginBottom: 16,               // 8 * 2 (base)
-  },
-  nameSection: {
-    marginBottom: 16,               // 8 * 2 (base)
+    padding: 16,                    // 8 × 2
+    paddingBottom: 32,              // 8 × 4
   },
 
-  // Collapsible Section Styles
-  collapsibleSection: {
+  // Hero Preview Card
+  heroCard: {
     backgroundColor: Colors.white,
-    borderRadius: 16,               // 8 * 2 (comfortable rounded)
-    marginBottom: 16,               // 8 * 2 (base)
-    borderWidth: 1,
-    borderColor: Colors.gray.medium,
-    overflow: 'hidden',
+    borderRadius: 20,               // 8 × 2.5
+    padding: 24,                    // 8 × 3
+    marginBottom: 24,               // 8 × 3
+    alignItems: 'center',
+    borderWidth: 1.5,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 3,
   },
-  collapsibleHeader: {
+  heroIconCircle: {
+    width: 64,                      // 8 × 8
+    height: 64,                     // 8 × 8
+    borderRadius: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,               // 8 × 1.5
+  },
+  heroName: {
+    fontSize: 20,                   // subheading
+    fontWeight: '700',              // bold
+    color: Colors.primaryText,
+    marginBottom: 8,                // 8 × 1
+    textAlign: 'center',
+    letterSpacing: -0.3,
+  },
+  heroCategoryPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,          // 8 × 1.5
+    paddingVertical: 6,
+    borderRadius: 16,
+    gap: 6,
+  },
+  heroCategoryText: {
+    fontSize: 12,                   // small
+    fontWeight: '600',              // semibold
+  },
+
+  // Section Label
+  sectionLabel: {
+    fontSize: 12,                   // small
+    fontWeight: '600',              // semibold
+    color: Colors.secondaryText,
+    letterSpacing: 1,
+    marginBottom: 8,                // 8 × 1
+  },
+  nameSection: {
+    marginBottom: 8,                // 8 × 1
+  },
+
+  // Card (replaces collapsibleSection)
+  card: {
+    backgroundColor: Colors.white,
+    borderRadius: 16,               // 8 × 2
+    marginBottom: 12,               // 8 × 1.5
+    overflow: 'hidden',
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,                    // 8 * 2 (base)
-    minHeight: 64,                  // 8 * 8 (good touch target)
+    padding: 16,                    // 8 × 2
+    minHeight: 64,                  // 8 × 8
   },
-  collapsibleHeaderLeft: {
+  cardHeaderLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
   },
-  collapsibleLabel: {
-    fontSize: 14,                   // caption
-    color: Colors.secondaryText,
-    marginBottom: 4,                // 8 * 0.5
+  cardHeaderIcon: {
+    width: 36,                      // 8 × 4.5
+    height: 36,                     // 8 × 4.5
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,                // 8 × 1.5
   },
-  collapsibleValue: {
+  cardHeaderTitle: {
+    fontSize: 12,                   // small
+    color: Colors.secondaryText,
+    fontWeight: '500',              // medium
+    marginBottom: 2,
+    letterSpacing: 0.2,
+  },
+  cardHeaderValue: {
     fontSize: 16,                   // body
     color: Colors.primaryText,
-    fontWeight: '500',              // medium
+    fontWeight: '600',              // semibold
   },
   expandedContent: {
-    paddingHorizontal: 16,          // 8 * 2 (base)
-    paddingBottom: 16,              // 8 * 2 (base)
+    paddingHorizontal: 12,          // 8 × 1.5
+    paddingBottom: 12,              // 8 × 1.5
     borderTopWidth: 1,
     borderTopColor: Colors.gray.light,
+    paddingTop: 12,                 // 8 × 1.5
   },
 
-  // Category Grid - Compact 3x2 Layout (inside collapsible)
+  // Category Grid
   categoryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    padding: 16,                    // 8 * 2 (base)
-    paddingTop: 8,                  // 8 * 1 (tight)
+    paddingHorizontal: 12,          // 8 × 1.5
+    paddingBottom: 12,              // 8 × 1.5
+    paddingTop: 8,                  // 8 × 1
     borderTopWidth: 1,
     borderTopColor: Colors.gray.light,
   },
   categoryCard: {
     width: '48%',
     backgroundColor: Colors.background,
-    borderRadius: 12,               // 8 * 1.5
-    padding: 12,                    // 8 * 1.5
+    borderRadius: 12,               // 8 × 1.5
+    padding: 10,                    // 8 × 1.25
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: Colors.gray.light,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
     position: 'relative',
-    minHeight: 56,                  // 8 * 7 (touch target)
-    marginBottom: 8,                // 8 * 1 (tight)
+    minHeight: 48,                  // 8 × 6
+    marginBottom: 8,                // 8 × 1
   },
   categoryCardSelected: {
-    borderWidth: 2,
+    borderWidth: 1.5,
     backgroundColor: Colors.white,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
   },
   categoryIconContainer: {
-    width: 40,                      // 8 * 5
-    height: 40,                     // 8 * 5
-    borderRadius: 20,
+    width: 32,                      // 8 × 4
+    height: 32,                     // 8 × 4
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 8,                 // 8 * 1 (tight)
+    marginRight: 8,                 // 8 × 1
   },
   categoryLabel: {
-    fontSize: 16,                   // body
+    fontSize: 14,                   // caption
     fontWeight: '600',              // semibold
     color: Colors.primaryText,
     flex: 1,
   },
   selectedIndicator: {
-    marginLeft: 4,                  // 8 * 0.5
+    marginLeft: 4,
   },
 
-  // Icon Selector - Minimalist
-  iconPreview: {
-    width: 40,                      // 8 * 5
-    height: 40,                     // 8 * 5
-    borderRadius: 20,
-    backgroundColor: Colors.background,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,                // 8 * 2 (base)
-  },
+  // Icon Selector
   iconSelectorButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: Colors.background,
-    padding: 16,                    // 8 * 2 (base)
-    borderRadius: 12,               // 8 * 1.5
-    marginTop: 8,                   // 8 * 1 (tight)
-    minHeight: 56,                  // 8 * 7 (touch target)
+    backgroundColor: Colors.accent1 + '08',
+    padding: 14,                    // 8 × 1.75
+    borderRadius: 12,               // 8 × 1.5
+    minHeight: 48,                  // 8 × 6
+  },
+  iconSelectorLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,                         // 8 × 1
   },
   iconSelectorButtonText: {
-    fontSize: 16,                   // body
+    fontSize: 14,                   // caption
     color: Colors.accent1,
-    fontWeight: '500',              // medium
+    fontWeight: '600',              // semibold
   },
 
-  // Option Row - iOS Settings Style
+  // Option Row
   optionRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,            // 8 * 1.5
-    paddingHorizontal: 16,          // 8 * 2 (base)
-    backgroundColor: Colors.white,
-    borderRadius: 12,               // 8 * 1.5
-    marginBottom: 8,                // 8 * 1 (tight)
-    minHeight: 64,                  // 8 * 8 (good touch target)
+    paddingVertical: 10,            // 8 × 1.25
+    paddingHorizontal: 4,
+    minHeight: 56,                  // 8 × 7
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.gray.light + '80',
   },
   optionLeft: {
     flexDirection: 'row',
@@ -925,22 +1038,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   optionIconContainer: {
-    width: 40,                      // 8 * 5
-    height: 40,                     // 8 * 5
-    borderRadius: 20,
-    backgroundColor: Colors.accent1 + '10',
+    width: 36,                      // 8 × 4.5
+    height: 36,                     // 8 × 4.5
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,                // 8 * 1.5
+    marginRight: 12,                // 8 × 1.5
   },
   optionLabel: {
-    fontSize: 16,                   // body
+    fontSize: 15,                   // between caption and body
     fontWeight: '500',              // medium
     color: Colors.primaryText,
-    marginBottom: 2,                // Tight spacing
+    marginBottom: 1,
   },
   optionDescription: {
-    fontSize: 14,                   // caption
+    fontSize: 13,                   // between small and caption
     color: Colors.secondaryText,
   },
 
@@ -949,83 +1061,81 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,            // 8 * 1.5
-    paddingHorizontal: 16,          // 8 * 2 (base)
-    backgroundColor: Colors.white,
-    borderRadius: 12,               // 8 * 1.5
-    marginBottom: 8,                // 8 * 1 (tight)
-    minHeight: 56,                  // 8 * 7 (touch target)
+    paddingVertical: 10,            // 8 × 1.25
+    paddingHorizontal: 4,
+    minHeight: 48,                  // 8 × 6
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.gray.light + '80',
   },
   timerDurationLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,                        // 8 * 1.5
+    gap: 12,                        // 8 × 1.5
   },
   timerDurationLabel: {
-    fontSize: 16,                   // body
+    fontSize: 15,                   // between caption and body
     color: Colors.primaryText,
     fontWeight: '500',              // medium
   },
   timerDurationRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,                         // 8 * 1 (tight)
+    gap: 6,
   },
   timerDurationValue: {
-    fontSize: 16,                   // body
+    fontSize: 15,                   // between caption and body
     color: Colors.accent1,
     fontWeight: '600',              // semibold
   },
 
-  // Time Selector - Minimalist
+  // Time Selector
   timeSelector: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.white,
-    borderRadius: 16,               // 8 * 2
-    padding: 16,                    // 8 * 2 (base)
-    marginBottom: 16,               // 8 * 2 (base)
-    borderWidth: 1,
-    borderColor: Colors.gray.medium,
-    minHeight: 56,                  // 8 * 7 (touch target)
+    backgroundColor: '#FFF4E8',
+    borderRadius: 12,               // 8 × 1.5
+    padding: 12,                    // 8 × 1.5
+    marginTop: 8,                   // 8 × 1
+    minHeight: 48,                  // 8 × 6
   },
   timeText: {
     flex: 1,
-    fontSize: 16,                   // body
+    fontSize: 15,                   // between caption and body
     color: Colors.primaryText,
-    fontWeight: '500',              // medium
-    marginLeft: 16,                 // 8 * 2 (base)
+    fontWeight: '600',              // semibold
+    marginLeft: 10,
   },
 
+  // Create Button
   buttonContainer: {
-    marginTop: 16,                  // 8 * 2 (base)
-    marginBottom: 16,               // 8 * 2 (base)
+    marginTop: 24,                  // 8 × 3
+    marginBottom: 16,               // 8 × 2
   },
 
-  // Timer Duration Picker Modal
+  // Modal
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
     justifyContent: 'flex-end',
   },
   modalContent: {
     backgroundColor: Colors.white,
-    borderTopLeftRadius: 24,        // 8 * 3
-    borderTopRightRadius: 24,       // 8 * 3
-    height: '50%',                  // Fixed half screen height
-    paddingBottom: 32,              // 8 * 4 (safe area)
+    borderTopLeftRadius: 24,        // 8 × 3
+    borderTopRightRadius: 24,       // 8 × 3
+    height: '50%',
+    paddingBottom: 32,              // 8 × 4
   },
   modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,                    // 8 * 2 (base)
+    padding: 16,                    // 8 × 2
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
   },
   modalTitle: {
-    fontSize: 20,                   // subheading
-    fontWeight: '600',              // semibold
+    fontSize: 18,                   // between body and subheading
+    fontWeight: '700',              // bold
     color: Colors.primaryText,
   },
   modalScroll: {
@@ -1035,9 +1145,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 16,            // 8 * 2 (base)
-    paddingHorizontal: 24,          // 8 * 3 (comfortable)
-    minHeight: 56,                  // 8 * 7 (touch target)
+    paddingVertical: 14,            // 8 × 1.75
+    paddingHorizontal: 24,          // 8 × 3
+    minHeight: 52,                  // 8 × 6.5
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
   },
@@ -1045,7 +1155,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accent1 + '08',
   },
   durationOptionText: {
-    fontSize: 20,                   // subheading (larger for easy reading)
+    fontSize: 18,                   // between body and subheading
     color: Colors.primaryText,
     fontWeight: '400',              // regular
   },

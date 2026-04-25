@@ -151,9 +151,236 @@ chmod +x generate-icons.sh
 
 ---
 
+## 📋 Comprehensive App Store Testing Checklist
+
+**CRITICAL**: Complete ALL testing phases before submission. Each phase must pass 100% before proceeding.
+
+### Phase 1: Core Functionality Testing (30 minutes)
+
+#### 1.1 Authentication & Onboarding
+- [ ] **New User Flow**
+  - [ ] Sign up with email/password works
+  - [ ] Welcome carousel displays for new users (<24 hours)
+  - [ ] Habit suggestions screen loads with categories
+  - [ ] Notification permission request appears
+  - [ ] Skip onboarding works at any step
+- [ ] **Existing User Flow**
+  - [ ] Login with existing credentials works
+  - [ ] Existing users (>24 hours) skip onboarding automatically
+  - [ ] Dashboard loads directly without carousel
+- [ ] **Authentication Edge Cases**
+  - [ ] Invalid email shows error message
+  - [ ] Weak password shows validation error
+  - [ ] Network error handling works
+  - [ ] Logout and re-login works
+
+#### 1.2 Habit Management (Core Feature)
+- [ ] **Habit Creation**
+  - [ ] Create Habit screen opens from + button
+  - [ ] All 39+ habit categories load properly
+  - [ ] Icon selection works (scroll through all icons)
+  - [ ] Form validation prevents empty submissions
+  - [ ] Habit saves and appears on dashboard
+- [ ] **Habit Completion**
+  - [ ] Tap habit card to complete/uncomplete
+  - [ ] Completion animation plays smoothly
+  - [ ] Streak counter updates correctly
+  - [ ] Achievement notifications appear (if earned)
+  - [ ] Analytics events track properly (check logs)
+- [ ] **Habit Management**
+  - [ ] Edit existing habit works
+  - [ ] Delete habit works with confirmation
+  - [ ] Habit categories filter correctly
+  - [ ] Private/public toggle works
+
+### Phase 2: Navigation & UI Testing (20 minutes)
+
+#### 2.1 Bottom Tab Navigation
+- [ ] **Home Tab**
+  - [ ] Dashboard loads with user's habits
+  - [ ] Today's habits display correctly
+  - [ ] Streak counters show accurate numbers
+  - [ ] Motivational messages appear
+- [ ] **Social Tab**
+  - [ ] Friends tab loads (may be empty for new users)
+  - [ ] Activity feed tab loads
+  - [ ] Social sharing works for completed habits
+  - [ ] Friend requests can be sent/received
+- [ ] **Analytics Tab**
+  - [ ] Charts render without errors
+  - [ ] Streak statistics display
+  - [ ] Weekly/monthly views work
+  - [ ] Motivational insights appear
+- [ ] **Profile Tab**
+  - [ ] User profile information displays
+  - [ ] Achievement badges show (if earned)
+  - [ ] Settings options are accessible
+  - [ ] Logout functionality works
+
+#### 2.2 Modal Screens & Navigation
+- [ ] **Create Habit Modal**
+  - [ ] Opens from + button on any tab
+  - [ ] Back button returns to previous screen
+  - [ ] Form submission creates habit and closes modal
+- [ ] **Navigation Performance**
+  - [ ] Tab switches are smooth (<200ms)
+  - [ ] No memory leaks during navigation
+  - [ ] Back button behavior is consistent
+
+### Phase 3: Critical User Flows (25 minutes)
+
+#### 3.1 First-Time User Experience
+- [ ] **Complete New User Journey**
+  - [ ] Sign up → Onboarding → Create first habit → Complete habit
+  - [ ] All steps work without errors
+  - [ ] User sees achievement for first completion
+  - [ ] Analytics track the full journey
+- [ ] **Habit Streak Building**
+  - [ ] Complete same habit multiple days
+  - [ ] Streak counter increments correctly
+  - [ ] Streak achievements unlock at milestones
+  - [ ] Motivational messages encourage continuation
+
+#### 3.2 Social Features
+- [ ] **Activity Sharing**
+  - [ ] Completed habits appear in activity feed
+  - [ ] Privacy settings respected (private habits don't share)
+  - [ ] Activity feed updates in real-time
+- [ ] **Friend Interactions**
+  - [ ] Add friends by username/email
+  - [ ] Friend requests send and receive properly
+  - [ ] Friends' activities appear in feed
+
+#### 3.3 Data Persistence & Sync
+- [ ] **Offline Functionality**
+  - [ ] Complete habits while offline
+  - [ ] Data syncs when connection restored
+  - [ ] No data loss during offline periods
+- [ ] **Cross-Session Persistence**
+  - [ ] Close app and reopen - data persists
+  - [ ] Logout and login - data syncs correctly
+  - [ ] Habits and streaks maintain state
+
+### Phase 4: Edge Cases & Error Handling (15 minutes)
+
+#### 4.1 Network & Performance
+- [ ] **Poor Network Conditions**
+  - [ ] App handles slow network gracefully
+  - [ ] Loading states display appropriately
+  - [ ] Error messages are user-friendly
+- [ ] **Performance Under Load**
+  - [ ] App remains responsive with 20+ habits
+  - [ ] Scrolling is smooth in all screens
+  - [ ] Memory usage stays reasonable
+
+#### 4.2 Error Scenarios
+- [ ] **Form Validation**
+  - [ ] Empty habit name shows error
+  - [ ] Invalid email formats rejected
+  - [ ] Network errors display helpful messages
+- [ ] **Data Conflicts**
+  - [ ] Concurrent habit completions handle correctly
+  - [ ] Streak calculations remain accurate
+  - [ ] Achievement unlocks don't duplicate
+
+### Phase 5: Production Readiness (10 minutes)
+
+#### 5.1 Analytics & Monitoring
+- [ ] **Event Tracking**
+  - [ ] Screen views tracked for all screens
+  - [ ] Habit completion events fire
+  - [ ] Error events captured and logged
+  - [ ] Performance metrics recorded
+- [ ] **Console Cleanliness**
+  - [ ] No console.log statements in production
+  - [ ] No error messages in normal operation
+  - [ ] Warning messages are acceptable/expected
+
+#### 5.2 App Store Compliance
+- [ ] **Privacy & Permissions**
+  - [ ] Notification permission request is clear
+  - [ ] Privacy policy accessible from app
+  - [ ] Terms of service accessible from app
+  - [ ] No unauthorized data collection
+- [ ] **Content Guidelines**
+  - [ ] All content is appropriate for 4+ age rating
+  - [ ] No offensive language or imagery
+  - [ ] Habit categories are family-friendly
+
+---
+
+## 🎯 Testing Execution Guide
+
+### Before Starting Tests
+1. **Environment Setup**
+   ```bash
+   cd GoalStreakApp
+   rm -rf .expo node_modules/.cache
+   npx expo start --clear
+   ```
+
+2. **Create Test Accounts**
+   - New user account (for onboarding testing)
+   - Existing user account (for skip onboarding testing)
+
+### During Testing
+- **Document Issues**: Note any bugs, crashes, or unexpected behavior
+- **Check Console**: Monitor for errors or warnings
+- **Test on Device**: Use physical device for final validation
+- **Performance**: Note any lag, stuttering, or memory issues
+
+### Testing Completion Criteria
+- [ ] **All 5 phases completed with 0 critical issues**
+- [ ] **All checkboxes marked as passed**
+- [ ] **No console errors during normal operation**
+- [ ] **App performs smoothly on target devices**
+- [ ] **Analytics events firing correctly**
+
+---
+
+## 📊 Testing Results Template
+
+### Phase 1: Core Functionality ⏱️ ___ minutes
+- Authentication: ✅ Pass / ❌ Fail - Issues: ___
+- Habit Management: ✅ Pass / ❌ Fail - Issues: ___
+
+### Phase 2: Navigation & UI ⏱️ ___ minutes  
+- Tab Navigation: ✅ Pass / ❌ Fail - Issues: ___
+- Modal Screens: ✅ Pass / ❌ Fail - Issues: ___
+
+### Phase 3: Critical Flows ⏱️ ___ minutes
+- New User Journey: ✅ Pass / ❌ Fail - Issues: ___
+- Social Features: ✅ Pass / ❌ Fail - Issues: ___
+- Data Persistence: ✅ Pass / ❌ Fail - Issues: ___
+
+### Phase 4: Edge Cases ⏱️ ___ minutes
+- Network Handling: ✅ Pass / ❌ Fail - Issues: ___
+- Error Scenarios: ✅ Pass / ❌ Fail - Issues: ___
+
+### Phase 5: Production Ready ⏱️ ___ minutes
+- Analytics: ✅ Pass / ❌ Fail - Issues: ___
+- Compliance: ✅ Pass / ❌ Fail - Issues: ___
+
+**Total Testing Time**: ___ minutes
+**Critical Issues Found**: ___
+**Ready for App Store**: ✅ Yes / ❌ No
+
+---
+
+## 🚨 Critical Issue Response
+
+If ANY critical issues are found:
+1. **Stop testing immediately**
+2. **Document the exact steps to reproduce**
+3. **Fix the issue before continuing**
+4. **Re-run the affected test phase**
+5. **Only proceed when all phases pass**
+
+---
+
 ## 📋 Submission Workflow
 
-Once the above tasks are complete, follow this sequence:
+Once ALL testing phases pass, follow this sequence:
 
 ### Phase 1: Final Preparation (1 hour)
 1. ✅ Clean up root directory
