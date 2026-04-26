@@ -322,7 +322,7 @@ class FriendService {
     habitName: string,
     habitCategory: string,
     visibility: ActivityVisibility = 'friends',
-    additionalData?: { streakCount?: number; completionCount?: number; milestone?: string }
+    additionalData?: { streakCount?: number; completionCount?: number; milestone?: string; photoUrl?: string; caption?: string }
   ): Promise<string> {
     try {
       // Get user profile for name with fallback

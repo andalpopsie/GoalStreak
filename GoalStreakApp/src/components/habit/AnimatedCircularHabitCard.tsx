@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { 
@@ -52,6 +52,10 @@ export default function AnimatedCircularHabitCard({
 
   // Local state for timer controls visibility
   const [showTimerControls, setShowTimerControls] = useState(false);
+  
+  // Stable ref for onToggle to avoid stale closures in timer interval
+  const onToggleRef = useRef(onToggle);
+  onToggleRef.current = onToggle;
   
   // Animation values
   const scale = useSharedValue(1);
@@ -173,7 +177,7 @@ export default function AnimatedCircularHabitCard({
       if (remaining <= 0) {
         // Timer completed
         setLocalTimer(null);
-        onToggle(); // Complete the habit
+        onToggleRef.current(); // Use ref to avoid stale closure
       } else {
         // Update remaining time and schedule progress update
         setLocalTimer(prev => {
@@ -198,7 +202,7 @@ export default function AnimatedCircularHabitCard({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [localTimer?.isActive, localTimer?.startTime, habit.id, onToggle]);
+  }, [localTimer?.isActive, localTimer?.startTime, habit.id]);
 
   const handleTimerStart = async () => {
     if (!habit.timer?.enabled) return;

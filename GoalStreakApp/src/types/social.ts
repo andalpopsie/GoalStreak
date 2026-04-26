@@ -46,6 +46,8 @@ export interface SocialActivity {
   completionCount?: number;
   milestone?: string;
   reactions?: Reactions;
+  photoUrl?: string;
+  caption?: string;
 }
 
 export type ActivityType = 
@@ -53,7 +55,8 @@ export type ActivityType =
   | 'streak_milestone'
   | 'habit_created'
   | 'goal_achieved'
-  | 'weekly_goal_met';
+  | 'weekly_goal_met'
+  | 'progress_post';
 
 export type ActivityVisibility = 'public' | 'friends' | 'private';
 

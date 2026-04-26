@@ -149,7 +149,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
               style={styles.logo}
               resizeMode="contain"
             />
-            <Text style={styles.title}>Join GoalStreak</Text>
+            <Text style={styles.title}>Join Goalfer</Text>
             <Text style={styles.subtitle}>Start building healthy habits today</Text>
           </View>
 

@@ -54,7 +54,7 @@ export const friendSuggestionsService = {
           name: userData.displayName || 'User',
           email: userData.email || '',
           photoURL: userData.photoURL,
-          matchReason: 'Active on GoalStreak',
+          matchReason: 'Active on Goalfer',
           sharedCategories: [],
         });
       });

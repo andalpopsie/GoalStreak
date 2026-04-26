@@ -10,11 +10,11 @@ export class PhotoService {
   /**
    * Compress and optimize image
    */
-  private async compressImage(uri: string): Promise<string> {
+  private async compressImage(uri: string, maxWidth = 400, maxHeight = 400): Promise<string> {
     try {
       const manipulatedImage = await ImageManipulator.manipulateAsync(
         uri,
-        [{ resize: { width: 400, height: 400 } }],
+        [{ resize: { width: maxWidth, height: maxHeight } }],
         {
           compress: 0.8,
           format: ImageManipulator.SaveFormat.JPEG,
@@ -84,6 +84,26 @@ export class PhotoService {
     } catch (error) {
       console.error('❌ Error deleting profile photo:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Save activity/progress photo — larger than profile photos
+   */
+  async saveActivityPhoto(activityId: string, imageUri: string): Promise<string> {
+    try {
+      const compressedUri = await this.compressImage(imageUri, 1080, 1080);
+      const response = await fetch(compressedUri);
+      const blob = await response.blob();
+
+      const photoRef = ref(this.storage, `activity-photos/${activityId}.jpg`);
+      await uploadBytes(photoRef, blob);
+      const downloadURL = await getDownloadURL(photoRef);
+
+      return downloadURL;
+    } catch (error) {
+      console.error('Error saving activity photo:', error);
+      throw new Error('Failed to upload photo');
     }
   }
 

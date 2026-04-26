@@ -11,10 +11,11 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography } from '../constants/theme';
 import { useAnalytics } from '../hooks/useAnalytics';
-import { StatsOverview, ProgressChart, InsightsCard, MilestoneCelebration } from '../components/analytics';
+import { StatsOverview, ProgressChart, InsightsCard, MilestoneCelebration, MotivationalSummary, StreakHero, WeeklyActivityDots } from '../components/analytics';
 import { useMilestones } from '../hooks/useMilestones';
 import { trackScreen, trackEvent, trackFeature } from '../services/enhancedAnalyticsService';
 import { useAuth } from '../hooks/useAuth';
+import { useHabits } from '../hooks/useHabits';
 
 // Helper function to get performance color
 const getPerformanceColor = (rate: number) => {
@@ -34,6 +35,7 @@ const getPerformanceLabel = (rate: number) => {
 
 export default function AnalyticsScreen() {
   const { user } = useAuth();
+  const { habits, streaks } = useHabits();
   const {
     habitAnalytics,
     trendData,
@@ -57,6 +59,14 @@ export default function AnalyticsScreen() {
   } = useMilestones();
 
   const currentPeriodAnalytics = getCurrentPeriodAnalytics();
+
+  // Compute streak data for hero card
+  const currentStreak = habitAnalytics.length > 0
+    ? Math.max(...habitAnalytics.map(h => h.currentStreak), 0)
+    : 0;
+  const longestStreak = habitAnalytics.length > 0
+    ? Math.max(...habitAnalytics.map(h => h.longestStreak), 0)
+    : 0;
 
   // Check for milestones when analytics load
   useEffect(() => {
@@ -237,6 +247,27 @@ export default function AnalyticsScreen() {
         }
         showsVerticalScrollIndicator={false}
       >
+        {/* Motivational Summary */}
+        <MotivationalSummary
+          completionRate={currentPeriodAnalytics?.completionRate || 0}
+          totalCompletions={currentPeriodAnalytics?.totalCompletions || 0}
+          currentStreak={currentStreak}
+          userName={user?.displayName}
+        />
+
+        {/* Streak Hero */}
+        <StreakHero
+          currentStreak={currentStreak}
+          longestStreak={longestStreak}
+          completionRate={currentPeriodAnalytics?.completionRate || 0}
+        />
+
+        {/* Weekly Activity Dots */}
+        <WeeklyActivityDots
+          data={trendData}
+          totalHabits={habits.length}
+        />
+
         {/* Stats Overview */}
         {currentPeriodAnalytics && (
           <StatsOverview

@@ -29,7 +29,7 @@ export const openURL = async (url: string, fallbackMessage?: string): Promise<vo
 };
 
 /**
- * Opens the GoalStreak privacy policy
+ * Opens the Goalfer privacy policy
  */
 export const openPrivacyPolicy = (): Promise<void> => {
   return openURL(
@@ -39,7 +39,7 @@ export const openPrivacyPolicy = (): Promise<void> => {
 };
 
 /**
- * Opens the GoalStreak terms of service
+ * Opens the Goalfer terms of service
  */
 export const openTermsOfService = (): Promise<void> => {
   return openURL(
@@ -49,7 +49,7 @@ export const openTermsOfService = (): Promise<void> => {
 };
 
 /**
- * Opens the GoalStreak support page
+ * Opens the Goalfer support page
  */
 export const openSupport = (): Promise<void> => {
   return openURL(

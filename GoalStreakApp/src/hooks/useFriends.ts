@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import friendService from '../services/friendService';
+import { photoService } from '../services/photoService';
 import { 
   Friend, 
   FriendRequest, 
@@ -37,6 +38,7 @@ interface UseFriendsReturn {
   // Activity creation
   shareHabitCompletion: (habitId: string, habitName: string, habitCategory: string, streakCount?: number) => Promise<void>;
   shareStreakMilestone: (habitId: string, habitName: string, habitCategory: string, streakCount: number) => Promise<void>;
+  createProgressPost: (habitId: string, habitName: string, habitCategory: string, photoUri: string, caption?: string) => Promise<void>;
   
   // Reactions
   addReaction: (activityId: string, reactionType: ReactionType) => Promise<void>;
@@ -287,6 +289,44 @@ export const useFriends = (): UseFriendsReturn => {
     }
   }, [user?.id, socialSettings]);
 
+  // Create a Strava-style progress post with photo and caption
+  const createProgressPost = useCallback(async (
+    habitId: string,
+    habitName: string,
+    habitCategory: string,
+    photoUri: string,
+    caption?: string,
+  ) => {
+    if (!user?.id) return;
+
+    try {
+      // Create the activity first to get an ID for the photo path
+      const activityId = await friendService.createActivity(
+        user.id,
+        'progress_post',
+        habitId,
+        habitName,
+        habitCategory,
+        socialSettings?.defaultVisibility || 'friends',
+        { caption },
+      );
+
+      // Upload the photo using the activity ID
+      const photoUrl = await photoService.saveActivityPhoto(activityId, photoUri);
+
+      // Update the activity with the photo URL
+      const { doc, updateDoc } = await import('firebase/firestore');
+      const { db } = await import('../services/firebase');
+      await updateDoc(doc(db, 'activities', activityId), { photoUrl });
+
+      // Refresh feed to show the new post
+      await refreshActivityFeed();
+    } catch (err: any) {
+      console.error('Error creating progress post:', err);
+      throw err;
+    }
+  }, [user?.id, socialSettings, refreshActivityFeed]);
+
   // Add reaction to activity (optimized)
   const addReaction = useCallback(async (activityId: string, reactionType: ReactionType) => {
     if (!user?.id) {
@@ -329,6 +369,7 @@ export const useFriends = (): UseFriendsReturn => {
     // Activity sharing
     shareHabitCompletion,
     shareStreakMilestone,
+    createProgressPost,
     
     // Reactions
     addReaction,

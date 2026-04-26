@@ -30,7 +30,7 @@ interface UseHabitsReturn {
   completeHabit: (habitId: string, value?: number, notes?: string) => Promise<void>;
   uncompleteHabit: (habitId: string) => Promise<void>;
   refreshHabits: () => Promise<void>;
-  clearAllHabits: () => Promise<void>; // TEMPORARY: For testing
+  clearAllHabits?: () => Promise<void>; // DEV only
   
   // Timer actions
   startHabitTimer: (habitId: string, duration: number) => Promise<void>;
@@ -322,7 +322,7 @@ export function useHabits(): UseHabitsReturn {
     await loadHabits();
   }, [loadHabits]);
 
-  // TEMPORARY: Clear all habits (for testing)
+  // DEV only: Clear all habits (for testing)
   const clearAllHabits = useCallback(async () => {
     if (!user) {
       throw new Error('User not authenticated');
@@ -480,7 +480,7 @@ export function useHabits(): UseHabitsReturn {
     completeHabit,
     uncompleteHabit,
     refreshHabits,
-    clearAllHabits, // TEMPORARY: For testing
+    ...(__DEV__ ? { clearAllHabits } : {}),
     
     // Timer actions
     startHabitTimer,

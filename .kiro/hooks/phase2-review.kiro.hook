@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Phase 2 Enhancement Check",
+  "description": "After each agent task completes, review the changes made and identify any architecture, code quality, security, or design patterns that should be noted as Phase 2 enhancements. If found, append them to docs/PHASE2_ENHANCEMENTS.md.",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Review the changes you just made. Did you touch any code or design patterns that have scaling concerns, security gaps, technical debt, or architecture improvements needed for Phase 2? If yes, append a new row to the Discovery Log table in GoalStreakApp/docs/PHASE2_ENHANCEMENTS.md with today's date, a brief description, the source (which file or area), and the priority level. If nothing notable was found, do nothing."
+  }
+}

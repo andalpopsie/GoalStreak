@@ -20,6 +20,42 @@ import { OfflineBanner } from '../components/common';
 import { SkeletonHabitCard, AnimatedCircularHabitCard, EmptyHabitsState } from '../components/habit';
 import { trackScreen, trackEvent, trackFeature } from '../services/enhancedAnalyticsService';
 
+// Analytics helper — keeps toggle handler focused on business logic
+function trackHabitToggle(
+  habitId: string,
+  habit: { name?: string; category?: string } | undefined,
+  wasCompleted: boolean,
+  streakCount: number,
+  userId?: string,
+) {
+  if (wasCompleted) {
+    trackEvent('habit_uncompleted', {
+      habit_id: habitId,
+      habit_name: habit?.name,
+      habit_category: habit?.category,
+      user_id: userId,
+    });
+  } else {
+    trackFeature('habit_tracking', 'habit_completed', 1);
+    trackEvent('habit_completed', {
+      habit_id: habitId,
+      habit_name: habit?.name,
+      habit_category: habit?.category,
+      streak_count: streakCount,
+      user_id: userId,
+      completion_time: new Date().toISOString(),
+    });
+    if (streakCount > 0 && [7, 30, 100, 365].includes(streakCount)) {
+      trackEvent('streak_milestone_achieved', {
+        habit_id: habitId,
+        habit_name: habit?.name,
+        milestone: streakCount,
+        user_id: userId,
+      });
+    }
+  }
+}
+
 export default function CleanHomeScreen({ navigation }: any) {
   const { user } = useAuth();
   const {
@@ -76,46 +112,18 @@ export default function CleanHomeScreen({ navigation }: any) {
       
       if (wasCompleted) {
         await uncompleteHabit(habitId);
-        // Track habit uncomplete
-        trackEvent('habit_uncompleted', {
-          habit_id: habitId,
-          habit_name: habit?.name,
-          habit_category: habit?.category,
-          user_id: user?.id
-        });
       } else {
         await completeHabit(habitId);
-        // Track habit completion
-        const currentStreak = getHabitStreak(habitId);
-        trackFeature('habit_tracking', 'habit_completed', 1);
-        
-        // Safely get streak count (handle null case)
-        const streakCount = currentStreak 
-          ? (typeof currentStreak === 'object' ? currentStreak.currentStreak : currentStreak)
-          : 0;
-        
-        trackEvent('habit_completed', {
-          habit_id: habitId,
-          habit_name: habit?.name,
-          habit_category: habit?.category,
-          streak_count: streakCount,
-          user_id: user?.id,
-          completion_time: new Date().toISOString()
-        });
-        
-        // Track streak milestones
-        if (streakCount > 0 && [7, 30, 100, 365].includes(streakCount)) {
-          trackEvent('streak_milestone_achieved', {
-            habit_id: habitId,
-            habit_name: habit?.name,
-            milestone: streakCount,
-            user_id: user?.id
-          });
-        }
       }
+
+      // Track after state change
+      const currentStreak = getHabitStreak(habitId);
+      const streakCount = currentStreak
+        ? (typeof currentStreak === 'object' ? currentStreak.currentStreak : currentStreak)
+        : 0;
+      trackHabitToggle(habitId, habit, wasCompleted, streakCount, user?.id);
     } catch (error: any) {
       console.error('Error toggling habit:', error);
-      // Track error
       trackEvent('habit_toggle_error', {
         habit_id: habitId,
         error_message: error.message,

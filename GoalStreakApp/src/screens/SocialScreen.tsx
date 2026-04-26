@@ -110,7 +110,7 @@ export default function SocialScreen() {
     try {
       await sendFriendRequest(
         toUser.email, 
-        `Hi ${toUser.name || 'there'}! I'd like to connect with you on GoalStreak.`
+        `Hi ${toUser.name || 'there'}! I'd like to connect with you on Goalfer.`
       );
       Alert.alert('Success', 'Friend request sent successfully!');
     } catch (error: any) {
@@ -238,7 +238,7 @@ export default function SocialScreen() {
               onRemoveFriend={handleRemoveFriend}
               onSendFriendRequest={async (email) => {
                 try {
-                  await sendFriendRequest(email, 'Hi! Let\'s connect on GoalStreak!');
+                  await sendFriendRequest(email, 'Hi! Let\'s connect on Goalfer!');
                   Alert.alert('Success', 'Friend request sent!');
                   // Refresh suggestions
                   loadSuggestedFriends();

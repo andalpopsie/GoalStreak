@@ -34,7 +34,7 @@ export const config: EnvironmentConfig = {
   app: {
     version: process.env.EXPO_PUBLIC_APP_VERSION || '1.0.0',
     buildNumber: process.env.EXPO_PUBLIC_BUILD_NUMBER || '1',
-    name: 'GoalStreak',
+    name: 'Goalfer',
   },
   firebase: {
     apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || '',

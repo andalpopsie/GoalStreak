@@ -1,9 +1,10 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, Modal, Alert, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, Modal, Alert, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
-import { Colors } from '../../constants/theme';
+import * as ImagePicker from 'expo-image-picker';
+import { Colors, Spacing, Typography } from '../../constants/theme';
 import { SocialActivity, ReactionType } from '../../types/social';
 import { formatRelativeTime } from '../../utils/timeUtils';
 import { photoService } from '../../services/photoService';
@@ -11,18 +12,24 @@ import { addDoc, collection, serverTimestamp, query, where, getDocs, orderBy, do
 import { db } from '../../services/firebase';
 import { achievementsService } from '../../services/achievementsService';
 
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
 interface ActivityFeedTabProps {
   activityFeed: SocialActivity[];
   onReaction: (activityId: string, reactionType: ReactionType) => Promise<void>;
+  onCreatePost?: (habitId: string, habitName: string, habitCategory: string, photoUri: string, caption?: string) => Promise<void>;
   currentUserId?: string;
   currentUserName?: string;
+  habits?: { id: string; name: string; category: string }[];
 }
 
 export default function ActivityFeedTab({
   activityFeed,
   onReaction,
+  onCreatePost,
   currentUserId,
   currentUserName,
+  habits = [],
 }: ActivityFeedTabProps) {
   const [profilePhotos, setProfilePhotos] = useState<{[key: string]: string}>({});
   const [showCommentModal, setShowCommentModal] = useState(false);
@@ -32,6 +39,13 @@ export default function ActivityFeedTab({
   const [commentCounts, setCommentCounts] = useState<{[activityId: string]: number}>({});
   const [comments, setComments] = useState<any[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
+
+  // Progress post creation state
+  const [showPostModal, setShowPostModal] = useState(false);
+  const [postPhotoUri, setPostPhotoUri] = useState<string | null>(null);
+  const [postCaption, setPostCaption] = useState('');
+  const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
+  const [isPosting, setIsPosting] = useState(false);
 
   useEffect(() => {
     loadProfilePhotos();
@@ -93,6 +107,9 @@ export default function ActivityFeedTab({
   };
 
   const getActivityText = (activity: SocialActivity) => {
+    if (activity?.type === 'progress_post') {
+      return activity?.caption || 'shared a progress update';
+    }
     if (activity?.type === 'habit_completed') {
       const habitName = activity?.habitName || 'a habit';
       return 'completed "' + habitName + '"';
@@ -251,8 +268,92 @@ export default function ActivityFeedTab({
     }
   };
 
+  // --- Progress Post Handlers ---
+
+  const handlePickPhoto = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+      if (!result.canceled && result.assets[0]) {
+        setPostPhotoUri(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error picking photo:', error);
+    }
+  };
+
+  const handleTakePhoto = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'Camera access is required to take photos.');
+        return;
+      }
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+      if (!result.canceled && result.assets[0]) {
+        setPostPhotoUri(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error taking photo:', error);
+    }
+  };
+
+  const handleSubmitPost = async () => {
+    if (!postPhotoUri || !selectedHabitId || !onCreatePost) return;
+
+    const habit = habits.find(h => h.id === selectedHabitId);
+    if (!habit) return;
+
+    setIsPosting(true);
+    try {
+      await onCreatePost(habit.id, habit.name, habit.category, postPhotoUri, postCaption.trim() || undefined);
+      // Reset and close
+      setPostPhotoUri(null);
+      setPostCaption('');
+      setSelectedHabitId(null);
+      setShowPostModal(false);
+    } catch (error) {
+      console.error('Error creating post:', error);
+      Alert.alert('Error', 'Failed to create post. Please try again.');
+    } finally {
+      setIsPosting(false);
+    }
+  };
+
+  const resetPostModal = () => {
+    setPostPhotoUri(null);
+    setPostCaption('');
+    setSelectedHabitId(null);
+    setShowPostModal(false);
+  };
+
   return (
     <View>
+      {/* Create Post Button — Strava-style */}
+      {onCreatePost && habits.length > 0 && (
+        <TouchableOpacity
+          style={styles.createPostButton}
+          onPress={() => setShowPostModal(true)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.createPostLeft}>
+            <View style={styles.createPostIcon}>
+              <Ionicons name="camera" size={20} color={Colors.white} />
+            </View>
+            <Text style={styles.createPostText}>Share a progress photo...</Text>
+          </View>
+          <Ionicons name="image-outline" size={24} color={Colors.accent1} />
+        </TouchableOpacity>
+      )}
+
       {activityFeed.map((activity, index) => (
         <View key={activity?.id || index} style={styles.activityCard}>
           <View style={styles.activityHeader}>
@@ -281,6 +382,17 @@ export default function ActivityFeedTab({
               <Text style={styles.activityText}>
                 {getActivityText(activity)}
               </Text>
+
+              {/* Progress Photo — displayed below the text */}
+              {activity.photoUrl && (
+                <Image
+                  source={{ uri: activity.photoUrl }}
+                  style={styles.activityPhoto}
+                  resizeMode="cover"
+                  accessible={true}
+                  accessibilityLabel={`Progress photo for ${activity.habitName}`}
+                />
+              )}
 
               {/* Reactions */}
               <View style={styles.reactionsContainer}>

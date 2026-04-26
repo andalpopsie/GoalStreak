@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "firebase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "firebase-tools@latest",
+        "mcp",
+        "--dir",
+        "./GoalStreakApp"
+      ],
+      "env": {},
+      "disabled": false,
+      "autoApprove": [
+        "firebase_get_environment",
+        "firebase_get_project",
+        "firebase_list_projects",
+        "firestore_list_collections",
+        "firestore_get_documents",
+        "firestore_query_collection"
+      ]
+    }
+  }
+}
