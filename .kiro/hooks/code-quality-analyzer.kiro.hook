@@ -4,18 +4,7 @@
   "description": "Listen to source code files in the repository. When changes are detected, analyze the modified code for potential improvements, including code smells, design patterns, and best practices. Generate suggestions for improving code quality while maintaining the existing functionality. Focus on readability, maintainability, and performance optimizations.",
   "version": "1",
   "when": {
-    "type": "fileEdited",
-    "patterns": [
-      "GoalStreakApp/src/**/*.{ts",
-      "tsx",
-      "js",
-      "jsx}",
-      "GoalStreakApp/*.{ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json}"
-    ]
+    "type": "userTriggered"
   },
   "then": {
     "type": "askAgent",

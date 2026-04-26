@@ -17,6 +17,8 @@ import { ReactionType, UserSearchResult } from '../types/social';
 import { SearchModal } from '../components/common';
 import { ActivityFeedTab, FriendsTab } from '../components/social';
 import { friendSuggestionsService, SuggestedFriend } from '../services/friendSuggestionsService';
+import friendService from '../services/friendService';
+import { photoService } from '../services/photoService';
 
 type TabType = 'feed' | 'friends';
 
@@ -90,6 +92,46 @@ export default function SocialScreen() {
     if (!user?.id) return;
     await addReaction(activityId, reactionType);
   }, [user?.id, addReaction]);
+
+  // Handle creating a progress post with photo
+  const handleCreatePost = useCallback(async (
+    habitId: string,
+    habitName: string,
+    habitCategory: string,
+    photoUri: string,
+    caption?: string
+  ) => {
+    if (!user?.id) return;
+
+    try {
+      // Save photo and get a persistent URI
+      const savedPhotoUri = await photoService.saveProfilePhoto(
+        `${user.id}_post_${Date.now()}`,
+        photoUri
+      );
+
+      // Create activity with photo
+      await friendService.createActivity(
+        user.id,
+        'progress_post',
+        habitId,
+        habitName,
+        habitCategory,
+        'friends',
+        {
+          photoUrl: savedPhotoUri,
+          caption: caption,
+        }
+      );
+
+      // Refresh the feed
+      await refreshActivityFeed();
+      Alert.alert('Posted!', 'Your progress photo has been shared with friends.');
+    } catch (error: any) {
+      console.error('Error creating progress post:', error);
+      throw error;
+    }
+  }, [user?.id, refreshActivityFeed]);
 
   const handleSendFriendRequest = async (email: string, message: string) => {
     if (!user?.id) return;
@@ -223,8 +265,10 @@ export default function SocialScreen() {
             <ActivityFeedTab
               activityFeed={activityFeed}
               onReaction={handleReaction}
+              onCreatePost={handleCreatePost}
               currentUserId={user?.id}
               currentUserName={user?.displayName || user?.email?.split('@')[0] || 'User'}
+              habits={habits.map(h => ({ id: h.id, name: h.name, category: h.category }))}
             />
           )}
 

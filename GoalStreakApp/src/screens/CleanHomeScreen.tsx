@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -18,6 +18,9 @@ import { useHabitsWithSocial } from '../hooks/useHabitsWithSocial'; // Re-enable
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { OfflineBanner } from '../components/common';
 import { SkeletonHabitCard, AnimatedCircularHabitCard, EmptyHabitsState } from '../components/habit';
+import CompletionShareModal from '../components/habit/CompletionShareModal';
+import friendService from '../services/friendService';
+import { photoService } from '../services/photoService';
 import { trackScreen, trackEvent, trackFeature } from '../services/enhancedAnalyticsService';
 
 // Analytics helper — keeps toggle handler focused on business logic
@@ -71,6 +74,13 @@ export default function CleanHomeScreen({ navigation }: any) {
   } = useHabitsWithSocial(); // Re-enabled social features with improved error handling
   const networkStatus = useNetworkStatus();
 
+  // Share modal state
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [completedHabitName, setCompletedHabitName] = useState('');
+  const [completedHabitId, setCompletedHabitId] = useState('');
+  const [completedHabitCategory, setCompletedHabitCategory] = useState('');
+  const [completedHabitIsPublic, setCompletedHabitIsPublic] = useState(true);
+
   // Track screen view
   useEffect(() => {
     trackScreen('CleanHomeScreen', { source: 'app_navigation' });
@@ -114,6 +124,15 @@ export default function CleanHomeScreen({ navigation }: any) {
         await uncompleteHabit(habitId);
       } else {
         await completeHabit(habitId);
+
+        // Show share modal after completing
+        if (habit) {
+          setCompletedHabitId(habit.id);
+          setCompletedHabitName(habit.name);
+          setCompletedHabitCategory(habit.category);
+          setCompletedHabitIsPublic(habit.isPublic);
+          setShowShareModal(true);
+        }
       }
 
       // Track after state change
@@ -182,6 +201,35 @@ export default function CleanHomeScreen({ navigation }: any) {
       });
     }
   };
+
+  const handleShareCompletion = useCallback(async (photoUri?: string, caption?: string) => {
+    if (!user?.id) return;
+    try {
+      let savedPhotoUri: string | undefined;
+      if (photoUri) {
+        savedPhotoUri = await photoService.saveProfilePhoto(
+          `${user.id}_post_${Date.now()}`,
+          photoUri
+        );
+      }
+
+      await friendService.createActivity(
+        user.id,
+        'habit_completed',
+        completedHabitId,
+        completedHabitName,
+        completedHabitCategory,
+        completedHabitIsPublic ? 'friends' : 'private',
+        {
+          photoUrl: savedPhotoUri,
+          caption,
+        }
+      );
+    } catch (error) {
+      console.error('Error sharing completion:', error);
+    }
+    setShowShareModal(false);
+  }, [user?.id, completedHabitId, completedHabitName, completedHabitCategory, completedHabitIsPublic]);
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
@@ -272,6 +320,15 @@ export default function CleanHomeScreen({ navigation }: any) {
           </Animated.View>
         )}
       </ScrollView>
+
+      {/* Completion Share Modal */}
+      <CompletionShareModal
+        visible={showShareModal}
+        habitName={completedHabitName}
+        isPublic={completedHabitIsPublic}
+        onShare={handleShareCompletion}
+        onSkip={() => setShowShareModal(false)}
+      />
     </SafeAreaView>
   );
 }

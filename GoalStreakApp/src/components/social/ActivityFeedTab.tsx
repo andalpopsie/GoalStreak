@@ -375,6 +375,13 @@ export default function ActivityFeedTab({
                 <Text style={styles.activityUser}>
                   {String(activity?.userName || 'Unknown User')}
                 </Text>
+                {activity?.visibility && (
+                  <Ionicons
+                    name={activity.visibility === 'private' ? 'lock-closed' : 'people'}
+                    size={12}
+                    color={Colors.gray.medium}
+                  />
+                )}
                 <Text style={styles.activityTime}>
                   {formatRelativeTime(activity?.timestamp)}
                 </Text>
@@ -382,6 +389,13 @@ export default function ActivityFeedTab({
               <Text style={styles.activityText}>
                 {getActivityText(activity)}
               </Text>
+
+              {/* Caption — shown below activity text when present */}
+              {activity.caption && activity.type !== 'progress_post' && (
+                <Text style={styles.activityCaption}>
+                  "{activity.caption}"
+                </Text>
+              )}
 
               {/* Progress Photo — displayed below the text */}
               {activity.photoUrl && (
@@ -611,6 +625,100 @@ export default function ActivityFeedTab({
           </TouchableOpacity>
         </TouchableOpacity>
       </Modal>
+
+      {/* Progress Post Modal — Strava/Instagram style */}
+      <Modal
+        visible={showPostModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={resetPostModal}
+      >
+        <View style={styles.postModalContainer}>
+          {/* Header */}
+          <View style={styles.postModalHeader}>
+            <TouchableOpacity onPress={resetPostModal}>
+              <Text style={styles.postModalCancel}>Cancel</Text>
+            </TouchableOpacity>
+            <Text style={styles.postModalTitle}>Share Progress</Text>
+            <TouchableOpacity
+              onPress={handleSubmitPost}
+              disabled={!postPhotoUri || !selectedHabitId || isPosting}
+            >
+              <Text style={[
+                styles.postModalShare,
+                (!postPhotoUri || !selectedHabitId || isPosting) && styles.postModalShareDisabled,
+              ]}>
+                {isPosting ? 'Posting...' : 'Share'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={styles.postModalBody} showsVerticalScrollIndicator={false}>
+            {/* Photo Section */}
+            {postPhotoUri ? (
+              <View style={styles.postPhotoPreview}>
+                <Image source={{ uri: postPhotoUri }} style={styles.postPhotoImage} resizeMode="cover" />
+                <TouchableOpacity style={styles.postPhotoRemove} onPress={() => setPostPhotoUri(null)}>
+                  <Ionicons name="close-circle" size={28} color={Colors.white} />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.postPhotoPlaceholder}>
+                <View style={styles.postPhotoActions}>
+                  <TouchableOpacity style={styles.postPhotoButton} onPress={handleTakePhoto}>
+                    <Ionicons name="camera" size={28} color={Colors.accent1} />
+                    <Text style={styles.postPhotoButtonText}>Camera</Text>
+                  </TouchableOpacity>
+                  <View style={styles.postPhotoDivider} />
+                  <TouchableOpacity style={styles.postPhotoButton} onPress={handlePickPhoto}>
+                    <Ionicons name="images" size={28} color={Colors.accent1} />
+                    <Text style={styles.postPhotoButtonText}>Library</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+            {/* Caption */}
+            <View style={styles.postCaptionSection}>
+              <TextInput
+                style={styles.postCaptionInput}
+                placeholder="Write a caption about your progress..."
+                placeholderTextColor={Colors.secondaryText}
+                value={postCaption}
+                onChangeText={setPostCaption}
+                multiline
+                maxLength={300}
+                textAlignVertical="top"
+              />
+              <Text style={styles.postCaptionCount}>{postCaption.length}/300</Text>
+            </View>
+
+            {/* Habit Selector */}
+            <View style={styles.postHabitSection}>
+              <Text style={styles.postHabitLabel}>Which habit is this for?</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.postHabitScroll}>
+                {habits.map((habit) => (
+                  <TouchableOpacity
+                    key={habit.id}
+                    style={[
+                      styles.postHabitChip,
+                      selectedHabitId === habit.id && styles.postHabitChipSelected,
+                    ]}
+                    onPress={() => setSelectedHabitId(habit.id)}
+                  >
+                    <Text style={[
+                      styles.postHabitChipText,
+                      selectedHabitId === habit.id && styles.postHabitChipTextSelected,
+                    ]}>
+                      {habit.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          </ScrollView>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -670,6 +778,13 @@ const styles = StyleSheet.create({
     color: Colors.primaryText,
     marginBottom: 4,
     lineHeight: 22,
+  },
+  activityCaption: {
+    fontSize: 15,
+    color: Colors.secondaryText,
+    fontStyle: 'italic',
+    lineHeight: 21,
+    marginBottom: 4,
   },
   streakInfo: {
     backgroundColor: '#00BCD415',
@@ -869,5 +984,185 @@ const styles = StyleSheet.create({
     color: Colors.secondaryText,
     fontSize: 14,
     paddingVertical: 32,
+  },
+  // ── Create Post Button ──
+  createPostButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.white,
+    marginHorizontal: 16,              // 8 × 2 (base)
+    marginVertical: 12,                // 8 × 1.5
+    padding: 16,                       // 8 × 2 (base)
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: Colors.gray.light,
+    borderStyle: 'dashed',
+  },
+  createPostLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,                           // 8 × 1.5
+  },
+  createPostIcon: {
+    width: 40,                         // 8 × 5
+    height: 40,                        // 8 × 5
+    borderRadius: 20,
+    backgroundColor: Colors.accent1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  createPostText: {
+    fontSize: 16,                      // body
+    color: Colors.secondaryText,
+  },
+  // ── Activity Photo ──
+  activityPhoto: {
+    width: '100%',
+    height: 240,                       // 8 × 30
+    borderRadius: 12,
+    marginTop: 8,                      // 8 × 1 (tight)
+    marginBottom: 4,
+    backgroundColor: Colors.gray.light,
+  },
+  // ── Post Modal ──
+  postModalContainer: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  postModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,             // 8 × 2 (base)
+    paddingVertical: 16,               // 8 × 2 (base)
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.gray.light,
+    backgroundColor: Colors.white,
+  },
+  postModalCancel: {
+    fontSize: 16,                      // body
+    color: Colors.secondaryText,
+    minWidth: 60,
+  },
+  postModalTitle: {
+    fontSize: 18,                      // large body
+    fontWeight: '600',                 // semibold
+    color: Colors.primaryText,
+  },
+  postModalShare: {
+    fontSize: 16,                      // body
+    fontWeight: '600',                 // semibold
+    color: Colors.accent1,
+    minWidth: 60,
+    textAlign: 'right',
+  },
+  postModalShareDisabled: {
+    color: Colors.gray.medium,
+  },
+  postModalBody: {
+    flex: 1,
+    padding: 16,                       // 8 × 2 (base)
+  },
+  // Photo preview
+  postPhotoPreview: {
+    position: 'relative',
+    marginBottom: 16,                  // 8 × 2 (base)
+  },
+  postPhotoImage: {
+    width: '100%',
+    height: 280,                       // 8 × 35
+    borderRadius: 16,
+    backgroundColor: Colors.gray.light,
+  },
+  postPhotoRemove: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+  },
+  // Photo placeholder
+  postPhotoPlaceholder: {
+    backgroundColor: Colors.white,
+    borderRadius: 16,
+    padding: 32,                       // 8 × 4 (loose)
+    marginBottom: 16,                  // 8 × 2 (base)
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: Colors.gray.light,
+    borderStyle: 'dashed',
+  },
+  postPhotoActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 32,                           // 8 × 4 (loose)
+  },
+  postPhotoButton: {
+    alignItems: 'center',
+    gap: 8,                            // 8 × 1 (tight)
+    minWidth: 80,                      // 8 × 10
+    minHeight: 56,                     // 8 × 7 (touch target)
+  },
+  postPhotoButtonText: {
+    fontSize: 14,                      // caption
+    color: Colors.accent1,
+    fontWeight: '500',                 // medium
+  },
+  postPhotoDivider: {
+    width: 1,
+    height: 48,                        // 8 × 6
+    backgroundColor: Colors.gray.light,
+  },
+  // Caption
+  postCaptionSection: {
+    backgroundColor: Colors.white,
+    borderRadius: 16,
+    padding: 16,                       // 8 × 2 (base)
+    marginBottom: 16,                  // 8 × 2 (base)
+  },
+  postCaptionInput: {
+    fontSize: 16,                      // body
+    color: Colors.primaryText,
+    minHeight: 80,                     // 8 × 10
+    lineHeight: 24,
+  },
+  postCaptionCount: {
+    fontSize: 12,                      // small
+    color: Colors.secondaryText,
+    textAlign: 'right',
+    marginTop: 8,                      // 8 × 1 (tight)
+  },
+  // Habit selector
+  postHabitSection: {
+    marginBottom: 32,                  // 8 × 4 (loose)
+  },
+  postHabitLabel: {
+    fontSize: 16,                      // body
+    fontWeight: '600',                 // semibold
+    color: Colors.primaryText,
+    marginBottom: 12,                  // 8 × 1.5
+  },
+  postHabitScroll: {
+    gap: 8,                            // 8 × 1 (tight)
+  },
+  postHabitChip: {
+    paddingHorizontal: 16,             // 8 × 2 (base)
+    paddingVertical: 10,
+    borderRadius: 20,                  // pill
+    backgroundColor: Colors.white,
+    borderWidth: 1,
+    borderColor: Colors.gray.light,
+    minHeight: 40,                     // 8 × 5
+  },
+  postHabitChipSelected: {
+    backgroundColor: Colors.accent1,
+    borderColor: Colors.accent1,
+  },
+  postHabitChipText: {
+    fontSize: 14,                      // caption
+    color: Colors.primaryText,
+    fontWeight: '500',                 // medium
+  },
+  postHabitChipTextSelected: {
+    color: Colors.white,
   },
 });

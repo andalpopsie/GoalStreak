@@ -358,8 +358,13 @@ class FriendService {
         ...additionalData
       };
 
+      // Strip undefined values — Firestore rejects them
+      const cleanActivity = Object.fromEntries(
+        Object.entries(activity).filter(([_, v]) => v !== undefined)
+      );
+
       const docRef = await addDoc(this.activitiesCollection, {
-        ...activity,
+        ...cleanActivity,
         timestamp: serverTimestamp()
       });
 
