@@ -6,7 +6,6 @@ import Animated, {
   useAnimatedStyle, 
   withSpring, 
   withTiming,
-  interpolate,
   runOnJS,
   FadeIn,
   FadeOut,
@@ -41,9 +40,6 @@ export default function AnimatedCircularHabitCard({
   const {
     timerState,
     isActive: isTimerActive,
-    isPaused: isTimerPaused,
-    isRunning: isTimerRunning,
-    startTimer,
     pauseTimer,
     resumeTimer,
     resetTimer,
@@ -52,6 +48,14 @@ export default function AnimatedCircularHabitCard({
 
   // Local state for timer controls visibility
   const [showTimerControls, setShowTimerControls] = useState(false);
+  
+  // Simple local timer state (declared before useEffects that reference it)
+  const [localTimer, setLocalTimer] = useState<{
+    isActive: boolean;
+    remainingTime: number;
+    totalDuration: number;
+    startTime: number;
+  } | null>(null);
   
   // Stable ref for onToggle to avoid stale closures in timer interval
   const onToggleRef = useRef(onToggle);
@@ -95,8 +99,6 @@ export default function AnimatedCircularHabitCard({
       
     } else if (timerState && habit.timer?.enabled) {
       // Context timer progress (fallback)
-      const remainingTime = timerState.remainingTime;
-      const totalDuration = habit.timer.durationMinutes * 60 * 1000;
       const progress = timerState.progress;
       
       const clampedProgress = Math.max(0, Math.min(1, progress));
@@ -156,15 +158,6 @@ export default function AnimatedCircularHabitCard({
     }
   };
 
-  // Timer control handlers
-  // Simple local timer state
-  const [localTimer, setLocalTimer] = useState<{
-    isActive: boolean;
-    remainingTime: number;
-    totalDuration: number;
-    startTime: number;
-  } | null>(null);
-
   // Local timer effect
   useEffect(() => {
     if (!localTimer?.isActive) return;
@@ -208,7 +201,7 @@ export default function AnimatedCircularHabitCard({
     if (!habit.timer?.enabled) return;
     
     try {
-      const duration = parseFloat(habit.timer.durationMinutes) || 5;
+      const duration = habit.timer.durationMinutes || 5;
       const durationMs = duration * 60 * 1000;
       
       setLocalTimer({
@@ -226,7 +219,7 @@ export default function AnimatedCircularHabitCard({
 
   const handleTimerPause = async () => {
     try {
-      await pauseTimer(habit.id);
+      await pauseTimer();
     } catch (error) {
       console.error('Error pausing timer:', error);
     }
@@ -234,7 +227,7 @@ export default function AnimatedCircularHabitCard({
 
   const handleTimerResume = async () => {
     try {
-      await resumeTimer(habit.id);
+      await resumeTimer();
     } catch (error) {
       console.error('Error resuming timer:', error);
     }
@@ -242,7 +235,7 @@ export default function AnimatedCircularHabitCard({
 
   const handleTimerReset = async () => {
     try {
-      await resetTimer(habit.id);
+      await resetTimer();
       setShowTimerControls(false);
     } catch (error) {
       console.error('Error resetting timer:', error);
@@ -251,7 +244,7 @@ export default function AnimatedCircularHabitCard({
 
   const handleTimerComplete = async () => {
     try {
-      await completeTimer(habit.id);
+      await completeTimer();
       // Auto-complete habit if configured
       if (habit.timer?.autoComplete) {
         onToggle();
@@ -329,62 +322,6 @@ export default function AnimatedCircularHabitCard({
     }
   });
 
-  // Timer countdown border animation - visual countdown effect
-  const animatedTimerBorderStyle = useAnimatedStyle(() => {
-    try {
-      // Use shared values only in worklets - avoid accessing timerState directly
-      const progress = timerProgress.value;
-      
-      let borderColor = Colors.gray.light; // Default gray
-      let borderWidth = 2; // Default thin
-      
-      if (habit.timer?.enabled && (isTimerActive || localTimer?.isActive)) {
-        // Timer is active - show countdown effect
-        if (progress > 0.5) {
-          // More than half time remaining - green/orange
-          borderColor = Colors.accent1; // Orange
-          borderWidth = 4;
-        } else if (progress > 0.2) {
-          // Less than half but more than 20% - yellow/orange
-          borderColor = Colors.accent1;
-          borderWidth = 3;
-        } else if (progress > 0) {
-          // Less than 20% - red/urgent
-          borderColor = '#FF4444'; // Red for urgency
-          borderWidth = 4;
-        } else {
-          // Timer finished
-          borderColor = Colors.gray.light;
-          borderWidth = 2;
-        }
-      } else if (habit.timer?.enabled) {
-        // Timer configured but not running - show ready state
-        borderColor = Colors.accent2; // Blue for ready
-        borderWidth = 3;
-      }
-      
-      return {
-        borderColor,
-        borderWidth,
-      };
-    } catch (error) {
-      return {
-        borderColor: Colors.gray.light,
-        borderWidth: 2,
-      };
-    }
-  });
-
-  // Timer border container animation
-  const animatedTimerContainerStyle = useAnimatedStyle(() => {
-    try {
-      const opacity = habit.timer?.enabled ? 1 : 0;
-      return { opacity };
-    } catch (error) {
-      return { opacity: 0 };
-    }
-  });
-
   return (
     <Animated.View style={[styles.container, animatedContainerStyle]}>
       <TouchableOpacity 
@@ -423,12 +360,8 @@ export default function AnimatedCircularHabitCard({
                   ? Math.max(0, Math.min(1, timerState.remainingTime / (habit.timer.durationMinutes * 60 * 1000)))
                   : 0
               } : null)}
-              size={170} // Larger than the habit circle (140) to be an outer ring
+              size={170}
               strokeWidth={6}
-              onTimerStart={handleTimerStart}
-              onTimerPause={handleTimerPause}
-              onTimerReset={handleTimerReset}
-              onTimerComplete={handleTimerComplete}
             />
           )}
           
@@ -595,16 +528,6 @@ const styles = StyleSheet.create({
     color: Colors.accent1,
     marginLeft: 2,
   },
-  checkmarkContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    // Add subtle drop shadow for extra visibility
-    shadowColor: Colors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
-    elevation: 3,
-  },
   completionBadge: {
     position: 'absolute',
     bottom: -10,
@@ -638,23 +561,5 @@ const styles = StyleSheet.create({
   timerControlsContainer: {
     marginTop: Spacing.xs,
     alignItems: 'center',
-  },
-  timerBorderContainer: {
-    position: 'absolute',
-    top: -8, // Center around the progress ring
-    left: -8,
-    zIndex: 1,
-    width: 156,
-    height: 156,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  timerBorder: {
-    width: 156,
-    height: 156,
-    borderRadius: 78,
-    borderWidth: 4,
-    borderColor: Colors.accent1,
-    backgroundColor: 'transparent',
   },
 });

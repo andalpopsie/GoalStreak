@@ -20,6 +20,7 @@ import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import CreateHabitScreen from '../screens/CreateHabitScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
+import GroupDetailScreen from '../screens/GroupDetailScreen';
 
 // Import hooks
 import { useAuth } from '../hooks/useAuth';
@@ -132,6 +133,18 @@ function MainStackNavigator() {
           },
           headerTintColor: Colors.primaryText,
           headerTitle: '',
+        }}
+      />
+      <Stack.Screen
+        name="GroupDetail"
+        component={GroupDetailScreen}
+        options={{
+          headerShown: true,
+          headerTitle: '',
+          headerStyle: {
+            backgroundColor: Colors.background,
+          },
+          headerTintColor: Colors.primaryText,
         }}
       />
     </Stack.Navigator>

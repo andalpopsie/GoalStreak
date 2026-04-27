@@ -127,6 +127,7 @@ export type RootStackParamList = {
   Onboarding: undefined;
   CreateHabit: undefined;
   MainTabs: undefined;
+  GroupDetail: { groupId: string };
 };
 
 export type AuthStackParamList = {

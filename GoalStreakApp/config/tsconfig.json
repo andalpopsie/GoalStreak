@@ -13,15 +13,15 @@
     "noUnusedParameters": false
   },
   "include": [
-    "src/**/*",
-    "App.tsx",
-    "index.ts"
+    "../src/**/*",
+    "../App.tsx",
+    "../index.ts"
   ],
   "exclude": [
-    "scripts/**/*",
-    "node_modules",
-    "**/__tests__/**/*",
-    "**/*.test.*",
-    "**/*.spec.*"
+    "../scripts/**/*",
+    "../node_modules",
+    "../**/__tests__/**/*",
+    "../**/*.test.*",
+    "../**/*.spec.*"
   ]
 }

@@ -1,9 +1,122 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Temporary permissive rules for testing - authenticated users can access their data
-    match /{document=**} {
-      allow read, write: if request.auth != null;
+
+    // ── Helper Functions ──
+
+    // Check if the requesting user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if the requesting user is the document owner
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Check if the requesting user is a member of a group
+    function isGroupMember(groupData) {
+      return isAuthenticated() && request.auth.uid in groupData.memberIds;
+    }
+
+    // Check if the requesting user is the admin of a group
+    function isGroupAdmin(groupData) {
+      return isAuthenticated() && request.auth.uid == groupData.adminId;
+    }
+
+    // ── Users ──
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // ── Habits ──
+    match /habits/{habitId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+    }
+
+    // ── Completions ──
+    match /completions/{completionId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+    }
+
+    // ── Streaks ──
+    match /streaks/{streakId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // ── Friends ──
+    match /friends/{friendId} {
+      allow read: if isAuthenticated()
+        && (request.auth.uid == resource.data.userId
+            || request.auth.uid == resource.data.friendId);
+      allow write: if isAuthenticated();
+    }
+
+    // ── Friend Requests ──
+    match /friendRequests/{requestId} {
+      allow read: if isAuthenticated()
+        && (request.auth.uid == resource.data.fromUserId
+            || request.auth.uid == resource.data.toUserId);
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.fromUserId;
+      allow update: if isAuthenticated()
+        && (request.auth.uid == resource.data.fromUserId
+            || request.auth.uid == resource.data.toUserId);
+    }
+
+    // ── Activities (main feed) ──
+    match /activities/{activityId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+    }
+
+    // ── Timer States ──
+    match /timerStates/{timerId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // ── Groups ──
+    // Members can read, admin can write. Users join only via invitation acceptance.
+    match /groups/{groupId} {
+      allow read: if isAuthenticated() && isGroupMember(resource.data);
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.adminId;
+      allow update: if isAuthenticated() && isGroupAdmin(resource.data);
+      allow delete: if isAuthenticated() && isGroupAdmin(resource.data);
+    }
+
+    // ── Group Invitations ──
+    // Admin (sender) can create, recipient can update status, both can read.
+    match /groupInvitations/{invitationId} {
+      allow read: if isAuthenticated()
+        && (request.auth.uid == resource.data.fromUserId
+            || request.auth.uid == resource.data.toUserId);
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.fromUserId;
+      allow update: if isAuthenticated()
+        && (request.auth.uid == resource.data.fromUserId
+            || request.auth.uid == resource.data.toUserId);
+      allow delete: if false;
+    }
+
+    // ── Tracked Habits ──
+    // Owner can create/delete their own entries, group members can read.
+    match /trackedHabits/{trackedHabitId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+      allow delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow update: if false;
+    }
+
+    // ── Group Activities ──
+    // Group members can read, members can create, no direct deletes.
+    match /groupActivities/{activityId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+      allow update: if isAuthenticated();
+      allow delete: if false;
     }
   }
 }

@@ -2,10 +2,13 @@
 import { useCallback } from 'react';
 import { useHabits } from './useHabits';
 import { useFriends } from './useFriends';
+import { useAuth } from './useAuth';
+import groupService from '../services/groupService';
 
 export const useHabitsWithSocial = () => {
   const habitsHook = useHabits();
   const { shareHabitCompletion, shareStreakMilestone, socialSettings } = useFriends();
+  const { user } = useAuth();
 
   // Enhanced complete habit with social sharing
   const completeHabitWithSharing = useCallback(async (
@@ -45,7 +48,44 @@ export const useHabitsWithSocial = () => {
       // Social sharing failures are non-critical
       console.log('Social sharing failed (non-critical):', socialError instanceof Error ? socialError.message : String(socialError));
     }
-  }, [habitsHook.completeHabit, habitsHook.habits, habitsHook.getHabitStreak, shareHabitCompletion, shareStreakMilestone, socialSettings]);
+
+    // Post group activities for tracked habits (non-critical)
+    try {
+      if (!user?.id) return;
+
+      const habit = habitsHook.habits?.find(h => h?.id === habitId);
+      if (!habit?.name || !habit?.category) return;
+
+      const trackedHabits = await groupService.getTrackedHabitsByHabitId(habitId, user.id);
+      if (trackedHabits.length === 0) return;
+
+      const streak = habitsHook.getHabitStreak(habitId);
+      const streakCount = streak?.currentStreak || 0;
+
+      for (const tracked of trackedHabits) {
+        // Post habit_completed activity
+        await groupService.createGroupActivity(tracked.groupId, user.id, 'habit_completed', {
+          habitId,
+          habitName: habit.name.trim(),
+          habitCategory: habit.category,
+          streakCount,
+        });
+
+        // Post streak_milestone activity if applicable
+        if (streakCount === 7 || streakCount === 30 || streakCount === 100 || (streakCount > 0 && streakCount % 50 === 0)) {
+          await groupService.createGroupActivity(tracked.groupId, user.id, 'streak_milestone', {
+            habitId,
+            habitName: habit.name.trim(),
+            habitCategory: habit.category,
+            streakCount,
+          });
+        }
+      }
+    } catch (groupError) {
+      // Group activity posting failures are non-critical
+      console.log('Group activity posting failed (non-critical):', groupError instanceof Error ? groupError.message : String(groupError));
+    }
+  }, [habitsHook.completeHabit, habitsHook.habits, habitsHook.getHabitStreak, shareHabitCompletion, shareStreakMilestone, socialSettings, user?.id]);
 
   // Enhanced create habit with social sharing
   const createHabitWithSharing = useCallback(async (habitData: any) => {

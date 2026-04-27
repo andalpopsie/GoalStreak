@@ -9,22 +9,27 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { Colors, Typography } from '../constants/theme';
 import { useFriends } from '../hooks/useFriends';
+import { useGroups } from '../hooks/useGroups';
 import { useAuth } from '../hooks/useAuth';
 import { useHabits } from '../hooks/useHabits';
+import { RootStackParamList } from '../types';
 import { ReactionType, UserSearchResult } from '../types/social';
 import { SearchModal } from '../components/common';
-import { ActivityFeedTab, FriendsTab } from '../components/social';
+import { ActivityFeedTab, FriendsTab, GroupsTab, GroupCreateForm } from '../components/social';
 import { friendSuggestionsService, SuggestedFriend } from '../services/friendSuggestionsService';
 import friendService from '../services/friendService';
 import { photoService } from '../services/photoService';
 
-type TabType = 'feed' | 'friends';
+type TabType = 'feed' | 'friends' | 'groups';
 
 export default function SocialScreen() {
   const { user } = useAuth();
   const { habits } = useHabits();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   
   const {
     friends,
@@ -42,9 +47,17 @@ export default function SocialScreen() {
     addReaction,
   } = useFriends();
 
+  const {
+    pendingInvitationCount,
+    createGroup,
+    isCreating,
+    refreshGroups,
+  } = useGroups();
+
   // UI state
   const [activeTab, setActiveTab] = useState<TabType>('feed');
   const [showSearchModal, setShowSearchModal] = useState(false);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [sendingRequestTo, setSendingRequestTo] = useState<string | null>(null);
   const [suggestedFriends, setSuggestedFriends] = useState<SuggestedFriend[]>([]);
 
@@ -52,11 +65,13 @@ export default function SocialScreen() {
   useEffect(() => {
     if (activeTab === 'feed') {
       refreshActivityFeed();
-    } else {
+    } else if (activeTab === 'friends') {
       refreshFriends();
       loadSuggestedFriends();
+    } else if (activeTab === 'groups') {
+      refreshGroups();
     }
-  }, [activeTab, refreshActivityFeed, refreshFriends, loadSuggestedFriends]);
+  }, [activeTab, refreshActivityFeed, refreshFriends, loadSuggestedFriends, refreshGroups]);
 
   // Load suggested friends
   const loadSuggestedFriends = useCallback(async () => {
@@ -82,10 +97,12 @@ export default function SocialScreen() {
   const handleRefresh = useCallback(() => {
     if (activeTab === 'feed') {
       refreshActivityFeed();
-    } else {
+    } else if (activeTab === 'friends') {
       refreshFriends();
+    } else if (activeTab === 'groups') {
+      refreshGroups();
     }
-  }, [activeTab, refreshActivityFeed, refreshFriends]);
+  }, [activeTab, refreshActivityFeed, refreshFriends, refreshGroups]);
 
   // Handle reaction
   const handleReaction = useCallback(async (activityId: string, reactionType: ReactionType) => {
@@ -132,6 +149,22 @@ export default function SocialScreen() {
       throw error;
     }
   }, [user?.id, refreshActivityFeed]);
+
+  // Handle creating a new group
+  const handleCreateGroup = useCallback(async (form: any) => {
+    try {
+      await createGroup(form);
+      setShowCreateGroup(false);
+      Alert.alert('Success', 'Group created! Invite friends to get started.');
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to create group');
+    }
+  }, [createGroup]);
+
+  // Handle navigating to group detail
+  const handleNavigateToGroup = useCallback((groupId: string) => {
+    navigation.navigate('GroupDetail', { groupId });
+  }, [navigation]);
 
   const handleSendFriendRequest = async (email: string, message: string) => {
     if (!user?.id) return;
@@ -205,16 +238,23 @@ export default function SocialScreen() {
   };
 
   // Tab button renderer
-  const renderTabButton = (tab: TabType, title: string, icon: string) => (
+  const renderTabButton = (tab: TabType, title: string, icon: string, badgeCount?: number) => (
     <TouchableOpacity
       style={[styles.tabButton, activeTab === tab && styles.activeTabButton]}
       onPress={() => setActiveTab(tab)}
     >
-      <Ionicons
-        name={icon as any}
-        size={22}
-        color={activeTab === tab ? Colors.primary : Colors.secondaryText}
-      />
+      <View style={styles.tabIconContainer}>
+        <Ionicons
+          name={icon as any}
+          size={22}
+          color={activeTab === tab ? Colors.primary : Colors.secondaryText}
+        />
+        {badgeCount != null && badgeCount > 0 && (
+          <View style={styles.tabBadge}>
+            <Text style={styles.tabBadgeText}>{badgeCount}</Text>
+          </View>
+        )}
+      </View>
       <Text style={[
         styles.tabButtonText,
         activeTab === tab && styles.activeTabButtonText
@@ -224,12 +264,14 @@ export default function SocialScreen() {
     </TouchableOpacity>
   );
 
-  // Check if current tab is empty
+  // Check if current tab is empty (groups tab handles its own empty state)
   const isEmpty = activeTab === 'feed' 
     ? activityFeed.length === 0 
-    : friends.length === 0 && pendingRequests.length === 0;
+    : activeTab === 'friends'
+    ? friends.length === 0 && pendingRequests.length === 0
+    : false;
 
-  const isLoading = activeTab === 'feed' ? isLoadingActivity : isLoadingFriends;
+  const isLoading = activeTab === 'feed' ? isLoadingActivity : activeTab === 'friends' ? isLoadingFriends : false;
 
   return (
     <View style={styles.container}>
@@ -237,6 +279,7 @@ export default function SocialScreen() {
       <View style={styles.tabContainer}>
         {renderTabButton('feed', 'Feed', 'newspaper-outline')}
         {renderTabButton('friends', 'Friends', 'people-outline')}
+        {renderTabButton('groups', 'Groups', 'shield-outline', pendingInvitationCount)}
         <TouchableOpacity
           style={styles.searchTabButton}
           onPress={() => setShowSearchModal(true)}
@@ -246,6 +289,14 @@ export default function SocialScreen() {
       </View>
 
       {/* Content */}
+      {activeTab === 'groups' ? (
+        <View style={styles.content}>
+          <GroupsTab
+            onCreateGroup={() => setShowCreateGroup(true)}
+            onNavigateToGroup={handleNavigateToGroup}
+          />
+        </View>
+      ) : (
       <ScrollView
         style={styles.content}
         refreshControl={
@@ -321,6 +372,7 @@ export default function SocialScreen() {
           )}
         </View>
       </ScrollView>
+      )}
 
       {/* Modals */}
       <SearchModal
@@ -328,6 +380,13 @@ export default function SocialScreen() {
         onClose={() => setShowSearchModal(false)}
         onSendFriendRequest={handleSendFriendRequestFromSearch}
         sendingRequestTo={sendingRequestTo}
+      />
+
+      <GroupCreateForm
+        visible={showCreateGroup}
+        onClose={() => setShowCreateGroup(false)}
+        onCreate={handleCreateGroup}
+        isCreating={isCreating}
       />
     </View>
   );
@@ -353,6 +412,26 @@ const styles = StyleSheet.create({
     paddingVertical: 16,                // 8 * 2 (base)
     gap: 8,                             // 8 * 1 (tight)
     minHeight: 56,                      // 8 * 7 (touch target)
+  },
+  tabIconContainer: {
+    position: 'relative',
+  },
+  tabBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -10,
+    backgroundColor: Colors.accent1,   // Purple badge (#B771E5)
+    borderRadius: 8,
+    minWidth: 16,                       // 8 × 2
+    height: 16,                         // 8 × 2
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  tabBadgeText: {
+    color: Colors.white,
+    fontSize: 10,
+    fontWeight: '700',                  // bold
   },
   activeTabButton: {
     borderBottomWidth: 2,

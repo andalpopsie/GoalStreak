@@ -1,5 +1,49 @@
 # GoalStreak Changelog
 
+## [Unreleased] - April 2026
+
+### Accountability Groups Feature (April 2026)
+- **New social feature: Accountability Groups** — Users can form small groups (2–10 members) around shared goals for mutual accountability
+  - Group creation with name, description, category, and optional end date
+  - Invite-only membership via existing friends list
+  - Link 1–6 habits per member per group for progress tracking
+  - Real-time group progress dashboard with completion percentages and streaks
+  - Dedicated group activity feed with reactions (heart, flame, medal)
+  - Admin controls: edit group, remove members, end group
+  - Member controls: leave group, link/unlink habits
+  - Notification support: daily reminders, celebration alerts, new member joined (max 3/group/day)
+  - 30-day data retention for ended groups
+
+- **New files added:**
+  - `src/services/groupService.ts` — Full group service layer (CRUD, invitations, habits, feed, progress, notifications)
+  - `src/hooks/useGroups.ts` — Real-time group list and invitation management hook
+  - `src/hooks/useGroupDetail.ts` — Group detail data and actions hook
+  - `src/screens/GroupDetailScreen.tsx` — Group detail screen with Progress and Feed tabs
+  - `src/components/social/GroupsTab.tsx` — Groups tab for the Social screen
+  - `src/components/social/GroupCard.tsx` — Group list card component
+  - `src/components/social/GroupInvitationCard.tsx` — Invitation accept/decline card
+  - `src/components/social/GroupCreateForm.tsx` — Modal form for creating groups
+  - `src/components/social/GroupProgressCard.tsx` — Member progress display
+  - `src/components/social/GroupFeedCard.tsx` — Group activity feed card
+  - `src/components/social/LinkHabitsModal.tsx` — Habit linking modal
+  - `src/components/social/InviteMembersModal.tsx` — Friend invitation modal
+  - `src/components/social/GroupSettingsModal.tsx` — Admin/member settings modal
+  - `src/__tests__/groups/GroupComponents.test.tsx` — 21 UI component render tests (all passing)
+
+- **Modified files:**
+  - `src/types/social.ts` — Added group types (Group, GroupMember, GroupInvitation, TrackedHabit, GroupActivity, GroupProgress, CreateGroupForm)
+  - `src/types/index.ts` — Added GroupDetail route to RootStackParamList
+  - `src/screens/SocialScreen.tsx` — Extended with Groups tab alongside Feed and Friends
+  - `src/navigation/AppNavigator.tsx` — Added GroupDetail screen to stack navigator
+  - `src/hooks/useHabitsWithSocial.ts` — Integrated group activity creation on habit completion
+
+- **Firestore additions:**
+  - New collections: `groups`, `groupInvitations`, `trackedHabits`, `groupActivities`
+  - Composite indexes added to `firebase/firestore.indexes.json`
+  - Security rules added to `firebase/firestore.rules`
+
+- **Bug fix: serverTimestamp() inside arrays** — Fixed `groupService.createGroup` and `acceptInvitation` using `serverTimestamp()` inside the `members` array (Firestore rejects this). Replaced with `Timestamp.now()` for array-embedded timestamps.
+
 ## [Unreleased] - January 2025
 
 ### iOS App Store Compliance (January 2025)
