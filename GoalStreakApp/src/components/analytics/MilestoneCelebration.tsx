@@ -57,7 +57,7 @@ export default function MilestoneCelebration({
           autoStart={false}
           fadeOut
           fallSpeed={2500}
-          colors={[Colors.accent1, Colors.accent2, Colors.accent3, '#FFD700', '#FF69B4']}
+          colors={[Colors.accent1, Colors.accent2, Colors.accent3, '#FF9013', '#48B3AF', '#A7E399']}
         />
 
         {/* Celebration Card */}
