@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { DeviceEventEmitter } from 'react-native';
 import { habitService, completionService, streakService } from '../services/habitService';
 import { useAuth } from './useAuth';
@@ -6,6 +6,8 @@ import { useTimer } from '../contexts/TimerContext';
 import { Habit, HabitCompletion, Streak, CreateHabitForm } from '../types';
 import { TimerState } from '../types/timer';
 import { LIMITS } from '../constants/limits';
+import { inactivityNudgeService } from '../services/inactivityNudgeService';
+import { timerSessionService } from '../services/timerService';
 
 interface UseHabitsReturn {
   // Data
@@ -155,12 +157,13 @@ export function useHabits(): UseHabitsReturn {
     };
   }, [activeTimers, updateTimerProgress]);
 
+  // Stable ref for completeHabitViaTimer — assigned after definition below
+  const completeHabitViaTimerRef = useRef<(habitId: string) => Promise<void>>(async () => {});
+
   // Set up timer completion event listener
   useEffect(() => {
     const handleTimerCompletion = async (event: any) => {
-      // DeviceEventEmitter passes data directly, not in event.detail
-      const { habitId, completedInBackground, completionMethod, timestamp } = event;
-      
+      const { habitId } = event;
 
       if (!user) {
         console.warn('No user available for timer completion');
@@ -175,7 +178,7 @@ export function useHabits(): UseHabitsReturn {
         }
         
         // Complete the habit automatically when timer finishes
-        await completeHabitViaTimer(habitId);
+        await completeHabitViaTimerRef.current(habitId);
         
       } catch (error) {
         console.error('Error handling timer completion event:', error);
@@ -263,7 +266,6 @@ export function useHabits(): UseHabitsReturn {
       
       // Record activity for inactivity nudge tracking
       try {
-        const { inactivityNudgeService } = await import('../services/inactivityNudgeService');
         await inactivityNudgeService.recordActivity();
       } catch (error) {
         console.error('Error recording activity:', error);
@@ -399,7 +401,6 @@ export function useHabits(): UseHabitsReturn {
       
       // Try to get the most recent timer session for this habit
       try {
-        const { timerSessionService } = await import('../services/timerService');
         const sessions = await timerSessionService.getHabitTimerSessions(habitId);
         const recentSession = sessions.find(session => 
           session.completed && 
@@ -439,6 +440,9 @@ export function useHabits(): UseHabitsReturn {
       setIsCompleting(false);
     }
   }, [user]);
+
+  // Keep ref in sync so the event listener always calls the latest version
+  completeHabitViaTimerRef.current = completeHabitViaTimer;
 
   // Utility functions
   const isHabitCompletedToday = useCallback((habitId: string) => {

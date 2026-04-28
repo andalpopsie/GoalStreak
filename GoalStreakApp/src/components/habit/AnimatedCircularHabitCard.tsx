@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { 
@@ -17,6 +17,60 @@ import { getCategoryIcon, getCategoryColor } from '../../utils/categoryIcons';
 import { useHabitTimer } from '../../contexts/TimerContext';
 import { TimerProgressRing } from '../timer';
 import SimpleTimerControls from '../timer/SimpleTimerControls';
+
+// --- Local timer hook (extracted from component to separate concerns) ---
+
+interface LocalTimerState {
+  isActive: boolean;
+  remainingTime: number;
+  totalDuration: number;
+  startTime: number;
+}
+
+function useLocalTimer(onComplete: () => void) {
+  const [localTimer, setLocalTimer] = useState<LocalTimerState | null>(null);
+
+  // Stable ref for onComplete to avoid stale closures in the interval
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+
+  useEffect(() => {
+    if (!localTimer?.isActive) return;
+
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - localTimer.startTime;
+      const remaining = Math.max(0, localTimer.totalDuration - elapsed);
+
+      if (remaining <= 0) {
+        setLocalTimer(null);
+        onCompleteRef.current();
+      } else {
+        setLocalTimer(prev => prev ? { ...prev, remainingTime: remaining } : null);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [localTimer?.isActive, localTimer?.startTime]);
+
+  const start = useCallback((durationMs: number) => {
+    setLocalTimer({
+      isActive: true,
+      remainingTime: durationMs,
+      totalDuration: durationMs,
+      startTime: Date.now(),
+    });
+  }, []);
+
+  const reset = useCallback(() => {
+    setLocalTimer(null);
+  }, []);
+
+  const progress = localTimer && localTimer.totalDuration > 0
+    ? (localTimer.totalDuration - localTimer.remainingTime) / localTimer.totalDuration
+    : 0;
+
+  return { localTimer, start, reset, progress };
+}
 
 interface AnimatedCircularHabitCardProps {
   habit: Habit;
@@ -49,17 +103,13 @@ export default function AnimatedCircularHabitCard({
   // Local state for timer controls visibility
   const [showTimerControls, setShowTimerControls] = useState(false);
   
-  // Simple local timer state (declared before useEffects that reference it)
-  const [localTimer, setLocalTimer] = useState<{
-    isActive: boolean;
-    remainingTime: number;
-    totalDuration: number;
-    startTime: number;
-  } | null>(null);
-  
-  // Stable ref for onToggle to avoid stale closures in timer interval
-  const onToggleRef = useRef(onToggle);
-  onToggleRef.current = onToggle;
+  // Local timer hook (extracted — no side effects in setState)
+  const {
+    localTimer,
+    start: startLocalTimer,
+    reset: resetLocalTimer,
+    progress: localTimerProgress,
+  } = useLocalTimer(onToggle);
   
   // Animation values
   const scale = useSharedValue(1);
@@ -88,11 +138,7 @@ export default function AnimatedCircularHabitCard({
   useEffect(() => {
     // Use local timer if active, otherwise use context timer
     if (localTimer && localTimer.isActive && habit.timer?.enabled) {
-      // Local timer progress
-      const progress = localTimer.totalDuration > 0 ? 
-        (localTimer.totalDuration - localTimer.remainingTime) / localTimer.totalDuration : 0;
-      
-      const clampedProgress = Math.max(0, Math.min(1, progress));
+      const clampedProgress = Math.max(0, Math.min(1, localTimerProgress));
       timerProgress.value = withTiming(clampedProgress, {
         duration: 1000, // Smooth 1-second transitions
       });
@@ -110,7 +156,7 @@ export default function AnimatedCircularHabitCard({
       // Reset to full when no timer is active
       timerProgress.value = withTiming(1, { duration: 300 });
     }
-  }, [localTimer?.remainingTime, timerState?.remainingTime, habit.timer?.enabled, isTimerActive, localTimer?.isActive]);
+  }, [localTimer?.remainingTime, localTimerProgress, timerState?.remainingTime, habit.timer?.enabled, isTimerActive, localTimer?.isActive]);
 
   const triggerHapticFeedback = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -158,45 +204,6 @@ export default function AnimatedCircularHabitCard({
     }
   };
 
-  // Local timer effect
-  useEffect(() => {
-    if (!localTimer?.isActive) return;
-
-    const interval = setInterval(() => {
-      const now = Date.now();
-      const elapsed = now - localTimer.startTime;
-      const remaining = Math.max(0, localTimer.totalDuration - elapsed);
-      
-      if (remaining <= 0) {
-        // Timer completed
-        setLocalTimer(null);
-        onToggleRef.current(); // Use ref to avoid stale closure
-      } else {
-        // Update remaining time and schedule progress update
-        setLocalTimer(prev => {
-          if (!prev) return null;
-          const newTimer = { ...prev, remainingTime: remaining };
-          
-          // Schedule progress ring update for next frame
-          const progress = newTimer.totalDuration > 0 ? 
-            (newTimer.totalDuration - newTimer.remainingTime) / newTimer.totalDuration : 0;
-          
-          // Update progress ring on next frame to avoid render warning
-          requestAnimationFrame(() => {
-            const clampedProgress = Math.max(0, Math.min(1, progress));
-            timerProgress.value = withTiming(clampedProgress, {
-              duration: 500,
-            });
-          });
-          
-          return newTimer;
-        });
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [localTimer?.isActive, localTimer?.startTime, habit.id]);
-
   const handleTimerStart = async () => {
     if (!habit.timer?.enabled) return;
     
@@ -204,13 +211,7 @@ export default function AnimatedCircularHabitCard({
       const duration = habit.timer.durationMinutes || 5;
       const durationMs = duration * 60 * 1000;
       
-      setLocalTimer({
-        isActive: true,
-        remainingTime: durationMs,
-        totalDuration: durationMs,
-        startTime: Date.now()
-      });
-      
+      startLocalTimer(durationMs);
       setShowTimerControls(false);
     } catch (error) {
       console.error('❌ Error starting timer:', error);
