@@ -199,3 +199,14 @@ export interface CreateGroupForm {
   category: string;
   endDate?: Date;
 }
+
+// ── Group Chat Types ──
+
+export interface GroupMessage {
+  id: string;
+  groupId: string;
+  userId: string;
+  userName: string;
+  text: string;
+  createdAt: Date;
+}

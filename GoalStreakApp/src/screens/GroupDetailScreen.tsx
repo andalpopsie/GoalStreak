@@ -26,10 +26,11 @@ import GroupFeedCard from '../components/social/GroupFeedCard';
 import LinkHabitsModal from '../components/social/LinkHabitsModal';
 import InviteMembersModal from '../components/social/InviteMembersModal';
 import GroupSettingsModal from '../components/social/GroupSettingsModal';
+import GroupChatTab from '../components/social/GroupChatTab';
 
 type GroupDetailRouteProp = RouteProp<RootStackParamList, 'GroupDetail'>;
 type GroupDetailNavProp = StackNavigationProp<RootStackParamList, 'GroupDetail'>;
-type DetailTab = 'progress' | 'feed';
+type DetailTab = 'progress' | 'feed' | 'chat';
 
 const FEED_PAGE_SIZE = 20;
 
@@ -255,6 +256,24 @@ export default function GroupDetailScreen() {
             Feed
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === 'chat' && styles.activeTabButton]}
+          onPress={() => setActiveTab('chat')}
+          accessibilityLabel="Chat tab"
+          accessibilityRole="tab"
+          accessibilityState={{ selected: activeTab === 'chat' }}
+        >
+          <Ionicons
+            name="chatbubbles-outline"
+            size={18}
+            color={activeTab === 'chat' ? Colors.primary : Colors.secondaryText}
+          />
+          <Text
+            style={[styles.tabButtonText, activeTab === 'chat' && styles.activeTabButtonText]}
+          >
+            Chat
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Tab Content */}
@@ -280,7 +299,7 @@ export default function GroupDetailScreen() {
             </View>
           )}
         </ScrollView>
-      ) : (
+      ) : activeTab === 'feed' ? (
         <FlatList
           data={displayedFeed}
           keyExtractor={(item) => item.id}
@@ -303,6 +322,12 @@ export default function GroupDetailScreen() {
               </Text>
             </View>
           }
+        />
+      ) : (
+        <GroupChatTab
+          groupId={groupId}
+          currentUserId={user?.id || ''}
+          currentUserName={user?.displayName || 'User'}
         />
       )}
 

@@ -1238,6 +1238,51 @@ class GroupService {
       ...(data.endedAt && { endedAt: data.endedAt.toDate?.() || data.endedAt }),
     } as Group;
   }
+
+  // ── Group Chat Methods ──
+
+  /**
+   * Send a message to a group chat.
+   */
+  async sendMessage(groupId: string, userId: string, userName: string, text: string): Promise<string> {
+    if (!text.trim()) throw new Error('Message cannot be empty');
+    if (text.length > 500) throw new Error('Message too long (max 500 characters)');
+
+    const messagesRef = collection(db, 'groups', groupId, 'messages');
+    const docRef = await addDoc(messagesRef, {
+      groupId,
+      userId,
+      userName,
+      text: text.trim(),
+      createdAt: serverTimestamp(),
+    });
+
+    return docRef.id;
+  }
+
+  /**
+   * Subscribe to real-time group chat messages.
+   * Returns an unsubscribe function.
+   */
+  subscribeToMessages(
+    groupId: string,
+    callback: (messages: any[]) => void,
+    messageLimit: number = 50
+  ): () => void {
+    const messagesRef = collection(db, 'groups', groupId, 'messages');
+    const q = query(messagesRef, orderBy('createdAt', 'asc'), limit(messageLimit));
+
+    return onSnapshot(q, (snapshot) => {
+      const messages = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate?.() || new Date(),
+      }));
+      callback(messages);
+    }, (error) => {
+      console.error('Error in group chat subscription:', error);
+    });
+  }
 }
 
 export const groupService = new GroupService();
