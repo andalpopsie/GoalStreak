@@ -16,6 +16,7 @@ import { trackScreen, trackEvent } from '../services/enhancedAnalyticsService';
 import { motivationalNotificationService } from '../services/motivationalNotificationService';
 import BadgeShowcase from '../components/profile/BadgeShowcase';
 import { validateUsername, isUsernameAvailable, reserveUsername, releaseUsername } from '../utils/usernameUtils';
+import FeedbackModal from '../components/feedback/FeedbackModal';
 
 export default function ProfileScreen() {
   const { user, isAuthenticated, logout, updateUserProfile } = useAuth();
@@ -24,6 +25,7 @@ export default function ProfileScreen() {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [editedName, setEditedName] = useState(user?.displayName || '');
   const [editedEmail, setEditedEmail] = useState(user?.email || '');
   const [editedUsername, setEditedUsername] = useState(user?.username || '');
@@ -403,6 +405,12 @@ export default function ProfileScreen() {
             <Text style={styles.menuText}>Learn & Insights</Text>
             <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
           </TouchableOpacity>
+
+          <TouchableOpacity style={styles.menuItem} onPress={() => setShowFeedbackModal(true)}>
+            <Ionicons name="chatbubble-ellipses-outline" size={24} color={Colors.primaryText} />
+            <Text style={styles.menuText}>Send Feedback</Text>
+            <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.menuSection}>
@@ -699,6 +707,15 @@ export default function ProfileScreen() {
           </ScrollView>
         </SafeAreaView>
       </Modal>
+
+      {/* Feedback Modal */}
+      <FeedbackModal
+        visible={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+        userId={user?.id}
+        userName={user?.displayName}
+        source="profile"
+      />
     </SafeAreaView>
   );
 }

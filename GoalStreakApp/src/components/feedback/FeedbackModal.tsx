@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+// FeedbackModal — Star rating + text feedback, saves to Firestore
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -7,258 +8,170 @@ import {
   TouchableOpacity,
   TextInput,
   Alert,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { SlideInUp } from 'react-native-reanimated';
-import { Colors, Typography, Spacing } from '../../constants/theme';
-import { trackEvent } from '../../services/enhancedAnalyticsService';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../services/firebase';
+import { Colors } from '../../constants/theme';
 
 interface FeedbackModalProps {
   visible: boolean;
   onClose: () => void;
-  onSubmit: (feedback: FeedbackData) => void;
-  trigger?: 'rating_prompt' | 'manual' | 'bug_report' | 'feature_request';
+  userId?: string;
+  userName?: string;
+  source?: 'profile' | 'milestone' | 'prompt';
 }
 
-interface FeedbackData {
-  rating: number;
-  category: FeedbackCategory;
-  description: string;
-  email?: string;
-  includeDeviceInfo: boolean;
-}
+const STAR_LABELS = ['', 'Needs Work', 'Okay', 'Good', 'Great', 'Love It!'];
 
-type FeedbackCategory = 'bug' | 'feature' | 'improvement' | 'praise' | 'other';
-
-const feedbackCategories = [
-  { id: 'bug' as FeedbackCategory, label: 'Bug Report', icon: 'bug', color: '#FF6B6B' },
-  { id: 'feature' as FeedbackCategory, label: 'Feature Request', icon: 'bulb', color: '#4ECDC4' },
-  { id: 'improvement' as FeedbackCategory, label: 'Improvement', icon: 'trending-up', color: '#45B7D1' },
-  { id: 'praise' as FeedbackCategory, label: 'Praise', icon: 'heart', color: '#96CEB4' },
-  { id: 'other' as FeedbackCategory, label: 'Other', icon: 'chatbubble', color: '#FFEAA7' },
-];
-
-export default function FeedbackModal({ visible, onClose, onSubmit, trigger = 'manual' }: FeedbackModalProps) {
+export default function FeedbackModal({
+  visible,
+  onClose,
+  userId,
+  userName,
+  source = 'profile',
+}: FeedbackModalProps) {
   const [rating, setRating] = useState(0);
-  const [category, setCategory] = useState<FeedbackCategory>('improvement');
-  const [description, setDescription] = useState('');
-  const [email, setEmail] = useState('');
-  const [includeDeviceInfo, setIncludeDeviceInfo] = useState(true);
+  const [feedbackText, setFeedbackText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const isFormValid = useMemo(() => {
-    return rating > 0 && description.trim().length >= 10;
-  }, [rating, description]);
+  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = async () => {
-    if (!isFormValid) {
-      if (rating === 0) {
-        Alert.alert('Rating Required', 'Please provide a rating before submitting.');
-      } else if (description.trim().length < 10) {
-        Alert.alert('Description Too Short', 'Please provide more details about your feedback.');
-      }
+    if (rating === 0) {
+      Alert.alert('Rating Required', 'Please tap a star to rate your experience.');
       return;
     }
 
     setIsSubmitting(true);
-
     try {
-      const feedbackData: FeedbackData = {
+      await addDoc(collection(db, 'feedback'), {
+        userId: userId || 'anonymous',
+        userName: userName || 'Anonymous',
         rating,
-        category,
-        description: description.trim(),
-        email: email.trim() || undefined,
-        includeDeviceInfo,
-      };
-
-      // Track feedback submission
-      trackEvent('feedback_submitted', {
-        rating,
-        category,
-        trigger,
-        has_email: !!email.trim(),
-        description_length: description.trim().length,
+        text: feedbackText.trim() || null,
+        source,
+        createdAt: serverTimestamp(),
+        appVersion: '1.0.0',
+        platform: Platform.OS,
       });
 
-      onSubmit(feedbackData);
-      
-      // Reset form
-      setRating(0);
-      setCategory('improvement');
-      setDescription('');
-      setEmail('');
-      setIncludeDeviceInfo(true);
-      
-      onClose();
-      
-      Alert.alert(
-        'Thank You!',
-        'Your feedback has been submitted. We appreciate your input and will review it carefully.',
-        [{ text: 'OK' }]
-      );
+      setSubmitted(true);
     } catch (error) {
-      Alert.alert(
-        'Submission Failed',
-        'There was an error submitting your feedback. Please try again later.',
-        [{ text: 'OK' }]
-      );
+      console.error('Error submitting feedback:', error);
+      Alert.alert('Error', 'Failed to submit feedback. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const renderStarRating = () => (
-    <View style={styles.ratingContainer}>
-      <Text style={styles.ratingLabel}>How would you rate your experience?</Text>
-      <View style={styles.starsContainer}>
-        {[1, 2, 3, 4, 5].map((star) => (
-          <TouchableOpacity
-            key={star}
-            onPress={() => setRating(star)}
-            style={styles.starButton}
-          >
-            <Ionicons
-              name={star <= rating ? 'star' : 'star-outline'}
-              size={32}
-              color={star <= rating ? '#FFD700' : Colors.gray.light}
-            />
-          </TouchableOpacity>
-        ))}
-      </View>
-      {rating > 0 && (
-        <Text style={styles.ratingText}>
-          {rating === 1 && 'Poor'}
-          {rating === 2 && 'Fair'}
-          {rating === 3 && 'Good'}
-          {rating === 4 && 'Very Good'}
-          {rating === 5 && 'Excellent'}
-        </Text>
-      )}
-    </View>
-  );
-
-  const renderCategorySelection = () => (
-    <View style={styles.categoryContainer}>
-      <Text style={styles.categoryLabel}>What type of feedback is this?</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesScroll}>
-        {feedbackCategories.map((cat) => (
-          <TouchableOpacity
-            key={cat.id}
-            style={[
-              styles.categoryButton,
-              category === cat.id && styles.categoryButtonSelected,
-              { borderColor: cat.color },
-              category === cat.id && { backgroundColor: cat.color + '20' },
-            ]}
-            onPress={() => setCategory(cat.id)}
-          >
-            <Ionicons
-              name={cat.icon as keyof typeof Ionicons.glyphMap}
-              size={20}
-              color={category === cat.id ? cat.color : Colors.gray.medium}
-            />
-            <Text
-              style={[
-                styles.categoryButtonText,
-                category === cat.id && { color: cat.color },
-              ]}
-            >
-              {cat.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    </View>
-  );
+  const handleClose = () => {
+    // Reset state after closing
+    setTimeout(() => {
+      setRating(0);
+      setFeedbackText('');
+      setSubmitted(false);
+    }, 300);
+    onClose();
+  };
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
-      <View style={styles.overlay}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.keyboardAvoid}
-        >
-          <Animated.View entering={SlideInUp} style={styles.modal}>
-            <View style={styles.header}>
-              <Text style={styles.title}>Share Your Feedback</Text>
-              <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                <Ionicons name="close" size={24} color={Colors.gray.medium} />
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent
+      onRequestClose={handleClose}
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.overlay}
+      >
+        <TouchableOpacity style={styles.backdrop} activeOpacity={1} onPress={handleClose} />
+
+        <View style={styles.sheet}>
+          <View style={styles.handleBar} />
+
+          {submitted ? (
+            /* ── Thank You State ── */
+            <View style={styles.thankYou}>
+              <View style={styles.thankYouIcon}>
+                <Ionicons name="heart" size={40} color={Colors.accent1} />
+              </View>
+              <Text style={styles.thankYouTitle}>Thank you! 💜</Text>
+              <Text style={styles.thankYouText}>
+                Your feedback helps us make Goalfer better for everyone.
+              </Text>
+              <TouchableOpacity style={styles.doneButton} onPress={handleClose}>
+                <Text style={styles.doneButtonText}>Done</Text>
               </TouchableOpacity>
             </View>
+          ) : (
+            /* ── Feedback Form ── */
+            <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+              <Text style={styles.title}>How's your experience?</Text>
+              <Text style={styles.subtitle}>
+                We'd love to hear what you think of Goalfer
+              </Text>
 
-            <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-              {renderStarRating()}
-              {renderCategorySelection()}
-
-              <View style={styles.descriptionContainer}>
-                <Text style={styles.descriptionLabel}>Tell us more</Text>
-                <TextInput
-                  style={styles.descriptionInput}
-                  multiline
-                  numberOfLines={4}
-                  placeholder="Please describe your feedback in detail..."
-                  placeholderTextColor={Colors.gray.medium}
-                  value={description}
-                  onChangeText={setDescription}
-                  textAlignVertical="top"
-                />
+              {/* Star Rating */}
+              <View style={styles.starsSection}>
+                <View style={styles.starsRow}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <TouchableOpacity
+                      key={star}
+                      onPress={() => setRating(star)}
+                      style={styles.starButton}
+                      accessibilityLabel={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                      accessibilityRole="button"
+                    >
+                      <Ionicons
+                        name={star <= rating ? 'star' : 'star-outline'}
+                        size={40}
+                        color={star <= rating ? '#FFD700' : Colors.gray.medium}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                {rating > 0 && (
+                  <Text style={styles.starLabel}>{STAR_LABELS[rating]}</Text>
+                )}
               </View>
 
-              <View style={styles.emailContainer}>
-                <Text style={styles.emailLabel}>Email (optional)</Text>
-                <TextInput
-                  style={styles.emailInput}
-                  placeholder="your@email.com"
-                  placeholderTextColor={Colors.gray.medium}
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                />
-                <Text style={styles.emailHint}>
-                  We'll only use this to follow up on your feedback
-                </Text>
-              </View>
+              {/* Text Feedback */}
+              <TextInput
+                style={styles.textInput}
+                placeholder="What could we improve? Any features you'd love to see?"
+                placeholderTextColor={Colors.secondaryText}
+                value={feedbackText}
+                onChangeText={setFeedbackText}
+                multiline
+                maxLength={500}
+                textAlignVertical="top"
+              />
+              <Text style={styles.charCount}>{feedbackText.length}/500</Text>
 
-              <TouchableOpacity
-                style={styles.deviceInfoContainer}
-                onPress={() => setIncludeDeviceInfo(!includeDeviceInfo)}
-              >
-                <Ionicons
-                  name={includeDeviceInfo ? 'checkbox' : 'square-outline'}
-                  size={20}
-                  color={Colors.accent1}
-                />
-                <Text style={styles.deviceInfoText}>
-                  Include device information to help us debug issues
-                </Text>
-              </TouchableOpacity>
+              {/* Actions */}
+              <View style={styles.actions}>
+                <TouchableOpacity style={styles.cancelButton} onPress={handleClose}>
+                  <Text style={styles.cancelText}>Not Now</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.submitButton, rating === 0 && styles.submitButtonDisabled]}
+                  onPress={handleSubmit}
+                  disabled={rating === 0 || isSubmitting}
+                >
+                  <Ionicons name="send" size={16} color={Colors.white} />
+                  <Text style={styles.submitText}>
+                    {isSubmitting ? 'Sending...' : 'Send Feedback'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </ScrollView>
-
-            <View style={styles.footer}>
-              <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity
-                style={[
-                  styles.submitButton,
-                  !isFormValid && styles.submitButtonDisabled,
-                ]}
-                onPress={handleSubmit}
-                disabled={isSubmitting || !isFormValid}
-              >
-                <Text style={styles.submitButtonText}>
-                  {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
-        </KeyboardAvoidingView>
-      </View>
+          )}
+        </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -266,166 +179,158 @@ export default function FeedbackModal({ visible, onClose, onSubmit, trigger = 'm
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-end',
   },
-  keyboardAvoid: {
-    width: '100%',
-    alignItems: 'center',
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
   },
-  modal: {
+  sheet: {
     backgroundColor: Colors.white,
-    borderRadius: 16,
-    width: '90%',
-    maxWidth: 400,
-    maxHeight: '80%',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 24,           // 8 × 3 (comfortable)
+    paddingBottom: 40,               // safe area
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: Spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.gray.light,
+  handleBar: {
+    width: 40,                       // 8 × 5
+    height: 4,
+    backgroundColor: Colors.gray.light,
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginTop: 12,                   // 8 × 1.5
+    marginBottom: 24,                // 8 × 3 (comfortable)
   },
   title: {
-    ...Typography.h3,
+    fontSize: 22,                    // between subheading and heading
+    fontWeight: '700',               // bold
     color: Colors.primaryText,
+    textAlign: 'center',
+    marginBottom: 4,
   },
-  closeButton: {
-    padding: 4,
+  subtitle: {
+    fontSize: 15,                    // body-ish
+    color: Colors.secondaryText,
+    textAlign: 'center',
+    marginBottom: 24,                // 8 × 3 (comfortable)
   },
-  content: {
-    flex: 1,
-    padding: Spacing.lg,
-  },
-  ratingContainer: {
+  // Stars
+  starsSection: {
     alignItems: 'center',
-    marginBottom: Spacing.xl,
+    marginBottom: 24,                // 8 × 3 (comfortable)
   },
-  ratingLabel: {
-    ...Typography.body,
-    color: Colors.primaryText,
-    marginBottom: Spacing.md,
-  },
-  starsContainer: {
+  starsRow: {
     flexDirection: 'row',
-    marginBottom: Spacing.sm,
+    gap: 8,                          // 8 × 1 (tight)
   },
   starButton: {
     padding: 4,
-  },
-  ratingText: {
-    ...Typography.caption,
-    color: Colors.gray.medium,
-  },
-  categoryContainer: {
-    marginBottom: Spacing.xl,
-  },
-  categoryLabel: {
-    ...Typography.body,
-    color: Colors.primaryText,
-    marginBottom: Spacing.md,
-  },
-  categoriesScroll: {
-    flexGrow: 0,
-  },
-  categoryButton: {
-    flexDirection: 'row',
+    minWidth: 48,                    // 8 × 6 (touch target)
+    minHeight: 48,                   // 8 × 6 (touch target)
     alignItems: 'center',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: Colors.gray.light,
-    marginRight: Spacing.sm,
-    backgroundColor: Colors.white,
+    justifyContent: 'center',
   },
-  categoryButtonSelected: {
-    borderWidth: 2,
+  starLabel: {
+    fontSize: 14,                    // caption
+    fontWeight: '600',               // semibold
+    color: Colors.accent1,
+    marginTop: 8,                    // 8 × 1 (tight)
   },
-  categoryButtonText: {
-    ...Typography.caption,
-    color: Colors.gray.medium,
-    marginLeft: Spacing.xs,
-  },
-  descriptionContainer: {
-    marginBottom: Spacing.lg,
-  },
-  descriptionLabel: {
-    ...Typography.body,
+  // Text input
+  textInput: {
+    fontSize: 15,                    // body-ish
     color: Colors.primaryText,
-    marginBottom: Spacing.sm,
+    backgroundColor: Colors.background,
+    borderRadius: 12,
+    padding: 16,                     // 8 × 2 (base)
+    minHeight: 100,                  // ~4 lines
+    maxHeight: 160,
+    lineHeight: 22,
+    marginBottom: 4,
   },
-  descriptionInput: {
-    borderWidth: 1,
-    borderColor: Colors.gray.light,
-    borderRadius: 8,
-    padding: Spacing.md,
-    ...Typography.body,
-    color: Colors.primaryText,
-    minHeight: 100,
+  charCount: {
+    fontSize: 12,                    // small
+    color: Colors.secondaryText,
+    textAlign: 'right',
+    marginBottom: 24,                // 8 × 3 (comfortable)
   },
-  emailContainer: {
-    marginBottom: Spacing.lg,
-  },
-  emailLabel: {
-    ...Typography.body,
-    color: Colors.primaryText,
-    marginBottom: Spacing.sm,
-  },
-  emailInput: {
-    borderWidth: 1,
-    borderColor: Colors.gray.light,
-    borderRadius: 8,
-    padding: Spacing.md,
-    ...Typography.body,
-    color: Colors.primaryText,
-  },
-  emailHint: {
-    ...Typography.caption,
-    color: Colors.gray.medium,
-    marginTop: Spacing.xs,
-  },
-  deviceInfoContainer: {
+  // Actions
+  actions: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.lg,
-  },
-  deviceInfoText: {
-    ...Typography.caption,
-    color: Colors.gray.dark,
-    marginLeft: Spacing.sm,
-    flex: 1,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: Spacing.lg,
-    borderTopWidth: 1,
-    borderTopColor: Colors.gray.light,
+    gap: 12,                         // 8 × 1.5
+    marginBottom: 8,                 // 8 × 1 (tight)
   },
   cancelButton: {
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
+    paddingVertical: 14,
+    paddingHorizontal: 20,           // 8 × 2.5
+    borderRadius: 24,                // pill
+    backgroundColor: Colors.gray.light,
+    minHeight: 48,                   // 8 × 6 (touch target)
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  cancelButtonText: {
-    ...Typography.body,
-    color: Colors.gray.medium,
+  cancelText: {
+    fontSize: 16,                    // body
+    fontWeight: '500',               // medium
+    color: Colors.secondaryText,
   },
   submitButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,                          // 8 × 1 (tight)
+    paddingVertical: 14,
+    borderRadius: 24,                // pill
     backgroundColor: Colors.accent1,
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.md,
-    borderRadius: 8,
+    minHeight: 48,                   // 8 × 6 (touch target)
   },
   submitButtonDisabled: {
-    backgroundColor: Colors.gray.light,
+    backgroundColor: Colors.gray.medium,
   },
-  submitButtonText: {
-    ...Typography.body,
-    fontWeight: Typography.fontWeight.semibold,
+  submitText: {
+    fontSize: 16,                    // body
+    fontWeight: '600',               // semibold
+    color: Colors.white,
+  },
+  // Thank you state
+  thankYou: {
+    alignItems: 'center',
+    paddingVertical: 32,             // 8 × 4 (loose)
+  },
+  thankYouIcon: {
+    width: 80,                       // 8 × 10
+    height: 80,                      // 8 × 10
+    borderRadius: 40,
+    backgroundColor: Colors.accent1 + '15',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,                // 8 × 2 (base)
+  },
+  thankYouTitle: {
+    fontSize: 22,
+    fontWeight: '700',               // bold
+    color: Colors.primaryText,
+    marginBottom: 8,                 // 8 × 1 (tight)
+  },
+  thankYouText: {
+    fontSize: 15,
+    color: Colors.secondaryText,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 24,                // 8 × 3 (comfortable)
+    paddingHorizontal: 16,           // 8 × 2 (base)
+  },
+  doneButton: {
+    paddingVertical: 14,
+    paddingHorizontal: 48,           // 8 × 6
+    borderRadius: 24,                // pill
+    backgroundColor: Colors.accent1,
+    minHeight: 48,                   // 8 × 6 (touch target)
+  },
+  doneButtonText: {
+    fontSize: 16,                    // body
+    fontWeight: '600',               // semibold
     color: Colors.white,
   },
 });

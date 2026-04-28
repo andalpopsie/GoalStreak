@@ -1,5 +1,5 @@
 // AnalyticsScreen - Comprehensive habit analytics dashboard
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors, Typography } from '../constants/theme';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { StatsOverview, ProgressChart, InsightsCard, MilestoneCelebration, MotivationalSummary, StreakHero, WeeklyActivityDots } from '../components/analytics';
@@ -16,6 +17,7 @@ import { useMilestones } from '../hooks/useMilestones';
 import { trackScreen, trackEvent, trackFeature } from '../services/enhancedAnalyticsService';
 import { useAuth } from '../hooks/useAuth';
 import { useHabits } from '../hooks/useHabits';
+import FeedbackModal from '../components/feedback/FeedbackModal';
 
 // Helper function to get performance color
 const getPerformanceColor = (rate: number) => {
@@ -58,7 +60,23 @@ export default function AnalyticsScreen() {
     closeCelebration,
   } = useMilestones();
 
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+
   const currentPeriodAnalytics = getCurrentPeriodAnalytics();
+
+  // Handle milestone close — show feedback prompt for 7-day streak (one-time)
+  const handleMilestoneClose = async () => {
+    closeCelebration();
+
+    if (currentMilestone?.type === 'streak' && currentMilestone?.value === 7) {
+      const hasShownFeedback = await AsyncStorage.getItem('@goalfer_feedback_shown');
+      if (!hasShownFeedback) {
+        await AsyncStorage.setItem('@goalfer_feedback_shown', 'true');
+        // Small delay so celebration dismisses first
+        setTimeout(() => setShowFeedbackModal(true), 500);
+      }
+    }
+  };
 
   // Compute streak data for hero card
   const currentStreak = habitAnalytics.length > 0
@@ -321,7 +339,16 @@ export default function AnalyticsScreen() {
       <MilestoneCelebration
         visible={showCelebration}
         milestone={currentMilestone}
-        onClose={closeCelebration}
+        onClose={handleMilestoneClose}
+      />
+
+      {/* Feedback Modal — triggered after 7-day streak or from profile */}
+      <FeedbackModal
+        visible={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+        userId={user?.id}
+        userName={user?.displayName}
+        source="milestone"
       />
     </>
   );

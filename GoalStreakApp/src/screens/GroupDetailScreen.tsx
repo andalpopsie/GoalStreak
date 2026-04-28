@@ -9,6 +9,8 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
+  Image,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
@@ -62,6 +64,7 @@ export default function GroupDetailScreen() {
   const [showLinkHabits, setShowLinkHabits] = useState(false);
   const [showInviteMembers, setShowInviteMembers] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showMemberList, setShowMemberList] = useState(false);
   const [feedDisplayCount, setFeedDisplayCount] = useState(FEED_PAGE_SIZE);
 
   // Set header title
@@ -150,6 +153,44 @@ export default function GroupDetailScreen() {
           <Text style={styles.summaryLabel}>Habits</Text>
         </View>
       </View>
+
+      {/* Member Avatars Row */}
+      <TouchableOpacity
+        style={styles.membersRow}
+        onPress={() => setShowMemberList(true)}
+        activeOpacity={0.7}
+        accessibilityLabel={`View ${group.members.length} group members`}
+        accessibilityRole="button"
+      >
+        <View style={styles.avatarStack}>
+          {group.members.slice(0, 5).map((member, index) => (
+            <View
+              key={member.userId}
+              style={[
+                styles.stackedAvatar,
+                { marginLeft: index === 0 ? 0 : -10 },
+                { zIndex: group.members.length - index },
+              ]}
+            >
+              <Text style={styles.stackedAvatarText}>
+                {member.userName.charAt(0).toUpperCase()}
+              </Text>
+            </View>
+          ))}
+          {group.members.length > 5 && (
+            <View style={[styles.stackedAvatar, styles.stackedAvatarMore, { marginLeft: -10 }]}>
+              <Text style={styles.stackedAvatarMoreText}>+{group.members.length - 5}</Text>
+            </View>
+          )}
+        </View>
+        <View style={styles.membersInfo}>
+          <Text style={styles.membersNames} numberOfLines={1}>
+            {group.members.slice(0, 3).map(m => m.userName.split(' ')[0]).join(', ')}
+            {group.members.length > 3 ? ` +${group.members.length - 3} more` : ''}
+          </Text>
+        </View>
+        <Ionicons name="chevron-forward" size={16} color={Colors.gray.medium} />
+      </TouchableOpacity>
 
       {/* Action Buttons */}
       <View style={styles.actionsRow}>
@@ -297,6 +338,53 @@ export default function GroupDetailScreen() {
           onEndGroup={endGroup}
         />
       )}
+
+      {/* Member List Modal */}
+      <Modal
+        visible={showMemberList}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowMemberList(false)}
+      >
+        <TouchableOpacity
+          style={styles.memberModalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowMemberList(false)}
+        >
+          <TouchableOpacity activeOpacity={1} style={styles.memberModalSheet}>
+            <View style={styles.memberModalHandle} />
+            <View style={styles.memberModalHeader}>
+              <Text style={styles.memberModalTitle}>Members ({group?.members.length})</Text>
+              <TouchableOpacity onPress={() => setShowMemberList(false)}>
+                <Ionicons name="close" size={24} color={Colors.primaryText} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.memberModalList} showsVerticalScrollIndicator={false}>
+              {group?.members.map((member) => (
+                <View key={member.userId} style={styles.memberRow}>
+                  <View style={[
+                    styles.memberAvatar,
+                    member.role === 'admin' && styles.memberAvatarAdmin,
+                  ]}>
+                    <Text style={styles.memberAvatarText}>
+                      {member.userName.charAt(0).toUpperCase()}
+                    </Text>
+                  </View>
+                  <View style={styles.memberDetails}>
+                    <Text style={styles.memberName}>{member.userName}</Text>
+                    {member.role === 'admin' && (
+                      <Text style={styles.memberRole}>Admin</Text>
+                    )}
+                  </View>
+                  {member.userId === user?.id && (
+                    <Text style={styles.memberYou}>You</Text>
+                  )}
+                </View>
+              ))}
+            </ScrollView>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 }
@@ -379,6 +467,136 @@ const styles = StyleSheet.create({
     width: 1,
     height: 32,                         // 8 × 4
     backgroundColor: Colors.gray.light,
+  },
+  // ── Member Avatars Row ──
+  membersRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,             // 8 × 2 (base)
+    paddingVertical: 12,               // 8 × 1.5
+    backgroundColor: Colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.gray.light,
+    gap: 12,                           // 8 × 1.5
+  },
+  avatarStack: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  stackedAvatar: {
+    width: 36,                         // 8 × 4.5
+    height: 36,                        // 8 × 4.5
+    borderRadius: 18,
+    backgroundColor: Colors.accent1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: Colors.white,
+  },
+  stackedAvatarText: {
+    fontSize: 14,                      // caption
+    fontWeight: '600',                 // semibold
+    color: Colors.white,
+  },
+  stackedAvatarMore: {
+    backgroundColor: Colors.gray.medium,
+  },
+  stackedAvatarMoreText: {
+    fontSize: 11,                      // small
+    fontWeight: '700',                 // bold
+    color: Colors.white,
+  },
+  membersInfo: {
+    flex: 1,
+  },
+  membersNames: {
+    fontSize: 14,                      // caption
+    color: Colors.secondaryText,
+  },
+  // ── Member List Modal ──
+  memberModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  memberModalSheet: {
+    backgroundColor: Colors.white,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '60%',
+    paddingBottom: 40,                 // safe area
+  },
+  memberModalHandle: {
+    width: 40,                         // 8 × 5
+    height: 4,
+    backgroundColor: Colors.gray.light,
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginTop: 12,                     // 8 × 1.5
+  },
+  memberModalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,             // 8 × 2 (base)
+    paddingVertical: 16,               // 8 × 2 (base)
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.gray.light,
+  },
+  memberModalTitle: {
+    fontSize: 18,                      // large body
+    fontWeight: '600',                 // semibold
+    color: Colors.primaryText,
+  },
+  memberModalList: {
+    paddingHorizontal: 16,             // 8 × 2 (base)
+  },
+  memberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,               // 8 × 1.5
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.gray.light,
+  },
+  memberAvatar: {
+    width: 44,                         // 8 × 5.5
+    height: 44,                        // 8 × 5.5
+    borderRadius: 22,
+    backgroundColor: Colors.accent3,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,                   // 8 × 1.5
+  },
+  memberAvatarAdmin: {
+    backgroundColor: Colors.accent1,
+  },
+  memberAvatarText: {
+    fontSize: 18,                      // large body
+    fontWeight: '600',                 // semibold
+    color: Colors.white,
+  },
+  memberDetails: {
+    flex: 1,
+  },
+  memberName: {
+    fontSize: 16,                      // body
+    fontWeight: '500',                 // medium
+    color: Colors.primaryText,
+  },
+  memberRole: {
+    fontSize: 12,                      // small
+    color: Colors.accent1,
+    fontWeight: '600',                 // semibold
+    marginTop: 2,
+  },
+  memberYou: {
+    fontSize: 12,                      // small
+    color: Colors.secondaryText,
+    fontWeight: '500',                 // medium
+    backgroundColor: Colors.gray.light,
+    paddingHorizontal: 8,              // 8 × 1 (tight)
+    paddingVertical: 2,
+    borderRadius: 8,
   },
   actionsRow: {
     flexDirection: 'row',
