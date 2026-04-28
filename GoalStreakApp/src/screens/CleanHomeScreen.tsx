@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -63,6 +63,7 @@ export default function CleanHomeScreen({ navigation }: any) {
   const { user } = useAuth();
   const {
     habits,
+    uniqueDailyHabits,
     isLoading,
     isCompleting,
     completeHabit,
@@ -71,7 +72,7 @@ export default function CleanHomeScreen({ navigation }: any) {
     getHabitStreak,
     refreshHabits,
     deleteHabit,
-  } = useHabitsWithSocial(); // Re-enabled social features with improved error handling
+  } = useHabitsWithSocial();
   const networkStatus = useNetworkStatus();
 
   // Share modal state
@@ -95,25 +96,7 @@ export default function CleanHomeScreen({ navigation }: any) {
     }
   }, [habits.length, user?.id]);
 
-  const todayHabits = habits.filter(habit => habit.frequency === 'daily');
-  
-  // Memoize deduplication for performance
-  const uniqueHabits = useMemo(() => {
-    return todayHabits.reduce((acc, current) => {
-      const existingIndex = acc.findIndex(habit => habit.name.toLowerCase() === current.name.toLowerCase());
-      if (existingIndex >= 0) {
-        // Keep the more recent habit
-        if (current.createdAt > acc[existingIndex].createdAt) {
-          acc[existingIndex] = current;
-        }
-      } else {
-        acc.push(current);
-      }
-      return acc;
-    }, [] as typeof todayHabits);
-  }, [todayHabits]);
-  
-  const completedToday = uniqueHabits.filter(habit => isHabitCompletedToday(habit.id));
+  const completedToday = uniqueDailyHabits.filter(habit => isHabitCompletedToday(habit.id));
 
   const handleToggleHabit = async (habitId: string) => {
     try {
@@ -164,15 +147,15 @@ export default function CleanHomeScreen({ navigation }: any) {
   const navigateToCreateHabit = () => {
     // Track navigation attempt
     trackEvent('create_habit_button_clicked', {
-      current_habit_count: uniqueHabits.length,
+      current_habit_count: uniqueDailyHabits.length,
       user_id: user?.id
     });
     
     // Check habit limit before navigation
-    if (uniqueHabits.length >= LIMITS.MAX_HABITS) {
+    if (uniqueDailyHabits.length >= LIMITS.MAX_HABITS) {
       // Track limit reached
       trackEvent('habit_limit_reached', {
-        current_habit_count: uniqueHabits.length,
+        current_habit_count: uniqueDailyHabits.length,
         limit: LIMITS.MAX_HABITS,
         user_id: user?.id
       });
@@ -188,7 +171,7 @@ export default function CleanHomeScreen({ navigation }: any) {
     try {
       // Track successful navigation
       trackEvent('navigate_to_create_habit', {
-        current_habit_count: uniqueHabits.length,
+        current_habit_count: uniqueDailyHabits.length,
         user_id: user?.id
       });
       navigation.navigate('CreateHabit');
@@ -246,10 +229,10 @@ export default function CleanHomeScreen({ navigation }: any) {
         testID="scroll-view"
       >
         {/* Today's Progress */}
-        {uniqueHabits.length > 0 && (
+        {uniqueDailyHabits.length > 0 && (
           <View style={styles.progressSection}>
             <Text style={styles.progressText}>
-              {completedToday.length} of {uniqueHabits.length} daily habits completed today
+              {completedToday.length} of {uniqueDailyHabits.length} daily habits completed today
             </Text>
           </View>
         )}
@@ -262,7 +245,7 @@ export default function CleanHomeScreen({ navigation }: any) {
               <SkeletonHabitCard key={index} />
             ))}
           </View>
-        ) : uniqueHabits.length === 0 ? (
+        ) : uniqueDailyHabits.length === 0 ? (
           /* Show empty state when no habits */
           <View testID="empty-habits-state">
             <EmptyHabitsState onCreateHabit={navigateToCreateHabit} />
@@ -270,7 +253,7 @@ export default function CleanHomeScreen({ navigation }: any) {
         ) : (
           <Animated.View style={styles.habitsGrid} entering={FadeIn.duration(600)}>
             {/* Show all habits once, regardless of completion status */}
-            {uniqueHabits.map((habit, index) => (
+            {uniqueDailyHabits.map((habit, index) => (
               <Animated.View 
                 key={habit.id}
                 entering={FadeInUp.delay(index * 100).duration(500)}
@@ -288,9 +271,9 @@ export default function CleanHomeScreen({ navigation }: any) {
             ))}
             
             {/* Add Habit Button - only show if under limit */}
-            {uniqueHabits.length < LIMITS.MAX_HABITS && (
+            {uniqueDailyHabits.length < LIMITS.MAX_HABITS && (
               <Animated.View 
-                entering={FadeInUp.delay(uniqueHabits.length * 100).duration(500)}
+                entering={FadeInUp.delay(uniqueDailyHabits.length * 100).duration(500)}
                 style={styles.habitCardContainer}
               >
                 <TouchableOpacity style={styles.addHabitCard} onPress={navigateToCreateHabit}>
@@ -303,9 +286,9 @@ export default function CleanHomeScreen({ navigation }: any) {
             )}
             
             {/* Habit Limit Reached Message */}
-            {uniqueHabits.length >= LIMITS.MAX_HABITS && (
+            {uniqueDailyHabits.length >= LIMITS.MAX_HABITS && (
               <Animated.View 
-                entering={FadeInUp.delay(uniqueHabits.length * 100).duration(500)}
+                entering={FadeInUp.delay(uniqueDailyHabits.length * 100).duration(500)}
                 style={styles.habitCardContainer}
               >
                 <View style={styles.limitReachedCard}>

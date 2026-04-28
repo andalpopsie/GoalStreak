@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as Notifications from 'expo-notifications';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
 import { auth } from '../services/firebase';
@@ -13,7 +12,7 @@ import { useFriends } from '../hooks/useFriends';
 import { photoService } from '../services/photoService';
 import { openPrivacyPolicy, openTermsOfService, openSupport } from '../utils/linkingUtils';
 import { trackScreen, trackEvent } from '../services/enhancedAnalyticsService';
-import { motivationalNotificationService } from '../services/motivationalNotificationService';
+import { motivationalNotificationService, notificationPreferencesService, AppNotificationPreferences } from '../services/motivationalNotificationService';
 import BadgeShowcase from '../components/profile/BadgeShowcase';
 import { validateUsername, isUsernameAvailable, reserveUsername, releaseUsername } from '../utils/usernameUtils';
 import FeedbackModal from '../components/feedback/FeedbackModal';
@@ -43,17 +42,17 @@ export default function ProfileScreen() {
     ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
     : '';
 
-  const [notificationSettings, setNotificationSettings] = useState({
+  const [notificationSettings, setNotificationSettings] = useState<AppNotificationPreferences>({
     enabled: true,
     sound: true,
     badge: true,
     dailyReminder: true,
     streakAlerts: true,
-    dailyMotivation: false, // Daily motivational notifications
-    inactivityNudges: true, // Playful nudges when inactive
-    friendRequests: true, // Friend request notifications
-    comments: true, // Comment notifications
-    reactions: true, // Reaction notifications
+    dailyMotivation: false,
+    inactivityNudges: true,
+    friendRequests: true,
+    comments: true,
+    reactions: true,
   });
 
   useEffect(() => {
@@ -94,28 +93,17 @@ export default function ProfileScreen() {
 
   const loadNotificationSettings = async () => {
     try {
-      const saved = await AsyncStorage.getItem('notificationSettings');
-      if (saved) {
-        setNotificationSettings(JSON.parse(saved));
-      }
+      const prefs = await notificationPreferencesService.load();
+      setNotificationSettings(prefs);
     } catch (error) {
       console.error('Error loading notification settings:', error);
     }
   };
 
-  const saveNotificationSettings = async (newSettings: typeof notificationSettings) => {
+  const saveNotificationSettings = async (newSettings: AppNotificationPreferences) => {
     try {
-      await AsyncStorage.setItem('notificationSettings', JSON.stringify(newSettings));
       setNotificationSettings(newSettings);
-      
-      // Handle daily motivation notifications
-      if (newSettings.dailyMotivation) {
-        await motivationalNotificationService.scheduleDailyNotification(9, 0); // 9:00 AM default
-      } else {
-        await motivationalNotificationService.cancelDailyNotification();
-      }
-
-      // Inactivity nudges handled by service
+      await notificationPreferencesService.save(newSettings);
     } catch (error) {
       console.error('Error saving notification settings:', error);
     }

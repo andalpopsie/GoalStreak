@@ -1,5 +1,5 @@
 // useHabitsWithSocial - Combines habit tracking with social features
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useHabits } from './useHabits';
 import { useFriends } from './useFriends';
 import { useAuth } from './useAuth';
@@ -9,6 +9,24 @@ export const useHabitsWithSocial = () => {
   const habitsHook = useHabits();
   const { shareHabitCompletion, shareStreakMilestone, socialSettings } = useFriends();
   const { user } = useAuth();
+
+  // Deduplicated daily habits — keeps the most recent when names collide
+  const uniqueDailyHabits = useMemo(() => {
+    const dailyHabits = habitsHook.habits.filter(h => h.frequency === 'daily');
+    return dailyHabits.reduce((acc, current) => {
+      const existingIndex = acc.findIndex(
+        habit => habit.name.toLowerCase() === current.name.toLowerCase()
+      );
+      if (existingIndex >= 0) {
+        if (current.createdAt > acc[existingIndex].createdAt) {
+          acc[existingIndex] = current;
+        }
+      } else {
+        acc.push(current);
+      }
+      return acc;
+    }, [] as typeof dailyHabits);
+  }, [habitsHook.habits]);
 
   // Enhanced complete habit with social sharing
   const completeHabitWithSharing = useCallback(async (
@@ -101,6 +119,7 @@ export const useHabitsWithSocial = () => {
 
   return {
     ...habitsHook,
+    uniqueDailyHabits,
     completeHabit: completeHabitWithSharing,
     createHabit: createHabitWithSharing,
     socialSettings,

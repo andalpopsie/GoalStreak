@@ -1,5 +1,4 @@
-    eiifcbncigvcdhgvlcjcgkrnredufdnkhjvbnrhbrdcf
-    #W` ` `1  #   `   ` Implementation Plan: Accountability Groups
+# Implementation Plan: Accountability Groups
 
 ## Overview
 

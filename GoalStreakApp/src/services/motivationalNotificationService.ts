@@ -401,3 +401,73 @@ export const motivationalNotificationService = {
     }
   },
 };
+
+// --- App-wide notification preferences (single source of truth) ---
+
+const APP_NOTIFICATION_PREFS_KEY = '@goalstreak_notification_preferences';
+
+export interface AppNotificationPreferences {
+  enabled: boolean;
+  sound: boolean;
+  badge: boolean;
+  dailyReminder: boolean;
+  streakAlerts: boolean;
+  dailyMotivation: boolean;
+  inactivityNudges: boolean;
+  friendRequests: boolean;
+  comments: boolean;
+  reactions: boolean;
+}
+
+const DEFAULT_NOTIFICATION_PREFS: AppNotificationPreferences = {
+  enabled: true,
+  sound: true,
+  badge: true,
+  dailyReminder: true,
+  streakAlerts: true,
+  dailyMotivation: false,
+  inactivityNudges: true,
+  friendRequests: true,
+  comments: true,
+  reactions: true,
+};
+
+export const notificationPreferencesService = {
+  async load(): Promise<AppNotificationPreferences> {
+    try {
+      // Try new key first, fall back to legacy key for migration
+      let saved = await AsyncStorage.getItem(APP_NOTIFICATION_PREFS_KEY);
+      if (!saved) {
+        saved = await AsyncStorage.getItem('notificationSettings');
+        if (saved) {
+          // Migrate legacy data to new key
+          await AsyncStorage.setItem(APP_NOTIFICATION_PREFS_KEY, saved);
+          await AsyncStorage.removeItem('notificationSettings');
+        }
+      }
+      if (saved) {
+        return { ...DEFAULT_NOTIFICATION_PREFS, ...JSON.parse(saved) };
+      }
+      return DEFAULT_NOTIFICATION_PREFS;
+    } catch (error) {
+      console.error('Error loading notification preferences:', error);
+      return DEFAULT_NOTIFICATION_PREFS;
+    }
+  },
+
+  async save(prefs: AppNotificationPreferences): Promise<void> {
+    try {
+      await AsyncStorage.setItem(APP_NOTIFICATION_PREFS_KEY, JSON.stringify(prefs));
+
+      // Sync daily motivation toggle with the scheduling service
+      if (prefs.dailyMotivation) {
+        await motivationalNotificationService.scheduleDailyNotification(9, 0);
+      } else {
+        await motivationalNotificationService.cancelDailyNotification();
+      }
+    } catch (error) {
+      console.error('Error saving notification preferences:', error);
+      throw error;
+    }
+  },
+};
