@@ -62,12 +62,20 @@ const welcomeSlides: WelcomeSlide[] = [
     color: Colors.accent2,
   },
   {
+    id: 'groups',
+    title: 'Accountability Groups & Chat',
+    description: 'Form small groups around shared goals, track progress together, and chat in real time',
+    icon: 'chatbubbles',
+    benefits: ['Group challenges', 'Live group chat', 'Shared habit tracking'],
+    color: Colors.accent3,
+  },
+  {
     id: 'analytics',
     title: 'Track Your Progress',
     description: 'Get insights into your habits with comprehensive analytics and trend analysis',
     icon: 'analytics',
     benefits: ['Progress charts', 'Streak insights', 'Personal records'],
-    color: Colors.accent3,
+    color: Colors.accent1,
   },
 ];
 
