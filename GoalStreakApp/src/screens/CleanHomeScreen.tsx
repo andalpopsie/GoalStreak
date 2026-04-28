@@ -394,11 +394,11 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.sm,
   },
   addHabitCircle: {
-    width: 140,
-    height: 140,
+    width: 140,                      // Match progressRing size
+    height: 140,                     // Match progressRing size
     borderRadius: 70,
     backgroundColor: Colors.white,
-    borderWidth: 12,
+    borderWidth: 12,                 // Match progressRing borderWidth
     borderColor: Colors.accent1,
     alignItems: 'center',
     justifyContent: 'center',
@@ -415,6 +415,7 @@ const styles = StyleSheet.create({
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
     textAlign: 'center',
+    lineHeight: Typography.fontSize.sm * 1.2,  // Match habitText lineHeight
   },
   limitReachedCard: {
     aspectRatio: 1,
