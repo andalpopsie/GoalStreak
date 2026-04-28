@@ -19,7 +19,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
   // Streak Achievements
   {
     id: 'first_streak',
-    title: '🔥 First Flame',
+    title: 'First Flame',
     description: 'Complete a habit 3 days in a row',
     icon: 'flame',
     color: '#FF9013',           // Other/Orange from palette
@@ -27,7 +27,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
   },
   {
     id: 'week_warrior',
-    title: '⭐ Week Warrior',
+    title: 'Week Warrior',
     description: 'Maintain a 7-day streak',
     icon: 'star',
     color: '#B771E5',           // Purple accent from palette
@@ -35,7 +35,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
   },
   {
     id: 'month_master',
-    title: '🏅 Month Master',
+    title: 'Month Master',
     description: 'Achieve a 30-day streak',
     icon: 'medal',
     color: '#4A90A4',           // Teal accent from palette
@@ -43,7 +43,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
   },
   {
     id: 'century_club',
-    title: '💯 Century Club',
+    title: 'Century Club',
     description: 'Reach a 100-day streak',
     icon: 'trophy',
     color: '#003161',           // Navy from palette
@@ -53,7 +53,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
   // Completion Achievements
   {
     id: 'first_step',
-    title: '👣 First Step',
+    title: 'First Step',
     description: 'Complete your first habit',
     icon: 'footsteps',
     color: '#48B3AF',           // Wellness teal from palette
@@ -61,7 +61,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
   },
   {
     id: 'perfect_week',
-    title: '✨ Perfect Week',
+    title: 'Perfect Week',
     description: 'Complete all habits for 7 days straight',
     icon: 'sparkles',
     color: '#B771E5',           // Purple accent from palette
@@ -69,7 +69,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
   },
   {
     id: 'habit_collector',
-    title: '📚 Habit Collector',
+    title: 'Habit Collector',
     description: 'Create 5 different habits',
     icon: 'albums',
     color: '#4A90A4',           // Teal accent from palette
@@ -79,7 +79,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
   // Social Achievements
   {
     id: 'social_butterfly',
-    title: '🦋 Social Butterfly',
+    title: 'Social Butterfly',
     description: 'Add your first friend',
     icon: 'people',
     color: '#B771E5',           // Purple accent from palette
@@ -87,7 +87,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
   },
   {
     id: 'cheerleader',
-    title: '📣 Cheerleader',
+    title: 'Cheerleader',
     description: 'React to 10 friend activities',
     icon: 'heart',
     color: '#FF9013',           // Other/Orange from palette
@@ -95,7 +95,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
   },
   {
     id: 'conversation_starter',
-    title: '💬 Conversation Starter',
+    title: 'Conversation Starter',
     description: 'Leave 5 comments',
     icon: 'chatbubbles',
     color: '#48B3AF',           // Wellness teal from palette
@@ -105,7 +105,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
   // Special Achievements
   {
     id: 'early_bird',
-    title: '🌅 Early Bird',
+    title: 'Early Bird',
     description: 'Complete a habit before 8 AM',
     icon: 'sunny',
     color: '#FF9013',           // Other/Orange from palette
@@ -113,7 +113,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
   },
   {
     id: 'night_owl',
-    title: '🦉 Night Owl',
+    title: 'Night Owl',
     description: 'Complete a habit after 10 PM',
     icon: 'moon',
     color: '#003161',           // Navy from palette
@@ -121,7 +121,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
   },
   {
     id: 'comeback_kid',
-    title: '💪 Comeback Kid',
+    title: 'Comeback Kid',
     description: 'Restart a habit after breaking a streak',
     icon: 'refresh',
     color: '#4A90A4',           // Teal accent from palette
@@ -129,7 +129,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
   },
   {
     id: 'weekend_warrior',
-    title: '🎉 Weekend Warrior',
+    title: 'Weekend Warrior',
     description: 'Complete habits on Saturday and Sunday',
     icon: 'calendar',
     color: '#A7E399',           // Nutrition green from palette

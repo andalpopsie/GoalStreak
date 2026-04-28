@@ -28,7 +28,7 @@ export default function BadgeShowcase({ onViewAll, refreshKey }: BadgeShowcasePr
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>🏆 Achievements</Text>
+        <Text style={styles.title}>Achievements</Text>
         <TouchableOpacity onPress={onViewAll} style={styles.viewAllButton}>
           <Text style={styles.viewAll}>View All ({totalCount})</Text>
         </TouchableOpacity>

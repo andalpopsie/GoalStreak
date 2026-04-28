@@ -135,21 +135,21 @@ export const useMilestones = () => {
 // Helper functions for milestone content
 function getMilestoneTitle(value: number, type: 'completion' | 'streak'): string {
   if (type === 'completion') {
-    if (value === 1) return '🎉 First Completion!';
-    if (value === 10) return '🌟 10 Completions!';
-    if (value === 50) return '🚀 50 Completions!';
-    if (value === 100) return '💯 Century Club!';
-    if (value === 500) return '🏆 500 Completions!';
-    if (value === 1000) return '👑 1000 Completions!';
-    return `🎯 ${value} Completions!`;
+    if (value === 1) return 'First Completion!';
+    if (value === 10) return '10 Completions!';
+    if (value === 50) return '50 Completions!';
+    if (value === 100) return 'Century Club!';
+    if (value === 500) return '500 Completions!';
+    if (value === 1000) return '1000 Completions!';
+    return `${value} Completions!`;
   } else {
-    if (value === 3) return '🔥 3-Day Streak!';
-    if (value === 7) return '⭐ Week Warrior!';
-    if (value === 14) return '💪 Two Weeks Strong!';
-    if (value === 30) return '🏅 30-Day Champion!';
-    if (value === 100) return '👑 100-Day Legend!';
-    if (value === 365) return '🎊 Year of Habits!';
-    return `🔥 ${value}-Day Streak!`;
+    if (value === 3) return '3-Day Streak!';
+    if (value === 7) return 'Week Warrior!';
+    if (value === 14) return 'Two Weeks Strong!';
+    if (value === 30) return '30-Day Champion!';
+    if (value === 100) return '100-Day Legend!';
+    if (value === 365) return 'Year of Habits!';
+    return `${value}-Day Streak!`;
   }
 }
 
