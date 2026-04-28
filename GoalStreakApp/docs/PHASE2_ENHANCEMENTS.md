@@ -110,6 +110,50 @@
 
 ---
 
+## 🌱 Phase 2 Feature: Habit Growth Gamification
+
+### Overview
+Each habit has a virtual plant that grows with the user's streak. Completing habits consistently makes the plant grow; breaking a streak causes it to wilt. The dashboard becomes a "garden" over time, creating emotional attachment and loss aversion.
+
+### Growth Stages
+| Streak | Stage | Icon | Visual |
+|--------|-------|------|--------|
+| 0 days | Wilted | 🥀 | Gray/faded, drooping |
+| 1-2 days | Seed | 🌰 | Small seed in soil |
+| 3-6 days | Sprout | 🌱 | Green sprout emerging |
+| 7-13 days | Sapling | 🌿 | Small plant with leaves |
+| 14-29 days | Tree | 🌳 | Full tree |
+| 30-59 days | Flowering | 🌸 | Tree with flowers |
+| 60-99 days | Fruit | 🍎 | Tree bearing fruit |
+| 100+ days | Golden | 🏆 | Golden/legendary tree |
+
+### Where It Shows
+1. **Habit Card** — small growth icon badge on each habit circle (replaces or supplements the streak flame)
+2. **Garden View** — new section in Analytics showing all habits as plants in a grid, visual overview of your "garden health"
+3. **Completion Celebration** — when a habit levels up to a new stage, show a celebration animation ("Your Morning Run grew into a sapling! 🌿")
+4. **Profile** — "Garden Score" stat showing overall garden health percentage
+5. **Social** — friends can see your garden in your profile (optional)
+
+### Wilt Mechanic
+- Missing 1 day: plant drops one stage (tree → sapling)
+- Missing 3+ days: plant wilts to seed
+- Resuming: plant grows back from current streak
+
+### Technical Approach
+- No new Firestore data needed — growth stage is derived from existing `streak.currentStreak`
+- Pure UI feature: `getGrowthStage(streakCount)` utility function
+- Garden view: new component reading from existing `useHabits` hook
+- Stage transition celebrations: extend existing `useMilestones` hook
+- Estimated effort: 8-12 hours
+
+### Inspiration
+- **Forest App** — plant trees by staying focused
+- **Duolingo** — streak freeze and heart system
+- **Habitica** — RPG character health tied to habits
+- **Finch** — virtual pet that grows with self-care habits
+
+---
+
 ## 📋 Discovery Log
 
 Items added as they're found during development sessions:
@@ -133,6 +177,7 @@ Items added as they're found during development sessions:
 | Apr 23, 2026 | Profile name update doesn't fan out to friend docs (friendName stays stale) — ties into #2 denormalized names | ProfileScreen.tsx handleSaveProfile | Critical |
 | Apr 23, 2026 | dailyReminder and streakAlerts toggles are UI-only — no service wired to schedule/cancel these notifications | ProfileScreen.tsx notifications modal | Important |
 | Apr 25, 2026 | App name "GoalStreak" hardcoded across 50+ files — no single constant. Rebrand to "Goalfer" requires manual find-replace everywhere. Should extract to a config constant. | Codebase-wide | Important |
+| Apr 28, 2026 | Habit Growth Gamification — virtual plant that grows with streak (seed → sprout → tree → golden). Garden view, wilt mechanic, stage celebrations. See detailed spec above. | Feature concept | Phase 2 Feature |
 
 ---
 
