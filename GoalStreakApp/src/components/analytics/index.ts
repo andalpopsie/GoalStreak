@@ -8,4 +8,6 @@ export { default as MilestoneCelebration } from './MilestoneCelebration';
 export { default as MotivationalSummary } from './MotivationalSummary';
 export { default as StreakHero } from './StreakHero';
 export { default as WeeklyActivityDots } from './WeeklyActivityDots';
+export { default as AnalyticsHero } from './AnalyticsHero';
+export { default as CompactStatsChart } from './CompactStatsChart';
 export type { Milestone } from './MilestoneCelebration';

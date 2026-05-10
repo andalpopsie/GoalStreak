@@ -215,6 +215,16 @@ const MOTIVATIONAL_MESSAGES = [
   },
 ];
 
+/**
+ * Returns the motivational message for today based on day-of-year rotation.
+ */
+function getMessageForToday(): { title: string; body: string } {
+  const dayOfYear = Math.floor(
+    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000,
+  );
+  return MOTIVATIONAL_MESSAGES[dayOfYear % MOTIVATIONAL_MESSAGES.length];
+}
+
 // Configure notification handler
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -271,10 +281,7 @@ export const motivationalNotificationService = {
       // Cancel existing notifications first
       await this.cancelDailyNotification();
 
-      // Get message based on day of year for daily rotation
-      const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
-      const messageIndex = dayOfYear % MOTIVATIONAL_MESSAGES.length;
-      const message = MOTIVATIONAL_MESSAGES[messageIndex];
+      const message = getMessageForToday();
 
       // Schedule notification
       const notificationId = await Notifications.scheduleNotificationAsync({
@@ -367,7 +374,7 @@ export const motivationalNotificationService = {
    */
   async sendTestNotification(): Promise<void> {
     try {
-      const message = MOTIVATIONAL_MESSAGES[0]; // Use first message for testing
+      const message = getMessageForToday();
 
       await Notifications.scheduleNotificationAsync({
         content: {

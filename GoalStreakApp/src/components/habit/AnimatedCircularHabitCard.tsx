@@ -6,7 +6,6 @@ import Animated, {
   useAnimatedStyle, 
   withSpring, 
   withTiming,
-  runOnJS,
   FadeIn,
   FadeOut,
 } from 'react-native-reanimated';
@@ -107,7 +106,6 @@ export default function AnimatedCircularHabitCard({
   const {
     localTimer,
     start: startLocalTimer,
-    reset: resetLocalTimer,
     progress: localTimerProgress,
   } = useLocalTimer(onToggle);
   
@@ -162,26 +160,24 @@ export default function AnimatedCircularHabitCard({
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   };
 
+  const animatePressScale = () => {
+    scale.value = withSpring(0.95, { damping: 15, stiffness: 300 }, () => {
+      scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+    });
+  };
+
   const handlePress = () => {
     try {
-      // Scale animation
-      scale.value = withSpring(0.95, { damping: 15, stiffness: 300 }, () => {
-        scale.value = withSpring(1, { damping: 15, stiffness: 300 });
-      });
+      animatePressScale();
+      triggerHapticFeedback();
       
-      // Haptic feedback
-      runOnJS(triggerHapticFeedback)();
-      
-      // If habit has timer and is not completed, show timer controls
       if (habit.timer?.enabled && !isCompleted) {
-        runOnJS(setShowTimerControls)(!showTimerControls);
+        setShowTimerControls(!showTimerControls);
       } else {
-        // Call the toggle function for non-timer habits or completed habits
-        runOnJS(onToggle)();
+        onToggle();
       }
     } catch (error) {
       console.warn('Press handler error:', error);
-      // Fallback to direct call
       onToggle();
     }
   };

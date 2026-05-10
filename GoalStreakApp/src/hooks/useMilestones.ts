@@ -39,14 +39,14 @@ export const useMilestones = () => {
     }
   };
 
-  const saveSeenMilestones = async (milestones: SeenMilestones) => {
+  const saveSeenMilestones = useCallback(async (milestones: SeenMilestones) => {
     try {
       await AsyncStorage.setItem(MILESTONES_KEY, JSON.stringify(milestones));
       setSeenMilestones(milestones);
     } catch (error) {
       console.error('Error saving milestones:', error);
     }
-  };
+  }, []);
 
   const checkCompletionMilestone = useCallback((totalCompletions: number) => {
     // Find the highest milestone reached that hasn't been seen
@@ -78,7 +78,7 @@ export const useMilestones = () => {
     }
     
     return false;
-  }, [seenMilestones]);
+  }, [seenMilestones, saveSeenMilestones]);
 
   const checkStreakMilestone = useCallback((currentStreak: number) => {
     // Find the highest milestone reached that hasn't been seen
@@ -110,7 +110,7 @@ export const useMilestones = () => {
     }
     
     return false;
-  }, [seenMilestones]);
+  }, [seenMilestones, saveSeenMilestones]);
 
   const closeCelebration = useCallback(() => {
     setShowCelebration(false);

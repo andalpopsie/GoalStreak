@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { DeviceEventEmitter } from 'react-native';
 import { habitService, completionService, streakService } from '../services/habitService';
 import { useAuth } from './useAuth';
@@ -136,18 +136,26 @@ export function useHabits(): UseHabitsReturn {
     return unsubscribe;
   }, [user]);
 
+  // Ref to avoid stale closures in the timer interval
+  const activeTimersRef = useRef(activeTimers);
+  activeTimersRef.current = activeTimers;
+
+  // Derive a stable boolean so the interval is only created/destroyed when
+  // the set of running (non-paused) timers actually changes
+  const hasRunningTimers = useMemo(
+    () => Object.values(activeTimers).some(t => t.isActive && !t.isPaused),
+    [activeTimers],
+  );
+
   // Set up timer progress updates
   useEffect(() => {
-    if (Object.keys(activeTimers).length === 0) {
-      return;
-    }
+    if (!hasRunningTimers) return;
 
     // Update timer progress every second for active timers
     const progressInterval = setInterval(() => {
-      Object.keys(activeTimers).forEach(habitId => {
-        const timer = activeTimers[habitId];
+      Object.entries(activeTimersRef.current).forEach(([id, timer]) => {
         if (timer.isActive && !timer.isPaused) {
-          updateTimerProgress(habitId);
+          updateTimerProgress(id);
         }
       });
     }, 1000);
@@ -155,7 +163,7 @@ export function useHabits(): UseHabitsReturn {
     return () => {
       clearInterval(progressInterval);
     };
-  }, [activeTimers, updateTimerProgress]);
+  }, [hasRunningTimers, updateTimerProgress]);
 
   // Stable ref for completeHabitViaTimer — assigned after definition below
   const completeHabitViaTimerRef = useRef<(habitId: string) => Promise<void>>(async () => {});
@@ -207,7 +215,7 @@ export function useHabits(): UseHabitsReturn {
 
     try {
       setIsCreating(true);
-      const habitId = await habitService.createHabit(user.id, habitData);
+      await habitService.createHabit(user.id, habitData);
       await loadHabits(); // Refresh to get streak data
     } catch (error) {
       console.error('Error in createHabit:', error);

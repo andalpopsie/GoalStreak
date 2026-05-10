@@ -298,8 +298,6 @@ export default function ProfileScreen() {
     );
   };
 
-  const [badgeRefreshKey] = useState(0);
-
   const handleLearnPress = () => {
     Alert.alert(
       '📚 Learn & Insights',
@@ -371,7 +369,7 @@ export default function ProfileScreen() {
 
         {/* Badge Showcase */}
         <BadgeShowcase 
-          refreshKey={badgeRefreshKey}
+          refreshKey={0}
           onViewAll={() => Alert.alert('Coming Soon', 'Full achievements view coming soon!')} 
         />
 

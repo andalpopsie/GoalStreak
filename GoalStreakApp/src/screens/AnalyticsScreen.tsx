@@ -12,7 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Colors, Typography } from '../constants/theme';
 import { useAnalytics } from '../hooks/useAnalytics';
-import { StatsOverview, ProgressChart, InsightsCard, MilestoneCelebration, MotivationalSummary, StreakHero, WeeklyActivityDots } from '../components/analytics';
+import { StatsOverview, ProgressChart, InsightsCard, MilestoneCelebration, MotivationalSummary, StreakHero, WeeklyActivityDots, AnalyticsHero, CompactStatsChart } from '../components/analytics';
 import { useMilestones } from '../hooks/useMilestones';
 import { trackScreen, trackEvent, trackFeature } from '../services/enhancedAnalyticsService';
 import { useAuth } from '../hooks/useAuth';
@@ -61,6 +61,7 @@ export default function AnalyticsScreen() {
   } = useMilestones();
 
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [expandedHabitId, setExpandedHabitId] = useState<string | null>(null);
 
   const currentPeriodAnalytics = getCurrentPeriodAnalytics();
 
@@ -147,24 +148,9 @@ export default function AnalyticsScreen() {
           <Text style={styles.emptyText}>
             {isLoadingAnalytics 
               ? 'Loading your habit analytics...' 
-              : 'Create and complete some habits to see your detailed analytics and insights!'
+              : 'Complete some habits to see your analytics!'
             }
           </Text>
-          <TouchableOpacity 
-            style={styles.refreshButton}
-            onPress={handleRefresh}
-            disabled={isLoadingAnalytics}
-          >
-            <Ionicons 
-              name="refresh" 
-              size={16} 
-              color={Colors.white} 
-              style={{ marginRight: 8 }}
-            />
-            <Text style={styles.refreshButtonText}>
-              {isLoadingAnalytics ? 'Loading...' : 'Refresh Analytics'}
-            </Text>
-          </TouchableOpacity>
         </View>
       );
     }
@@ -172,81 +158,63 @@ export default function AnalyticsScreen() {
     return (
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Habit Performance</Text>
-        {habitAnalytics.slice(0, 5).map((habit) => (
-          <View key={habit.habitId} style={[
-            styles.habitAnalyticsCard,
-            habit.completionRate >= 80 && styles.habitAnalyticsCardHighlight
-          ]}>
-            <View style={styles.habitHeader}>
-              <Text style={styles.habitName}>{habit.habitName}</Text>
-              <View style={styles.habitCategory}>
-                <Text style={styles.habitCategoryText}>
-                  {habit.category.charAt(0).toUpperCase() + habit.category.slice(1)}
-                </Text>
+        {habitAnalytics.slice(0, 5).map((habit) => {
+          const isExpanded = expandedHabitId === habit.habitId;
+          return (
+            <TouchableOpacity
+              key={habit.habitId}
+              style={styles.habitRow}
+              onPress={() => setExpandedHabitId(isExpanded ? null : habit.habitId)}
+              activeOpacity={0.7}
+            >
+              {/* Compact Row — always visible */}
+              <View style={styles.habitRowHeader}>
+                <View style={styles.habitRowLeft}>
+                  <Text style={styles.habitRowName} numberOfLines={1}>{habit.habitName}</Text>
+                  <View style={styles.habitRowBar}>
+                    <View style={[
+                      styles.habitRowBarFill,
+                      { width: `${habit.completionRate}%`, backgroundColor: getPerformanceColor(habit.completionRate) }
+                    ]} />
+                  </View>
+                </View>
+                <View style={styles.habitRowRight}>
+                  <Text style={[styles.habitRowRate, { color: getPerformanceColor(habit.completionRate) }]}>
+                    {habit.completionRate.toFixed(0)}%
+                  </Text>
+                  <Ionicons
+                    name={isExpanded ? 'chevron-up' : 'chevron-down'}
+                    size={16}
+                    color={Colors.gray.medium}
+                  />
+                </View>
               </View>
-              {habit.completionRate >= 80 && (
-                <View style={{ marginLeft: 8 }}>
-                  <Ionicons name="star" size={16} color="#FFDE59" />
+
+              {/* Expanded Details */}
+              {isExpanded && (
+                <View style={styles.habitRowExpanded}>
+                  <View style={styles.habitRowStats}>
+                    <View style={styles.habitRowStat}>
+                      <Text style={styles.habitRowStatValue}>{habit.totalCompletions}</Text>
+                      <Text style={styles.habitRowStatLabel}>Completions</Text>
+                    </View>
+                    <View style={styles.habitRowStat}>
+                      <Text style={[styles.habitRowStatValue, { color: Colors.accent1 }]}>{habit.currentStreak}</Text>
+                      <Text style={styles.habitRowStatLabel}>Current Streak</Text>
+                    </View>
+                    <View style={styles.habitRowStat}>
+                      <Text style={styles.habitRowStatValue}>{habit.longestStreak}</Text>
+                      <Text style={styles.habitRowStatLabel}>Best Streak</Text>
+                    </View>
+                  </View>
+                  <Text style={[styles.habitRowPerformance, { color: getPerformanceColor(habit.completionRate) }]}>
+                    {getPerformanceLabel(habit.completionRate)}
+                  </Text>
                 </View>
               )}
-            </View>
-            
-            {/* Progress Bar */}
-            <View style={styles.progressBarContainer}>
-              <View style={styles.progressBarBackground}>
-                <View 
-                  style={[
-                    styles.progressBarFill, 
-                    { 
-                      width: `${habit.completionRate}%`,
-                      backgroundColor: getPerformanceColor(habit.completionRate)
-                    }
-                  ]} 
-                />
-              </View>
-              <Text style={[styles.performanceLabel, { color: getPerformanceColor(habit.completionRate) }]}>
-                {getPerformanceLabel(habit.completionRate)}
-              </Text>
-            </View>
-
-            <View style={styles.habitStats}>
-              <View style={styles.habitStat}>
-                <Text style={styles.habitStatValue}>{habit.totalCompletions}</Text>
-                <Text style={styles.habitStatLabel}>Completions</Text>
-              </View>
-              
-              <View style={styles.habitStat}>
-                <Text style={[styles.habitStatValue, { color: getPerformanceColor(habit.completionRate) }]}>
-                  {habit.completionRate.toFixed(0)}%
-                </Text>
-                <Text style={styles.habitStatLabel}>Success Rate</Text>
-              </View>
-              
-              <View style={styles.habitStat}>
-                <Text style={[styles.habitStatValue, { color: Colors.accent1 }]}>
-                  {habit.currentStreak}
-                </Text>
-                <Text style={styles.habitStatLabel}>Current Streak</Text>
-              </View>
-            </View>
-            
-            {habit.longestStreak > habit.currentStreak && (
-              <View style={styles.habitFooter}>
-                <Ionicons name="trophy" size={14} color="#FFDE59" />
-                <Text style={styles.habitFooterText}>
-                  Best streak: {habit.longestStreak} days
-                </Text>
-              </View>
-            )}
-          </View>
-        ))}
-        
-        {habitAnalytics.length > 5 && (
-          <TouchableOpacity style={styles.viewMoreButton}>
-            <Text style={styles.viewMoreText}>View All Habits</Text>
-            <Ionicons name="chevron-forward" size={16} color={Colors.accent1} />
-          </TouchableOpacity>
-        )}
+            </TouchableOpacity>
+          );
+        })}
       </View>
     );
   };
@@ -265,59 +233,40 @@ export default function AnalyticsScreen() {
         }
         showsVerticalScrollIndicator={false}
       >
-        {/* Motivational Summary */}
-        <MotivationalSummary
-          completionRate={currentPeriodAnalytics?.completionRate || 0}
-          totalCompletions={currentPeriodAnalytics?.totalCompletions || 0}
-          currentStreak={currentStreak}
+        {/* 1. Hero Card — greeting + streak + rate */}
+        <AnalyticsHero
           userName={user?.displayName}
-        />
-
-        {/* Streak Hero */}
-        <StreakHero
           currentStreak={currentStreak}
           longestStreak={longestStreak}
           completionRate={currentPeriodAnalytics?.completionRate || 0}
+          totalCompletions={currentPeriodAnalytics?.totalCompletions || 0}
         />
 
-        {/* Weekly Activity Dots */}
+        {/* 2. Weekly Activity Dots */}
         <WeeklyActivityDots
           data={trendData}
           totalHabits={habits.length}
         />
 
-        {/* Stats Overview */}
-        {currentPeriodAnalytics && (
-          <StatsOverview
-            analytics={currentPeriodAnalytics}
-            selectedPeriod={selectedPeriod}
-            onPeriodChange={handlePeriodChange}
-          />
-        )}
-
-        {/* Progress Chart */}
-        <ProgressChart
-          data={trendData}
-          title="7-Day Completion Trend"
+        {/* 3. Combined Stats + Chart */}
+        <CompactStatsChart
+          analytics={currentPeriodAnalytics}
+          trendData={trendData}
+          selectedPeriod={selectedPeriod}
+          onPeriodChange={handlePeriodChange}
         />
 
-        {/* Insights */}
+        {/* 4. Top 2 Insights */}
         {insights.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Personal Insights</Text>
-            {insights.map((insight, index) => (
-              <InsightsCard
-                key={index}
-                insight={insight}
-                onPress={() => {
-                  // Could navigate to specific habit details
-                }}
-              />
+            <Text style={styles.sectionTitle}>Insights</Text>
+            {insights.slice(0, 2).map((insight, index) => (
+              <InsightsCard key={index} insight={insight} />
             ))}
           </View>
         )}
 
-        {/* Habit Analytics */}
+        {/* 5. Habit Performance — Expandable */}
         {renderHabitAnalytics()}
 
         {/* Error State */}
@@ -379,103 +328,86 @@ const styles = StyleSheet.create({
     marginVertical: 8,              // 8 * 1 (tight)
   },
   sectionTitle: {
-    fontSize: 20,                   // subheading
+    fontSize: 18,                   // large body
     fontWeight: '600',              // semibold
     color: Colors.primaryText,
-    fontFamily: Typography.fontFamily.semibold,
-    marginHorizontal: 24,           // 8 * 3 (comfortable)
-    marginBottom: 16,               // 8 * 2 (base)
-  },
-  habitAnalyticsCard: {
-    backgroundColor: Colors.white,
-    borderRadius: 16,               // 8 * 2
-    padding: 16,                    // 8 * 2 (base)
     marginHorizontal: 16,           // 8 * 2 (base)
-    marginVertical: 8,              // 8 * 1 (tight)
+    marginBottom: 12,               // 8 * 1.5
+  },
+  // ── Expandable Habit Rows ──
+  habitRow: {
+    backgroundColor: Colors.white,
+    borderRadius: 12,
+    marginHorizontal: 16,           // 8 * 2 (base)
+    marginBottom: 8,                // 8 * 1 (tight)
+    padding: 14,
     shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowOpacity: 0.03,
+    shadowRadius: 2,
+    elevation: 1,
   },
-  habitAnalyticsCardHighlight: {
-    borderLeftWidth: 4,
-    borderLeftColor: '#FFDE59',     // Yellow accent for high performers
-    backgroundColor: '#FFDE59' + '08', // Very subtle yellow tint
-  },
-  habitHeader: {
+  habitRowHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,               // 8 * 2 (base)
   },
-  habitName: {
-    fontSize: 16,                   // body
+  habitRowLeft: {
+    flex: 1,
+    marginRight: 12,               // 8 * 1.5
+  },
+  habitRowName: {
+    fontSize: 15,                   // body-ish
     fontWeight: '600',              // semibold
     color: Colors.primaryText,
-    fontFamily: Typography.fontFamily.semibold,
-    flex: 1,
+    marginBottom: 6,
   },
-  habitCategory: {
+  habitRowBar: {
+    height: 6,
     backgroundColor: Colors.gray.light,
-    paddingHorizontal: 12,          // 8 * 1.5
-    paddingVertical: 4,             // 8 * 0.5
-    borderRadius: 12,               // 8 * 1.5
+    borderRadius: 3,
+    overflow: 'hidden',
   },
-  habitCategoryText: {
-    fontSize: 12,                   // small (OK for category badge)
-    color: Colors.primaryText,      // Darker for better contrast
-    fontWeight: '500',              // medium
-    fontFamily: Typography.fontFamily.medium,
+  habitRowBarFill: {
+    height: '100%',
+    borderRadius: 3,
   },
-  habitStats: {
+  habitRowRight: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  habitStat: {
     alignItems: 'center',
-    flex: 1,
+    gap: 6,
   },
-  habitStatValue: {
-    fontSize: 20,                   // subheading
+  habitRowRate: {
+    fontSize: 16,                   // body
     fontWeight: '700',              // bold
-    color: Colors.primaryText,
-    fontFamily: Typography.fontFamily.bold,
   },
-  habitStatLabel: {
-    fontSize: 14,                   // caption (proper for labels)
-    color: Colors.gray.dark,        // Darker for better readability
-    fontFamily: Typography.fontFamily.regular,
-    marginTop: 4,                   // 8 * 0.5
-  },
-  habitFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  habitRowExpanded: {
     marginTop: 12,                  // 8 * 1.5
     paddingTop: 12,                 // 8 * 1.5
     borderTopWidth: 1,
     borderTopColor: Colors.gray.light,
   },
-  habitFooterText: {
-    fontSize: 14,                   // caption (proper for labels)
-    color: Colors.gray.dark,        // Darker for better readability
-    fontFamily: Typography.fontFamily.regular,
-    marginLeft: 4,                  // 8 * 0.5
-  },
-  viewMoreButton: {
+  habitRowStats: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,            // 8 * 2 (base)
-    marginHorizontal: 16,           // 8 * 2 (base)
-    minHeight: 48,                  // 8 * 6 (touch target)
+    justifyContent: 'space-around',
+    marginBottom: 8,                // 8 * 1 (tight)
   },
-  viewMoreText: {
-    fontSize: 16,                   // body
-    fontWeight: '500',              // medium
-    color: Colors.accent1,
-    fontFamily: Typography.fontFamily.medium,
-    marginRight: 8,                 // 8 * 1 (tight)
+  habitRowStat: {
+    alignItems: 'center',
+  },
+  habitRowStatValue: {
+    fontSize: 18,                   // large body
+    fontWeight: '700',              // bold
+    color: Colors.primaryText,
+  },
+  habitRowStatLabel: {
+    fontSize: 11,                   // small
+    color: Colors.secondaryText,
+    marginTop: 2,
+  },
+  habitRowPerformance: {
+    fontSize: 13,                   // small
+    fontWeight: '600',              // semibold
+    textAlign: 'center',
   },
   emptySection: {
     alignItems: 'center',
@@ -494,24 +426,9 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,                   // body
     color: Colors.gray.dark,
-    fontFamily: Typography.fontFamily.regular,
     textAlign: 'center',
     lineHeight: 24,                 // 1.5 line height
     marginBottom: 24,               // 8 * 3 (comfortable)
-  },
-  refreshButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.accent1,
-    paddingHorizontal: 24,          // 8 * 3 (comfortable)
-    paddingVertical: 16,            // 8 * 2 (base)
-    borderRadius: 32,               // Pill-shaped (modern)
-    minHeight: 56,                  // 8 * 7 (touch target)
-  },
-  refreshButtonText: {
-    color: Colors.white,
-    fontSize: 16,                   // body
-    fontWeight: '500',              // medium
   },
   errorContainer: {
     alignItems: 'center',
@@ -544,26 +461,5 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: 32,                     // 8 * 4 (loose)
-  },
-
-  // Progress Bar Styles
-  progressBarContainer: {
-    marginBottom: 16,               // 8 * 2 (base)
-  },
-  progressBarBackground: {
-    height: 8,                      // 8 * 1
-    backgroundColor: Colors.gray.light,
-    borderRadius: 4,                // 8 * 0.5
-    overflow: 'hidden',
-    marginBottom: 8,                // 8 * 1 (tight)
-  },
-  progressBarFill: {
-    height: '100%',
-    borderRadius: 4,                // 8 * 0.5
-  },
-  performanceLabel: {
-    fontSize: 14,                   // caption
-    fontWeight: '600',              // semibold
-    textAlign: 'right',
   },
 });

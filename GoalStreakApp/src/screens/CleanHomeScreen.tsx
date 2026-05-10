@@ -82,16 +82,18 @@ export default function CleanHomeScreen({ navigation }: any) {
   const [completedHabitCategory, setCompletedHabitCategory] = useState('');
   const [completedHabitIsPublic, setCompletedHabitIsPublic] = useState(true);
 
-  // Track screen view
+  // Track screen view once on mount
   useEffect(() => {
     trackScreen('CleanHomeScreen', { source: 'app_navigation' });
-    
-    // Track user engagement with habits
+  }, []);
+
+  // Track user engagement when habit count changes
+  useEffect(() => {
     if (habits.length > 0) {
       trackEvent('home_screen_viewed', {
         total_habits: habits.length,
         daily_habits: habits.filter(h => h.frequency === 'daily').length,
-        user_id: user?.id
+        user_id: user?.id,
       });
     }
   }, [habits.length, user?.id]);
