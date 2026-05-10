@@ -8,3 +8,4 @@ export { default as OfflineBanner } from './OfflineBanner';
 export { default as SearchModal } from './SearchModal';
 export { default as GradientBackground } from './GradientBackground';
 export { default as FloatingActionButton } from './FloatingActionButton';
+export { AnimatedSplashScreen } from './AnimatedSplashScreen';

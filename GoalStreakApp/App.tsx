@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { View, Text, Platform } from 'react-native';
+import { Platform, View } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { AuthProvider, useAuth } from './src/hooks/useAuth';
 import { OnboardingProvider } from './src/hooks/useOnboarding';
 import { TimerProvider } from './src/contexts/TimerContext';
 import AppNavigator from './src/navigation/AppNavigator';
-import { ErrorBoundary } from './src/components/common';
+import { ErrorBoundary, AnimatedSplashScreen } from './src/components/common';
 import { Colors } from './src/constants/theme';
 import { useAppFonts } from './src/hooks/useFonts';
 import { notificationService } from './src/services/notificationService';
@@ -56,6 +56,7 @@ function AppContent() {
 
 export default function App() {
   const fontsLoaded = useAppFonts();
+  const [splashDone, setSplashDone] = useState(false);
 
   useEffect(() => {
     // Initialize analytics and monitoring services
@@ -119,20 +120,20 @@ export default function App() {
     return () => subscription.remove();
   }, []);
 
-  if (!fontsLoaded) {
-    // Show loading screen while fonts load
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: Colors.background }}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
+  const appReady = fontsLoaded && splashDone;
 
   return (
-    <ErrorBoundary>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </ErrorBoundary>
+    <View style={{ flex: 1, backgroundColor: Colors.background }}>
+      {appReady && (
+        <ErrorBoundary>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </ErrorBoundary>
+      )}
+      {!splashDone && (
+        <AnimatedSplashScreen onComplete={() => setSplashDone(true)} />
+      )}
+    </View>
   );
 }
