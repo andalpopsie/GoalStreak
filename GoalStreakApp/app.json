@@ -17,7 +17,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.goalstreak.app",
-      "buildNumber": "9",
+      "buildNumber": "10",
       "config": {
         "usesNonExemptEncryption": false
       },
@@ -33,7 +33,8 @@
         "NSFaceIDUsageDescription": "Goalfer can use Face ID or Touch ID to securely and conveniently log you into your account, protecting your habit data and progress. Biometric authentication is optional and can be disabled in Settings.",
         "ITSAppUsesNonExemptEncryption": false,
         "CFBundleDisplayName": "Goalfer",
-        "CFBundleName": "Goalfer"
+        "CFBundleName": "Goalfer",
+        "CFBundleIconName": "AppIcon"
       },
       "appStoreUrl": "https://apps.apple.com/app/goalfer/id6754788637"
     },
