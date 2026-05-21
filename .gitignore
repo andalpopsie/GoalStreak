@@ -46,3 +46,4 @@ GoalStreakApp/node_modules/
 *.svg
 !GoalStreakApp/assets/**
 !GoalStreakApp/app-store-assets/**
+!GoalStreakApp/ios/**/Images.xcassets/**
