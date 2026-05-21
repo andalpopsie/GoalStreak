@@ -17,7 +17,7 @@
   
   <!-- Left side - Text content -->
   <g transform="translate(60, 80)">
-    <text x="0" y="0" class="title-text" font-size="48">GoalStreak</text>
+    <text x="0" y="0" class="title-text" font-size="48">Goalfer</text>
     <text x="0" y="50" class="subtitle-text" font-size="24">Build lasting habits with friends</text>
     
     <!-- Feature highlights -->
@@ -41,7 +41,7 @@
     <g transform="translate(20, 20)">
       <!-- Header -->
       <rect x="0" y="0" width="260" height="40" fill="#FDFDFD"/>
-      <text x="130" y="25" text-anchor="middle" fill="#154D71" font-size="16" font-weight="600">GoalStreak</text>
+      <text x="130" y="25" text-anchor="middle" fill="#154D71" font-size="16" font-weight="600">Goalfer</text>
       
       <!-- Habit cards -->
       

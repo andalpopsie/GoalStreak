@@ -26,7 +26,7 @@
         <circle cx="0" cy="-100" r="15" fill="#FFFFFF"/>
         
         <!-- Text -->
-        <text x="0" y="0" text-anchor="middle" class="title-text" font-size="36">GoalStreak</text>
+        <text x="0" y="0" text-anchor="middle" class="title-text" font-size="36">Goalfer</text>
         <text x="0" y="40" text-anchor="middle" class="subtitle-text" font-size="18">Social Habit Tracking</text>
       </g>
       

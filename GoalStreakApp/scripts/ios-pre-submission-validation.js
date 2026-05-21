@@ -111,8 +111,8 @@ function validateAppConfiguration() {
     }
     
     // Validate specific values
-    if (expo.name !== 'GoalStreak') {
-      addResult('warnings', 'App Config', 'App name should be "GoalStreak"', `Current: ${expo.name}`);
+    if (expo.name !== 'Goalfer') {
+      addResult('warnings', 'App Config', 'App name should be "Goalfer"', `Current: ${expo.name}`);
     }
     
     if (expo.ios?.bundleIdentifier !== 'com.goalstreak.app') {
@@ -293,10 +293,10 @@ function validateLegalCompliance() {
     // Check for required sections
     const requiredSections = [
       'Information We Collect',
-      'How We Use Information',
+      'How We Use Your Information',
       'Data Sharing',
       'Data Security',
-      'Your Rights',
+      'Your Privacy Rights',
       'Contact Information'
     ];
     
@@ -413,7 +413,7 @@ function generateValidationReport() {
 # iOS Pre-Submission Validation Report
 
 **Generated**: ${new Date().toLocaleString()}
-**App**: GoalStreak iOS
+**App**: Goalfer iOS
 **Version**: 1.0.0
 
 ## Summary
@@ -514,7 +514,7 @@ function displaySummary() {
 
 async function main() {
   try {
-    log(`${colors.bright}${colors.magenta}🔍 iOS Pre-Submission Validation for GoalStreak${colors.reset}\n`);
+    log(`${colors.bright}${colors.magenta}🔍 iOS Pre-Submission Validation for Goalfer${colors.reset}\n`);
     
     validateAppConfiguration();
     validateEASConfiguration();

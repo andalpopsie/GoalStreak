@@ -86,7 +86,7 @@ const calculateStreak = (completions: HabitCompletion[]): { current: number; lon
   let currentStreak = 0;
   let longestStreak = 0;
   let tempStreak = 1;
-  let lastDate = sorted[0].completedAt;
+  const lastDate = sorted[0].completedAt;
   
   // Check if most recent completion was today or yesterday
   const today = new Date();

@@ -1,4 +1,4 @@
-# GoalStreak Screenshot Quick Commands
+# Goalfer Screenshot Quick Commands
 
 ## 📱 Capture Screenshots
 

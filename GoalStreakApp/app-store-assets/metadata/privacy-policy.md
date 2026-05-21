@@ -1,13 +1,13 @@
-# GoalStreak Privacy Policy
+# Goalfer Privacy Policy
 
 **Effective Date:** January 1, 2025  
-**Last Updated:** January 1, 2025
+**Last Updated:** May 18, 2025
 
 ## Introduction
 
-GoalStreak ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application ("GoalStreak" or the "App"). This policy applies to all users of our iOS and Android applications.
+Goalfer ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application ("Goalfer" or the "App"). This policy applies to all users of our iOS application.
 
-By using GoalStreak, you consent to the data practices described in this policy. If you do not agree with this policy, please do not use our App.
+By using Goalfer, you consent to the data practices described in this policy. If you do not agree with this policy, please do not use our App.
 
 ## Information We Collect
 
@@ -48,9 +48,10 @@ By using GoalStreak, you consent to the data practices described in this policy.
 - Provide personalized insights and recommendations
 - Sync your data across devices
 - Send habit reminders and motivational notifications
+- Facilitate accountability groups and group progress tracking
 
 ### Social Features
-- Connect you with friends who also use GoalStreak
+- Connect you with friends who also use Goalfer
 - Display your shared habit activities to friends (with your permission)
 - Enable friend interactions like reactions and encouragement
 - Facilitate accountability and motivation through social features
@@ -70,7 +71,7 @@ By using GoalStreak, you consent to the data practices described in this policy.
 ## Data Sharing and Disclosure
 
 ### We DO NOT Sell Your Personal Data
-GoalStreak does not sell, rent, or trade your personal information to third parties for marketing purposes.
+Goalfer does not sell, rent, or trade your personal information to third parties for marketing purposes.
 
 ### Limited Sharing Scenarios
 - **With Friends**: Only habit activities you explicitly choose to share
@@ -122,7 +123,7 @@ GoalStreak does not sell, rent, or trade your personal information to third part
 
 ## Children's Privacy
 
-GoalStreak is designed for users 13 years and older. We do not knowingly collect personal information from children under 13. If we discover we have collected information from a child under 13, we will delete it immediately. Parents who believe their child has provided information to us should contact us at privacy@goalstreak.app.
+Goalfer is designed for users 13 years and older. We do not knowingly collect personal information from children under 13. If we discover we have collected information from a child under 13, we will delete it immediately. Parents who believe their child has provided information to us should contact us at privacy@goalstreak.app.
 
 ## International Data Transfers
 
@@ -167,7 +168,7 @@ For EU residents or GDPR-related inquiries:
 
 ## Compliance and Certifications
 
-GoalStreak complies with:
+Goalfer complies with:
 - California Consumer Privacy Act (CCPA)
 - General Data Protection Regulation (GDPR)
 - Children's Online Privacy Protection Act (COPPA)
@@ -179,4 +180,4 @@ GoalStreak complies with:
 **Last Updated**: January 1, 2025  
 **Version**: 1.0
 
-*This privacy policy is effective as of the date listed above and applies to all users of the GoalStreak mobile application.*
+*This privacy policy is effective as of the date listed above and applies to all users of the Goalfer mobile application.*

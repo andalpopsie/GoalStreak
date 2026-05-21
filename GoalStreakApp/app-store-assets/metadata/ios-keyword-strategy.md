@@ -1,7 +1,7 @@
 # iOS App Store Keyword Optimization Strategy
 
 ## Overview
-This document outlines the keyword strategy for GoalStreak's iOS App Store listing to maximize discoverability and conversion rates.
+This document outlines the keyword strategy for Goalfer's iOS App Store listing to maximize discoverability and conversion rates.
 
 ## Primary Keywords (High Volume, High Relevance)
 1. **habit tracker** - Primary keyword, high search volume
@@ -41,7 +41,7 @@ This document outlines the keyword strategy for GoalStreak's iOS App Store listi
 ## Keyword Placement Strategy
 
 ### App Name
-- Primary: "GoalStreak"
+- Primary: "Goalfer"
 - Subtitle: "Social Habit Tracking"
 
 ### Keywords Field (100 characters max)
@@ -51,7 +51,7 @@ habit tracker,habits,goals,productivity,streaks,motivation,social accountability
 
 ### Description Optimization
 - **First 170 characters** (visible without "more"): Include primary keywords naturally
-- **Opening line**: "Transform your life with GoalStreak - the social habit tracker..."
+- **Opening line**: "Transform your life with Goalfer - the social habit tracker..."
 - **Feature bullets**: Include secondary keywords in feature descriptions
 - **Call-to-action**: Include conversion-focused keywords
 

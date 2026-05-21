@@ -1,7 +1,7 @@
-# GoalStreak Marketing Materials Guide
+# Goalfer Marketing Materials Guide
 
 ## Overview
-This directory contains all marketing materials needed for GoalStreak's app store launch and promotional campaigns.
+This directory contains all marketing materials needed for Goalfer's app store launch and promotional campaigns.
 
 ## Directory Structure
 ```
@@ -67,7 +67,7 @@ marketing/
 1. **Social Media Blitz**
    - Post across all platforms using provided assets
    - Encourage team and friends to share
-   - Use hashtags: #GoalStreak #HabitTracker #SocialAccountability
+   - Use hashtags: #Goalfer #HabitTracker #SocialAccountability
 
 2. **App Store Optimization**
    - Monitor app store rankings

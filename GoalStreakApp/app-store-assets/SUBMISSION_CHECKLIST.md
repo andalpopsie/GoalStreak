@@ -1,4 +1,4 @@
-# GoalStreak App Store Submission Checklist
+# Goalfer App Store Submission Checklist
 
 ## Pre-Submission Validation Results
 
@@ -73,7 +73,7 @@
 - [ ] All required device sizes tested
 
 ### Metadata Configuration
-- [ ] App name: "GoalStreak"
+- [ ] App name: "Goalfer"
 - [ ] Subtitle: "Social Habit Tracking"
 - [ ] Category: Health & Fitness
 - [ ] Age rating: 4+
@@ -111,7 +111,7 @@
 - [ ] All required device configurations tested
 
 ### Store Listing Configuration
-- [ ] App title: "GoalStreak - Social Habit Tracker"
+- [ ] App title: "Goalfer - Social Habit Tracker"
 - [ ] Short description (under 80 characters)
 - [ ] Full description compelling and complete
 - [ ] Category: Health & Fitness

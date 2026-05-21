@@ -275,7 +275,7 @@ export const habitService = {
             lastCompletion.getTime() === yesterday.getTime()) {
           
           // Count consecutive days
-          let checkDate = new Date(lastCompletion);
+          const checkDate = new Date(lastCompletion);
           for (const completion of completions) {
             if (completion.getTime() === checkDate.getTime()) {
               currentStreak++;

@@ -1,7 +1,7 @@
-# GoalStreak Fact Sheet
+# Goalfer Fact Sheet
 
 ## App Overview
-- **Name**: GoalStreak - Social Habit Tracker
+- **Name**: Goalfer - Social Habit Tracker
 - **Category**: Health & Fitness / Productivity
 - **Platforms**: iOS (16.0+), Android (8.0+)
 - **Price**: Free with premium features planned
@@ -68,6 +68,6 @@
 - **Website**: [URL]
 - **Support**: [Email]
 - **Press**: [Email]
-- **Social Media**: @goalstreak
+- **Social Media**: @goalfer
 
 Generated on: 2025-09-23T23:38:32.256Z
