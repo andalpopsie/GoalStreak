@@ -1,5 +1,68 @@
 # GoalStreak Changelog
 
+## [Metadata Sync] - May 2026
+
+### App Store Metadata
+- Synced `whatsNew` between `app-store-connect-config.json` and `ios-metadata.json` so both files reference accountability groups and account deletion ("friends and groups", "full account control"). Earlier the two files diverged after only the connect-config was updated.
+- Refreshed `app-store-assets/SUBMISSION_CHECKLIST.md` to reflect current state: icons already generated, Build 14 already in App Store Connect, no outstanding blockers.
+
+## [1.0.0 - Build 14] - May 2026
+
+### Apple Compliance
+- **Account deletion flow** — Permanent in-app account deletion per Apple Guideline 5.1.1(v)
+  - Profile screen: red "Delete Account" menu item below "Sign Out"
+  - Confirmation modal with warning card listing all data that will be deleted
+  - Password re-authentication required (Firebase Auth requirement)
+  - Loading state during deletion, disabled cancel while in progress
+  - Cleans up: 7 user-owned Firestore collections, friends, friend requests, group invitations, per-user docs, profile photo, AsyncStorage cache, Firebase Auth user
+  - `writeBatch` with 400-op safety limit handles large datasets
+
+- **New files:**
+  - `src/services/accountDeletionService.ts` — Full deletion orchestration
+
+- **Modified files:**
+  - `src/hooks/useAuth.tsx` — Added `deleteAccount(password)` method with Firebase error mapping
+  - `src/screens/ProfileScreen.tsx` — Added Delete Account UI, confirmation modal, and styles
+
+### Branding
+- **Renamed app from "GoalStreak" to "Goalfer"** — Original name was taken on the App Store
+  - Updated ~50 files across metadata, marketing, legal docs, and SVG assets
+  - `app.json`, `Info.plist`, all metadata JSON files
+  - Privacy policy, terms of service, fact sheet, press release
+  - All marketing SVGs, screenshots, social media assets
+  - Validation script updated to expect "Goalfer"
+  - Bundle ID kept as `com.goalstreak.app` (registered with Apple, cannot change)
+  - Domain URLs preserved: `goalstreak.co` and `goalstreak.app` emails
+
+### Build Pipeline Fixes
+- **Fixed missing iOS icons in App Store upload** — Build 12 was rejected by Apple
+  - Root cause: `.gitignore` had blanket `*.png` exclusion that allow-listed only `assets/` and `app-store-assets/`
+  - The 10 generated iOS icon PNGs in `ios/GoalStreak/Images.xcassets/AppIcon.appiconset/` were silently excluded from git
+  - EAS Build cloned a clean repo, missing the icons, so Apple rejected with `(90022)`, `(90023)`, `(90713)` errors
+  - Fixed by adding `!GoalStreakApp/ios/**/Images.xcassets/**` exception
+  - Committed all 10 required icon sizes (Icon-20 through Icon-83.5)
+
+- **Migrated ESLint to flat config** — ESLint 9 dropped support for `.eslintrc.js`
+  - Created `eslint.config.js` with equivalent rules
+  - Installed `@eslint/js@9.34.0` and `typescript-eslint@8.41.0`
+  - Relaxed `no-useless-escape` and `no-case-declarations` to warnings (cosmetic)
+  - Result: 0 errors, 327 warnings (all `any` types and unused vars — non-blocking)
+  - Old `.eslintrc.js` renamed to `.bak` (kept for reference)
+
+### Validation
+- **Updated `ios-pre-submission-validation.js`** — Script was hard-coded to expect "GoalStreak"
+  - Now expects "Goalfer" as the app name
+  - Privacy policy section checks updated to match actual headings ("How We Use Your Information", "Your Privacy Rights")
+  - Result: 39 passed / 3 warnings (all intentional) / 0 errors
+
+### Submitted Builds
+- **Build 13** — First successful Apple binary validation
+  - Uploaded to App Store Connect, processed by Apple
+  - No review submitted (held back to add account deletion)
+- **Build 14** — Adds account deletion, ready for review submission
+
+---
+
 ## [Unreleased] - April 2026
 
 ### Accountability Groups Feature (April 2026)
