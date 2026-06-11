@@ -1,4 +1,4 @@
-# GoalStreak Real Screenshot Capture Guide
+# Goalfer Real Screenshot Capture Guide
 
 ## 📱 Required Screenshots (Priority Order)
 
@@ -157,7 +157,7 @@ magick input.png -crop 1290x2796+0+0 output.png
 # Available in Sketch, Figma templates
 
 # Custom Frames
-# Create minimal frames matching GoalStreak brand colors
+# Create minimal frames matching Goalfer brand colors
 ```
 
 ## 🎨 Screenshot Optimization Tips
@@ -175,7 +175,7 @@ magick input.png -crop 1290x2796+0+0 output.png
 - **Show success**: Display completed habits and achievements
 
 ### Brand Consistency:
-- **Color accuracy**: Ensure GoalStreak colors are correct
+- **Color accuracy**: Ensure Goalfer colors are correct
 - **Font rendering**: Check Montserrat font displays properly
 - **Icon clarity**: Habit category icons should be crisp
 - **UI elements**: Buttons and progress circles should be sharp
@@ -202,7 +202,7 @@ magick input.png -crop 1290x2796+0+0 output.png
 - [ ] Screenshots saved in correct dimensions
 - [ ] File names follow consistent pattern
 - [ ] Images are high quality (no compression artifacts)
-- [ ] Colors match GoalStreak brand palette
+- [ ] Colors match Goalfer brand palette
 - [ ] All required device sizes captured
 - [ ] Screenshots tell cohesive story
 
@@ -252,7 +252,7 @@ real-screenshots/
 ### 1. Set up test environment:
 ```bash
 # Start development server
-cd GoalStreakApp
+cd GoalferApp
 npx expo start
 
 # Run on iOS simulator
@@ -282,6 +282,6 @@ If you encounter issues:
 3. **Poor quality**: Capture on higher resolution devices
 4. **Missing features**: Ensure all app functionality works
 
-Remember: Real screenshots showing actual app functionality are required for app store approval. Take time to create compelling, high-quality captures that showcase GoalStreak's unique social habit tracking features!
+Remember: Real screenshots showing actual app functionality are required for app store approval. Take time to create compelling, high-quality captures that showcase Goalfer's unique social habit tracking features!
 
 Generated on: 2025-09-24T11:14:08.730Z

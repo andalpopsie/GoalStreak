@@ -27,7 +27,7 @@
           <g transform="translate(190, 390)">
             <circle cx="0" cy="-100" r="80" fill="#FF894F"/>
             <text x="0" y="-90" text-anchor="middle" font-size="60">🎯</text>
-            <text x="0" y="20" text-anchor="middle" fill="#154D71" font-size="24" font-weight="700">Welcome to GoalStreak</text>
+            <text x="0" y="20" text-anchor="middle" fill="#154D71" font-size="24" font-weight="700">Welcome to Goalfer</text>
             <text x="0" y="60" text-anchor="middle" fill="#154D71" font-size="16">Build lasting habits with friends</text>
           </g>
         
@@ -35,7 +35,7 @@
   
   <!-- Text overlay -->
   <g transform="translate(540, 1100)">
-    <text x="0" y="0" text-anchor="middle" class="title-text" font-size="48">Welcome to GoalStreak</text>
+    <text x="0" y="0" text-anchor="middle" class="title-text" font-size="48">Welcome to Goalfer</text>
     <text x="0" y="80" text-anchor="middle" class="subtitle-text" font-size="28">Your journey to better habits starts here</text>
   </g>
   

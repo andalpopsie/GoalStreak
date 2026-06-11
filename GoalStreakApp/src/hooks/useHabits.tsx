@@ -5,7 +5,6 @@ import { useAuth } from './useAuth';
 import { useTimer } from '../contexts/TimerContext';
 import { Habit, HabitCompletion, Streak, CreateHabitForm } from '../types';
 import { TimerState } from '../types/timer';
-import { LIMITS } from '../constants/limits';
 import { inactivityNudgeService } from '../services/inactivityNudgeService';
 import { timerSessionService } from '../services/timerService';
 
@@ -202,16 +201,15 @@ export function useHabits(): UseHabitsReturn {
   }, [user]);
 
   // Create new habit
+  //
+  // The habit-limit check lives in `habitService.createHabit` and is driven
+  // by the user's Pro tier (Free: 6, Pro: 15). When the limit is hit, the
+  // service throws `HabitLimitError`; we rethrow so `CreateHabitScreen` can
+  // branch on `isPro` to either show the paywall or a terminal alert.
   const createHabit = useCallback(async (habitData: CreateHabitForm) => {
     if (!user) {
       throw new Error('User not authenticated');
     }
-
-    // Check habit limit (6 habits for initial launch)
-    if (habits.length >= LIMITS.MAX_HABITS) {
-      throw new Error(`You can create up to ${LIMITS.MAX_HABITS} habits. This helps you stay focused on what matters most!`);
-    }
-
 
     try {
       setIsCreating(true);
@@ -223,7 +221,7 @@ export function useHabits(): UseHabitsReturn {
     } finally {
       setIsCreating(false);
     }
-  }, [user, loadHabits, habits.length]);
+  }, [user, loadHabits]);
 
   // Update habit
   const updateHabit = useCallback(async (habitId: string, updates: Partial<Habit>) => {

@@ -3,7 +3,7 @@
 ## Age Rating: 4+
 
 ### Rationale
-GoalStreak is designed to be appropriate for all ages, including young children. The app promotes positive behavior change through habit tracking and social accountability, with no objectionable content.
+Goalfer is designed to be appropriate for all ages, including young children. The app promotes positive behavior change through habit tracking and social accountability, with no objectionable content.
 
 ## Content Advisory Questionnaire Responses
 
@@ -12,7 +12,7 @@ GoalStreak is designed to be appropriate for all ages, including young children.
 - **Realistic Violence**: None  
 - **Prolonged Graphic and Sadistic Realistic Violence**: None
 
-**Justification**: GoalStreak contains no violent content of any kind. The app focuses on positive habit formation and social encouragement.
+**Justification**: Goalfer contains no violent content of any kind. The app focuses on positive habit formation and social encouragement.
 
 ### Sexual Content
 - **Sexual Content or Nudity**: None
@@ -177,6 +177,6 @@ All user-generated content is subject to community guidelines and moderation pol
 
 ## Conclusion
 
-GoalStreak is designed to be a safe, positive, and educational app suitable for users of all ages. The 4+ age rating is appropriate given the complete absence of objectionable content and the app's focus on promoting healthy habits and positive social interactions.
+Goalfer is designed to be a safe, positive, and educational app suitable for users of all ages. The 4+ age rating is appropriate given the complete absence of objectionable content and the app's focus on promoting healthy habits and positive social interactions.
 
 The mild social networking and user-generated content features are designed with safety and privacy as top priorities, making the app suitable for family use while providing valuable tools for personal development and goal achievement.

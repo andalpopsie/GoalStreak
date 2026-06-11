@@ -387,7 +387,7 @@ class FriendService {
       }
 
       // Build query for activities from friends
-      let activitiesQuery = query(
+      const activitiesQuery = query(
         this.activitiesCollection,
         where('userId', 'in', friendIds.slice(0, 10)), // Firestore 'in' limit is 10
         where('visibility', 'in', ['public', 'friends']),

@@ -1,4 +1,4 @@
-# GoalStreak Real Screenshots Replacement Guide
+# Goalfer Real Screenshots Replacement Guide
 
 ## 📱 Using Your Own Screenshots (Recommended!)
 
@@ -58,7 +58,7 @@ app-store-assets/
 - Show the social feed with friend activities
 - Display friend connections and reactions
 - Highlight social accountability aspect
-- **Goal**: Show what makes GoalStreak different
+- **Goal**: Show what makes Goalfer different
 
 ### 4. **Analytics** (Progress insights)
 - Display charts and progress analytics
@@ -109,7 +109,7 @@ app-store-assets/
 - **Show progress**: Include some completed habits and streaks
 - **Populate social feed**: Add friend activities and reactions
 - **Clean interface**: Remove debug info, ensure good lighting
-- **Consistent branding**: Use GoalStreak colors and fonts
+- **Consistent branding**: Use Goalfer colors and fonts
 
 ### Technical Guidelines
 - **High resolution**: Use highest quality settings
@@ -121,8 +121,8 @@ app-store-assets/
 
 ### Step 1: Create Real Screenshots Directory
 ```bash
-mkdir -p GoalStreakApp/app-store-assets/real-screenshots/ios
-mkdir -p GoalStreakApp/app-store-assets/real-screenshots/android
+mkdir -p GoalferApp/app-store-assets/real-screenshots/ios
+mkdir -p GoalferApp/app-store-assets/real-screenshots/android
 ```
 
 ### Step 2: Take Your Screenshots

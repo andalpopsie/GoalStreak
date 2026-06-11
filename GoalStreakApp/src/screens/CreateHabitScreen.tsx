@@ -17,6 +17,7 @@ import { Colors, Typography, Spacing, BorderRadius } from '../constants/theme';
 import { LIMITS } from '../constants/limits';
 import { useHabits } from '../hooks/useHabits';
 import { Button, SimpleInput } from '../components/common';
+import ProPaywallModal from '../components/common/ProPaywallModal';
 import { IconPicker } from '../components/habit';
 import { CreateHabitForm, HabitCategory, TimerConfig } from '../types';
 import { TimerToggle } from '../components/timer';
@@ -25,6 +26,7 @@ import { trackScreen, trackEvent, trackFeature } from '../services/enhancedAnaly
 import { useAuth } from '../hooks/useAuth';
 import { useHabitFormValidation } from '../hooks/useHabitFormValidation';
 import { getCategoryColor } from '../utils/categoryIcons';
+import { HabitLimitError } from '../types/subscription';
 
 interface CreateHabitScreenProps {
   navigation: any;
@@ -94,36 +96,36 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
   // Reminder time picker state
   const [showReminderPicker, setShowReminderPicker] = useState(false);
 
+  // Paywall state — Free users hitting the habit limit see ProPaywallModal
+  // instead of the legacy alert. `pendingForm` preserves the in-flight form
+  // payload so the post-purchase retry uses the exact same data the user
+  // submitted (Req 4.3, 4.4).
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [pendingForm, setPendingForm] = useState<CreateHabitForm | null>(null);
+
   // Time picker state
   const [selectedHour] = useState(DEFAULT_REMINDER_HOUR);
   const [selectedMinute] = useState(DEFAULT_REMINDER_MINUTE);
   const [selectedPeriod] = useState<'AM' | 'PM'>(DEFAULT_REMINDER_PERIOD);
 
-  // Validation logic extracted for better maintainability
+  // Validation logic extracted for better maintainability.
+  // Note: the habit-limit check now lives in `habitService.createHabit` and
+  // is tier-aware (Free: 6, Pro: 15). The screen no longer pre-blocks
+  // submission; the service decides and we branch on `HabitLimitError`.
   const validation = useHabitFormValidation(habits);
-  const isAtLimit = validation.isAtHabitLimit();
-
-  // Show alert if user is at habit limit when screen opens
-  useEffect(() => {
-    if (isAtLimit) {
-      Alert.alert(
-        'Habit Limit Reached',
-        `You've reached the maximum of ${LIMITS.MAX_HABITS} habits. Delete a habit to create a new one.`,
-        [{ text: 'OK', onPress: () => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MainTabs') }]
-      );
-    }
-  }, [isAtLimit, navigation]);
 
   const validateForm = useCallback((): boolean => {
     const newErrors = validation.validateForm(form);
-    setErrors(newErrors);
-    
-    // Show specific alert for limit error
+
+    // Drop the legacy `limit` validator output: the tier-based limit is now
+    // enforced by `habitService.createHabit`, which throws `HabitLimitError`
+    // on rejection. The screen branches on that error to show the paywall
+    // (free user) or a terminal alert (Pro user already at 15).
     if (newErrors.limit) {
-      Alert.alert('Habit Limit Reached', newErrors.limit);
-      return false;
+      delete newErrors.limit;
     }
-    
+
+    setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, [form, validation]);
 
@@ -247,6 +249,27 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
     } catch (error: any) {
       console.error('Error creating habit:', error);
 
+      // Free user hit the 6-habit limit → present the paywall and capture
+      // the form so we can retry the exact same payload after a successful
+      // purchase (Req 4.1, 4.3, 4.4).
+      if (error instanceof HabitLimitError && !error.isPro) {
+        trackEvent('habit_creation_paywall_triggered', {
+          current_habit_count: habits.length,
+          limit: error.limit,
+          user_id: user?.id,
+        });
+        setPendingForm(form);
+        setShowPaywall(true);
+        return;
+      }
+
+      // Pro user hit the 15-habit ceiling → terminal limit alert; no upsell
+      // is appropriate because they're already on the Pro tier (Req 4.2).
+      if (error instanceof HabitLimitError && error.isPro) {
+        Alert.alert('Habit Limit Reached', error.message);
+        return;
+      }
+
       // Track habit creation error
       trackEvent('habit_creation_error', {
         error_message: error.message || 'Unknown error',
@@ -263,6 +286,59 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
       Alert.alert('Error', error.message || 'Failed to create habit');
     }
   };
+
+  // Retry the original habit creation after a successful Pro purchase or
+  // restore. We dismiss the paywall first so the success alert that may
+  // follow is rendered over the form, not the modal.
+  const handlePaywallSuccess = useCallback(async () => {
+    setShowPaywall(false);
+
+    if (!pendingForm) return;
+
+    // Build the same `reminderTime` payload `handleCreateHabit` would have
+    // produced; the original payload is kept untouched so the user's
+    // selection survives the paywall round-trip.
+    const reminderTime = pendingForm.reminderEnabled
+      ? formatTimeFor24Hour(selectedHour, selectedMinute, selectedPeriod)
+      : undefined;
+
+    try {
+      await createHabit({
+        ...pendingForm,
+        reminderTime,
+      });
+      setPendingForm(null);
+
+      trackFeature('habit_management', 'habit_created', 1);
+      trackEvent('habit_created_after_paywall', {
+        habit_name: pendingForm.name,
+        habit_category: pendingForm.category,
+        user_id: user?.id,
+      });
+
+      Alert.alert('Success', 'Habit created successfully!', [
+        { text: 'OK', onPress: () => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MainTabs') }
+      ]);
+    } catch (error: any) {
+      console.error('Error creating habit after paywall:', error);
+      Alert.alert('Error', error?.message || 'Failed to create habit');
+    }
+  }, [
+    pendingForm,
+    createHabit,
+    formatTimeFor24Hour,
+    selectedHour,
+    selectedMinute,
+    selectedPeriod,
+    navigation,
+    user?.id,
+  ]);
+
+  // Closing the paywall keeps `pendingForm` so the user can retry from the
+  // existing form contents without losing their progress (Req 4.3).
+  const handlePaywallClose = useCallback(() => {
+    setShowPaywall(false);
+  }, []);
 
   const handleCategorySelect = useCallback((category: HabitCategory) => {
     setForm(prev => ({ ...prev, category }));
@@ -784,6 +860,13 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
           </View>
         </TouchableOpacity>
       </Modal>
+
+      {/* Pro Paywall Modal — shown when a free user hits the 6-habit limit. */}
+      <ProPaywallModal
+        visible={showPaywall}
+        onClose={handlePaywallClose}
+        onSuccess={handlePaywallSuccess}
+      />
     </SafeAreaView>
   );
 }

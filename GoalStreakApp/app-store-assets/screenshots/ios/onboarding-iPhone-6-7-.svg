@@ -22,12 +22,12 @@
   
   <!-- Header -->
   <rect x="0" y="44" width="100%" height="80" fill="#FFFFFF"/>
-  <text x="32" y="94" class="primary-text" font-size="24" font-weight="700">GoalStreak</text>
+  <text x="32" y="94" class="primary-text" font-size="24" font-weight="700">Goalfer</text>
   
   <!-- Main Content Area -->
   <g transform="translate(32, 160)">
     <!-- Title -->
-    <text x="0" y="0" class="primary-text" font-size="32" font-weight="700">Welcome to GoalStreak</text>
+    <text x="0" y="0" class="primary-text" font-size="32" font-weight="700">Welcome to Goalfer</text>
     <text x="0" y="50" class="secondary-text" font-size="18">Build lasting habits with friends</text>
     
     <!-- Mock UI Elements based on screen type -->
@@ -36,7 +36,7 @@
           <g transform="translate(613, 1178)">
             <circle cx="0" cy="-50" r="60" fill="#FF894F"/>
             <text x="0" y="-40" text-anchor="middle" font-size="40">🎯</text>
-            <text x="0" y="20" text-anchor="middle" class="primary-text" font-size="24" font-weight="700">Welcome to GoalStreak</text>
+            <text x="0" y="20" text-anchor="middle" class="primary-text" font-size="24" font-weight="700">Welcome to Goalfer</text>
             <text x="0" y="50" text-anchor="middle" class="secondary-text" font-size="16">Your journey to better habits starts here</text>
           </g>
         

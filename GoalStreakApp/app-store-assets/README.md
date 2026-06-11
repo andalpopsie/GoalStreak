@@ -1,4 +1,4 @@
-# GoalStreak App Store Assets Guide
+# Goalfer App Store Assets Guide
 
 ## Generated Assets Overview
 

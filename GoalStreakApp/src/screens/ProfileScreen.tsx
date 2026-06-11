@@ -16,15 +16,20 @@ import { motivationalNotificationService, notificationPreferencesService, AppNot
 import BadgeShowcase from '../components/profile/BadgeShowcase';
 import { validateUsername, isUsernameAvailable, reserveUsername, releaseUsername } from '../utils/usernameUtils';
 import FeedbackModal from '../components/feedback/FeedbackModal';
+import ProPaywallModal from '../components/common/ProPaywallModal';
 
 export default function ProfileScreen() {
-  const { user, isAuthenticated, logout, updateUserProfile } = useAuth();
+  const { user, isAuthenticated, logout, updateUserProfile, deleteAccount } = useAuth();
   const { habits, streaks } = useHabits();
   const { friends } = useFriends();
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const [showPaywallPreview, setShowPaywallPreview] = useState(false);
+  const [deleteAccountPassword, setDeleteAccountPassword] = useState('');
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [editedName, setEditedName] = useState(user?.displayName || '');
   const [editedEmail, setEditedEmail] = useState(user?.email || '');
   const [editedUsername, setEditedUsername] = useState(user?.username || '');
@@ -306,6 +311,42 @@ export default function ProfileScreen() {
     );
   };
 
+  const handleDeleteAccountPress = () => {
+    setDeleteAccountPassword('');
+    setShowDeleteAccountModal(true);
+  };
+
+  const handleConfirmDeleteAccount = async () => {
+    if (!deleteAccountPassword.trim()) {
+      Alert.alert('Password Required', 'Please enter your password to confirm.');
+      return;
+    }
+
+    setIsDeletingAccount(true);
+    try {
+      trackEvent('account_deletion_requested', { user_id: user?.id });
+      await deleteAccount(deleteAccountPassword);
+      // Auth listener will navigate the user to the login screen automatically
+      // once Firebase Auth confirms the user has been deleted.
+      setShowDeleteAccountModal(false);
+      setDeleteAccountPassword('');
+    } catch (error: any) {
+      Alert.alert('Could Not Delete Account', error.message || 'Please try again.');
+      trackEvent('account_deletion_failed', {
+        user_id: user?.id,
+        error_message: error.message,
+      });
+    } finally {
+      setIsDeletingAccount(false);
+    }
+  };
+
+  const handleCancelDeleteAccount = () => {
+    if (isDeletingAccount) return;
+    setShowDeleteAccountModal(false);
+    setDeleteAccountPassword('');
+  };
+
 
 
   return (
@@ -397,12 +438,38 @@ export default function ProfileScreen() {
             <Text style={styles.menuText}>Send Feedback</Text>
             <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
           </TouchableOpacity>
+
+          {__DEV__ && (
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => setShowPaywallPreview(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Preview Pro paywall (dev only)"
+            >
+              <Ionicons name="flask-outline" size={24} color={Colors.accent1} />
+              <Text style={[styles.menuText, { color: Colors.accent1 }]}>
+                🧪 Preview Pro Paywall
+              </Text>
+              <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.menuSection}>
           <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
             <Ionicons name="log-out-outline" size={24} color={Colors.error} />
             <Text style={[styles.menuText, { color: Colors.error }]}>Sign Out</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.menuItem, styles.menuItemLast]}
+            onPress={handleDeleteAccountPress}
+            accessibilityRole="button"
+            accessibilityLabel="Delete account permanently"
+          >
+            <Ionicons name="trash-outline" size={24} color={Colors.error} />
+            <Text style={[styles.menuText, { color: Colors.error }]}>Delete Account</Text>
+            <Ionicons name="chevron-forward" size={20} color={Colors.error} />
           </TouchableOpacity>
         </View>
 
@@ -702,6 +769,92 @@ export default function ProfileScreen() {
         userName={user?.displayName}
         source="profile"
       />
+
+      {/* Dev-only: Pro Paywall preview */}
+      {__DEV__ && (
+        <ProPaywallModal
+          visible={showPaywallPreview}
+          onClose={() => setShowPaywallPreview(false)}
+          onSuccess={() => {
+            setShowPaywallPreview(false);
+            Alert.alert(
+              'Preview',
+              'Paywall reported success. (No real purchase was made.)'
+            );
+          }}
+        />
+      )}
+
+      {/* Delete Account Modal */}
+      <Modal
+        visible={showDeleteAccountModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={handleCancelDeleteAccount}
+      >
+        <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={handleCancelDeleteAccount} disabled={isDeletingAccount}>
+              <Text style={styles.cancelButton}>Cancel</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>Delete Account</Text>
+            <View style={{ width: 60 }} />
+          </View>
+
+          <ScrollView style={styles.modalContent} keyboardShouldPersistTaps="handled">
+            <View style={styles.deleteWarningCard}>
+              <Ionicons name="warning" size={40} color={Colors.error} />
+              <Text style={styles.deleteWarningTitle}>This cannot be undone</Text>
+              <Text style={styles.deleteWarningBody}>
+                Deleting your account will permanently remove:
+              </Text>
+              <View style={styles.deleteWarningList}>
+                <Text style={styles.deleteWarningListItem}>• Your profile and account info</Text>
+                <Text style={styles.deleteWarningListItem}>• All habits, streaks, and progress data</Text>
+                <Text style={styles.deleteWarningListItem}>• Friends and social activity</Text>
+                <Text style={styles.deleteWarningListItem}>• Group memberships and shared content</Text>
+                <Text style={styles.deleteWarningListItem}>• Profile photos and cached data</Text>
+              </View>
+              <Text style={styles.deleteWarningBody}>
+                Your data cannot be recovered after deletion.
+              </Text>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Confirm with your password</Text>
+              <TextInput
+                style={styles.textInput}
+                value={deleteAccountPassword}
+                onChangeText={setDeleteAccountPassword}
+                placeholder="Enter your password"
+                placeholderTextColor={Colors.accent2}
+                secureTextEntry
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={!isDeletingAccount}
+                accessibilityLabel="Password to confirm account deletion"
+              />
+            </View>
+
+            <TouchableOpacity
+              style={[styles.deleteConfirmButton, isDeletingAccount && styles.deleteConfirmButtonDisabled]}
+              onPress={handleConfirmDeleteAccount}
+              disabled={isDeletingAccount || !deleteAccountPassword.trim()}
+              accessibilityRole="button"
+              accessibilityLabel="Permanently delete my account"
+            >
+              {isDeletingAccount ? (
+                <ActivityIndicator color={Colors.white} />
+              ) : (
+                <>
+                  <Ionicons name="trash" size={20} color={Colors.white} />
+                  <Text style={styles.deleteConfirmButtonText}>Permanently Delete Account</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -1070,5 +1223,63 @@ const styles = StyleSheet.create({
   footerCopyright: {
     fontSize: 12,                       // caption
     color: Colors.gray.medium,
+  },
+  // ── Delete Account Modal Styles ──
+  menuItemLast: {
+    borderBottomWidth: 0,
+  },
+  deleteWarningCard: {
+    backgroundColor: Colors.error + '10',  // 10% opacity tint
+    borderRadius: 16,                       // 8 * 2
+    padding: 24,                            // 8 * 3 (comfortable)
+    marginTop: 16,                          // 8 * 2 (base)
+    marginBottom: 24,                       // 8 * 3 (comfortable)
+    alignItems: 'center',
+  },
+  deleteWarningTitle: {
+    fontSize: 20,                           // subheading
+    fontWeight: '700',                      // bold
+    color: Colors.error,
+    marginTop: 8,                           // 8 * 1 (tight)
+    marginBottom: 16,                       // 8 * 2 (base)
+    textAlign: 'center',
+  },
+  deleteWarningBody: {
+    fontSize: 16,                           // body
+    color: Colors.primaryText,
+    textAlign: 'center',
+    marginBottom: 16,                       // 8 * 2 (base)
+    lineHeight: 24,                         // 16 * 1.5
+  },
+  deleteWarningList: {
+    alignSelf: 'stretch',
+    marginBottom: 8,                        // 8 * 1 (tight)
+  },
+  deleteWarningListItem: {
+    fontSize: 14,                           // caption
+    color: Colors.primaryText,
+    marginBottom: 8,                        // 8 * 1 (tight)
+    lineHeight: 20,                         // 14 * 1.43
+  },
+  deleteConfirmButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.error,
+    borderRadius: 12,                       // 8 * 1.5
+    paddingVertical: 16,                    // 8 * 2 (base)
+    paddingHorizontal: 24,                  // 8 * 3 (comfortable)
+    minHeight: 56,                          // 8 * 7 (touch target)
+    gap: 8,                                 // 8 * 1 (tight)
+    marginTop: 8,                           // 8 * 1 (tight)
+    marginBottom: 32,                       // 8 * 4 (loose)
+  },
+  deleteConfirmButtonDisabled: {
+    opacity: 0.6,
+  },
+  deleteConfirmButtonText: {
+    fontSize: 16,                           // body
+    fontWeight: '600',                      // semibold
+    color: Colors.white,
   },
 });

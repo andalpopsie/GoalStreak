@@ -1,4 +1,4 @@
-# Enhanced GoalStreak App Icons
+# Enhanced Goalfer App Icons
 
 ## Design Improvements
 

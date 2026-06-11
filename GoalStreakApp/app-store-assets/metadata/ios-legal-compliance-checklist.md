@@ -1,7 +1,7 @@
 # iOS Legal Compliance Checklist
 
 ## Overview
-This checklist ensures GoalStreak meets all iOS App Store legal and privacy requirements for successful submission and approval.
+This checklist ensures Goalfer meets all iOS App Store legal and privacy requirements for successful submission and approval.
 
 ## ✅ Privacy Usage Descriptions (Info.plist)
 

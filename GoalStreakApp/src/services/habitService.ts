@@ -20,6 +20,9 @@ import { withRetry, RETRY_CONFIGS } from './retryService';
 import { Habit, HabitCompletion, Streak, CreateHabitForm, TimerConfig, TimerSession, TimerState } from '../types';
 import { notificationService } from './notificationService';
 import { achievementsService } from './achievementsService';
+import { subscriptionService } from './subscriptionService';
+import { HabitLimitError } from '../types/subscription';
+import { getHabitLimit } from '../constants/limits';
 
 // Collection references
 const HABITS_COLLECTION = 'habits';
@@ -33,6 +36,18 @@ export const habitService = {
   // Create a new habit
   async createHabit(userId: string, habitData: CreateHabitForm): Promise<string> {
     return withRetry(async () => {
+      // Enforce tier-based habit limit. RevenueCat is the source of truth for
+      // Pro status; free users are capped at MAX_HABITS_FREE, Pro at
+      // MAX_HABITS_PRO. Throws HabitLimitError so CreateHabitScreen can branch
+      // on `isPro` to either show the paywall or a terminal "limit reached"
+      // alert.
+      const isPro = await subscriptionService.getProStatus();
+      const limit = getHabitLimit(isPro);
+      const existingHabits = await this.getUserHabits(userId);
+      if (existingHabits.length >= limit) {
+        throw new HabitLimitError(isPro, limit);
+      }
+
       const habit: any = {
         userId,
         name: habitData.name.trim(),
@@ -275,7 +290,7 @@ export const habitService = {
             lastCompletion.getTime() === yesterday.getTime()) {
           
           // Count consecutive days
-          let checkDate = new Date(lastCompletion);
+          const checkDate = new Date(lastCompletion);
           for (const completion of completions) {
             if (completion.getTime() === checkDate.getTime()) {
               currentStreak++;

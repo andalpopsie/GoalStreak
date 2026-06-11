@@ -13,6 +13,8 @@ import { auth, db, isFirebaseConfigured } from '../services/firebase';
 import { User as AppUser, AuthState } from '../types';
 import friendService from '../services/friendService';
 import { generateUsername, isUsernameAvailable, reserveUsername } from '../utils/usernameUtils';
+import { accountDeletionService } from '../services/accountDeletionService';
+import subscriptionService from '../services/subscriptionService';
 
 interface AuthContextType {
   user: AppUser | null;
@@ -23,6 +25,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updateUserProfile: (updates: Partial<AppUser>) => Promise<void>;
+  deleteAccount: (password: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -79,6 +82,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             user: appUser,
             isLoading: false,
             isAuthenticated: true,
+          });
+
+          // Fire-and-forget: initialize RevenueCat for the signed-in user.
+          // Intentionally not awaited so it does not block sign-in or the
+          // first render of the home screen. If initialization fails, the
+          // user is treated as Free until the next `getProStatus` call
+          // resolves (Req 1.1, 1.2, 1.3, 1.4).
+          subscriptionService.initialize(appUser.id).catch((err) => {
+            console.error('Failed to initialize subscription service:', err);
           });
         } catch (error) {
           console.error('Error fetching user data:', error);
@@ -273,6 +285,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  /**
+   * Permanently deletes the current user's account and all associated data.
+   * Requires the user's password to re-authenticate (Apple Guideline 5.1.1(v)).
+   */
+  const deleteAccount = async (password: string) => {
+    if (!authState.user || !isFirebaseConfigured()) {
+      throw new Error('User not authenticated or Firebase not configured');
+    }
+
+    try {
+      await accountDeletionService.reauthenticateAndDeleteAccount(password);
+      // Auth state will update via onAuthStateChanged after deletion.
+    } catch (error: any) {
+      const errorCode = error.code;
+      let userMessage = 'Failed to delete account. Please try again.';
+
+      switch (errorCode) {
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential':
+          userMessage = 'Incorrect password. Please try again.';
+          break;
+        case 'auth/too-many-requests':
+          userMessage = 'Too many attempts. Please try again later.';
+          break;
+        case 'auth/network-request-failed':
+          userMessage = 'Network error. Please check your connection and try again.';
+          break;
+        case 'auth/requires-recent-login':
+          userMessage = 'For security, please sign out and sign back in before deleting your account.';
+          break;
+        default:
+          console.error('Account deletion error:', errorCode, error.message);
+          userMessage = error.message || 'Unable to delete account. Please try again later.';
+      }
+
+      throw new Error(userMessage);
+    }
+  };
+
   const value: AuthContextType = {
     user: authState.user,
     isLoading: authState.isLoading,
@@ -282,6 +333,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     logout,
     resetPassword,
     updateUserProfile,
+    deleteAccount,
   };
 
   return (

@@ -7,7 +7,7 @@
 
 ## 📱 Screenshots Included (5 Total)
 
-These screenshots showcase GoalStreak's key features in the optimal order for App Store presentation:
+These screenshots showcase Goalfer's key features in the optimal order for App Store presentation:
 
 1. **01-dashboard.png** - Main Dashboard
    - Shows habit tracking with progress circles
@@ -39,7 +39,7 @@ These screenshots showcase GoalStreak's key features in the optimal order for Ap
 ### Step 1: Access App Store Connect
 1. Go to https://appstoreconnect.apple.com
 2. Sign in with your Apple Developer account
-3. Navigate to "My Apps" → "GoalStreak"
+3. Navigate to "My Apps" → "Goalfer"
 4. Click on the version you're preparing (e.g., "1.0")
 
 ### Step 2: Upload Screenshots

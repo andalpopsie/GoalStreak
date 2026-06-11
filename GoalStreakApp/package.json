@@ -46,6 +46,8 @@
     "increment-build": "node scripts/increment-build.js",
     "sync-build-number": "node scripts/sync-build-number.js",
     "sync-app-icon": "node scripts/sync-app-icon.js",
+    "changelog": "node scripts/update-changelog.js",
+    "changelog:dry": "node scripts/update-changelog.js --dry-run",
     "cleanup:storage": "node scripts/cleanup-storage.js",
     "cleanup:directory": "node scripts/cleanup-and-organize-directory.js",
     "cleanup:all": "npm run cleanup:directory && npm run lint --fix"
@@ -78,6 +80,7 @@
     "react-native-chart-kit": "^6.12.0",
     "react-native-confetti-cannon": "^1.5.2",
     "react-native-gesture-handler": "^2.28.0",
+    "react-native-purchases": "^10.2.0",
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
@@ -88,6 +91,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@eslint/js": "^9.34.0",
     "@firebase/rules-unit-testing": "^5.0.0",
     "@testing-library/jest-native": "^5.4.3",
     "@testing-library/react-native": "^13.3.3",
@@ -95,6 +99,7 @@
     "@types/react": "~19.1.10",
     "@typescript-eslint/eslint-plugin": "^8.41.0",
     "@typescript-eslint/parser": "^8.41.0",
+    "conventional-changelog-cli": "^5.0.0",
     "detox": "^20.40.2",
     "detox-cli": "^20.0.0",
     "eslint": "^9.34.0",
@@ -105,7 +110,8 @@
     "jest-expo": "~54.0.13",
     "react-test-renderer": "^19.0.0",
     "ts-jest": "^29.4.1",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "typescript-eslint": "^8.41.0"
   },
   "private": true
 }

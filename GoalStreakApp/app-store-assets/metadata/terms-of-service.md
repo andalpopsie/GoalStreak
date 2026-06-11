@@ -1,17 +1,17 @@
-# GoalStreak Terms of Service
+# Goalfer Terms of Service
 
 **Effective Date:** January 1, 2025  
-**Last Updated:** January 1, 2025
+**Last Updated:** May 18, 2025
 
 ## 1. Acceptance of Terms
 
-By downloading, installing, or using the GoalStreak mobile application ("App"), you ("User" or "you") agree to be bound by these Terms of Service ("Terms"). These Terms constitute a legally binding agreement between you and GoalStreak ("we," "us," or "our").
+By downloading, installing, or using the Goalfer mobile application ("App"), you ("User" or "you") agree to be bound by these Terms of Service ("Terms"). These Terms constitute a legally binding agreement between you and Goalfer ("we," "us," or "our").
 
 **If you do not agree to these Terms, do not use the App.**
 
 ## 2. Description of Service
 
-GoalStreak is a mobile application designed to help users build and maintain positive habits through:
+Goalfer is a mobile application designed to help users build and maintain positive habits through:
 
 ### Core Features
 - **Personal Habit Tracking**: Create, track, and manage daily, weekly, and monthly habits
@@ -31,7 +31,7 @@ GoalStreak is a mobile application designed to help users build and maintain pos
 ## 3. Eligibility and Account Requirements
 
 ### Age Requirements
-- You must be at least 13 years old to use GoalStreak
+- You must be at least 13 years old to use Goalfer
 - Users under 18 must have parental consent
 - We comply with COPPA and other child privacy regulations
 
@@ -51,7 +51,7 @@ GoalStreak is a mobile application designed to help users build and maintain pos
 ## 4. Acceptable Use Policy
 
 ### Permitted Uses
-You may use GoalStreak to:
+You may use Goalfer to:
 - Track your personal habits and goals
 - Connect with friends and family for accountability
 - Share your progress and achievements
@@ -98,7 +98,7 @@ You may NOT:
 ## 6. Intellectual Property Rights
 
 ### Our Rights
-- GoalStreak owns all rights to the app, including design, code, trademarks, and logos
+- Goalfer owns all rights to the app, including design, code, trademarks, and logos
 - Our content, features, and functionality are protected by copyright and other intellectual property laws
 - You may not copy, modify, distribute, or create derivative works of our app
 
@@ -178,13 +178,13 @@ We may suspend or terminate your account for:
 ## 10. Disclaimers and Limitations
 
 ### Service Disclaimers
-- GoalStreak is provided "as is" without warranties of any kind
+- Goalfer is provided "as is" without warranties of any kind
 - We do not guarantee specific results from using the app
 - The app is for informational and motivational purposes only
 - We are not responsible for the accuracy of user-generated content
 
 ### Health and Wellness Disclaimer
-- GoalStreak is not a medical device or health treatment
+- Goalfer is not a medical device or health treatment
 - Consult healthcare professionals for medical advice
 - We are not responsible for health outcomes related to app use
 - Use the app as a supplement to, not replacement for, professional guidance
@@ -245,7 +245,7 @@ We may suspend or terminate your account for:
 ## 14. Miscellaneous Provisions
 
 ### Entire Agreement
-- These Terms, together with our Privacy Policy, constitute the entire agreement between you and GoalStreak
+- These Terms, together with our Privacy Policy, constitute the entire agreement between you and Goalfer
 - They supersede any prior agreements or understandings
 - Any modifications must be in writing and agreed to by both parties
 
@@ -290,4 +290,4 @@ We may suspend or terminate your account for:
 **Version**: 1.0  
 **Last Updated**: January 1, 2025
 
-*By using GoalStreak, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service and our Privacy Policy.*
+*By using Goalfer, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service and our Privacy Policy.*
