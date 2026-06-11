@@ -12,11 +12,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 import { Colors, Typography, Spacing } from '../constants/theme';
-import { LIMITS } from '../constants/limits';
+import { getHabitLimit } from '../constants/limits';
 import { useAuth } from '../hooks/useAuth';
 import { useHabitsWithSocial } from '../hooks/useHabitsWithSocial'; // Re-enabled social features with error handling
 import { useNetworkStatus } from '../hooks/useNetworkStatus';
+import { useSubscription } from '../hooks/useSubscription';
 import { OfflineBanner } from '../components/common';
+import ProPaywallModal from '../components/common/ProPaywallModal';
 import { SkeletonHabitCard, AnimatedCircularHabitCard, EmptyHabitsState } from '../components/habit';
 import CompletionShareModal from '../components/habit/CompletionShareModal';
 import friendService from '../services/friendService';
@@ -75,12 +77,25 @@ export default function CleanHomeScreen({ navigation }: any) {
   } = useHabitsWithSocial();
   const networkStatus = useNetworkStatus();
 
+  // Pro-tier-aware habit limit. The applicable cap is read from RevenueCat
+  // via `useSubscription`; free users see 6, Pro users see 15. The pre-nav
+  // alert was removed in favour of letting CreateHabitScreen open the
+  // paywall when a free user submits a 7th habit (Req 3.6, 4.1).
+  const { isPro } = useSubscription();
+  const limit = getHabitLimit(isPro);
+
   // Share modal state
   const [showShareModal, setShowShareModal] = useState(false);
   const [completedHabitName, setCompletedHabitName] = useState('');
   const [completedHabitId, setCompletedHabitId] = useState('');
   const [completedHabitCategory, setCompletedHabitCategory] = useState('');
   const [completedHabitIsPublic, setCompletedHabitIsPublic] = useState(true);
+
+  // Pro paywall — opened from the dashboard upgrade affordance shown to
+  // free users who have hit the habit limit. After a successful purchase
+  // RevenueCat flips `isPro`, the limit re-resolves to 15, and the
+  // upgrade card is replaced by the standard "Add Habit" button.
+  const [showPaywall, setShowPaywall] = useState(false);
 
   // Track screen view once on mount
   useEffect(() => {
@@ -152,23 +167,12 @@ export default function CleanHomeScreen({ navigation }: any) {
       current_habit_count: uniqueDailyHabits.length,
       user_id: user?.id
     });
-    
-    // Check habit limit before navigation
-    if (uniqueDailyHabits.length >= LIMITS.MAX_HABITS) {
-      // Track limit reached
-      trackEvent('habit_limit_reached', {
-        current_habit_count: uniqueDailyHabits.length,
-        limit: LIMITS.MAX_HABITS,
-        user_id: user?.id
-      });
-      
-      Alert.alert(
-        'Habit Limit Reached',
-        `You can create up to ${LIMITS.MAX_HABITS} habits to help you stay focused on what matters most! Consider completing your current habits consistently before adding new ones.`,
-        [{ text: 'OK', style: 'default' }]
-      );
-      return;
-    }
+
+    // The legacy pre-navigation alert was removed. Free users always reach
+    // CreateHabitScreen, where the service-side check throws
+    // `HabitLimitError` and the screen shows the Pro paywall instead
+    // (Req 3.6, 4.1). Pro users get a terminal alert at 15 habits from
+    // CreateHabitScreen, so no client-side gate is needed here.
 
     try {
       // Track successful navigation
@@ -272,8 +276,8 @@ export default function CleanHomeScreen({ navigation }: any) {
               </Animated.View>
             ))}
             
-            {/* Add Habit Button - only show if under limit */}
-            {uniqueDailyHabits.length < LIMITS.MAX_HABITS && (
+            {/* Add Habit Button — only show if under the user's tier limit */}
+            {uniqueDailyHabits.length < limit && (
               <Animated.View 
                 entering={FadeInUp.delay(uniqueDailyHabits.length * 100).duration(500)}
                 style={styles.habitCardContainer}
@@ -287,9 +291,40 @@ export default function CleanHomeScreen({ navigation }: any) {
               </Animated.View>
             )}
             
-            {/* Habit Limit Reached Message */}
-            {uniqueDailyHabits.length >= LIMITS.MAX_HABITS && (
-              <Animated.View 
+            {/* Habit Limit Reached — copy + affordance reflect the user's tier.
+                Free users see an upgrade card that opens the Pro paywall.
+                Pro users see the original "All Set!" card (they're already
+                at the top tier). */}
+            {uniqueDailyHabits.length >= limit && !isPro && (
+              <Animated.View
+                entering={FadeInUp.delay(uniqueDailyHabits.length * 100).duration(500)}
+                style={styles.habitCardContainer}
+              >
+                <TouchableOpacity
+                  style={styles.upgradeCard}
+                  onPress={() => {
+                    trackEvent('pro_upgrade_card_tapped', {
+                      source: 'home_dashboard',
+                      habit_count: uniqueDailyHabits.length,
+                      user_id: user?.id,
+                    });
+                    setShowPaywall(true);
+                  }}
+                  accessibilityRole="button"
+                  accessibilityLabel="Upgrade to Pro for more habits"
+                  activeOpacity={0.85}
+                >
+                  <View style={styles.upgradeCircle}>
+                    <Ionicons name="sparkles" size={48} color={Colors.accent1} />
+                  </View>
+                  <Text style={styles.upgradeText}>Want more?</Text>
+                  <Text style={styles.upgradeSubtext}>From $1.99/mo</Text>
+                </TouchableOpacity>
+              </Animated.View>
+            )}
+
+            {uniqueDailyHabits.length >= limit && isPro && (
+              <Animated.View
                 entering={FadeInUp.delay(uniqueDailyHabits.length * 100).duration(500)}
                 style={styles.habitCardContainer}
               >
@@ -298,7 +333,7 @@ export default function CleanHomeScreen({ navigation }: any) {
                     <Ionicons name="checkmark-done" size={60} color={Colors.accent1} />
                   </View>
                   <Text style={styles.limitReachedText}>All Set! 🎯</Text>
-                  <Text style={styles.limitReachedSubtext}>Focus on your {LIMITS.MAX_HABITS} habits</Text>
+                  <Text style={styles.limitReachedSubtext}>Focus on your {limit} habits</Text>
                 </View>
               </Animated.View>
             )}
@@ -313,6 +348,19 @@ export default function CleanHomeScreen({ navigation }: any) {
         isPublic={completedHabitIsPublic}
         onShare={handleShareCompletion}
         onSkip={() => setShowShareModal(false)}
+      />
+
+      {/* Pro Paywall — opened from the dashboard upgrade card. */}
+      <ProPaywallModal
+        visible={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        onSuccess={() => {
+          setShowPaywall(false);
+          trackEvent('pro_upgraded', {
+            source: 'home_dashboard',
+            user_id: user?.id,
+          });
+        }}
       />
     </SafeAreaView>
   );
@@ -434,6 +482,47 @@ const styles = StyleSheet.create({
   limitReachedSubtext: {
     fontSize: Typography.fontSize.xs,
     color: Colors.accent2,
+    textAlign: 'center',
+    marginTop: 2,
+  },
+  // ── Pro upgrade card ──
+  // Mirrors the limitReachedCard layout (same aspectRatio + circle size +
+  // typography rhythm) so the dashboard grid stays uniform whether the
+  // user is free or Pro. Purple accent signals the upgrade pathway.
+  upgradeCard: {
+    aspectRatio: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: Spacing.sm,
+  },
+  upgradeCircle: {
+    width: 140,                          // matches limitReachedCircle
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: Colors.white,
+    borderWidth: 12,
+    borderColor: Colors.accent1,         // #B771E5 — Pro accent
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.md,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  upgradeText: {
+    fontSize: Typography.fontSize.sm,
+    fontWeight: Typography.fontWeight.semibold,
+    fontFamily: Typography.fontFamily.semibold,
+    color: Colors.primaryText,
+    textAlign: 'center',
+  },
+  upgradeSubtext: {
+    fontSize: Typography.fontSize.xs,
+    color: Colors.accent1,               // purple to reinforce the Pro framing
+    fontWeight: Typography.fontWeight.semibold,
+    fontFamily: Typography.fontFamily.semibold,
     textAlign: 'center',
     marginTop: 2,
   },

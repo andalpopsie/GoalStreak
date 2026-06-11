@@ -16,6 +16,7 @@ import { motivationalNotificationService, notificationPreferencesService, AppNot
 import BadgeShowcase from '../components/profile/BadgeShowcase';
 import { validateUsername, isUsernameAvailable, reserveUsername, releaseUsername } from '../utils/usernameUtils';
 import FeedbackModal from '../components/feedback/FeedbackModal';
+import ProPaywallModal from '../components/common/ProPaywallModal';
 
 export default function ProfileScreen() {
   const { user, isAuthenticated, logout, updateUserProfile, deleteAccount } = useAuth();
@@ -26,6 +27,7 @@ export default function ProfileScreen() {
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const [showPaywallPreview, setShowPaywallPreview] = useState(false);
   const [deleteAccountPassword, setDeleteAccountPassword] = useState('');
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [editedName, setEditedName] = useState(user?.displayName || '');
@@ -436,6 +438,21 @@ export default function ProfileScreen() {
             <Text style={styles.menuText}>Send Feedback</Text>
             <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
           </TouchableOpacity>
+
+          {__DEV__ && (
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => setShowPaywallPreview(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Preview Pro paywall (dev only)"
+            >
+              <Ionicons name="flask-outline" size={24} color={Colors.accent1} />
+              <Text style={[styles.menuText, { color: Colors.accent1 }]}>
+                🧪 Preview Pro Paywall
+              </Text>
+              <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.menuSection}>
@@ -752,6 +769,21 @@ export default function ProfileScreen() {
         userName={user?.displayName}
         source="profile"
       />
+
+      {/* Dev-only: Pro Paywall preview */}
+      {__DEV__ && (
+        <ProPaywallModal
+          visible={showPaywallPreview}
+          onClose={() => setShowPaywallPreview(false)}
+          onSuccess={() => {
+            setShowPaywallPreview(false);
+            Alert.alert(
+              'Preview',
+              'Paywall reported success. (No real purchase was made.)'
+            );
+          }}
+        />
+      )}
 
       {/* Delete Account Modal */}
       <Modal

@@ -1,5 +1,61 @@
 # GoalStreak Changelog
 
+## [Pro Subscription] - May 2026
+
+### Monetization
+- **Goalfer Pro paid subscription tier (iOS only)** — First monetization feature, raising the per-user habit limit from 6 (free) to 15 (Pro)
+  - Monthly plan: **$3.99 / month** · Annual plan: **$23.99 / year** ("Save 50%")
+  - Powered by [RevenueCat](https://www.revenuecat.com/) via `react-native-purchases` SDK
+  - RevenueCat is the **source of truth** for entitlements; Pro status is mirrored to Firestore (`users/{uid}.isPro`, `proSince`) for backend reference only
+  - `proSince` is **write-once** — never overwritten by re-purchases or restores, preserving the original conversion timestamp for analytics
+
+- **Paywall trigger flow** — Free users hitting the 6-habit limit now see a paywall instead of a silent dead-end
+  - `habitService.createHabit` reads Pro status, enforces the tier limit, throws typed `HabitLimitError` (code: `HABIT_LIMIT_REACHED`)
+  - `CreateHabitScreen` catches the error, opens the paywall, preserves the form payload, and retries the original creation after a successful purchase
+  - Pre-existing client-side checks in `useHabits` and `CleanHomeScreen` removed — the service is now the single source of truth for limit enforcement
+
+- **Discovery affordance on the home dashboard** — Free users at the limit see a soft upgrade card in place of the "All Set!" message
+  - Same circular shape as the limit-reached card so the dashboard grid stays uniform
+  - Purple accent (`#B771E5`) signals the Pro pathway via the existing palette
+  - Copy: "Want more? · From $1.99/mo" (annual price amortized; monthly is $3.99)
+  - Pro users at 15 habits keep the original "All Set! 🎯" copy
+  - Tapping opens the same `ProPaywallModal` used by `CreateHabitScreen`
+  - Funnel analytics: `pro_upgrade_card_tapped` (with habit count) and `pro_upgraded` (with `source`) events
+
+- **Restore Purchases support** — Restore link in the paywall calls RevenueCat's restore flow and surfaces inline error states for "no purchases found" and "no internet"
+
+### New files
+- `src/types/subscription.ts` — Constants (`PRO_ENTITLEMENT_ID`, `PRO_PRODUCT_IDS`, `HABIT_LIMIT_REACHED`), typed `PurchaseResult`, `HabitLimitError` class
+- `src/services/subscriptionService.ts` — Singleton wrapping `react-native-purchases`; iOS-only platform guard; Firestore mirror with write-once `proSince`
+- `src/hooks/useSubscription.ts` — Thin hook exposing `{ isPro, isLoading, error, purchase, restore, refresh }`; re-reads Pro status after every purchase or restore
+- `src/components/common/ProPaywallModal.tsx` — Paywall surface with benefits checklist, side-by-side plan cards, purchase CTA, restore link, full theme integration
+- `src/services/__tests__/subscriptionService.test.ts` — Platform guards, already-Pro short-circuit, error mapping, write-once `proSince`
+- `src/services/__tests__/habitService.createHabit.test.ts` — Tier enforcement at 6/15 boundaries for free vs Pro users
+- `src/components/common/__tests__/ProPaywallModal.test.tsx` — Layout, plan selection, CTA copy, error rendering, restore flow
+
+### Modified files
+- `src/constants/limits.ts` — Added `MAX_HABITS_FREE` (6), `MAX_HABITS_PRO` (15), `getHabitLimit(isPro)` helper. `MAX_HABITS` retained for backwards compatibility (= `MAX_HABITS_FREE`)
+- `src/services/habitService.ts` — `createHabit` reads Pro status, resolves the tier limit, throws `HabitLimitError` when exceeded
+- `src/hooks/useHabits.tsx` — Removed pre-check; rethrows service errors so the screen can branch on `HabitLimitError`
+- `src/hooks/useAuth.tsx` — Fire-and-forget `subscriptionService.initialize(userId)` on auth completion (non-blocking)
+- `src/screens/CreateHabitScreen.tsx` — Branches on `HabitLimitError`; renders `ProPaywallModal`; preserves `pendingForm` for retry; pre-mount limit alert removed
+- `src/screens/CleanHomeScreen.tsx` — Pre-navigation limit alert removed; UI affordances driven by `useSubscription().isPro` + `getHabitLimit`; new upgrade card for free users at the limit
+- `src/screens/ProfileScreen.tsx` — Dev-only "🧪 Preview Pro Paywall" entry (gated behind `__DEV__`) for visual QA without a build
+
+### Configuration
+- Added `react-native-purchases@^10.2.0` to dependencies
+- Added `EXPO_PUBLIC_REVENUECAT_IOS_KEY` placeholder to `.env.development` and `.env.production`. Production value is supplied via EAS secrets at build time. No Android key — iOS-only scope.
+
+### Testing
+- 23 new unit tests passing (paywall: 11, subscription service: 8, habit service tier enforcement: 4)
+- TypeScript: all new files compile cleanly under `tsc --noEmit`
+- Pre-existing failures (Firebase v12 `getReactNativePersistence`, iOS notifications, haptics) are unchanged and unrelated to this feature
+
+### External setup required before launch
+- App Store Connect: create products `goalfer_pro_monthly` ($3.99 tier) and `goalfer_pro_annual` ($23.99 tier); register a sandbox tester
+- RevenueCat dashboard: create entitlement `pro`, offering `default` with both packages, attach `pro` to both products
+- EAS secret: `EXPO_PUBLIC_REVENUECAT_IOS_KEY` set to the iOS public API key
+
 ## [Metadata Sync] - May 2026
 
 ### App Store Metadata

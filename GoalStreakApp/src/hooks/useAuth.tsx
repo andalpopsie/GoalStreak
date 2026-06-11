@@ -14,6 +14,7 @@ import { User as AppUser, AuthState } from '../types';
 import friendService from '../services/friendService';
 import { generateUsername, isUsernameAvailable, reserveUsername } from '../utils/usernameUtils';
 import { accountDeletionService } from '../services/accountDeletionService';
+import subscriptionService from '../services/subscriptionService';
 
 interface AuthContextType {
   user: AppUser | null;
@@ -81,6 +82,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             user: appUser,
             isLoading: false,
             isAuthenticated: true,
+          });
+
+          // Fire-and-forget: initialize RevenueCat for the signed-in user.
+          // Intentionally not awaited so it does not block sign-in or the
+          // first render of the home screen. If initialization fails, the
+          // user is treated as Free until the next `getProStatus` call
+          // resolves (Req 1.1, 1.2, 1.3, 1.4).
+          subscriptionService.initialize(appUser.id).catch((err) => {
+            console.error('Failed to initialize subscription service:', err);
           });
         } catch (error) {
           console.error('Error fetching user data:', error);
