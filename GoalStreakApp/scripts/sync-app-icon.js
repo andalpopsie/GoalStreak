@@ -12,7 +12,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const SOURCE_ICON = path.join(__dirname, '../app-store-assets/icons/enhanced/ios/AppIcon-AppStore.png');
+const SOURCE_ICON = path.join(__dirname, '../assets/icon.png');
 const TARGET_ICON = path.join(__dirname, '../ios/GoalStreak/Images.xcassets/AppIcon.appiconset/App-Icon-1024x1024@1x.png');
 
 function syncAppIcon() {
@@ -22,7 +22,8 @@ function syncAppIcon() {
   if (!fs.existsSync(SOURCE_ICON)) {
     console.error('❌ Source icon not found!');
     console.error(`   Expected: ${SOURCE_ICON}`);
-    console.error('\n💡 Run this first: cd app-store-assets/icons/enhanced/ios && ./generate-icons.sh\n');
+    console.error('\n💡 The canonical app icon lives at GoalStreakApp/assets/icon.png (1024×1024).');
+    console.error('   See .kiro/steering/asset-paths.md for the full asset map.\n');
     process.exit(1);
   }
 
