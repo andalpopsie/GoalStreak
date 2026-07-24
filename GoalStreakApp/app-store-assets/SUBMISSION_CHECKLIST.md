@@ -31,6 +31,16 @@
 ### ⚠️ Optional Optimizations
 - Keywords currently 89/100 chars. Consider adding "accountability" or "groups" on the next submission to align with the updated `whatsNew` text. Both `ios-metadata.json` and `app-store-connect-config.json` must be updated together.
 
+### 💳 Goalfer Pro — In-App Purchase (NEW, blocks next submission)
+The `description`, `promotionalText`, and `whatsNew` in `ios-metadata.json` and `app-store-connect-config.json` now advertise **Goalfer Pro** (15 habits vs 6) and a founding-members promo. Because the app now offers an auto-renewable subscription, the following must be complete before the next "Submit for Review":
+- [ ] Paid Apps Agreement active in App Store Connect
+- [ ] IAP products created & submitted **with the build**: `goalfer_pro_monthly` ($3.99), `goalfer_pro_annual` ($23.99)
+- [ ] 1024×1024 review screenshot attached to each IAP (use `assets/icon.png`)
+- [ ] Sandbox tester created; reviewer notes already document the paywall path (6→7 habits)
+- [ ] App Privacy updated to include **Purchases → Purchase History** (already reflected in `app-store-connect-config.json`)
+- [ ] RevenueCat `pro` entitlement + `default` offering wired; `EXPO_PUBLIC_REVENUECAT_IOS_KEY` set via EAS secret
+- ⚠️ Metadata claims must match shipped functionality: advertise only the 15-habit benefit; keep unshipped Pro features labelled "Coming soon" (guideline 2.3.1 / 3.1.2)
+
 ### ✅ Android Assets (Deferred for iOS-Only Launch)
 - Android icons: Available but not required for iOS launch
 - Android screenshots: Available but not required for iOS launch
@@ -178,6 +188,6 @@
 
 ---
 
-**Status Summary**: ✅ Ready — Build 14 uploaded, awaiting "Submit for Review" in App Store Connect.
+**Status Summary**: ⚠️ Metadata ready, but IAP setup now gates submission — the listing advertises Goalfer Pro, so App Store Connect IAP products, the Paid Apps Agreement, and RevenueCat wiring must be complete before "Submit for Review".
 
-Last refreshed: 2026-05-27 (post accountability-groups + account-deletion metadata sync)
+Last refreshed: 2026-05-27 (Goalfer Pro subscription copy added to ios-metadata.json + app-store-connect-config.json; IAP prerequisites added)

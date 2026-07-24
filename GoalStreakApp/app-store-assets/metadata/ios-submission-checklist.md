@@ -76,7 +76,8 @@
 - [x] **1.2 User Generated Content**: Appropriate moderation systems
 - [x] **2.1 App Completeness**: Fully functional with no placeholder content
 - [x] **2.3 Accurate Metadata**: Screenshots and description match app functionality
-- [x] **3.1 Payments**: No in-app purchases (not applicable currently)
+- [x] **3.1.1 In-App Purchase**: Goalfer Pro subscription (auto-renewable) uses StoreKit via RevenueCat — no external payment paths. Products: `goalfer_pro_monthly` ($3.99), `goalfer_pro_annual` ($23.99)
+- [x] **3.1.2 Subscriptions**: Both plans configured as auto-renewable; paywall discloses price, billing period, and "Restore Purchases"; description advertises only the shipped benefit (15 habits vs 6), future Pro features labelled "Coming soon"
 - [x] **4.1 Copycats**: Original concept and implementation
 - [x] **5.1 Privacy**: Comprehensive privacy policy and data handling
 
@@ -160,6 +161,11 @@
 - [x] **App Store Connect**: App record created and configured
 - [x] **Tax Information**: Business tax details completed
 - [x] **Banking Information**: Payment details for app sales
+- [ ] **Paid Apps Agreement**: Signed/active in App Store Connect (required before IAP can be reviewed)
+- [ ] **IAP Products Created**: `goalfer_pro_monthly` ($3.99) and `goalfer_pro_annual` ($23.99) added, priced, and submitted with the build
+- [ ] **IAP Review Screenshot**: 1024×1024 screenshot attached to each IAP (use `assets/icon.png` per asset-paths SOP)
+- [ ] **Sandbox Tester**: Sandbox Apple Account created for reviewer purchase testing
+- [ ] **RevenueCat**: `pro` entitlement + `default` offering attached to both products; `EXPO_PUBLIC_REVENUECAT_IOS_KEY` set via EAS secret
 
 ### ✅ Build Upload
 - [x] **EAS Build**: Production build generated successfully

@@ -59,8 +59,10 @@
 ## [Metadata Sync] - May 2026
 
 ### App Store Metadata
+- **Added Goalfer Pro copy to the App Store listing** — `ios-metadata.json` and `app-store-connect-config.json` `description` fields now include a "⭐ GOALFER PRO" block (15 habits vs 6, monthly/annual plans, future features framed as forthcoming) plus a "🎉 FOUNDING MEMBERS" line (first 100 users get Pro free for life). Both files kept in sync.
+- Updated `ios-submission-checklist.md`: replaced the stale "3.1 Payments: No in-app purchases" line with 3.1.1 / 3.1.2 IAP-compliance items and added App Store Connect IAP setup steps (Paid Apps Agreement, product creation, IAP review screenshot, sandbox tester, RevenueCat wiring).
+- Updated `SUBMISSION_CHECKLIST.md`: added a "Goalfer Pro — In-App Purchase" section flagging that the advertised subscription now gates the next submission until IAP products and RevenueCat are configured; changed status summary from "Ready" to "Metadata ready, IAP setup pending".
 - Synced `whatsNew` between `app-store-connect-config.json` and `ios-metadata.json` so both files reference accountability groups and account deletion ("friends and groups", "full account control"). Earlier the two files diverged after only the connect-config was updated.
-- Refreshed `app-store-assets/SUBMISSION_CHECKLIST.md` to reflect current state: icons already generated, Build 14 already in App Store Connect, no outstanding blockers.
 
 ## [1.0.0 - Build 14] - May 2026
 
