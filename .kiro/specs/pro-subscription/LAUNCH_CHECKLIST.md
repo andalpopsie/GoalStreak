@@ -145,17 +145,41 @@ TestFlight builds — so we use that instead.
 
 ## 5 · App Store submission updates
 
-When the dashboard work is verified working in sandbox:
+### Messaging decision (locked in)
+Pro is launched **honestly**: the only concrete benefit today is the higher
+habit limit (6 → 15). Streak freeze / advanced analytics / custom themes are
+shown as **"Coming soon"** in the paywall, NOT advertised as included. This
+avoids App Store Guideline 2.3.1 / 3.1.2 rejection for advertising unbuilt
+features. Additional Pro features ship in later updates.
 
-- [ ] Update **App Store description** to mention Pro pricing and benefits
-- [ ] Update **Keywords** if needed (e.g., add "subscription", "pro")
-- [ ] Add **paywall screenshot** to the App Store screenshots (recommended)
-- [ ] Update **Privacy Policy** (RevenueCat collects subscriber data — disclose this)
-- [ ] Update **What's New** in App Store Connect for the launch build
+**Founding Member promo:** first 100 users get Goalfer Pro **free for life**
+via a RevenueCat **Promotional Entitlement** (`pro`, Lifetime duration),
+granted manually from the RevenueCat dashboard (Customers → grant → Lifetime).
+Zero code. Automating this ("first 100" counter via a Cloud Function) is a
+possible fast-follow if signup velocity requires it — spec it separately.
+
+### Metadata (done in this pass)
+- [x] Paywall copy trimmed to the delivered benefit + a labelled "Coming soon"
+      section (`ProPaywallModal.tsx`), test updated
+- [x] **App Store description** — added honest Pro section + founding-member line
+      (both `ios-metadata.json` and `app-store-connect-config.json`, kept in sync)
+- [x] **Promotional text** + **What's New** — mention Pro + founding offer
+- [x] **App Review notes** — CRITICAL fix: describe the subscription, how to
+      reach the paywall, sandbox-tester instructions, and the founding promo
+      (previously said "No subscriptions" — would have caused rejection)
+- [x] **App privacy** — added "Purchases → Purchase History" data type
+- [x] **Privacy Policy** — added subscription/purchase data section + RevenueCat
+      and Apple App Store third-party disclosures; bumped to v1.1
+
+### Still to do at submission time
+- [ ] Set the two IAP products to "Ready to Submit" and attach to the build
+      (they're already in that state)
+- [ ] Add **paywall screenshot** to the App Store screenshots (optional/recommended)
 - [ ] Increment build number: `npm run increment-build` from `GoalStreakApp/`
 - [ ] Production build: `npm run build:production:ios`
-- [ ] Submit: `npm run submit:ios`
-- [ ] After review approval, monitor first real purchase via the RevenueCat dashboard
+- [ ] Submit: `npm run submit:ios` (submit the IAPs together with this build)
+- [ ] After approval, grant Founding-Member Lifetime entitlements to the first
+      100 users in RevenueCat, and monitor the first real purchase
 
 ---
 

@@ -1,7 +1,7 @@
 # Goalfer Privacy Policy
 
 **Effective Date:** January 1, 2025  
-**Last Updated:** May 18, 2025
+**Last Updated:** July 22, 2026
 
 ## Introduction
 
@@ -34,6 +34,11 @@ By using Goalfer, you consent to the data practices described in this policy. If
 - **App Usage Analytics**: Features used, time spent in app, navigation patterns
 - **Performance Data**: Crash reports, error logs, and app performance metrics
 - **Location Data**: Approximate location (only if you grant permission for location-based reminders)
+
+### Subscription and Purchase Data
+- **Purchase History**: Which Goalfer Pro subscription you hold (if any), purchase and renewal status, and entitlement information
+- **How It Works**: All payments are processed by Apple through the App Store. We never receive or store your payment card details. Subscription status is validated and managed by our subscription provider, RevenueCat (see Third-Party Services below), which associates your subscription with an anonymous app user identifier
+- **Purpose**: To unlock and maintain access to Goalfer Pro features and to understand subscription trends in aggregate
 
 ### Camera and Photo Library Access
 - **Profile Pictures**: Photos you choose from your library or take with your camera
@@ -136,6 +141,16 @@ Your information may be transferred to and processed in countries other than you
 - **Data Shared**: Account information, habit data, usage analytics
 - **Privacy Policy**: https://policies.google.com/privacy
 
+### RevenueCat (Subscription Management)
+- **Purpose**: Manages Goalfer Pro subscriptions, validates App Store purchase receipts, and determines your access to Pro features
+- **Data Shared**: An anonymous app user identifier and your subscription/purchase status. We do not send RevenueCat your payment details — those are handled solely by Apple
+- **Privacy Policy**: https://www.revenuecat.com/privacy
+
+### Apple App Store
+- **Purpose**: Processes all subscription payments and renewals
+- **Data Shared**: Payment and billing information is handled entirely by Apple under Apple's Privacy Policy; Goalfer never receives your payment card details
+- **Privacy Policy**: https://www.apple.com/legal/privacy/
+
 ### Analytics Services
 - **Purpose**: App performance monitoring and usage analytics
 - **Data Shared**: Anonymous usage patterns and app performance data
@@ -177,7 +192,7 @@ Goalfer complies with:
 
 ---
 
-**Last Updated**: January 1, 2025  
-**Version**: 1.0
+**Last Updated**: July 22, 2026  
+**Version**: 1.1
 
 *This privacy policy is effective as of the date listed above and applies to all users of the Goalfer mobile application.*

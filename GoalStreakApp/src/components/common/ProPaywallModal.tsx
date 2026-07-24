@@ -91,11 +91,18 @@ const PLANS: Record<PlanKey, PlanDescriptor> = {
   },
 };
 
+// Benefits actually delivered by Pro today. Keep this list honest — only
+// list what a subscriber gets right now. Aspirational features go in
+// COMING_SOON below (clearly labelled) to avoid App Store Guideline 2.3.1 /
+// 3.1.2 issues around advertising unbuilt functionality.
 const BENEFITS: ReadonlyArray<string> = [
-  'Up to 15 habits',
-  'Streak freeze (2 per month)',
-  'Full analytics & insights',
-  'Up to 5 accountability groups',
+  'Track up to 15 habits (6 on Free)',
+];
+
+// Roadmap features — shown as "coming soon", not as included benefits.
+const COMING_SOON: ReadonlyArray<string> = [
+  'Streak freeze',
+  'Advanced analytics & insights',
   'Custom themes & icons',
 ];
 
@@ -203,7 +210,7 @@ export default function ProPaywallModal({
           <Text style={styles.title}>Goalfer Pro</Text>
           <Text style={styles.subtitle}>Unlock your full potential</Text>
 
-          {/* Benefits checklist */}
+          {/* Benefits checklist — what Pro delivers today */}
           <View style={styles.benefitsList}>
             {BENEFITS.map((benefit) => (
               <View key={benefit} style={styles.benefitRow}>
@@ -214,6 +221,23 @@ export default function ProPaywallModal({
                   style={styles.benefitIcon}
                 />
                 <Text style={styles.benefitText}>{benefit}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Coming soon — roadmap features, clearly not part of what's
+              delivered today. Muted styling + "Coming soon" label. */}
+          <Text style={styles.comingSoonHeading}>Coming soon to Pro</Text>
+          <View style={styles.comingSoonList}>
+            {COMING_SOON.map((item) => (
+              <View key={item} style={styles.benefitRow}>
+                <Ionicons
+                  name="time-outline"
+                  size={20}
+                  color={Colors.secondaryText}
+                  style={styles.benefitIcon}
+                />
+                <Text style={styles.comingSoonText}>{item}</Text>
               </View>
             ))}
           </View>
@@ -363,6 +387,26 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.body,    // 16
     fontWeight: Typography.fontWeight.regular, // '400'
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.regular,
+  },
+  comingSoonHeading: {
+    fontSize: Typography.fontSize.caption, // 14
+    fontWeight: Typography.fontWeight.semibold, // '600'
+    color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.semibold,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: Spacing.tight,           // 8
+  },
+  comingSoonList: {
+    marginBottom: Spacing.loose,           // 32
+    opacity: 0.85,
+  },
+  comingSoonText: {
+    flex: 1,
+    fontSize: Typography.fontSize.body,    // 16
+    fontWeight: Typography.fontWeight.regular, // '400'
+    color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.regular,
   },
   plansRow: {

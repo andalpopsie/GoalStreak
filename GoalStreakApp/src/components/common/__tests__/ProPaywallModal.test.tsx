@@ -4,7 +4,8 @@
  * Verifies that the paywall modal renders standalone without errors and
  * that its layout matches the design contract from `design.md`:
  *  - Heading "Goalfer Pro" + subtitle "Unlock your full potential"
- *  - Five benefit rows in the exact order from Req 5.4
+ *  - The one delivered benefit ("Track up to 15 habits") plus a clearly
+ *    labelled "Coming soon" roadmap section (honest metadata)
  *  - Two side-by-side plan cards with the correct price labels and
  *    "Save 50%" badge on the annual plan
  *  - Annual plan is selected by default and drives the Continue CTA copy
@@ -108,15 +109,19 @@ describe('ProPaywallModal — Checkpoint 6 sandbox render', () => {
     expect(getByText('Unlock your full potential')).toBeTruthy();
   });
 
-  it('renders all five benefits in the exact order from Req 5.4', () => {
+  it('renders the delivered benefit and clearly separates coming-soon items', () => {
     const { getByText } = render(
       <ProPaywallModal visible onClose={jest.fn()} onSuccess={jest.fn()} />
     );
 
-    expect(getByText('Up to 15 habits')).toBeTruthy();
-    expect(getByText('Streak freeze (2 per month)')).toBeTruthy();
-    expect(getByText('Full analytics & insights')).toBeTruthy();
-    expect(getByText('Up to 5 accountability groups')).toBeTruthy();
+    // Delivered today — the only concrete Pro benefit at launch.
+    expect(getByText('Track up to 15 habits (6 on Free)')).toBeTruthy();
+
+    // Roadmap items live under a "Coming soon" heading — NOT advertised as
+    // included, to keep App Store metadata honest (Guideline 2.3.1 / 3.1.2).
+    expect(getByText('Coming soon to Pro')).toBeTruthy();
+    expect(getByText('Streak freeze')).toBeTruthy();
+    expect(getByText('Advanced analytics & insights')).toBeTruthy();
     expect(getByText('Custom themes & icons')).toBeTruthy();
   });
 
