@@ -16,85 +16,113 @@
 ## 1 · App Store Connect
 
 ### Subscription Group
-- [ ] Open App Store Connect → **My Apps → Goalfer → Monetization → Subscriptions**
-- [ ] Create a Subscription Group named **Goalfer Pro**
-- [ ] Add localization (Reference Name + display name + description, EN-US minimum)
+- [x] Open App Store Connect → **My Apps → Goalfer → Monetization → Subscriptions**
+- [x] Create a Subscription Group named **Goalfer Pro**
+- [x] Add localization (Reference Name + display name + description, EN-US minimum)
 
 ### Monthly product
-- [ ] Reference Name: `Goalfer Pro Monthly`
-- [ ] Product ID: `goalfer_pro_monthly` (must match `PRO_PRODUCT_IDS.monthly`)
-- [ ] Subscription Duration: 1 Month
-- [ ] Price: **Tier 4 ($3.99 USD)**
-- [ ] Localization: title + description
-- [ ] Review screenshot (any 1284×2778 image; can use the paywall capture)
-- [ ] Status: **Ready to Submit**
+- [x] Reference Name: `Goalfer Pro Monthly`
+- [x] Product ID: `goalfer_pro_monthly` (must match `PRO_PRODUCT_IDS.monthly`)
+- [x] Subscription Duration: 1 Month
+- [x] Price: **Tier 4 ($3.99 USD)**
+- [x] Localization: title + description
+- [x] Review screenshot (any 1284×2778 image; can use the paywall capture)
+- [x] Status: **Ready to Submit**
 
 ### Annual product
-- [ ] Reference Name: `Goalfer Pro Annual`
-- [ ] Product ID: `goalfer_pro_annual` (must match `PRO_PRODUCT_IDS.annual`)
-- [ ] Subscription Duration: 1 Year
-- [ ] Price: **Tier 24 ($23.99 USD)**
-- [ ] Localization: title + description
-- [ ] Review screenshot
-- [ ] Status: **Ready to Submit**
+- [x] Reference Name: `Goalfer Pro Annual`
+- [x] Product ID: `goalfer_pro_annual` (must match `PRO_PRODUCT_IDS.annual`)
+- [x] Subscription Duration: 1 Year
+- [x] Price: **Tier 24 ($23.99 USD)**
+- [x] Localization: title + description
+- [x] Review screenshot
+- [x] Status: **Ready to Submit**
 
 ### Sandbox tester
-- [ ] **Users and Access → Sandbox → Testers → +**
-- [ ] Email: a fresh address NOT linked to your real Apple ID (e.g., `popsie+sandbox@…`)
-- [ ] Save the password somewhere safe — used on the iPhone during testing
-- [ ] Region: United States (matches the USD pricing tiers)
+- [x] **Users and Access → Sandbox → Testers → +**
+- [x] Email: a fresh address NOT linked to your real Apple ID (e.g., `popsie+sandbox@…`)
+- [x] Save the password somewhere safe — used on the iPhone during testing
+- [x] Region: United States (matches the USD pricing tiers)
 
 ### App Store Connect API key (for RevenueCat receipt validation)
-- [ ] **Users and Access → Integrations → App Store Connect API → +**
-- [ ] Role: **App Manager** (sufficient for receipt validation)
-- [ ] Download the `.p8` private key (one-time download, save it securely)
-- [ ] Note the **Issuer ID** (top of the page) and **Key ID** (next to your key)
+- [x] **Users and Access → Integrations → App Store Connect API → +**
+- [x] Role: **App Manager** (sufficient for receipt validation)
+- [x] Download the `.p8` private key (one-time download, save it securely)
+- [x] Note the **Issuer ID** (top of the page) and **Key ID** (next to your key)
 
 ---
 
 ## 2 · RevenueCat dashboard
 
-- [ ] Sign up at https://www.revenuecat.com (free tier is fine for sandbox + early launch)
-- [ ] Create a Project named **Goalfer**
-- [ ] Add an iOS app
+- [x] Sign up at https://www.revenuecat.com (free tier is fine for sandbox + early launch)
+- [x] Create a Project named **Goalfer**
+- [x] Add an iOS App Store app
   - Bundle ID: `com.goalstreak.app`
-  - App Store Connect API key: upload the `.p8`, paste the Issuer ID and Key ID
-- [ ] **Products → Import from App Store Connect**
-  - Verify `goalfer_pro_monthly` and `goalfer_pro_annual` both appear
-- [ ] **Entitlements → New**
-  - Identifier: `pro` (must match `PRO_ENTITLEMENT_ID` in `src/types/subscription.ts`)
-  - Attach both products to this entitlement
-- [ ] **Offerings → New**
-  - Identifier: `default` (must match `DEFAULT_OFFERING_ID`)
-  - Add both products as packages (one Monthly, one Annual)
-  - Mark `default` as the **Current Offering**
-- [ ] **API Keys** (Project Settings → API keys)
+  - **Subscription Key** (not the App Store Connect API key!): upload the
+    `SubscriptionKey_XXXXXXXXXX.p8`, paste the Key ID
+  - ⚠️ Correction from Phase 1E: RevenueCat needs a **Subscription Key**
+    (filename `SubscriptionKey_...p8`) generated from **Users and Access
+    → Integrations → In-App Purchase** (NOT the App Store Connect API key
+    from `App Store Connect API` sub-tab). Both are `.p8` files but for
+    different Apple services.
+- [x] **API Keys** (sidebar → API keys)
   - Copy the **iOS public SDK key** (starts with `appl_…`)
+  - Saved to `GoalStreakApp/.env.development` as `EXPO_PUBLIC_REVENUECAT_IOS_KEY`
+- [x] **Product catalog → Products → Import from App Store Connect**
+  - Verified `goalfer_pro_monthly` and `goalfer_pro_annual` both appear
+  - Required an **App Store Connect API key** (`AuthKey_XXXXXXXXXX.p8`) uploaded
+    under App settings → App Store Connect API, in addition to the
+    Subscription Key. Both `.p8` files are needed:
+    Subscription Key = receipt validation; API key = product import/metadata.
+  - Both products reached **Ready to Submit** after filling ASC metadata
+    (review screenshot 1290×2796 + localizations)
+- [x] **Product catalog → Entitlements → New**
+  - Identifier: `pro` (matches `PRO_ENTITLEMENT_ID` in `src/types/subscription.ts`)
+  - Display name `Goalfer Pro` is fine — code reads the identifier, not the name
+  - Attached exactly `goalfer_pro_monthly` + `goalfer_pro_annual`
+  - Removed the auto-added RevenueCat Test Store products (iOS-only scope)
+- [x] **Product catalog → Offerings → New**
+  - Identifier: `default` (matches `DEFAULT_OFFERING_ID`)
+  - `$rc_monthly` package → `goalfer_pro_monthly`; `$rc_annual` package → `goalfer_pro_annual`
+  - Code matches by product ID, not package ID, so the standard rc_* package
+    slots are fine
+  - `default` set as the **Current Offering**
 
 ---
 
 ## 3 · Local + EAS configuration
 
 ### Local development
-- [ ] Paste the iOS API key into `GoalStreakApp/.env.development`:
-      `EXPO_PUBLIC_REVENUECAT_IOS_KEY=appl_xxxxxxxxxxxxxxxxxx`
+- [x] Paste the iOS API key into `GoalStreakApp/.env.development`:
+      `EXPO_PUBLIC_REVENUECAT_IOS_KEY=appl_sjBceswlYDThWxWYsidrNttXMXR`
 
 ### EAS secrets (production)
-- [ ] From `GoalStreakApp/`:
-      `eas secret:create --scope project --name EXPO_PUBLIC_REVENUECAT_IOS_KEY --value appl_xxxxxxxxxxxxxxxxxx --type string`
-- [ ] Verify with: `eas secret:list`
+- [x] Created project secret `EXPO_PUBLIC_REVENUECAT_IOS_KEY` (id 8b3a8b57…)
+      via `eas secret:create --scope project ... --type string`
+- [x] Verified with `eas secret:list`
+- Note: `eas secret:*` is deprecated in newer CLI in favour of `eas env:*`;
+  works fine on the current pinned version
 
 ---
 
-## 4 · Build a dev client + test on real iPhone
+## 4 · Test on real iPhone
 
-- [ ] Make sure the device is registered with EAS:
-      `eas device:create` (only the first time per device)
-- [ ] Build the dev client:
-      `eas build --profile development --platform ios`
-      *(15–25 min on EAS servers; takes the iOS API key from `.env.development` baked at build time)*
-- [ ] Install on the iPhone via the EAS install link
-- [ ] Start Metro: `npx expo start --dev-client`
+### ⚠️ Pivoted from dev client → TestFlight
+The dev-client path (ad-hoc provisioning) requires installing a config
+profile on the iPhone, which repeatedly triggers a 1-hour iOS **Stolen
+Device Protection** security delay. Not worth fighting. TestFlight needs
+no device registration or profile install, and sandbox purchases work in
+TestFlight builds — so we use that instead.
+
+- [x] Ensure production build has the RevenueCat key
+      - EAS project secret `EXPO_PUBLIC_REVENUECAT_IOS_KEY` set
+      - ALSO hardcoded the `appl_...` key in `.env.production` (publishable
+        client key, safe to ship — same class as the Firebase EXPO_PUBLIC_*
+        keys) to avoid empty-placeholder overriding the secret at build time
+- [ ] Build store-signed binary: `eas build --profile production-ios --platform ios`
+- [ ] Submit to TestFlight: `eas submit --profile production --platform ios`
+- [ ] Wait for App Store Connect processing (~10–20 min)
+- [ ] Install via the **TestFlight** app on the iPhone (no profile needed)
 
 ### Sandbox test scenarios
 - [ ] **Sign out of your real Apple ID** in iPhone Settings → App Store
