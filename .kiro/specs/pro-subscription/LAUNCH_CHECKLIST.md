@@ -152,7 +152,9 @@ TestFlight builds — so we use that instead.
   - [x] After restart: limit = 15, "Add Habit" works, upgrade card gone
   - [x] **Instant unlock verified on build 16** (includes PR #7): after purchase/restore
         the upgrade card disappears and the 7th habit can be added with **no restart** ✅
-  - [ ] Firestore `users/{uid}` has `isPro: true` and `proSince` (check Firebase console)
+  - [x] Firestore mirror verified — `users/nIJiUsgBc5cmapLB1LA106kHBs92` on
+        `goalstreak-app2` has `isPro: true` and `proSince` (written ~2 min after
+        signup, right after the purchase/restore) ✅
 
 > **Repeat-purchase behaviour confirmed:** attempting to subscribe when the
 > Apple ID already owns the sub shows StoreKit's "You are currently subscribed
