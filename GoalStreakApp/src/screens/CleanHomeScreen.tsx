@@ -81,7 +81,7 @@ export default function CleanHomeScreen({ navigation }: any) {
   // via `useSubscription`; free users see 6, Pro users see 15. The pre-nav
   // alert was removed in favour of letting CreateHabitScreen open the
   // paywall when a free user submits a 7th habit (Req 3.6, 4.1).
-  const { isPro } = useSubscription();
+  const { isPro, refresh: refreshProStatus } = useSubscription();
   const limit = getHabitLimit(isPro);
 
   // Share modal state
@@ -356,6 +356,10 @@ export default function CleanHomeScreen({ navigation }: any) {
         onClose={() => setShowPaywall(false)}
         onSuccess={() => {
           setShowPaywall(false);
+          // Re-read Pro status on this screen's own useSubscription instance
+          // so the habit limit re-resolves to 15 and the upgrade card is
+          // replaced immediately — without requiring an app restart.
+          refreshProStatus();
           trackEvent('pro_upgraded', {
             source: 'home_dashboard',
             user_id: user?.id,

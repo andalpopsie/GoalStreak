@@ -1,5 +1,17 @@
 # GoalStreak Changelog
 
+## [Legal Compliance — Goalfer Pro] - July 2026
+
+### App Store Compliance
+- **Terms of Service now discloses the Goalfer Pro subscription** — added an "Subscriptions and In-App Purchases (Goalfer Pro)" section to `app-store-assets/metadata/terms-of-service.md` covering auto-renewal, pricing ($3.99/mo, $23.99/yr), cancellation via Apple ID settings, refunds handled by Apple, Restore Purchases, iOS-only availability, and the founding-member promotional entitlement. Closes the Apple Guideline 3.1.2 EULA gap created when the App Store description began advertising a paid subscription. Bumped ToS to Version 1.1 / Last Updated July 24, 2026.
+- **Updated compliance checklists** — `ios-legal-compliance-checklist.md` now records subscription/IAP coverage in the Terms section and a Purchase History note in the privacy-manifest section; `ios-submission-checklist.md` compliance report refreshed for the Goalfer Pro metadata pass (description/whatsNew sync confirmed, build-number and marketing-claim items flagged).
+
+### Compliance review findings (no code changes)
+- ✅ Privacy policy already covers the Pro subscription, Purchase History, RevenueCat, and Apple as processors — no change needed
+- ⚠️ App-level `PrivacyInfo.xcprivacy` does not list Purchase History; acceptable because the RevenueCat pod ships its own manifest, but verify the aggregated App Store privacy label shows "Purchases → Purchase History"
+- ⚠️ `app.json` buildNumber is 14 while older submission docs still reference "build 1" — reconcile before submission
+- ⚠️ Marketing claims "Join thousands of users" and "increases success rates by 65%" are unverified (Apple 2.3.x) — soften or substantiate
+
 ## [Pro Subscription] - May 2026
 
 ### Monetization

@@ -181,28 +181,29 @@
 - [x] **Technical Review**: Final technical verification completed
 - [x] **Stakeholder Approval**: All necessary approvals obtained
 
-## Compliance Verification Report (January 2025)
+## Compliance Verification Report (July 2026 — Goalfer Pro metadata pass)
 
 ### ✅ iOS Requirements - COMPLIANT
-- ✅ **Privacy Descriptions**: Comprehensive and user-friendly in app.json
-- ⚠️ **Info.plist Sync**: Privacy descriptions need to be synced from app.json to Info.plist
-- ✅ **Privacy Manifest**: Complete PrivacyInfo.xcprivacy file present
+- ✅ **Privacy Descriptions**: Comprehensive and user-friendly in app.json and Info.plist
+- ✅ **Privacy Manifest**: Complete PrivacyInfo.xcprivacy file present (RevenueCat pod ships its own manifest for purchase data)
 - ✅ **Bundle Identifier**: Consistent (com.goalstreak.app)
-- ✅ **Version Numbers**: Consistent (1.0.0, build 1)
+- ⚠️ **Version Numbers**: app.json is version 1.0.0 / buildNumber 14. Confirm the App Store Connect version record and the "1.0.0, build 1" references in older docs are updated to the build actually submitted
 
 ### ✅ Legal Documents - COMPLIANT
-- ✅ **Privacy Policy**: Comprehensive, covers all data practices
-- ✅ **Terms of Service**: Complete, legally sound
+- ✅ **Privacy Policy**: Covers all data practices, including the Goalfer Pro subscription, Purchase History, RevenueCat, and Apple App Store as processors
+- ✅ **Terms of Service**: Now includes an auto-renewable subscription section (pricing, auto-renewal, cancellation, refunds-via-Apple, restore, founding-member promo) — satisfies Apple 3.1.2 EULA disclosure
 - ✅ **Domain URLs**: All use goalstreak.co domain
 - ✅ **Contact Information**: Valid support and legal contacts
-- ✅ **Linking Utilities**: Graceful error handling implemented
+- ✅ **Linking Utilities**: Graceful error handling implemented (openPrivacyPolicy / openTermsOfService / openSupport)
 
 ### ✅ Metadata Consistency - COMPLIANT
 - ✅ **App Name**: "Goalfer" consistent across all files
-- ⚠️ **Display Name Mismatch**: app.json shows "Goalfer" instead of "Goalfer"
+- ✅ **Description**: Goalfer Pro + Founding Members copy is identical in ios-metadata.json and app-store-connect-config.json
+- ✅ **whatsNew / promotionalText**: Pro + founding-offer messaging synced across both files
 - ✅ **Keywords**: 90 characters (within 100 limit)
 - ✅ **Age Rating**: 4+ appropriate for content
-- ✅ **URLs**: All accessible and functional
+- ⚠️ **Marketing claims**: "Join thousands of users" and "increases success rates by 65%" are unverified claims (Apple 2.3.x). Soften or substantiate before submission
+- ✅ **URLs**: All use goalstreak.co domain (verify live hosting of /privacy and /terms)
 
 ### ✅ Technical Compliance - COMPLIANT
 - ✅ **EAS Configuration**: Apple ID, ASC App ID, Team ID configured

@@ -34,6 +34,8 @@ This checklist ensures Goalfer meets all iOS App Store legal and privacy require
 - [x] Product interaction (not linked, tracking) - Analytics, personalization
 - [x] Device ID (linked, not tracking) - App functionality, analytics
 - [x] User ID (linked, not tracking) - App functionality
+- [x] Purchase history (linked, not tracking) - App functionality, analytics — declared in App Store Connect privacy config; collected by the RevenueCat SDK, which ships its own `PrivacyInfo.xcprivacy`
+- [ ] ⚠️ Verify: the app-level `ios/GoalStreak/PrivacyInfo.xcprivacy` does not list `NSPrivacyCollectedDataTypePurchaseHistory`. This is acceptable because RevenueCat's bundled manifest declares it, but confirm the aggregated App Store privacy label shows "Purchases → Purchase History" before submission
 
 ## ✅ Legal Documents
 
@@ -60,6 +62,7 @@ This checklist ensures Goalfer meets all iOS App Store legal and privacy require
 - [x] **Intellectual property**: Rights and ownership clarification
 - [x] **Privacy reference**: Links to privacy policy
 - [x] **Service availability**: Uptime expectations, maintenance notices
+- [x] **Subscriptions & IAP (Goalfer Pro)**: Auto-renewal, pricing ($3.99/mo, $23.99/yr), cancellation, refunds-via-Apple, restore, and founding-member promo disclosed (Apple 3.1.2)
 - [x] **Account termination**: Voluntary and involuntary termination
 - [x] **Disclaimers**: Service limitations, health disclaimers
 - [x] **Liability limitations**: Legal protections and user responsibilities

@@ -1,7 +1,7 @@
 # Goalfer Terms of Service
 
 **Effective Date:** January 1, 2025  
-**Last Updated:** May 18, 2025
+**Last Updated:** July 24, 2026
 
 ## 1. Acceptance of Terms
 
@@ -27,6 +27,19 @@ Goalfer is a mobile application designed to help users build and maintain positi
 - **Social Feed**: View friends' habit activities and achievements
 - **Reactions and Encouragement**: Support friends with emoji reactions and messages
 - **Privacy Controls**: Choose what to share and with whom
+
+### Subscriptions and In-App Purchases (Goalfer Pro)
+
+Goalfer offers an optional paid subscription, **Goalfer Pro**, as an auto-renewable in-app purchase. The core app is free to use; Goalfer Pro unlocks additional capabilities.
+
+- **What Pro includes today**: The confirmed benefit is a higher habit limit — free accounts can create up to 6 habits, while Goalfer Pro raises this to 15. Any additional Pro features are described in the app as "coming soon" and are not guaranteed until released.
+- **Plans and pricing**: Goalfer Pro is offered as a **Monthly** plan ($3.99 USD) or an **Annual** plan ($23.99 USD). Prices may vary by region and are displayed in the App Store and in the app's paywall at the time of purchase.
+- **Auto-renewal**: Goalfer Pro is an auto-renewable subscription. Payment is charged to your Apple ID account at confirmation of purchase. The subscription automatically renews for the same period unless auto-renewal is turned off at least 24 hours before the end of the current period. Your account is charged for renewal within 24 hours prior to the end of the current period.
+- **Managing and cancelling**: You can manage or cancel your subscription at any time in your Apple ID account settings (Settings → your name → Subscriptions). Cancellation takes effect at the end of the current billing period; the current period is not refundable except as required by law or Apple's policies.
+- **Payments and refunds**: All payments and billing are processed by Apple through the App Store. Goalfer does not receive or store your payment card details. Refund requests are handled by Apple in accordance with Apple's Media Services Terms and applicable law.
+- **Restoring purchases**: If you reinstall the app or use a new device, you can restore an active Goalfer Pro entitlement using the "Restore Purchases" option in the paywall.
+- **Founding member promotion**: As a launch offer, a limited number of early users may receive Goalfer Pro at no charge via a promotional entitlement. This promotional access is a goodwill offer, is not an auto-renewable purchase, does not require payment, and may be modified or discontinued for future users at our discretion. It does not change the terms of the standard paid plans above.
+- **Availability**: Goalfer Pro is currently available on iOS only.
 
 ## 3. Eligibility and Account Requirements
 
@@ -287,7 +300,7 @@ We may suspend or terminate your account for:
 ---
 
 **Effective Date**: January 1, 2025  
-**Version**: 1.0  
-**Last Updated**: January 1, 2025
+**Version**: 1.1  
+**Last Updated**: July 24, 2026
 
 *By using Goalfer, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service and our Privacy Policy.*
