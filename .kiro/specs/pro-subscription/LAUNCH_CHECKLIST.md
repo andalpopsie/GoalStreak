@@ -150,8 +150,15 @@ TestFlight builds — so we use that instead.
     **PR #7** (`fix/paywall-pro-status-refresh`) by calling `refresh()` in
     `onSuccess`. **Needs a fresh build to verify the instant-unlock behaviour.**
   - [x] After restart: limit = 15, "Add Habit" works, upgrade card gone
-  - [ ] Re-verify instant unlock (no restart) on the next build that includes PR #7
+  - [x] **Instant unlock verified on build 16** (includes PR #7): after purchase/restore
+        the upgrade card disappears and the 7th habit can be added with **no restart** ✅
   - [ ] Firestore `users/{uid}` has `isPro: true` and `proSince` (check Firebase console)
+
+> **Repeat-purchase behaviour confirmed:** attempting to subscribe when the
+> Apple ID already owns the sub shows StoreKit's "You are currently subscribed
+> to this" dialog (no double charge). Tapping OK resolves as success and the
+> app unlocks Pro — correct behaviour for real repeat users. "Restore
+> purchases" achieves the same on a fresh app account.
 - [ ] **Free user · paywall trigger from CreateHabitScreen** — submit a 7th habit, verify the paywall slides up and the form is preserved (not yet re-tested)
 - [ ] **Purchase Annual** — repeat with a fresh sandbox account or wait for the auto-cancellation of the monthly (sandbox renews at accelerated rates)
 - [ ] **Restore Purchases** — uninstall the app, reinstall, sign in to the same account, open paywall, tap Restore, verify Pro is restored without re-charge
