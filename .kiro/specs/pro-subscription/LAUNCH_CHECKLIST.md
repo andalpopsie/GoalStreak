@@ -119,22 +119,40 @@ TestFlight builds — so we use that instead.
       - ALSO hardcoded the `appl_...` key in `.env.production` (publishable
         client key, safe to ship — same class as the Firebase EXPO_PUBLIC_*
         keys) to avoid empty-placeholder overriding the secret at build time
-- [ ] Build store-signed binary: `eas build --profile production-ios --platform ios`
-- [ ] Submit to TestFlight: `eas submit --profile production --platform ios`
-- [ ] Wait for App Store Connect processing (~10–20 min)
-- [ ] Install via the **TestFlight** app on the iPhone (no profile needed)
+- [x] Build store-signed binary: `eas build --profile production-ios --platform ios`
+      (build 15, EAS build `425bbd1f…`)
+- [x] Submit to TestFlight: `eas submit --profile production --platform ios`
+- [x] Wait for App Store Connect processing (~10–20 min) — build 15 reached **Complete**
+- [x] Install via the **TestFlight** app on the iPhone (no profile needed)
+
+> ⚠️ **Gotcha found during testing:** the initial purchase attempt failed with
+> `Could not find product "goalfer_pro_monthly" in the default offering`. Root
+> cause was the **Paid Applications Agreement** sitting in "New" status in
+> App Store Connect → Business. StoreKit returns zero products until that
+> agreement is **Active** (plus bank + tax complete). After accepting it and
+> completing banking/tax, products propagated and the purchase worked. Note
+> for future: this gate blocks ALL IAP loading and must be Active before any
+> sandbox/production purchase can succeed.
+
+> **Note on sandbox sign-in:** in a **TestFlight** build, IAPs run in the
+> sandbox automatically and are **free** using your *real* Apple ID — the
+> separate sandbox tester account is only needed for dev-client / Xcode
+> builds. The "Sandbox Account" row in Settings → App Store only appears
+> after the first sandbox purchase.
 
 ### Sandbox test scenarios
-- [ ] **Sign out of your real Apple ID** in iPhone Settings → App Store
-- [ ] **Free user · normal flow** — create habits 1–6, verify "Add Habit" button works
-- [ ] **Free user · paywall trigger from CreateHabitScreen** — submit a 7th habit, verify the paywall slides up and the form is preserved
-- [ ] **Free user · paywall trigger from dashboard** — return to home with 6 habits, verify the "Want more? · From $1.99/mo" upgrade card appears, tap it, paywall opens
-- [ ] **Purchase Monthly** — sign in with the sandbox tester when prompted, complete the purchase, verify:
-  - Paywall dismisses
-  - Pending habit (if from CreateHabitScreen) is created
-  - Limit jumps to 15
-  - Dashboard shows the standard "Add Habit" button again
-  - Firestore `users/{uid}` has `isPro: true` and `proSince` (check Firebase console)
+- [x] **Free user · paywall trigger from dashboard** — with 6 habits the "Want more? · From $1.99/mo" upgrade card appeared, tapping it opened the paywall ✅
+- [x] **Purchase Monthly** — completed a sandbox purchase on TestFlight (real Apple ID, free), StoreKit returned "You're all set", RevenueCat granted the `pro` entitlement, limit lifted to 15 ✅
+  - ⚠️ **Bug found + fixed:** the dashboard did **not** update immediately after
+    purchase — the upgrade card persisted and the limit stayed at 6 until an
+    app restart. Root cause: `CleanHomeScreen`'s `useSubscription` instance held
+    a stale `isPro`; its paywall `onSuccess` never re-read Pro status. Fixed in
+    **PR #7** (`fix/paywall-pro-status-refresh`) by calling `refresh()` in
+    `onSuccess`. **Needs a fresh build to verify the instant-unlock behaviour.**
+  - [x] After restart: limit = 15, "Add Habit" works, upgrade card gone
+  - [ ] Re-verify instant unlock (no restart) on the next build that includes PR #7
+  - [ ] Firestore `users/{uid}` has `isPro: true` and `proSince` (check Firebase console)
+- [ ] **Free user · paywall trigger from CreateHabitScreen** — submit a 7th habit, verify the paywall slides up and the form is preserved (not yet re-tested)
 - [ ] **Purchase Annual** — repeat with a fresh sandbox account or wait for the auto-cancellation of the monthly (sandbox renews at accelerated rates)
 - [ ] **Restore Purchases** — uninstall the app, reinstall, sign in to the same account, open paywall, tap Restore, verify Pro is restored without re-charge
 - [ ] **Network error path** — turn on Airplane Mode, tap Subscribe, verify "No internet connection. Please try again." inline message
