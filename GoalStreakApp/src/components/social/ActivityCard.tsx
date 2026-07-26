@@ -1,6 +1,6 @@
 // ActivityCard Component - Display social activity feed items
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Pressable, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing } from '../../constants/theme';
 import { SocialActivity } from '../../types/social';
@@ -9,9 +9,54 @@ import { formatRelativeTime } from '../../utils/timeUtils';
 
 interface ActivityCardProps {
   activity: SocialActivity;
+  /**
+   * Optional report handler. When provided, ActivityCard shows a ⋯ (more
+   * options) affordance and supports long-press, offering a "Report" action.
+   * The PARENT owns the ReportReasonSheet + friendService/useModeration
+   * .reportContent call, targeting `contentType: 'activity'` with
+   * `reportedUserId: activity.userId` and `contentId: activity.id`.
+   *
+   * ActivityCard stays surface-agnostic: it does not know the current user, so
+   * the parent decides whether to pass this callback (e.g. omit it for the
+   * viewer's own activity per the existing own-content convention).
+   */
+  onReport?: (activity: SocialActivity) => void;
+  /**
+   * Optional block handler. When provided, the ⋯ menu also offers a
+   * destructive "Block user" action. The parent owns the confirmation dialog
+   * and friendService/useModeration.blockUser call. Report on activities
+   * (Requirement 4.2) does not require block, so this is purely additive.
+   */
+  onBlock?: (activity: SocialActivity) => void;
 }
 
-export default function ActivityCard({ activity }: ActivityCardProps) {
+export default function ActivityCard({ activity, onReport, onBlock }: ActivityCardProps) {
+  const hasActions = !!(onReport || onBlock);
+
+  // Present the moderation actions via a native action menu. Report is the
+  // primary action (Requirement 4.2); Block is offered only when the parent
+  // wires it. Kept lightweight (Jakob's Law — familiar iOS/Android pattern).
+  const handleMoreActions = () => {
+    if (!hasActions) return;
+    const buttons: Array<{
+      text: string;
+      style?: 'default' | 'cancel' | 'destructive';
+      onPress?: () => void;
+    }> = [];
+    if (onReport) {
+      buttons.push({ text: 'Report', onPress: () => onReport(activity) });
+    }
+    if (onBlock) {
+      buttons.push({
+        text: 'Block user',
+        style: 'destructive',
+        onPress: () => onBlock(activity),
+      });
+    }
+    buttons.push({ text: 'Cancel', style: 'cancel' });
+    Alert.alert('Activity options', undefined, buttons);
+  };
+
   const getActivityIcon = () => {
     switch (activity.type) {
       case 'habit_completed':
@@ -89,7 +134,14 @@ export default function ActivityCard({ activity }: ActivityCardProps) {
   };
 
   return (
-    <View style={styles.container}>
+    <Pressable
+      style={styles.container}
+      onLongPress={hasActions ? handleMoreActions : undefined}
+      delayLongPress={350}
+      // Long-press is a bonus affordance; the ⋯ button is the primary target.
+      // Disable ripple/opacity feedback when there are no actions.
+      android_disableSound={!hasActions}
+    >
       {/* User Avatar */}
       <View style={styles.avatarContainer}>
         <View style={styles.avatar}>
@@ -144,7 +196,20 @@ export default function ActivityCard({ activity }: ActivityCardProps) {
           </View>
         )}
       </View>
-    </View>
+
+      {/* Moderation affordance — only rendered when the parent wires an action */}
+      {hasActions && (
+        <TouchableOpacity
+          style={styles.moreButton}
+          onPress={handleMoreActions}
+          accessibilityRole="button"
+          accessibilityLabel="More options"
+          hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+        >
+          <Ionicons name="ellipsis-horizontal" size={20} color={Colors.gray.dark} />
+        </TouchableOpacity>
+      )}
+    </Pressable>
   );
 }
 
@@ -194,6 +259,15 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
+  },
+  moreButton: {
+    width: 48,                 // 8 × 6 (touch target ≥ 48px)
+    height: 48,                // 8 × 6
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: Spacing.xs,    // 8 — separate from content
+    marginTop: -Spacing.xs,    // pull up to align with the first text line
+    marginRight: -Spacing.xs,  // absorb into the card's right padding
   },
   activityHeader: {
     flexDirection: 'row',

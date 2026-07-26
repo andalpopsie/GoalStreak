@@ -128,5 +128,32 @@ service cloud.firestore {
       allow update: if isAuthenticated();
       allow delete: if false;
     }
+
+    // ── Blocks ──
+    // Create/delete are owner-only (blockerId). Read is allowed for either party
+    // (blocker or blocked) so both clients can build the bidirectional filter set.
+    // Blocks are never mutated.
+    match /blocks/{blockId} {
+      allow read: if isAuthenticated()
+        && (request.auth.uid == resource.data.blockerId
+            || request.auth.uid == resource.data.blockedUserId);
+      allow create: if isAuthenticated()
+        && request.auth.uid == request.resource.data.blockerId;
+      allow delete: if isAuthenticated()
+        && request.auth.uid == resource.data.blockerId;
+      allow update: if false;
+    }
+
+    // ── Reports ──
+    // Create-only, reporterId must be the caller. Reporter can read their own
+    // reports (for auto-hide). Reports are immutable: never updatable or deletable.
+    match /reports/{reportId} {
+      allow read: if isAuthenticated() && request.auth.uid == resource.data.reporterId;
+      allow create: if isAuthenticated()
+        && request.auth.uid == request.resource.data.reporterId;
+      allow update, delete: if false;
+    }
   }
 }
+
+// Deploy: run `firebase deploy --only firestore:rules` from GoalStreakApp/firebase/

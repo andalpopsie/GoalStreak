@@ -8,7 +8,7 @@ import {
   updateProfile,
   sendPasswordResetEmail
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from '../services/firebase';
 import { User as AppUser, AuthState } from '../types';
 import friendService from '../services/friendService';
@@ -170,6 +170,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         createdAt: new Date(),
         updatedAt: new Date(),
         hasCompletedOnboarding: false, // New users need onboarding
+        // Record EULA acceptance (zero-tolerance clause) at signup (R7.2).
+        // The SignUpScreen gate guarantees the user has accepted before we
+        // reach this point.
+        eulaAcceptedAt: serverTimestamp(),
+        eulaVersion: '1.0',
       };
 
       // Generate a unique username

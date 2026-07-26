@@ -21,6 +21,7 @@ import SignUpScreen from '../screens/SignUpScreen';
 import CreateHabitScreen from '../screens/CreateHabitScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import GroupDetailScreen from '../screens/GroupDetailScreen';
+import BlockedUsersScreen from '../screens/BlockedUsersScreen';
 
 // Import hooks
 import { useAuth } from '../hooks/useAuth';
@@ -141,6 +142,18 @@ function MainStackNavigator() {
         options={{
           headerShown: true,
           headerTitle: '',
+          headerStyle: {
+            backgroundColor: Colors.background,
+          },
+          headerTintColor: Colors.primaryText,
+        }}
+      />
+      <Stack.Screen
+        name="BlockedUsers"
+        component={BlockedUsersScreen}
+        options={{
+          headerShown: true,
+          headerTitle: 'Blocked Users',
           headerStyle: {
             backgroundColor: Colors.background,
           },

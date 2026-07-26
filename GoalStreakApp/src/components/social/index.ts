@@ -15,3 +15,6 @@ export { default as GroupFeedCard } from './GroupFeedCard';
 export { default as LinkHabitsModal } from './LinkHabitsModal';
 export { default as InviteMembersModal } from './InviteMembersModal';
 export { default as GroupSettingsModal } from './GroupSettingsModal';
+
+// Moderation Components
+export { default as ReportReasonSheet } from './ReportReasonSheet';

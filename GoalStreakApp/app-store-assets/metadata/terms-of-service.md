@@ -1,7 +1,7 @@
 # Goalfer Terms of Service
 
 **Effective Date:** January 1, 2025  
-**Last Updated:** July 24, 2026
+**Last Updated:** July 26, 2026
 
 ## 1. Acceptance of Terms
 
@@ -107,6 +107,17 @@ You may NOT:
 - Celebrate others' achievements and progress
 - Provide constructive support during challenges
 - Report any violations of these community guidelines
+
+### Zero Tolerance for Objectionable Content and Abusive Behavior
+
+**Goalfer has zero tolerance for objectionable content and abusive behavior.** Objectionable content includes, but is not limited to, content that is harassing, threatening, hateful, defamatory, obscene, sexually explicit, or otherwise offensive, as well as any abusive behavior directed at other users. By using Goalfer, you agree not to create, post, share, or transmit any such content or engage in any such behavior.
+
+To keep the community safe, Goalfer provides moderation tools that let you take action when you encounter objectionable content or abusive behavior:
+
+- **Report content or users**: You can report any user, activity, group activity, or group message that you believe is objectionable or abusive. Reporting is available directly from the relevant profile, feed item, or message within the app.
+- **Block abusive users**: You can block any user at any time. Once blocked, you and the blocked user will no longer see each other's content, interactions, or presence anywhere in the app, and any existing connection between you is removed. You can view and manage your blocked users, including unblocking them, from your account settings.
+
+**Reported content and users will be reviewed and acted upon.** When content or a user is reported, we review the report and act on it as appropriate. Action may include removing the offending content, and warning, suspending, or permanently terminating the accounts of users who violate this policy. We reserve the right to remove any objectionable content and to restrict or terminate access for any user who engages in abusive behavior, with or without notice.
 
 ## 6. Intellectual Property Rights
 
@@ -300,7 +311,7 @@ We may suspend or terminate your account for:
 ---
 
 **Effective Date**: January 1, 2025  
-**Version**: 1.1  
-**Last Updated**: July 24, 2026
+**Version**: 1.2  
+**Last Updated**: July 26, 2026
 
 *By using Goalfer, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service and our Privacy Policy.*

@@ -1,11 +1,14 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, Modal, Alert, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import * as ImagePicker from 'expo-image-picker';
 import { Colors, Spacing, Typography } from '../../constants/theme';
-import { SocialActivity, ReactionType } from '../../types/social';
+import { SocialActivity, ReactionType, ReportReason } from '../../types/social';
+import { useModeration } from '../../hooks/useModeration';
+import { filterActivities, filterReactions } from '../../services/moderationFilter';
+import ReportReasonSheet from './ReportReasonSheet';
 import { formatRelativeTime } from '../../utils/timeUtils';
 import { photoService } from '../../services/photoService';
 import { addDoc, collection, serverTimestamp, query, where, getDocs, orderBy, doc, getDoc } from 'firebase/firestore';
@@ -47,10 +50,32 @@ export default function ActivityFeedTab({
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
   const [isPosting, setIsPosting] = useState(false);
 
+  // Moderation: bidirectional block set + reported-content set. Render is gated
+  // on `ready` (fail-closed) so blocked-authored items are never briefly visible.
+  // `reportContent` powers the per-card report affordance below (Requirement 4.2).
+  const { state: moderationState, ready: moderationReady, reportContent } = useModeration();
+
+  // The activity the user is currently reporting. Drives the ReportReasonSheet;
+  // null means the sheet is closed. On success the moderation filter auto-hides
+  // the item (its id lands in reportedContentIds), so no local removal is needed.
+  const [reportTarget, setReportTarget] = useState<SocialActivity | null>(null);
+
+  // Run the loaded feed through the client-side moderation filter before render:
+  // drop blocked-authored / reported activities, then strip reactions authored by
+  // blocked users so reaction counts are blocked-free.
+  const filteredFeed = useMemo(
+    () =>
+      filterActivities(moderationState, activityFeed).map((activity) => ({
+        ...activity,
+        reactions: filterReactions(moderationState, activity.reactions),
+      })),
+    [moderationState, activityFeed]
+  );
+
   useEffect(() => {
     loadProfilePhotos();
     loadCommentCounts();
-  }, [activityFeed, currentUserId]);
+  }, [filteredFeed, currentUserId]);
 
   const loadProfilePhotos = async () => {
     // Don't load if user is not authenticated
@@ -60,7 +85,7 @@ export default function ActivityFeedTab({
 
     const photos: {[key: string]: string} = {};
     
-    for (const activity of activityFeed) {
+    for (const activity of filteredFeed) {
       if (activity?.userId && !photos[activity.userId]) {
         try {
           const photoUri = await photoService.getProfilePhoto(activity.userId);
@@ -129,7 +154,7 @@ export default function ActivityFeedTab({
 
     const counts: {[activityId: string]: number} = {};
     
-    for (const activity of activityFeed) {
+    for (const activity of filteredFeed) {
       try {
         const q = query(
           collection(db, 'comments'),
@@ -354,7 +379,11 @@ export default function ActivityFeedTab({
         </TouchableOpacity>
       )}
 
-      {activityFeed.map((activity, index) => (
+      {/* Fail-closed: hold feed rendering until the moderation block set has loaded. */}
+      {!moderationReady ? (
+        <ActivityIndicator size="small" color={Colors.accent1} style={styles.moderationLoader} />
+      ) : (
+        filteredFeed.map((activity, index) => (
         <View key={activity?.id || index} style={styles.activityCard}>
           <View style={styles.activityHeader}>
             <View style={styles.profilePhoto}>
@@ -497,9 +526,24 @@ export default function ActivityFeedTab({
                 </TouchableOpacity>
               </View>
             </View>
+
+            {/* Report affordance — only offered on other users' activity, never
+                the user's own (Requirement 4.2). Opens the shared ReportReasonSheet. */}
+            {activity?.userId && activity.userId !== currentUserId && (
+              <TouchableOpacity
+                style={styles.reportButton}
+                onPress={() => setReportTarget(activity)}
+                hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+                accessibilityRole="button"
+                accessibilityLabel={`Report ${activity?.userName || 'this'} activity`}
+              >
+                <Ionicons name="ellipsis-horizontal" size={20} color={Colors.secondaryText} />
+              </TouchableOpacity>
+            )}
           </View>
         </View>
-      ))}
+        ))
+      )}
 
       {/* Comment Modal - Instagram/Threads Style */}
       <Modal
@@ -719,11 +763,32 @@ export default function ActivityFeedTab({
           </ScrollView>
         </View>
       </Modal>
+
+      {/* Report reason picker — surface-agnostic sheet. The parent supplies the
+          reportedUserId/contentType/contentId; on success the sheet self-closes
+          and the moderation filter hides the reported activity. */}
+      <ReportReasonSheet
+        visible={reportTarget !== null}
+        onClose={() => setReportTarget(null)}
+        subjectLabel={reportTarget?.userName}
+        onSubmit={(reason: ReportReason) => {
+          if (!reportTarget) return;
+          return reportContent({
+            reportedUserId: reportTarget.userId,
+            contentType: 'activity',
+            contentId: reportTarget.id,
+            reason,
+          });
+        }}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  moderationLoader: {
+    marginVertical: 24, // 8 × 3
+  },
   activityCard: {
     backgroundColor: Colors.white,
     paddingVertical: 16,
@@ -734,6 +799,14 @@ const styles = StyleSheet.create({
   activityHeader: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+  },
+  reportButton: {
+    width: 48,                         // 8 × 6 (touch target ≥ 48px)
+    height: 48,                        // 8 × 6
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,                     // 8 × 1 (tight) — separate from content
+    marginTop: -4,                     // nudge up to align with the header row
   },
   profilePhoto: {
     width: 40,

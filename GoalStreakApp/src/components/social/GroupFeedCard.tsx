@@ -11,6 +11,14 @@ interface GroupFeedCardProps {
   activity: GroupActivity;
   onReaction: (activityId: string, reactionType: ReactionType) => void;
   currentUserId: string;
+  /**
+   * Optional report handler. When provided, a `⋯` action appears on activities
+   * authored by other users so the viewer can report the item. The PARENT owns
+   * the ReportReasonSheet + the `reportContent` write (contentType:
+   * 'group_activity', contentId: activity.id, reportedUserId: activity.userId).
+   * Omitted → no report affordance (keeps the card usable without moderation).
+   */
+  onReport?: (activity: GroupActivity) => void;
 }
 
 const REACTION_CONFIG: { type: ReactionType; icon: string; label: string }[] = [
@@ -23,6 +31,7 @@ export default function GroupFeedCard({
   activity,
   onReaction,
   currentUserId,
+  onReport,
 }: GroupFeedCardProps) {
   const getActivityIcon = (): { name: string; color: string } => {
     switch (activity.type) {
@@ -73,6 +82,10 @@ export default function GroupFeedCard({
   const activityIcon = getActivityIcon();
   const isSystemEvent = activity.type === 'member_joined' || activity.type === 'member_left';
 
+  // Only offer reporting on real member content authored by someone else — never
+  // on system events (join/leave) or the viewer's own activity.
+  const canReport = !!onReport && !isSystemEvent && activity.userId !== currentUserId;
+
   return (
     <View style={[styles.container, isSystemEvent && styles.systemEventContainer]}>
       {/* Activity Content */}
@@ -87,6 +100,19 @@ export default function GroupFeedCard({
           </Text>
           <Text style={styles.timestamp}>{formatRelativeTime(activity.timestamp)}</Text>
         </View>
+
+        {/* Overflow (⋯) — report this activity (contentType: 'group_activity') */}
+        {canReport && (
+          <TouchableOpacity
+            style={styles.moreButton}
+            onPress={() => onReport?.(activity)}
+            accessibilityLabel={`Report ${activity.userName}'s activity`}
+            accessibilityRole="button"
+            hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+          >
+            <Ionicons name="ellipsis-horizontal" size={20} color={Colors.secondaryText} />
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Reactions — only for non-system events */}
@@ -149,6 +175,17 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
+  },
+  moreButton: {
+    width: 48,                          // 8 × 6 (touch target)
+    height: 48,                         // 8 × 6 (touch target)
+    alignItems: 'center',
+    justifyContent: 'center',
+    // Pull up/right so the 48px target aligns with the row without inflating
+    // the card's compact padding.
+    marginTop: -8,                      // 8 × 1 (tight)
+    marginRight: -8,                    // 8 × 1 (tight)
+    marginLeft: 8,                      // 8 × 1 (tight) — gap from text
   },
   activityText: {
     fontSize: 16,                       // body

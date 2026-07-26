@@ -12,6 +12,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/theme';
 import friendService from '../../services/friendService';
 import { UserSearchResult } from '../../types/social';
+import { useModeration } from '../../hooks/useModeration';
+import * as ModerationFilter from '../../services/moderationFilter';
 
 interface SearchModalProps {
   visible: boolean;
@@ -29,6 +31,13 @@ export default function SearchModal({
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<UserSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  // Moderation: hide blocked users from search results. Gate on `ready` so a
+  // stale, unfiltered list is never shown before the block set has loaded.
+  const { state: moderationState, ready: moderationReady } = useModeration();
+  const visibleResults = moderationReady
+    ? ModerationFilter.filterSearchResults(moderationState, searchResults)
+    : [];
 
   // Search for users
   const searchUsers = useCallback(async (query: string) => {
@@ -100,13 +109,13 @@ export default function SearchModal({
 
           {/* Search Results */}
           <View style={styles.searchResults}>
-            {isSearching ? (
+            {isSearching || !moderationReady ? (
               <View style={styles.emptyState}>
                 <Text style={styles.emptyStateText}>Searching...</Text>
               </View>
             ) : searchQuery.length > 0 ? (
-              searchResults.length > 0 ? (
-                searchResults.map((user) => (
+              visibleResults.length > 0 ? (
+                visibleResults.map((user) => (
                   <View key={user.id} style={styles.resultCard}>
                     <View style={styles.profilePhoto}>
                       <Text style={styles.initials}>

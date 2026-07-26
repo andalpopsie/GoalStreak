@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image, Modal, TextInput, Switch, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Notifications from 'expo-notifications';
 import { Colors } from '../constants/theme';
@@ -9,6 +10,7 @@ import { useAuth } from '../hooks/useAuth';
 import { auth } from '../services/firebase';
 import { useHabits } from '../hooks/useHabits';
 import { useFriends } from '../hooks/useFriends';
+import { useModeration } from '../hooks/useModeration';
 import { photoService } from '../services/photoService';
 import { openPrivacyPolicy, openTermsOfService, openSupport } from '../utils/linkingUtils';
 import { trackScreen, trackEvent } from '../services/enhancedAnalyticsService';
@@ -17,11 +19,28 @@ import BadgeShowcase from '../components/profile/BadgeShowcase';
 import { validateUsername, isUsernameAvailable, reserveUsername, releaseUsername } from '../utils/usernameUtils';
 import FeedbackModal from '../components/feedback/FeedbackModal';
 import ProPaywallModal from '../components/common/ProPaywallModal';
+import ReportReasonSheet from '../components/social/ReportReasonSheet';
+import { ReportReason } from '../types/social';
 
 export default function ProfileScreen() {
   const { user, isAuthenticated, logout, updateUserProfile, deleteAccount } = useAuth();
   const { habits, streaks } = useHabits();
   const { friends } = useFriends();
+  const { blockUser, reportContent } = useModeration();
+  const navigation = useNavigation<any>();
+  const route = useRoute();
+
+  // ProfileScreen serves double duty: the current user's own profile (the Profile
+  // tab, no params) and — when opened with a `userId` param — another user's
+  // profile. Block/report actions are only surfaced when viewing SOMEONE ELSE
+  // (R1.1, R4.1); the Blocked Users management entry is only shown on the current
+  // user's own profile.
+  const routeParams = (route.params ?? {}) as { userId?: string; displayName?: string };
+  const targetUserId = routeParams.userId;
+  const isOwnProfile = !targetUserId || targetUserId === user?.id;
+  const targetName = routeParams.displayName?.trim() || 'this user';
+
+  const [showReportSheet, setShowReportSheet] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
@@ -347,11 +366,96 @@ export default function ProfileScreen() {
     setDeleteAccountPassword('');
   };
 
+  // ── Moderation: block / report another user (R1.1, R1.6, R1.7, R4.1) ──
+
+  // Confirm-then-block. On success show a confirmation and dismiss the profile
+  // view (R1.6); on failure show an error and leave state unchanged (R1.7). The
+  // useModeration hook applies an optimistic local add and reconciles via its
+  // block-set subscription, so a failed write never desyncs the UI.
+  const handleBlockUser = () => {
+    if (!targetUserId) return;
+    Alert.alert(
+      `Block ${targetName}?`,
+      "You'll stop seeing each other.",
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Block',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              trackEvent('user_blocked', { blocked_user_id: targetUserId, source: 'profile' });
+              await blockUser(targetUserId);
+              Alert.alert('Blocked', `You blocked ${targetName}`);
+              // Dismiss the blocked user's profile after a successful block.
+              if (navigation.canGoBack?.()) {
+                navigation.goBack();
+              }
+            } catch (error: any) {
+              trackEvent('user_block_failed', {
+                blocked_user_id: targetUserId,
+                error_message: error?.message,
+              });
+              Alert.alert('Error', "Couldn't block user. Please try again.");
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  // The report write happens here; ReportReasonSheet drives its own
+  // success/error feedback (resolve = success, throw = failure — R4.6/R4.7).
+  const handleReportSubmit = async (reason: ReportReason) => {
+    if (!targetUserId) return;
+    await reportContent({
+      reportedUserId: targetUserId,
+      contentType: 'user',
+      contentId: targetUserId, // for a `user` report, contentId == reportedUserId (R4.9)
+      reason,
+    });
+  };
+
+  // Overflow (⋯) menu shown on another user's profile. Report is separated from
+  // the destructive Block action per the UX standards.
+  const handleOpenModerationMenu = () => {
+    Alert.alert(targetName, undefined, [
+      { text: 'Report user', onPress: () => setShowReportSheet(true) },
+      { text: 'Block user', style: 'destructive', onPress: handleBlockUser },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  };
+
+  const handleOpenBlockedUsers = () => {
+    // TODO(report-and-block 12.1): navigate to the BlockedUsersScreen once it is
+    // created and registered in AppNavigator — e.g. navigation.navigate('BlockedUsers').
+    // Until then, degrade gracefully instead of crashing on an unknown route.
+    try {
+      navigation.navigate('BlockedUsers');
+    } catch {
+      Alert.alert('Blocked Users', 'Manage the users you\'ve blocked — coming soon.');
+    }
+  };
+
 
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
+        {!isOwnProfile && (
+          <View style={styles.moderationHeader}>
+            <TouchableOpacity
+              style={styles.overflowButton}
+              onPress={handleOpenModerationMenu}
+              accessibilityRole="button"
+              accessibilityLabel={`More actions for ${targetName}`}
+              hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+            >
+              <Ionicons name="ellipsis-horizontal" size={24} color={Colors.primaryText} />
+            </TouchableOpacity>
+          </View>
+        )}
+
         <View style={styles.profileHeader}>
           <TouchableOpacity
             style={styles.avatarContainer}
@@ -438,6 +542,19 @@ export default function ProfileScreen() {
             <Text style={styles.menuText}>Send Feedback</Text>
             <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
           </TouchableOpacity>
+
+          {isOwnProfile && (
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={handleOpenBlockedUsers}
+              accessibilityRole="button"
+              accessibilityLabel="Manage blocked users"
+            >
+              <Ionicons name="ban-outline" size={24} color={Colors.primaryText} />
+              <Text style={styles.menuText}>Blocked Users</Text>
+              <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+            </TouchableOpacity>
+          )}
 
           {__DEV__ && (
             <TouchableOpacity
@@ -770,6 +887,15 @@ export default function ProfileScreen() {
         source="profile"
       />
 
+      {/* Report user reason sheet (only relevant when viewing another user) */}
+      <ReportReasonSheet
+        visible={showReportSheet}
+        onClose={() => setShowReportSheet(false)}
+        onSubmit={handleReportSubmit}
+        title="Report user"
+        subjectLabel={targetName}
+      />
+
       {/* Dev-only: Pro Paywall preview */}
       {__DEV__ && (
         <ProPaywallModal
@@ -869,6 +995,20 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingBottom: 32,                  // 8 * 4 (loose)
+  },
+  // ── Moderation overflow header (another user's profile) ──
+  moderationHeader: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingHorizontal: 16,              // 8 × 2 (base)
+    paddingTop: 8,                      // 8 × 1 (tight)
+  },
+  overflowButton: {
+    width: 48,                          // 8 × 6 (touch target)
+    height: 48,                         // 8 × 6 (touch target)
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   profileHeader: {
     alignItems: 'center',

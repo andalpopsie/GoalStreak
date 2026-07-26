@@ -1,5 +1,5 @@
 // GroupChatTab — Real-time group messaging inside accountability groups
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,11 +9,16 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/theme';
-import { GroupMessage } from '../../types/social';
+import { GroupMessage, ReportReason } from '../../types/social';
 import groupService from '../../services/groupService';
+import { useModeration } from '../../hooks/useModeration';
+import * as ModerationFilter from '../../services/moderationFilter';
+import ReportReasonSheet from './ReportReasonSheet';
 
 interface GroupChatTabProps {
   groupId: string;
@@ -31,6 +36,28 @@ export default function GroupChatTab({
   const [isSending, setIsSending] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
+  // Moderation: bidirectional block set + reported-content set. `ready` gates
+  // rendering (fail-closed) so blocked authors are never briefly visible.
+  // `blockUser`/`reportContent` back the long-press moderation actions below.
+  const {
+    state: moderationState,
+    ready: moderationReady,
+    blockUser,
+    reportContent,
+  } = useModeration();
+
+  // The message whose author is being reported. When non-null the
+  // ReportReasonSheet is shown; the parent supplies the reportedUserId /
+  // contentType / contentId inside the sheet's onSubmit handler.
+  const [reportTarget, setReportTarget] = useState<GroupMessage | null>(null);
+
+  // Run every message read/subscription result through the moderation filter
+  // before rendering. Recomputes when messages or the block set change live.
+  const filteredMessages = useMemo(
+    () => ModerationFilter.filterMessages(moderationState, messages),
+    [moderationState, messages]
+  );
+
   // Subscribe to real-time messages
   useEffect(() => {
     const unsubscribe = groupService.subscribeToMessages(groupId, (newMessages) => {
@@ -42,12 +69,12 @@ export default function GroupChatTab({
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    if (messages.length > 0) {
+    if (filteredMessages.length > 0) {
       setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });
       }, 100);
     }
-  }, [messages.length]);
+  }, [filteredMessages.length]);
 
   const handleSend = useCallback(async () => {
     const text = inputText.trim();
@@ -84,10 +111,78 @@ export default function GroupChatTab({
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
+  // Confirm + perform a block of a message author (R1.3, R1.6, R1.7).
+  // Destructive action is isolated behind its own confirmation dialog; success
+  // and failure both surface explicit feedback. Blocked authors' messages are
+  // filtered out live by `filteredMessages`, so no manual list update is needed.
+  const confirmBlock = useCallback(
+    (message: GroupMessage) => {
+      const name = message.userName.split(' ')[0] || message.userName;
+      Alert.alert(`Block ${name}?`, "You'll stop seeing each other.", [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Block',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await blockUser(message.userId);
+              Alert.alert('Blocked', `You blocked ${name}`);
+            } catch {
+              Alert.alert('Block failed', "Couldn't block user. Please try again.");
+            }
+          },
+        },
+      ]);
+    },
+    [blockUser]
+  );
+
+  // Long-press a message bubble (author other than self) → action menu offering
+  // block author / report message (R1.3, R4.4). Own messages get no actions.
+  const handleLongPressMessage = useCallback(
+    (message: GroupMessage) => {
+      if (message.userId === currentUserId) return;
+      const name = message.userName.split(' ')[0] || message.userName;
+      Alert.alert(message.userName, undefined, [
+        {
+          text: `Block ${name}`,
+          style: 'destructive',
+          onPress: () => confirmBlock(message),
+        },
+        { text: 'Report message', onPress: () => setReportTarget(message) },
+        { text: 'Cancel', style: 'cancel' },
+      ]);
+    },
+    [currentUserId, confirmBlock]
+  );
+
+  // Report submit — the parent owns the target and calls reportContent with the
+  // group_message contentType (R4.4). Resolving signals success to the sheet;
+  // throwing surfaces the sheet's inline error.
+  const handleReportSubmit = useCallback(
+    async (reason: ReportReason) => {
+      if (!reportTarget) return;
+      await reportContent({
+        reportedUserId: reportTarget.userId,
+        contentType: 'group_message',
+        contentId: reportTarget.id,
+        reason,
+      });
+    },
+    [reportTarget, reportContent]
+  );
+
   const renderMessage = ({ item, index }: { item: GroupMessage; index: number }) => {
     const isMe = item.userId === currentUserId;
-    const showDay = isNewDay(item, messages[index - 1]);
-    const showName = !isMe && (index === 0 || messages[index - 1]?.userId !== item.userId);
+    const showDay = isNewDay(item, filteredMessages[index - 1]);
+    const showName =
+      !isMe && (index === 0 || filteredMessages[index - 1]?.userId !== item.userId);
+
+    const bubble = (
+      <View style={[styles.bubble, isMe ? styles.bubbleMe : styles.bubbleOther]}>
+        <Text style={[styles.bubbleText, isMe && styles.bubbleTextMe]}>{item.text}</Text>
+      </View>
+    );
 
     return (
       <View>
@@ -108,11 +203,22 @@ export default function GroupChatTab({
             {showName && !isMe && (
               <Text style={styles.senderName}>{item.userName.split(' ')[0]}</Text>
             )}
-            <View style={[styles.bubble, isMe ? styles.bubbleMe : styles.bubbleOther]}>
-              <Text style={[styles.bubbleText, isMe && styles.bubbleTextMe]}>
-                {item.text}
-              </Text>
-            </View>
+            {isMe ? (
+              bubble
+            ) : (
+              // Only other users' messages are actionable. hitSlop keeps the
+              // long-press target ≥ 48px tall even for short single-line bubbles.
+              <TouchableOpacity
+                onLongPress={() => handleLongPressMessage(item)}
+                delayLongPress={300}
+                activeOpacity={0.7}
+                hitSlop={{ top: 8, bottom: 8, left: 0, right: 0 }}
+                accessibilityRole="button"
+                accessibilityLabel={`Message from ${item.userName}. Long press for block and report options.`}
+              >
+                {bubble}
+              </TouchableOpacity>
+            )}
             <Text style={[styles.timeText, isMe && styles.timeTextMe]}>
               {formatTime(item.createdAt)}
             </Text>
@@ -128,7 +234,13 @@ export default function GroupChatTab({
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 140 : 0}
     >
-      {messages.length === 0 ? (
+      {!moderationReady ? (
+        // Fail-closed: don't render messages until the first block-set snapshot
+        // arrives, so a blocked author is never briefly visible on cold start.
+        <View style={styles.emptyState}>
+          <ActivityIndicator color={Colors.accent1} />
+        </View>
+      ) : filteredMessages.length === 0 ? (
         <View style={styles.emptyState}>
           <Ionicons name="chatbubbles-outline" size={48} color={Colors.gray.medium} />
           <Text style={styles.emptyTitle}>No messages yet</Text>
@@ -139,7 +251,7 @@ export default function GroupChatTab({
       ) : (
         <FlatList
           ref={flatListRef}
-          data={messages}
+          data={filteredMessages}
           keyExtractor={(item) => item.id}
           renderItem={renderMessage}
           contentContainerStyle={styles.messageList}
@@ -174,6 +286,15 @@ export default function GroupChatTab({
           />
         </TouchableOpacity>
       </View>
+
+      {/* Report reason picker — shown when a non-self message is being reported.
+          The sheet handles its own success/error feedback (R4.6, R4.7). */}
+      <ReportReasonSheet
+        visible={reportTarget !== null}
+        onClose={() => setReportTarget(null)}
+        onSubmit={handleReportSubmit}
+        subjectLabel={reportTarget?.userName}
+      />
     </KeyboardAvoidingView>
   );
 }

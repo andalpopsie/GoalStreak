@@ -11,6 +11,7 @@ import {
   Image
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
 import { Button, SimpleInput } from '../components/common';
@@ -33,6 +34,10 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
   });
   const [errors, setErrors] = useState<Partial<SignUpForm>>({});
   const [isLoading, setIsLoading] = useState(false);
+  // EULA acceptance gate (R7.2, R7.4): user must explicitly accept the Terms
+  // of Service — including the zero-tolerance clause — before an account can
+  // be created.
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // Track screen view
   useEffect(() => {
@@ -77,6 +82,13 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
   };
 
   const handleSignUp = async () => {
+    // EULA gate (R7.4): block account creation until the Terms of Service
+    // (including the zero-tolerance clause) have been accepted. The button is
+    // also disabled in this state, but we guard here as a safety net.
+    if (!acceptedTerms) {
+      return;
+    }
+
     if (!validateForm()) {
       // Track validation error
       trackEvent('signup_validation_error', {
@@ -187,10 +199,38 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
               error={errors.confirmPassword}
             />
 
+            {/* EULA acceptance gate (R7.2, R7.4) */}
+            <TouchableOpacity
+              style={styles.acceptRow}
+              onPress={() => setAcceptedTerms((prev) => !prev)}
+              activeOpacity={0.7}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: acceptedTerms }}
+              accessibilityLabel="I agree to the Terms of Service, including zero tolerance for objectionable content and abusive behavior."
+            >
+              <View style={[styles.checkbox, acceptedTerms && styles.checkboxChecked]}>
+                {acceptedTerms && (
+                  <Ionicons name="checkmark" size={16} color={Colors.white} />
+                )}
+              </View>
+              <Text style={styles.acceptText}>
+                I agree to the{' '}
+                <Text
+                  style={styles.acceptLink}
+                  onPress={openTermsOfService}
+                  accessibilityRole="link"
+                >
+                  Terms of Service
+                </Text>
+                , including zero tolerance for objectionable content and abusive behavior.
+              </Text>
+            </TouchableOpacity>
+
             <Button
               title="Create Account"
               onPress={handleSignUp}
               loading={isLoading}
+              disabled={!acceptedTerms}
               variant="primary"
               size="lg"
             />
@@ -258,6 +298,39 @@ const styles = StyleSheet.create({
   },
   form: {
     marginBottom: 24,               // 8 * 3 (comfortable)
+  },
+  acceptRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: 48,                  // 8 * 6 (touch target)
+    paddingVertical: 8,             // 8 * 1 (tight)
+    marginBottom: 16,               // 8 * 2 (base)
+  },
+  checkbox: {
+    width: 24,                      // 8 * 3
+    height: 24,                     // 8 * 3
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: Colors.gray.medium,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,                // 8 * 2 (base)
+  },
+  checkboxChecked: {
+    backgroundColor: Colors.accent1, // Purple CTA color
+    borderColor: Colors.accent1,
+  },
+  acceptText: {
+    flex: 1,
+    fontSize: 14,                   // caption
+    color: Colors.gray.dark,
+    lineHeight: 20,                 // ~1.4 line height
+  },
+  acceptLink: {
+    color: Colors.accent1,
+    fontWeight: '600',              // semibold
+    textDecorationLine: 'underline',
   },
   footer: {
     flexDirection: 'row',

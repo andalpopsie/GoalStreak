@@ -210,3 +210,40 @@ export interface GroupMessage {
   text: string;
   createdAt: Date;
 }
+
+// ── Moderation Types (Report & Block) ──
+
+export interface Block {
+  id: string;
+  blockerId: string;
+  blockedUserId: string;
+  createdAt: Date;
+}
+
+export type ReportContentType = 'user' | 'activity' | 'group_activity' | 'group_message';
+
+export type ReportReason =
+  | 'harassment'
+  | 'spam'
+  | 'inappropriate'
+  | 'hate_speech'
+  | 'impersonation'
+  | 'other';
+
+export type ReportStatus = 'pending' | 'reviewed' | 'actioned';
+
+export interface Report {
+  id: string;
+  reporterId: string;
+  reportedUserId: string;
+  contentType: ReportContentType;
+  contentId: string;
+  reason: ReportReason;
+  timestamp: Date;
+  status: ReportStatus;
+}
+
+export interface ModerationState {
+  blockedUserIds: Set<string>;   // bidirectional
+  reportedContentIds: Set<string>;
+}

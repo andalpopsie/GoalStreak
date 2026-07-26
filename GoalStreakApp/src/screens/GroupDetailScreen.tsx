@@ -1,5 +1,5 @@
 // GroupDetailScreen - Full group view with Progress and Feed tabs
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
   RefreshControl,
   Image,
   Modal,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
@@ -21,8 +22,12 @@ import { GroupActivity, ReactionType } from '../types/social';
 import { useGroupDetail } from '../hooks/useGroupDetail';
 import { useHabits } from '../hooks/useHabits';
 import { useAuth } from '../hooks/useAuth';
+import { useModeration } from '../hooks/useModeration';
+import { filterGroupActivities } from '../services/moderationFilter';
+import { ReportReason } from '../types/social';
 import GroupProgressCard from '../components/social/GroupProgressCard';
 import GroupFeedCard from '../components/social/GroupFeedCard';
+import ReportReasonSheet from '../components/social/ReportReasonSheet';
 import LinkHabitsModal from '../components/social/LinkHabitsModal';
 import InviteMembersModal from '../components/social/InviteMembersModal';
 import GroupSettingsModal from '../components/social/GroupSettingsModal';
@@ -61,12 +66,30 @@ export default function GroupDetailScreen() {
     error,
   } = useGroupDetail(groupId);
 
+  // Moderation: bidirectional block set + reported-content set. Feed render is
+  // gated on `ready` (fail-closed) so blocked-authored items are never briefly visible.
+  const {
+    state: moderationState,
+    ready: moderationReady,
+    blockUser,
+    reportContent,
+  } = useModeration();
+
+  // Run the loaded group feed through the client-side moderation filter before
+  // render: drop activities authored by blocked users or already reported.
+  const filteredFeed = useMemo(
+    () => filterGroupActivities(moderationState, feed),
+    [moderationState, feed]
+  );
+
   const [activeTab, setActiveTab] = useState<DetailTab>('progress');
   const [showLinkHabits, setShowLinkHabits] = useState(false);
   const [showInviteMembers, setShowInviteMembers] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showMemberList, setShowMemberList] = useState(false);
   const [feedDisplayCount, setFeedDisplayCount] = useState(FEED_PAGE_SIZE);
+  // The group activity the viewer is reporting; drives the ReportReasonSheet.
+  const [reportTarget, setReportTarget] = useState<GroupActivity | null>(null);
 
   // Set header title
   React.useLayoutEffect(() => {
@@ -95,11 +118,62 @@ export default function GroupDetailScreen() {
     [addReaction]
   );
 
+  // Block a group member (self-exclusion is enforced at the call site: the
+  // block affordance is only rendered for members whose userId !== current user).
+  // Confirm dialog → blockUser → success/error feedback (R1.2, R1.6, R1.7).
+  const handleBlockMember = useCallback(
+    (memberUserId: string, memberName: string) => {
+      Alert.alert(
+        `Block ${memberName}?`,
+        "You'll stop seeing each other.",
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Block',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                await blockUser(memberUserId);
+                setShowMemberList(false);
+                Alert.alert('Blocked', `You blocked ${memberName}`);
+              } catch {
+                Alert.alert('Error', "Couldn't block user. Please try again.");
+              }
+            },
+          },
+        ],
+        { cancelable: true }
+      );
+    },
+    [blockUser]
+  );
+
+  // Open the report sheet for a feed activity (GroupFeedCard's ⋯ action).
+  const handleReportActivity = useCallback((activity: GroupActivity) => {
+    setReportTarget(activity);
+  }, []);
+
+  // Perform the actual report write. Resolving/throwing drives the sheet's
+  // success/error feedback; on success the reported id enters the reporter's
+  // reported-content set and the filter removes the item from the feed.
+  const handleSubmitReport = useCallback(
+    async (reason: ReportReason) => {
+      if (!reportTarget) return;
+      await reportContent({
+        reportedUserId: reportTarget.userId,
+        contentType: 'group_activity',
+        contentId: reportTarget.id,
+        reason,
+      });
+    },
+    [reportTarget, reportContent]
+  );
+
   const handleLoadMoreFeed = useCallback(() => {
-    if (feedDisplayCount < feed.length) {
+    if (feedDisplayCount < filteredFeed.length) {
       setFeedDisplayCount((prev) => prev + FEED_PAGE_SIZE);
     }
-  }, [feedDisplayCount, feed.length]);
+  }, [feedDisplayCount, filteredFeed.length]);
 
   const alreadyLinkedHabitIds = trackedHabits
     .filter((th) => th.userId === user?.id)
@@ -131,7 +205,7 @@ export default function GroupDetailScreen() {
     );
   }
 
-  const displayedFeed = feed.slice(0, feedDisplayCount);
+  const displayedFeed = filteredFeed.slice(0, feedDisplayCount);
 
   return (
     <View style={styles.container}>
@@ -300,29 +374,37 @@ export default function GroupDetailScreen() {
           )}
         </ScrollView>
       ) : activeTab === 'feed' ? (
-        <FlatList
-          data={displayedFeed}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <GroupFeedCard
-              activity={item}
-              onReaction={handleReaction}
-              currentUserId={user?.id || ''}
-            />
-          )}
-          contentContainerStyle={styles.tabContentContainer}
-          showsVerticalScrollIndicator={false}
-          onEndReached={handleLoadMoreFeed}
-          onEndReachedThreshold={0.5}
-          ListEmptyComponent={
-            <View style={styles.emptyTab}>
-              <Ionicons name="newspaper-outline" size={48} color={Colors.gray.medium} />
-              <Text style={styles.emptyTabText}>
-                No activity yet. Complete a linked habit to get started!
-              </Text>
-            </View>
-          }
-        />
+        // Fail-closed: hold feed rendering until the moderation block set has loaded.
+        !moderationReady ? (
+          <View style={styles.emptyTab}>
+            <ActivityIndicator size="small" color={Colors.accent1} />
+          </View>
+        ) : (
+          <FlatList
+            data={displayedFeed}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <GroupFeedCard
+                activity={item}
+                onReaction={handleReaction}
+                currentUserId={user?.id || ''}
+                onReport={handleReportActivity}
+              />
+            )}
+            contentContainerStyle={styles.tabContentContainer}
+            showsVerticalScrollIndicator={false}
+            onEndReached={handleLoadMoreFeed}
+            onEndReachedThreshold={0.5}
+            ListEmptyComponent={
+              <View style={styles.emptyTab}>
+                <Ionicons name="newspaper-outline" size={48} color={Colors.gray.medium} />
+                <Text style={styles.emptyTabText}>
+                  No activity yet. Complete a linked habit to get started!
+                </Text>
+              </View>
+            }
+          />
+        )
       ) : (
         <GroupChatTab
           groupId={groupId}
@@ -364,6 +446,16 @@ export default function GroupDetailScreen() {
         />
       )}
 
+      {/* Report reason sheet — parent-owned; performs the report write on submit */}
+      <ReportReasonSheet
+        visible={reportTarget !== null}
+        onClose={() => setReportTarget(null)}
+        onSubmit={handleSubmitReport}
+        subjectLabel={
+          reportTarget ? `${reportTarget.userName}'s activity` : undefined
+        }
+      />
+
       {/* Member List Modal */}
       <Modal
         visible={showMemberList}
@@ -401,8 +493,24 @@ export default function GroupDetailScreen() {
                       <Text style={styles.memberRole}>Admin</Text>
                     )}
                   </View>
-                  {member.userId === user?.id && (
+                  {member.userId === user?.id ? (
+                    // Self-exclusion (R1.2 / Property 11): the current user never
+                    // sees a block action against themselves — only the "You" marker.
                     <Text style={styles.memberYou}>You</Text>
+                  ) : (
+                    <TouchableOpacity
+                      style={styles.memberBlockButton}
+                      onPress={() => handleBlockMember(member.userId, member.userName)}
+                      accessibilityLabel={`Block ${member.userName}`}
+                      accessibilityRole="button"
+                      hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+                    >
+                      <Ionicons
+                        name="ellipsis-horizontal"
+                        size={20}
+                        color={Colors.secondaryText}
+                      />
+                    </TouchableOpacity>
                   )}
                 </View>
               ))}
@@ -622,6 +730,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,              // 8 × 1 (tight)
     paddingVertical: 2,
     borderRadius: 8,
+  },
+  memberBlockButton: {
+    width: 48,                         // 8 × 6 (touch target)
+    height: 48,                        // 8 × 6 (touch target)
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   actionsRow: {
     flexDirection: 'row',

@@ -4,6 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography } from '../../constants/theme';
 import { Friend, FriendRequest } from '../../types/social';
 import { SuggestedFriend } from '../../services/friendSuggestionsService';
+import { useModeration } from '../../hooks/useModeration';
+import * as ModerationFilter from '../../services/moderationFilter';
 import FriendCard from './FriendCard';
 
 interface FriendsTabProps {
@@ -25,10 +27,17 @@ export default function FriendsTab({
   onRemoveFriend,
   onSendFriendRequest,
 }: FriendsTabProps) {
+  // Moderation: hide friend requests from blocked users. Gate on `ready` so a
+  // stale, unfiltered list is never shown before the block set has loaded.
+  const { state: moderationState, ready: moderationReady } = useModeration();
+  const visibleRequests = moderationReady
+    ? ModerationFilter.filterFriendRequests(moderationState, pendingRequests)
+    : [];
+
   return (
     <>
       {/* ── Friend Requests Section ── */}
-      {pendingRequests.length > 0 && (
+      {visibleRequests.length > 0 && (
         <View style={styles.requestsSection}>
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitleRow}>
@@ -36,11 +45,11 @@ export default function FriendsTab({
               <Text style={styles.sectionTitle}>Friend Requests</Text>
             </View>
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>{pendingRequests.length}</Text>
+              <Text style={styles.badgeText}>{visibleRequests.length}</Text>
             </View>
           </View>
 
-          {pendingRequests.map((request) => (
+          {visibleRequests.map((request) => (
             <View key={request.id} style={styles.requestCard}>
               <View style={styles.requestAvatar}>
                 <Text style={styles.requestAvatarText}>

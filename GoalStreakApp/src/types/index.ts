@@ -128,6 +128,7 @@ export type RootStackParamList = {
   CreateHabit: undefined;
   MainTabs: undefined;
   GroupDetail: { groupId: string };
+  BlockedUsers: undefined;
 };
 
 export type AuthStackParamList = {

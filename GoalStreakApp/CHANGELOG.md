@@ -1,5 +1,56 @@
 # GoalStreak Changelog
 
+## [Report & Block — Moderation] - July 2026
+
+### Trust & Safety (App Store Guideline 1.2)
+- **User-facing moderation added across all social surfaces** so the app can be submitted with UGC + messaging. Users can now block abusive users, report objectionable content, and must accept a zero-tolerance EULA at signup.
+  - **Block** from a user's profile, group member list, and group chat messages. Blocking is idempotent and atomically tears down any existing friendship + pending friend requests between the two users.
+  - **Filter-everywhere (bidirectional)** — once blocked, neither party sees the other anywhere: friend activity feed, group activity feed, group chat, friend search, friend requests, and reaction counts. Rendering is fail-closed (feeds wait for the block set to load so a blocked user is never briefly visible).
+  - **Report** a user, activity, group activity, or group message via a reason picker (harassment, spam, inappropriate, hate speech, impersonation, other). Reported content auto-hides from the reporter's own view.
+  - **Manage blocked list / unblock** via a new Blocked Users screen (linked from Profile).
+  - **EULA** zero-tolerance clause added to the Terms of Service; required acceptance checkbox on signup gates account creation; acceptance persisted to `users/{uid}` (`eulaAcceptedAt`, `eulaVersion`).
+
+### New files
+- `src/services/moderationFilter.ts` — pure client-side filter (blocked authors + reported content) for every social surface, incl. `filterReactions`
+- `src/services/moderationTransitions.ts` — pure block/unblock, teardown-selection, and report-construction helpers
+- `src/hooks/useModeration.ts` — merged block + reported-content state with a fail-closed `ready` flag and optimistic block
+- `src/components/social/ReportReasonSheet.tsx` — reusable reason picker with success/error feedback
+- `src/screens/BlockedUsersScreen.tsx` — view/unblock the blocked list
+- `src/services/__tests__/moderationFilter.property.test.ts`, `moderationTransitions.property.test.ts` — 11 fast-check property tests (100+ runs each)
+
+### Modified files
+- `src/services/friendService.ts` — `blockUser` (atomic batch teardown, idempotent), `unblockUser`, `getBlockedUsers`, `isBlocked`, bidirectional `subscribeBlockSet`, `reportContent`/`reportUser`, `getReportedContentIds`, `subscribeReportedContent`
+- `src/types/social.ts` — `Block`, `Report`, `ReportContentType`, `ReportReason`, `ReportStatus`, `ModerationState`
+- Filter wiring: `ActivityFeedTab.tsx`, `GroupDetailScreen.tsx` (group feed + member-list block), `GroupChatTab.tsx` (filter + long-press block/report), `SearchModal.tsx`, `FriendsTab.tsx`, `GroupFeedCard.tsx`, `ActivityCard.tsx`
+- `src/screens/ProfileScreen.tsx` — block/report overflow menu for other users + Blocked Users entry
+- `src/screens/SignUpScreen.tsx` — EULA acceptance checkbox gate; `src/hooks/useAuth.tsx` — persist EULA acceptance
+- `src/navigation/AppNavigator.tsx`, `src/types/index.ts` — register `BlockedUsers` route
+- `app-store-assets/metadata/terms-of-service.md` — zero-tolerance clause (ToS v1.2)
+
+### Firestore
+- New collections `blocks` ({blockerId, blockedUserId, createdAt}) and `reports` ({reporterId, reportedUserId, contentType, contentId, reason, timestamp, status})
+- Security rules added to `firebase/firestore.rules`: blocks (either-party read, owner-only create/delete, no update), reports (create-only where reporterId==uid, immutable)
+- No new composite indexes required (all block/report reads are single-field equality)
+- **Action required**: `firebase deploy --only firestore:rules` before the moderation feature works in production
+
+### Design decision (privacy tradeoff)
+- Block records are readable by **either** party (not owner-only) so the blocked user's client can build the bidirectional filter set without a backend. Exposure is minimal: only two opaque Firebase UIDs + a timestamp, never surfaced in the blocked user's UI (silent hide). A server-side (Cloud Functions) filtering upgrade that removes this exposure is documented as a post-launch fast-follow.
+
+### Testing
+- 11 property-based tests (fast-check) pass, covering the bidirectional filter-everywhere invariant, reactions filtering, report auto-hide + per-user scoping, no-false-exclusions, block idempotence, block/unblock round-trip, Block_List selection, teardown selection, and report construction
+- `tsc --noEmit`: no new errors (pre-existing baseline unchanged)
+
+## [Pro Launch Refinements] - July 2026
+
+### Monetization
+- **Reduced subscription pricing** — monthly $4.99 → **$3.99**, annual $29.99 → **$23.99** ("Save 50%" retained; annual amortizes to ~$1.99/mo). Updated `ProPaywallModal` + spec docs.
+- **Dashboard upgrade card** — free users at the 6-habit limit now see a "Want more? · From $1.99/mo" card (instead of "All Set!") that opens the paywall; Pro users keep "All Set!". Added `pro_upgrade_card_tapped` / `pro_upgraded` analytics.
+- **Fix: instant Pro unlock without restart** — after a successful purchase, the dashboard's `useSubscription` instance now calls `refresh()` in the paywall `onSuccess`, so the upgrade card disappears and the habit limit lifts to 15 immediately (previously required an app restart). Verified on TestFlight build 16.
+- **Honest paywall messaging** — paywall lists only the delivered benefit (15 habits) with streak freeze / analytics / themes labelled "Coming soon"; founding-member (first 100 users → Lifetime Pro) framed as a promo.
+
+### App Store assets
+- **Refreshed screenshots** to the current UI (dashboard, habit creation, social feed, analytics, accountability group/feed/chat) at 6.9" (1320×2868) plus a 6.5" (1284×2778) set for App Store Connect's 6.5" slot.
+
 ## [Legal Compliance — Goalfer Pro] - July 2026
 
 ### App Store Compliance

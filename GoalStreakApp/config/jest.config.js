@@ -9,6 +9,13 @@ module.exports = {
     '<rootDir>/src/**/__tests__/**/*.(test|spec).(ts|tsx|js)',
     '<rootDir>/src/**/*.(test|spec).(ts|tsx|js)'
   ],
+  // Emulator tests (security rules + service integration) run under a separate
+  // node config against a live Firestore emulator; exclude them from the RN run.
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '\\.rules\\.test\\.(ts|tsx)$',
+    '\\.emulator\\.test\\.(ts|tsx)$'
+  ],
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',

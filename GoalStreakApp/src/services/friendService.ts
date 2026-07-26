@@ -32,8 +32,13 @@ import {
   ActivityFeedResponse,
   UserSearchResult,
   ReactionType,
-  Reactions
+  Reactions,
+  Block,
+  Report,
+  ReportContentType,
+  ReportReason
 } from '../types/social';
+import { buildReport, selectOutgoingBlocks } from './moderationTransitions';
 
 class FriendService {
   // Auth and Collections
@@ -44,6 +49,8 @@ class FriendService {
   private socialSettingsCollection = collection(db, 'socialSettings');
   private userProfilesCollection = collection(db, 'userProfiles');
   private usersCollection = collection(db, 'users');
+  private blocksCollection = collection(db, 'blocks');
+  private reportsCollection = collection(db, 'reports');
 
   // Friend Management
   async sendFriendRequest(fromUserId: string, toUserEmail: string, message?: string): Promise<string> {
@@ -662,6 +669,334 @@ class FriendService {
   hasUserReacted(reactions?: Reactions, userId?: string, reactionType?: ReactionType): boolean {
     if (!reactions || !userId || !reactionType) return false;
     return reactions[userId]?.includes(reactionType) ?? false;
+  }
+
+  // ── Moderation: Block Operations (Report & Block) ──
+
+  /**
+   * Block a user. Runs a single atomic writeBatch that creates the block record
+   * and tears down any friendship/friend-request relationship between the two
+   * users in either direction.
+   *
+   * - Idempotent: if a block already exists in this direction, returns success
+   *   without a second write (R1.5).
+   * - Atomic: the block create + all teardown deletes commit together; on commit
+   *   failure the error is rethrown so nothing persists (R1.4, R1.7, R1.8, R1.9).
+   */
+  async blockUser(blockerId: string, blockedUserId: string): Promise<void> {
+    try {
+      // Idempotent pre-check — a repeat block leaves the Block_List unchanged (R1.5)
+      const existingBlockQuery = query(
+        this.blocksCollection,
+        where('blockerId', '==', blockerId),
+        where('blockedUserId', '==', blockedUserId)
+      );
+      const existingBlockSnapshot = await getDocs(existingBlockQuery);
+      if (!existingBlockSnapshot.empty) {
+        return;
+      }
+
+      // Gather friendship + friend-request records linking the pair in either
+      // direction. The friendship queries reuse the removeFriend query shape;
+      // together these cover the selectTeardownRecords "either-direction" semantics.
+      const friendship1Query = query(
+        this.friendsCollection,
+        where('userId', '==', blockerId),
+        where('friendId', '==', blockedUserId)
+      );
+      const friendship2Query = query(
+        this.friendsCollection,
+        where('userId', '==', blockedUserId),
+        where('friendId', '==', blockerId)
+      );
+      const request1Query = query(
+        this.friendRequestsCollection,
+        where('fromUserId', '==', blockerId),
+        where('toUserId', '==', blockedUserId)
+      );
+      const request2Query = query(
+        this.friendRequestsCollection,
+        where('fromUserId', '==', blockedUserId),
+        where('toUserId', '==', blockerId)
+      );
+
+      const [
+        friendship1Snapshot,
+        friendship2Snapshot,
+        request1Snapshot,
+        request2Snapshot
+      ] = await Promise.all([
+        getDocs(friendship1Query),
+        getDocs(friendship2Query),
+        getDocs(request1Query),
+        getDocs(request2Query)
+      ]);
+
+      const batch = writeBatch(db);
+
+      // Create the block record (R1.4)
+      const blockRef = doc(this.blocksCollection);
+      batch.set(blockRef, {
+        blockerId,
+        blockedUserId,
+        createdAt: serverTimestamp()
+      });
+
+      // Delete both friendship docs (R1.8) and any pending friend requests in
+      // either direction (R1.9)
+      [
+        friendship1Snapshot,
+        friendship2Snapshot,
+        request1Snapshot,
+        request2Snapshot
+      ].forEach((snapshot) => {
+        snapshot.forEach((docSnap) => batch.delete(docSnap.ref));
+      });
+
+      // Rethrow on commit failure so nothing persists (R1.7)
+      await batch.commit();
+    } catch (error) {
+      console.error('Error blocking user:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Unblock a user by deleting the caller's own block record
+   * (`blockerId == uid && blockedUserId == target`). Records in the opposite
+   * direction, or belonging to other blockers, are untouched (R3.3).
+   */
+  async unblockUser(blockerId: string, blockedUserId: string): Promise<void> {
+    try {
+      const blockQuery = query(
+        this.blocksCollection,
+        where('blockerId', '==', blockerId),
+        where('blockedUserId', '==', blockedUserId)
+      );
+      const snapshot = await getDocs(blockQuery);
+      if (snapshot.empty) {
+        return;
+      }
+
+      const batch = writeBatch(db);
+      snapshot.forEach((docSnap) => batch.delete(docSnap.ref));
+      await batch.commit();
+    } catch (error) {
+      console.error('Error unblocking user:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Return the current user's Block_List — the block records where the user is
+   * the `blockerId` (R3.2).
+   */
+  async getBlockedUsers(userId: string): Promise<Block[]> {
+    try {
+      const blocksQuery = query(
+        this.blocksCollection,
+        where('blockerId', '==', userId)
+      );
+      const snapshot = await getDocs(blocksQuery);
+      const blocks = snapshot.docs.map((docSnap) => ({
+        id: docSnap.id,
+        ...docSnap.data()
+      })) as Block[];
+
+      // selectOutgoingBlocks re-asserts the blockerId == userId invariant.
+      return selectOutgoingBlocks(blocks, userId);
+    } catch (error) {
+      console.error('Error getting blocked users:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Whether a Block_Relationship exists between two users in EITHER direction.
+   */
+  async isBlocked(userAId: string, userBId: string): Promise<boolean> {
+    try {
+      const forwardQuery = query(
+        this.blocksCollection,
+        where('blockerId', '==', userAId),
+        where('blockedUserId', '==', userBId)
+      );
+      const reverseQuery = query(
+        this.blocksCollection,
+        where('blockerId', '==', userBId),
+        where('blockedUserId', '==', userAId)
+      );
+      const [forwardSnapshot, reverseSnapshot] = await Promise.all([
+        getDocs(forwardQuery),
+        getDocs(reverseQuery)
+      ]);
+      return !forwardSnapshot.empty || !reverseSnapshot.empty;
+    } catch (error) {
+      console.error('Error checking block status:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Subscribe to the current user's bidirectional block set. Attaches two
+   * onSnapshot listeners — one for outgoing blocks (`blockerId == uid`) and one
+   * for incoming blocks (`blockedUserId == uid`) — and unions the OTHER party's
+   * id from each doc into a single Set, invoking the callback on every update.
+   * On a transient subscription error the last-known set is retained (the
+   * failing listener simply keeps its previous ids). Returns an unsubscribe that
+   * detaches both listeners (R2.7, R2.8, R3.2).
+   */
+  subscribeBlockSet(userId: string, callback: (ids: Set<string>) => void): () => void {
+    const outgoingQuery = query(
+      this.blocksCollection,
+      where('blockerId', '==', userId)
+    );
+    const incomingQuery = query(
+      this.blocksCollection,
+      where('blockedUserId', '==', userId)
+    );
+
+    let outgoingIds = new Set<string>();
+    let incomingIds = new Set<string>();
+
+    const emit = () => {
+      const union = new Set<string>();
+      outgoingIds.forEach((id) => union.add(id));
+      incomingIds.forEach((id) => union.add(id));
+      callback(union);
+    };
+
+    const unsubscribeOutgoing = onSnapshot(
+      outgoingQuery,
+      (snapshot) => {
+        outgoingIds = new Set(
+          snapshot.docs.map((docSnap) => (docSnap.data() as Block).blockedUserId)
+        );
+        emit();
+      },
+      (error) => {
+        // Retain last-known set on transient errors (mirror subscribeToActivityFeed)
+        console.error('Error in block set (outgoing) subscription:', error);
+      }
+    );
+
+    const unsubscribeIncoming = onSnapshot(
+      incomingQuery,
+      (snapshot) => {
+        incomingIds = new Set(
+          snapshot.docs.map((docSnap) => (docSnap.data() as Block).blockerId)
+        );
+        emit();
+      },
+      (error) => {
+        console.error('Error in block set (incoming) subscription:', error);
+      }
+    );
+
+    return () => {
+      unsubscribeOutgoing();
+      unsubscribeIncoming();
+    };
+  }
+
+  // ── Moderation: Report Operations (Report & Block) ──
+
+  /**
+   * Create an immutable report record. The record persists with
+   * `status: 'pending'` and a server timestamp. Reports are append-only and
+   * repeatable — no uniqueness check is enforced, so a duplicate report simply
+   * creates another record and resolves successfully (R4.5, R4.8, R4.9).
+   */
+  async reportContent(params: {
+    reporterId: string;
+    reportedUserId: string;
+    contentType: ReportContentType;
+    contentId: string;
+    reason: ReportReason;
+  }): Promise<void> {
+    try {
+      // buildReport maps the fields and enforces contentId == reportedUserId for
+      // the 'user' content type (R4.9). The placeholder Date is overridden with a
+      // server timestamp on write (matching the createActivity pattern, R4.5).
+      const report = buildReport(
+        {
+          reporterId: params.reporterId,
+          reportedUserId: params.reportedUserId,
+          contentType: params.contentType,
+          contentId: params.contentId,
+          reason: params.reason
+        },
+        new Date()
+      );
+
+      await addDoc(this.reportsCollection, {
+        ...report,
+        timestamp: serverTimestamp()
+      });
+    } catch (error) {
+      console.error('Error reporting content:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Convenience wrapper that reports a user profile (R4.1). Sets
+   * `contentType: 'user'` and `contentId` equal to the reported user id (R4.9).
+   */
+  async reportUser(reporterId: string, reportedUserId: string, reason: ReportReason): Promise<void> {
+    return this.reportContent({
+      reporterId,
+      reportedUserId,
+      contentType: 'user',
+      contentId: reportedUserId,
+      reason
+    });
+  }
+
+  /**
+   * Return the set of content ids the user has reported (`reporterId == uid`),
+   * used to auto-hide reported content from the reporter's own view (R5.1, R5.2).
+   */
+  async getReportedContentIds(userId: string): Promise<Set<string>> {
+    try {
+      const reportsQuery = query(
+        this.reportsCollection,
+        where('reporterId', '==', userId)
+      );
+      const snapshot = await getDocs(reportsQuery);
+      return new Set(
+        snapshot.docs.map((docSnap) => (docSnap.data() as Report).contentId)
+      );
+    } catch (error) {
+      console.error('Error getting reported content ids:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Subscribe to the live set of content ids the user has reported. Retains the
+   * last-known set on transient errors and returns an unsubscribe function
+   * (R5.1, R5.2).
+   */
+  subscribeReportedContent(userId: string, callback: (ids: Set<string>) => void): () => void {
+    const reportsQuery = query(
+      this.reportsCollection,
+      where('reporterId', '==', userId)
+    );
+
+    return onSnapshot(
+      reportsQuery,
+      (snapshot) => {
+        const ids = new Set(
+          snapshot.docs.map((docSnap) => (docSnap.data() as Report).contentId)
+        );
+        callback(ids);
+      },
+      (error) => {
+        // Retain last-known set on transient errors (mirror subscribeToActivityFeed)
+        console.error('Error in reported content subscription:', error);
+      }
+    );
   }
 
   // Search for users by name or email
