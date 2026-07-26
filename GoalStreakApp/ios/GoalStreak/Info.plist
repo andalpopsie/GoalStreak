@@ -34,7 +34,7 @@
       </dict>
     </array>
     <key>CFBundleVersion</key>
-    <string>18</string>
+    <string>19</string>
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
     <key>LSMinimumSystemVersion</key>
@@ -64,8 +64,6 @@
     <string>Goalfer requests photo library access to let you choose existing photos for your profile picture. This helps personalize your experience and makes it easier for friends to recognize you in social features. Photo access is completely optional and only used when you choose to update your profile picture.</string>
     <key>NSRemindersUsageDescription</key>
     <string>Goalfer can access your reminders to help integrate habit tracking with your existing reminder system. This access is completely optional and helps consolidate your productivity tools.</string>
-    <key>NSUserTrackingUsageDescription</key>
-    <string>Goalfer uses analytics to improve your experience, provide personalized habit insights, and help us understand how to make the app better for building lasting habits. This data helps us optimize features like streak tracking, social accountability, and progress analytics. You can opt out anytime in Settings.</string>
     <key>RCTNewArchEnabled</key>
     <true/>
     <key>UILaunchStoryboardName</key>

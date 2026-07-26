@@ -33,8 +33,8 @@ export const openURL = async (url: string, fallbackMessage?: string): Promise<vo
  */
 export const openPrivacyPolicy = (): Promise<void> => {
   return openURL(
-    'https://goalstreak.co/privacy',
-    'Please visit goalstreak.co/privacy to view our privacy policy.'
+    'https://goalfer.app/privacy',
+    'Please visit goalfer.app/privacy to view our privacy policy.'
   );
 };
 
@@ -43,8 +43,8 @@ export const openPrivacyPolicy = (): Promise<void> => {
  */
 export const openTermsOfService = (): Promise<void> => {
   return openURL(
-    'https://goalstreak.co/terms',
-    'Please visit goalstreak.co/terms to view our terms of service.'
+    'https://goalfer.app/terms',
+    'Please visit goalfer.app/terms to view our terms of service.'
   );
 };
 
@@ -53,7 +53,7 @@ export const openTermsOfService = (): Promise<void> => {
  */
 export const openSupport = (): Promise<void> => {
   return openURL(
-    'https://goalstreak.co/support',
-    'Please visit goalstreak.co/support for help and support.'
+    'https://goalfer.app/support',
+    'Please visit goalfer.app/support for help and support.'
   );
 };
