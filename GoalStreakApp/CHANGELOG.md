@@ -60,6 +60,7 @@ Canonical legal/support domain confirmed as **goalfer.app**. Completed the full 
 - **Aligned the privacy manifest to match.** In `ios/GoalStreak/PrivacyInfo.xcprivacy`, `Product Interaction` was declared with `NSPrivacyCollectedDataTypeTracking = true`, which contradicted `NSPrivacyTracking = false` and the removed ATT string. Set it to `false` so the manifest is internally consistent and the aggregated App Store privacy label does not falsely claim tracking.
 - **Updated validation tooling** so it no longer requires the ATT string (`ios-pre-submission-validation.js` had it as a hard error; `ios-pre-launch-testing.js` and `comprehensive-validation.js` warned): `scripts/ios-pre-submission-validation.js`, `scripts/ios-pre-launch-testing.js`, `scripts/comprehensive-validation.js`.
 - **Refreshed compliance checklist** entries for the ATT key and Product Interaction tracking flag: `app-store-assets/metadata/ios-legal-compliance-checklist.md`.
+- **Added an Outstanding Pre-Submission Items section** to `ios-legal-compliance-checklist.md` (reviewer-contact and governing-law placeholders, domain/email consistency, UGC safety-feature verification, unused permission strings, purchase-history manifest verification); overall status moved from "COMPLETE" to "NEARLY READY".
 
 ## [Report & Block — Moderation] - July 2026
 

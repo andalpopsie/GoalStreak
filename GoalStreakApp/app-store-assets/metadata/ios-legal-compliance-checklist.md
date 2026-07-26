@@ -202,9 +202,26 @@ This checklist ensures Goalfer meets all iOS App Store legal and privacy require
 - [x] **Error handling**: Test graceful handling of permission denials
 - [x] **Offline functionality**: Ensure core features work without permissions
 
-## Status: ✅ COMPLETE
+## ✅ Metadata Accuracy (Apple Guideline 2.3)
 
-All iOS legal compliance and privacy requirements have been implemented and verified. The app is ready for App Store submission with comprehensive privacy protections and legal compliance.
+- [x] Removed unverifiable statistic "increases success rates by 65%" from the App Store description (Guideline 2.3.7 — no unsubstantiated claims)
+- [x] Removed pre-launch "join thousands of users" social-proof claim from the description
+- [x] Subscription benefits described accurately; roadmap features labelled "coming soon" (Guideline 3.1.2)
+- [ ] ⚠️ "First 100 users get Goalfer Pro free for life" promo in promotional text — confirm the promotional entitlement is actually implemented in the shipping build before submission (otherwise misleading metadata)
+
+## ⚠️ Outstanding Pre-Submission Items (must resolve before submit)
+
+- [ ] ❌ **Reviewer contact placeholders**: `appReviewInformation.contact` and `tradeRepresentativeContactInformation` in `app-store-connect-config.json` still contain `[FIRST_NAME]`, `[LAST_NAME]`, `[EMAIL]`, `[PHONE]` — fill with real, monitored details
+- [ ] ❌ **Terms governing law placeholder**: Terms of Service §12 still contains `[Your Jurisdiction]` — set the governing jurisdiction
+- [ ] ⚠️ **Domain consistency**: web URLs use `goalstreak.co` while all contact emails use `@goalstreak.app`, and the app brand is "Goalfer". Confirm both domains are owned, the `goalstreak.co/privacy`, `/terms`, `/support` pages are live, and the `@goalstreak.app` mailboxes are monitored
+- [ ] ⚠️ **UGC/social safety (Guideline 1.2)**: 4+ rating with social networking + user-generated content requires in-app report, block, and content filtering to ship in the submitted build. Confirm the report-and-block feature is included in the build (Terms already carry the zero-tolerance clause)
+- [ ] ⚠️ **Unused permission strings (Guideline 5.1.1)**: `NSMicrophoneUsageDescription`, `NSCalendarsUsageDescription`, `NSRemindersUsageDescription` (and possibly Location/Contacts) are declared as "future" features. Remove usage descriptions for permissions no feature currently requests, or a reviewer may ask which feature uses them
+- [ ] ⚠️ **Purchase History in app-level manifest**: `ios/GoalStreak/PrivacyInfo.xcprivacy` does not list `NSPrivacyCollectedDataTypePurchaseHistory`; it relies on RevenueCat's bundled manifest. Verify the aggregated App Store privacy label shows "Purchases → Purchase History" after build
+- [ ] 📝 **Doc drift**: this checklist references legacy paths `app-store/privacy-policy.md` / `app-store/terms-of-service.md`; the canonical location is `app-store-assets/metadata/`
+
+## Status: ⚠️ NEARLY READY — resolve Outstanding Pre-Submission Items above
+
+Privacy manifest, usage descriptions, legal documents, and in-app legal links are in place. Submission is blocked only by the placeholder contact/jurisdiction fields and the verification items listed above.
 
 ### Key Achievements
 - Comprehensive privacy usage descriptions for all permissions
