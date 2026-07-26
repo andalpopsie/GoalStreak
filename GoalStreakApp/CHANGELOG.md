@@ -1,5 +1,66 @@
 # GoalStreak Changelog
 
+## [App Store Metadata — Marketing Claim Compliance] - July 2026
+
+### App Store listing (Apple Guideline 2.3.x)
+- **Softened two unverified marketing claims** in the App Store description. In `app-store-connect-config.json` (and confirmed already in sync in `ios-metadata.json`): "Social accountability increases success rates by 65%" → "Social accountability helps you stay consistent", and "Join thousands of users who've transformed their lives with Goalfer" → "Join others building better habits with Goalfer". Removes the two claims Apple flagged as unsubstantiated from the submitted listing fields.
+- The two App Store listing files (`app-store-connect-config.json`, `ios-metadata.json`) remain identical for the description block.
+
+### Checklist updates (no new files)
+- `metadata/ios-submission-checklist.md` — flipped the "Marketing claims" item to ✅ for the App Store listing and added a scoped ⚠️ noting the 65% / "join thousands" claims still live in non-listing collateral (`android-metadata.json`, `app-store-description-variants.md`, `marketing/MARKETING_GUIDE.md`, `marketing/press-kit/*`, `marketing/app-preview/frame5.svg`).
+- `SUBMISSION_CHECKLIST.md` — corrected the stale screenshot list (retired `03-habit-icons.png`; documented the current 8-screenshot set with accountability + Pro paywall shots and the 6.5" set) and the icon path (canonical `assets/icon.png` + xcassets; the deleted `icons/enhanced/ios/` reference removed per the asset-paths SOP).
+
+### Follow-ups (not blocking this edit)
+- Soften/substantiate the 65% and "join thousands" claims in the non-listing marketing collateral before public reuse.
+- Confirm the App Store Connect display slot (6.5" vs 6.7"/6.9") matches the uploaded screenshot dimensions.
+
+## [Legal Link Domain Migration — goalstreak.co → goalfer.app] - July 2026
+
+Canonical legal/support domain confirmed as **goalfer.app**. Completed the full sweep across the in-app code and App Store metadata.
+
+### In-app legal links (`src/utils/linkingUtils.ts`)
+- All three links on `goalfer.app`: `openPrivacyPolicy` → `/privacy`, `openTermsOfService` → `/terms`, `openSupport` → `/support` (fallback messages match).
+
+### App Store metadata URLs migrated to goalfer.app
+- `ios-metadata.json` — `marketingUrls` (privacy, support, marketing, terms)
+- `app-store-connect-config.json` — `appStoreInformation` support/marketing/privacy URLs + `appPrivacy.privacyPolicyUrl`
+- `ios-submission-checklist.md` and `ios-legal-compliance-checklist.md` — URL lines + "all use goalstreak.co" statements updated
+
+### Legal document contact info migrated (`@goalstreak.app` → `@goalfer.app`)
+- `privacy-policy.md`: privacy@, support@, dpo@, children's-privacy contact; `www.goalstreak.co` → `www.goalfer.app`
+- `terms-of-service.md`: legal@, support@, privacy@, business@; `www.goalstreak.co(/support)` → `www.goalfer.app(/support)`
+- `ios-legal-compliance-checklist.md`: contact information block
+
+### Marketing claim softening (App Store Guideline 2.3.x)
+- "increases success rates by 65%" → "helps you stay consistent"
+- "Join thousands of users…" → "Join others building better habits with Goalfer."
+- Applied in both `ios-metadata.json` and `app-store-connect-config.json`
+
+### Privacy manifest — Purchase History (verified, no change needed)
+- `ios/GoalStreak/PrivacyInfo.xcprivacy` intentionally omits `NSPrivacyCollectedDataTypePurchaseHistory`. The app doesn't collect purchase data directly; the RevenueCat SDK does and ships its own manifest declaring it. Apple aggregates SDK manifests, and the App Store Connect nutrition label already declares Purchases → Purchase History.
+
+### Action required before submission
+- Confirm `goalfer.app` serves live `/privacy`, `/terms`, and `/support` pages (a dead privacy URL is a Guideline 5.1.1 rejection).
+- Provision and monitor the `@goalfer.app` mailboxes (privacy, support, legal, business, dpo).
+- Bundle identifier `com.goalstreak.app` is unchanged (registered with Apple, cannot change) — expected, not part of this migration.
+
+### Follow-up sweep — docs, scripts, specs, steering, hooks (goalfer.app)
+- **Scripts** (prevented a regression — these emit/print metadata): `generate-app-store-assets.js` (privacy/support URLs — would have re-emitted `goalstreak.co` on next run), `configure-app-store-connect.js` and `ios-production-build-and-submit.js` (printed support/privacy/terms URLs), `screenshot-capture-guide.js` (test-account email).
+- **Docs**: `docs/IOS_SUBMISSION_GUIDE.md` (privacy URL + domain-access line, "launch Goalfer"); `app-store-assets/real-screenshots/QUICK_COMMANDS.md` (test email).
+- **Specs/steering**: `.kiro/steering/project-essentials.md`, `.kiro/steering/deployment-guide.md` (sample metadata URLs), `app-store-launch/LAUNCH_READINESS_ASSESSMENT.md`, `app-store-launch/requirements.md` (Req 2.4 + 6.7 acceptance criteria), `report-and-block/design.md` (terms URL).
+- **Kiro hooks**: `legal-document-validator.kiro.hook` and `app-store-compliance-checker.kiro.hook` previously instructed enforcing `goalstreak.co` — updated to `goalfer.app` so future automated checks give correct guidance.
+
+### Still on goalstreak.co — intentionally NOT changed (runtime dependency)
+- `.env.production` `EXPO_PUBLIC_API_BASE_URL=https://api.goalstreak.co` (and its mirror in `deployment-guide.md`). This is a live backend endpoint, not doc text. Do NOT repoint to `api.goalfer.app` until that host is provisioned and serving — otherwise all API calls break in production.
+
+## [Compliance — ATT / Privacy Manifest Alignment] - July 2026
+
+### App Store Privacy (fixes internal inconsistency)
+- **Removed `NSUserTrackingUsageDescription` from `ios/GoalStreak/Info.plist`.** Goalfer does not perform App Tracking Transparency tracking — there is no IDFA usage, no `requestTrackingAuthorization` prompt, and no `expo-tracking-transparency`. Analytics is first-party Firebase only. Keeping the ATT string would misrepresent the app's data practices.
+- **Aligned the privacy manifest to match.** In `ios/GoalStreak/PrivacyInfo.xcprivacy`, `Product Interaction` was declared with `NSPrivacyCollectedDataTypeTracking = true`, which contradicted `NSPrivacyTracking = false` and the removed ATT string. Set it to `false` so the manifest is internally consistent and the aggregated App Store privacy label does not falsely claim tracking.
+- **Updated validation tooling** so it no longer requires the ATT string (`ios-pre-submission-validation.js` had it as a hard error; `ios-pre-launch-testing.js` and `comprehensive-validation.js` warned): `scripts/ios-pre-submission-validation.js`, `scripts/ios-pre-launch-testing.js`, `scripts/comprehensive-validation.js`.
+- **Refreshed compliance checklist** entries for the ATT key and Product Interaction tracking flag: `app-store-assets/metadata/ios-legal-compliance-checklist.md`.
+
 ## [Report & Block — Moderation] - July 2026
 
 ### Trust & Safety (App Store Guideline 1.2)

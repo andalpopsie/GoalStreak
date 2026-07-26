@@ -345,10 +345,11 @@ class IOSPreLaunchTester {
       
       // Validate privacy descriptions
       const infoPlist = appConfig.expo.ios.infoPlist;
+      // NSUserTrackingUsageDescription intentionally omitted — Goalfer does no
+      // ATT tracking (no IDFA/ATT prompt, NSPrivacyTracking=false).
       const requiredPrivacyKeys = [
         'NSCameraUsageDescription',
         'NSPhotoLibraryUsageDescription',
-        'NSUserTrackingUsageDescription',
       ];
       
       for (const key of requiredPrivacyKeys) {

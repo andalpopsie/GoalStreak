@@ -98,7 +98,7 @@ npx expo start
 
 # 2. Create test account with:
 #    - Name: "Alex Johnson" 
-#    - Email: test@goalstreak.co
+#    - Email: test@goalfer.app
 
 # 3. Add these test habits:
 #    - Morning Meditation (🧘‍♀️, Daily, 7-day streak)

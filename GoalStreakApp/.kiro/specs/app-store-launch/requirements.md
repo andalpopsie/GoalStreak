@@ -35,7 +35,7 @@ This document outlines the requirements for successfully launching GoalStreak on
 1. WHEN checking iOS icons, THE System SHALL have all required icon sizes (1024x1024, 180x180, 120x120, 167x167, 152x152)
 2. WHEN reviewing screenshots, THE System SHALL have screenshots for all required device sizes (iPhone 6.7", 6.5", 5.5" and iPad Pro 12.9", 11")
 3. WHEN validating metadata, THE System SHALL have complete app description, keywords, and promotional text
-4. WHEN checking legal documents, THE System SHALL have accessible privacy policy and terms of service at goalstreak.co domain
+4. WHEN checking legal documents, THE System SHALL have accessible privacy policy and terms of service at goalfer.app domain
 
 ### Requirement 3: Apple Developer Account Setup
 
@@ -83,7 +83,7 @@ This document outlines the requirements for successfully launching GoalStreak on
 4. WHEN optimizing keywords, THE System SHALL have relevant keywords under 100 characters
 5. WHEN uploading screenshots, THE System SHALL have screenshots for all required device sizes
 6. WHEN setting age rating, THE System SHALL be rated 4+ (appropriate for all ages)
-7. WHEN adding URLs, THE System SHALL have working privacy policy URL (https://goalstreak.co/privacy)
+7. WHEN adding URLs, THE System SHALL have working privacy policy URL (https://goalfer.app/privacy)
 
 ### Requirement 7: App Review Submission
 

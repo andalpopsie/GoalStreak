@@ -218,7 +218,7 @@ All new UI uses `Colors`, `Typography`, `Spacing`, `Layout`, `BorderRadius`, `Sh
 
 The zero-tolerance clause lives with the existing terms content:
 
-- Canonical text is added to `app-store-assets/metadata/terms-of-service.md` (existing terms doc) and served at `https://goalstreak.co/terms` (already linked by `openTermsOfService` in `linkingUtils.ts`) (R7.1, R7.3).
+- Canonical text is added to `app-store-assets/metadata/terms-of-service.md` (existing terms doc) and served at `https://goalfer.app/terms` (already linked by `openTermsOfService` in `linkingUtils.ts`) (R7.1, R7.3).
 - `SignUpScreen` adds a required acceptance checkbox next to the existing terms text: "I agree to the Terms of Service, including zero tolerance for objectionable content and abusive behavior." `handleSignUp` is blocked (button disabled + guard) until the box is checked (R7.4).
 - On successful signup, `useAuth.signUp` records acceptance on the `users` doc: `eulaAcceptedAt: serverTimestamp()`, `eulaVersion: '1.0'`. In-app, the existing terms link surfaces the same content (R7.3).
 

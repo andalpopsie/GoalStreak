@@ -149,7 +149,7 @@ While your build is processing, complete your App Store Connect listing:
    - All other categories: None
 
 8. **App Privacy:**
-   - Privacy Policy URL: https://goalstreak.co/privacy
+   - Privacy Policy URL: https://goalfer.app/privacy
    - Configure data types as specified in the metadata
 
 ### Step 11: Select Build and Submit
@@ -245,9 +245,9 @@ Before starting, ensure you have:
 - [ ] Apple ID and Team ID ready
 - [ ] Stable internet connection (builds are large)
 - [ ] 2-3 hours of available time
-- [ ] Access to goalstreak.co domain (for privacy policy)
+- [ ] Access to goalfer.app domain (for privacy policy)
 
-**🎉 You're ready to launch GoalStreak on the iOS App Store!**
+**🎉 You're ready to launch Goalfer on the iOS App Store!**
 
 ---
 

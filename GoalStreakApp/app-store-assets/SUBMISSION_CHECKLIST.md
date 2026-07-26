@@ -10,19 +10,23 @@
 
 
 ### ✅ Icons Generated
-- ✅ All 6 required iOS PNGs present in `icons/enhanced/ios/`
-  - AppIcon-AppStore.png (1024×1024)
-  - AppIcon-60@3x.png (180×180), AppIcon-60@2x.png (120×120)
-  - AppIcon-83.5@2x.png (167×167), AppIcon-76@2x.png (152×152), AppIcon-76.png (76×76)
-- ✅ App icon committed to `ios/GoalStreak/Images.xcassets/AppIcon.appiconset/` (10 sizes — fixed in Build 13)
+- ✅ Canonical 1024×1024 master: `GoalStreakApp/assets/icon.png` (referenced by app.json / EAS; see asset-paths SOP)
+- ✅ App icon committed to `ios/GoalStreak/Images.xcassets/AppIcon.appiconset/` (10 sizes — fixed in Build 13), generated via `npm run sync-app-icon`
+- ℹ️ Note: the old `app-store-assets/icons/enhanced/ios/` copies were deleted per the asset-paths SOP. Do not recreate them — the xcassets set + `assets/icon.png` are the single source of truth.
 
 ### ✅ Assets Complete and Ready
-- ✅ iOS Screenshots: 5/5 ready (1290x2796 PNG, iPhone 6.7")
-  - 01-dashboard.png (475KB)
-  - 02-habit-creation.png (219KB)
-  - 03-habit-icons.png (180KB)
-  - 04-social-feed.png (495KB)
-  - 05-analytics.png (361KB)
+- ✅ iOS Screenshots ready in `real-screenshots/app-store-ready/` (PNG). Current set reflects the shipped UI including accountability groups and the Pro paywall:
+  - 01-dashboard.png
+  - 02-habit-creation.png
+  - 03-social-feed.png
+  - 04-analytics.png
+  - 05-accountability-group.png
+  - 06-accountability-feed.png
+  - 07-accountability-chat-feature.png
+  - 08-pro-paywall-monthly.png / 08-pro-paywall-yearly.png (+ 1290x2796 variants)
+  - A 6.5" (1284x2778) set is also present in `app-store-ready/6.5-inch-1284x2778/`
+  - ⚠️ The former `03-habit-icons.png` screenshot has been retired; update any docs/captions that still reference it
+  - ⚠️ Confirm the target display slot in App Store Connect (6.5" vs 6.7"/6.9") matches the dimensions of the files you upload
 - ✅ Metadata: Complete and comprehensive
 - ✅ Marketing Materials: All assets prepared
 - ✅ Legal Documents: Privacy policy and terms ready
@@ -50,12 +54,7 @@ The `description`, `promotionalText`, and `whatsNew` in `ios-metadata.json` and 
 ## iOS App Store Submission Checklist
 
 ### Required Assets
-- [x] App screenshots (5 key screens) - **✅ 5/5 READY** (app-store-ready/)
-  - [x] 01-dashboard.png (1290x2796, 475KB)
-  - [x] 02-habit-creation.png (1290x2796, 219KB)
-  - [x] 03-habit-icons.png (1290x2796, 180KB)
-  - [x] 04-social-feed.png (1290x2796, 495KB)
-  - [x] 05-analytics.png (1290x2796, 361KB)
+- [x] App screenshots - **✅ READY** (app-store-ready/) — see the current 8-screenshot set listed above (dashboard, habit creation, social feed, analytics, 3× accountability, Pro paywall). The retired `03-habit-icons.png` is no longer part of the set.
 - [x] App icons (generation script ready) - **✅ SCRIPT READY** (5 min execution)
   - [x] Source icon: 500x500 PNG ✅
   - [x] Generation script: generate-icons.sh ✅
@@ -190,4 +189,4 @@ The `description`, `promotionalText`, and `whatsNew` in `ios-metadata.json` and 
 
 **Status Summary**: ⚠️ Metadata ready, but IAP setup now gates submission — the listing advertises Goalfer Pro, so App Store Connect IAP products, the Paid Apps Agreement, and RevenueCat wiring must be complete before "Submit for Review".
 
-Last refreshed: 2026-05-27 (Goalfer Pro subscription copy added to ios-metadata.json + app-store-connect-config.json; IAP prerequisites added)
+Last refreshed: 2026-07-26 (softened unverified marketing claims in the App Store listing fields; corrected stale screenshot list and icon path to match the shipped asset set)

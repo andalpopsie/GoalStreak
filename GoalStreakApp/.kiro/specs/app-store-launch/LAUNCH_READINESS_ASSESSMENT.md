@@ -39,7 +39,7 @@ Goalfer is **98% ready** for iOS App Store submission. The app is production-rea
 - ✅ Terms of service document ready
 - ✅ In-app links to legal documents (linkingUtils.ts)
 - ✅ COPPA, GDPR, CCPA compliant
-- ✅ All URLs use goalstreak.co domain
+- ✅ All URLs use goalfer.app domain
 
 ### 4. Documentation (100%)
 - ✅ Comprehensive iOS submission guide

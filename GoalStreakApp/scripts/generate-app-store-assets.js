@@ -1002,8 +1002,8 @@ Perfect for building healthy routines in fitness, wellness, productivity, and pe
         keywords: "habits,goals,productivity,tracking,streaks,motivation,social,friends,accountability,wellness,fitness,mindfulness,routine,progress",
         category: "Health & Fitness",
         contentRating: "4+",
-        privacyPolicyUrl: "https://goalstreak.co/privacy",
-        supportUrl: "https://goalstreak.co/support"
+        privacyPolicyUrl: "https://goalfer.app/privacy",
+        supportUrl: "https://goalfer.app/support"
       },
       
       android: {

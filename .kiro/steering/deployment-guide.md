@@ -141,8 +141,8 @@ Assets/
   keywords: "habits,goals,productivity,tracking,streaks",
   category: "Health & Fitness",
   contentRating: "4+",
-  privacyPolicyUrl: "https://goalstreak.co/privacy",
-  supportUrl: "https://goalstreak.co/support"
+  privacyPolicyUrl: "https://goalfer.app/privacy",
+  supportUrl: "https://goalfer.app/support"
 }
 ```
 

@@ -285,9 +285,8 @@ function validateAppStoreReadiness() {
       log('⚠️  Missing privacy policy URL in app.json', 'yellow');
     }
 
-    if (!expo.ios?.infoPlist?.NSUserTrackingUsageDescription) {
-      log('⚠️  Missing iOS tracking usage description', 'yellow');
-    }
+    // NSUserTrackingUsageDescription intentionally absent — Goalfer performs no
+    // ATT tracking (NSPrivacyTracking=false, no IDFA). Do not warn on its absence.
 
   } catch (error) {
     // app.json validation already handled elsewhere

@@ -291,22 +291,22 @@ We may suspend or terminate your account for:
 ## 15. Contact Information
 
 ### Legal and Terms Questions
-- **Email**: legal@goalstreak.app
+- **Email**: legal@goalfer.app
 - **Subject Line**: Include "Terms of Service" for faster processing
 - **Response Time**: We respond to legal inquiries within 5-10 business days
 
 ### Technical Support
-- **Email**: support@goalstreak.app
-- **Website**: www.goalstreak.co/support
+- **Email**: support@goalfer.app
+- **Website**: www.goalfer.app/support
 - **Response Time**: We respond to support requests within 24-48 hours
 
 ### Privacy and Data Questions
-- **Email**: privacy@goalstreak.app
+- **Email**: privacy@goalfer.app
 - **Subject Line**: Include "Privacy Request" for faster processing
 
 ### Business Inquiries
-- **Email**: business@goalstreak.app
-- **Website**: www.goalstreak.co
+- **Email**: business@goalfer.app
+- **Website**: www.goalfer.app
 
 ---
 

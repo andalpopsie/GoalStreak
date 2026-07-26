@@ -6,7 +6,7 @@ This checklist ensures Goalfer meets all iOS App Store legal and privacy require
 ## ✅ Privacy Usage Descriptions (Info.plist)
 
 ### Required Permissions
-- [x] **NSUserTrackingUsageDescription**: Analytics and personalized insights
+- [x] **NSUserTrackingUsageDescription**: INTENTIONALLY REMOVED. Goalfer does not perform App Tracking Transparency (ATT) tracking — no IDFA, no ATT prompt, no cross-app/data-broker sharing. Analytics is first-party Firebase only. The ATT string must be absent so the App Store privacy label does not falsely claim tracking. (See privacy manifest: `NSPrivacyTracking=false`.)
 - [x] **NSCameraUsageDescription**: Profile picture capture (optional)
 - [x] **NSPhotoLibraryUsageDescription**: Profile picture selection (optional)
 - [x] **NSLocationWhenInUseUsageDescription**: Location-based reminders (optional)
@@ -25,13 +25,14 @@ This checklist ensures Goalfer meets all iOS App Store legal and privacy require
 - [x] **NSPrivacyCollectedDataTypes**: Email, name, photos, user content, product interaction, device ID, user ID
 - [x] **NSPrivacyTracking**: Set to false (no cross-app tracking)
 - [x] **NSPrivacyTrackingDomains**: Empty array (no tracking domains)
+- [x] **Consistency fix**: `Product Interaction` data type set to `NSPrivacyCollectedDataTypeTracking = false` to match `NSPrivacyTracking=false` and the absence of the ATT string. (Previously `true`, which was internally inconsistent and would have triggered an App Store privacy-label mismatch.)
 
 ### Data Collection Disclosure
 - [x] Email address (linked, not tracking) - App functionality, analytics
 - [x] Display name (linked, not tracking) - App functionality
 - [x] Photos/videos (linked, not tracking) - App functionality
 - [x] User content (linked, not tracking) - App functionality
-- [x] Product interaction (not linked, tracking) - Analytics, personalization
+- [x] Product interaction (not linked, NOT tracking) - Analytics, personalization (first-party Firebase only; no IDFA/ATT)
 - [x] Device ID (linked, not tracking) - App functionality, analytics
 - [x] User ID (linked, not tracking) - App functionality
 - [x] Purchase history (linked, not tracking) - App functionality, analytics — declared in App Store Connect privacy config; collected by the RevenueCat SDK, which ships its own `PrivacyInfo.xcprivacy`
@@ -92,7 +93,7 @@ This checklist ensures Goalfer meets all iOS App Store legal and privacy require
 ## ✅ App Store Connect Configuration
 
 ### Privacy Information
-- [x] **Privacy Policy URL**: https://goalstreak.co/privacy
+- [x] **Privacy Policy URL**: https://goalfer.app/privacy
 - [x] **Data collection disclosure**: Detailed in app-store-connect-config.json
 - [x] **Tracking disclosure**: No cross-app tracking
 - [x] **Data types**: Contact info, user content, usage data, identifiers
@@ -105,8 +106,8 @@ This checklist ensures Goalfer meets all iOS App Store legal and privacy require
 - [x] **Rationale**: Family-friendly habit tracking with moderated social features
 
 ### App Information
-- [x] **Support URL**: https://goalstreak.co/support
-- [x] **Marketing URL**: https://goalstreak.co
+- [x] **Support URL**: https://goalfer.app/support
+- [x] **Marketing URL**: https://goalfer.app
 - [x] **Category**: Health & Fitness (primary), Productivity (secondary)
 - [x] **Keywords**: Optimized for habit tracking and social accountability
 
@@ -161,17 +162,17 @@ This checklist ensures Goalfer meets all iOS App Store legal and privacy require
 ## ✅ Documentation and Support
 
 ### Legal Document Hosting
-- [x] **Privacy policy**: Accessible at https://goalstreak.co/privacy
-- [x] **Terms of service**: Accessible at https://goalstreak.co/terms
-- [x] **Support page**: Accessible at https://goalstreak.co/support
+- [x] **Privacy policy**: Accessible at https://goalfer.app/privacy
+- [x] **Terms of service**: Accessible at https://goalfer.app/terms
+- [x] **Support page**: Accessible at https://goalfer.app/support
 - [x] **Backup access**: Documents also available in app-store folder
 
 ### Contact Information
-- [x] **Privacy inquiries**: privacy@goalstreak.app
-- [x] **Legal questions**: legal@goalstreak.app
-- [x] **Technical support**: support@goalstreak.app
-- [x] **General business**: business@goalstreak.app
-- [x] **Data protection officer**: dpo@goalstreak.app (for EU users)
+- [x] **Privacy inquiries**: privacy@goalfer.app
+- [x] **Legal questions**: legal@goalfer.app
+- [x] **Technical support**: support@goalfer.app
+- [x] **General business**: business@goalfer.app
+- [x] **Data protection officer**: dpo@goalfer.app (for EU users)
 
 ### Response Procedures
 - [x] **Privacy requests**: 30-day response time commitment
@@ -215,7 +216,7 @@ All iOS legal compliance and privacy requirements have been implemented and veri
 - Complete documentation and support infrastructure
 
 ### Next Steps
-1. Host legal documents at specified URLs (goalstreak.co/privacy, etc.)
+1. Host legal documents at specified URLs (goalfer.app/privacy, /terms, /support)
 2. Set up email addresses for legal and privacy inquiries
 3. Final testing of all legal document links
 4. App Store Connect configuration with privacy information

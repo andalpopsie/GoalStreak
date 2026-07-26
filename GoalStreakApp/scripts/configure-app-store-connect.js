@@ -512,13 +512,13 @@ function generateSubmissionTimeline() {
 ### Internal Team
 - **Developer**: [Your contact information]
 - **Marketing**: [Marketing team contact]
-- **Support**: support@goalstreak.co
+- **Support**: support@goalfer.app
 
 ### Key URLs to Monitor
-- **Privacy Policy**: https://goalstreak.co/privacy
-- **Terms of Service**: https://goalstreak.co/terms
-- **Support Page**: https://goalstreak.co/support
-- **Marketing Site**: https://goalstreak.co
+- **Privacy Policy**: https://goalfer.app/privacy
+- **Terms of Service**: https://goalfer.app/terms
+- **Support Page**: https://goalfer.app/support
+- **Marketing Site**: https://goalfer.app
 
 ## Success Metrics
 

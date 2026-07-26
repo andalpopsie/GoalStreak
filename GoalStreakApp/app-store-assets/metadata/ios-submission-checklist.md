@@ -22,9 +22,9 @@
 - [x] **Promotional Text**: Optimized for conversion (170 characters max)
 - [x] **Description**: Comprehensive, keyword-optimized (4000 characters max)
 - [x] **Keywords**: Comma-separated, optimized for ASO (100 characters max)
-- [x] **Support URL**: https://goalstreak.co/support
-- [x] **Marketing URL**: https://goalstreak.co
-- [x] **Privacy Policy URL**: https://goalstreak.co/privacy
+- [x] **Support URL**: https://goalfer.app/support
+- [x] **Marketing URL**: https://goalfer.app
+- [x] **Privacy Policy URL**: https://goalfer.app/privacy
 
 ### ✅ Age Rating & Content Classification
 - [x] **Age Rating**: 4+ confirmed
@@ -187,13 +187,13 @@
 - ✅ **Privacy Descriptions**: Comprehensive and user-friendly in app.json and Info.plist
 - ✅ **Privacy Manifest**: Complete PrivacyInfo.xcprivacy file present (RevenueCat pod ships its own manifest for purchase data)
 - ✅ **Bundle Identifier**: Consistent (com.goalstreak.app)
-- ⚠️ **Version Numbers**: app.json is version 1.0.0 / buildNumber 14. Confirm the App Store Connect version record and the "1.0.0, build 1" references in older docs are updated to the build actually submitted
+- ⚠️ **Version Numbers**: app.json is version 1.0.0 / buildNumber 19. Confirm the App Store Connect version record and the "1.0.0, build 1" references in older docs are updated to the build actually submitted
 
 ### ✅ Legal Documents - COMPLIANT
 - ✅ **Privacy Policy**: Covers all data practices, including the Goalfer Pro subscription, Purchase History, RevenueCat, and Apple App Store as processors
 - ✅ **Terms of Service**: Now includes an auto-renewable subscription section (pricing, auto-renewal, cancellation, refunds-via-Apple, restore, founding-member promo) — satisfies Apple 3.1.2 EULA disclosure
-- ✅ **Domain URLs**: All use goalstreak.co domain
-- ✅ **Contact Information**: Valid support and legal contacts
+- ✅ **Domain URLs**: All migrated to the canonical goalfer.app domain (privacy/terms/support)
+- ⚠️ **Contact Information**: Support/legal/privacy emails migrated to @goalfer.app — verify these mailboxes are provisioned and monitored before submission
 - ✅ **Linking Utilities**: Graceful error handling implemented (openPrivacyPolicy / openTermsOfService / openSupport)
 
 ### ✅ Metadata Consistency - COMPLIANT
@@ -202,8 +202,9 @@
 - ✅ **whatsNew / promotionalText**: Pro + founding-offer messaging synced across both files
 - ✅ **Keywords**: 90 characters (within 100 limit)
 - ✅ **Age Rating**: 4+ appropriate for content
-- ⚠️ **Marketing claims**: "Join thousands of users" and "increases success rates by 65%" are unverified claims (Apple 2.3.x). Soften or substantiate before submission
-- ✅ **URLs**: All use goalstreak.co domain (verify live hosting of /privacy and /terms)
+- ✅ **Marketing claims (App Store listing)**: The two unverified claims were softened in both `app-store-connect-config.json` and `ios-metadata.json` — "increases success rates by 65%" → "helps you stay consistent", and "Join thousands of users who've transformed their lives" → "Join others building better habits". The two listing files remain in sync.
+- ⚠️ **Marketing claims (non-listing collateral)**: The 65% / "join thousands" claims still appear in `android-metadata.json` (deferred iOS-only), `app-store-description-variants.md`, `marketing/MARKETING_GUIDE.md`, `marketing/press-kit/fact-sheet.md`, `marketing/press-kit/press-release.md`, and `marketing/app-preview/frame5.svg`. Not submitted to App Store Connect, but soften or substantiate before reuse in public marketing.
+- ⚠️ **URLs**: All migrated to goalfer.app — verify live hosting of goalfer.app/privacy, /terms, and /support before submission
 
 ### ✅ Technical Compliance - COMPLIANT
 - ✅ **EAS Configuration**: Apple ID, ASC App ID, Team ID configured

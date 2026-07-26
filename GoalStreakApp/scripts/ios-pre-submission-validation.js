@@ -124,11 +124,14 @@ function validateAppConfiguration() {
       addResult('warnings', 'App Config', 'iPad support not enabled', 'Consider enabling for universal app');
     }
     
-    // Validate privacy usage descriptions
+    // Validate privacy usage descriptions.
+    // NSUserTrackingUsageDescription is intentionally NOT required: Goalfer does
+    // not perform App Tracking Transparency tracking (no IDFA, no ATT prompt,
+    // NSPrivacyTracking=false), so the ATT string must be absent to match the
+    // privacy manifest and avoid a misleading App Store privacy label.
     const requiredPrivacyDescriptions = [
       'NSCameraUsageDescription',
-      'NSPhotoLibraryUsageDescription',
-      'NSUserTrackingUsageDescription'
+      'NSPhotoLibraryUsageDescription'
     ];
     
     for (const desc of requiredPrivacyDescriptions) {

@@ -336,9 +336,9 @@ function setupMonitoring() {
 ## Key URLs
 - App Store Connect: https://appstoreconnect.apple.com
 - EAS Build Dashboard: https://expo.dev/accounts/[account]/projects/${CONFIG.appName}/builds
-- Support Email: support@goalstreak.co
-- Privacy Policy: https://goalstreak.co/privacy
-- Terms of Service: https://goalstreak.co/terms
+- Support Email: support@goalfer.app
+- Privacy Policy: https://goalfer.app/privacy
+- Terms of Service: https://goalfer.app/terms
 
 ## Emergency Contacts
 - Developer: [Your contact information]

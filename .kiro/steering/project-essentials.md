@@ -148,7 +148,7 @@ EnhancedHabitCard.tsx
 - Comprehensive privacy usage descriptions
 - Privacy policy and terms accessible in-app
 - COPPA (13+), GDPR, CCPA compliant
-- All URLs use goalstreak.co domain
+- All URLs use goalfer.app domain
 
 ### Firebase Security
 - Users can only read/write their own data

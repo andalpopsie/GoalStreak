@@ -128,7 +128,7 @@ Goalfer does not sell, rent, or trade your personal information to third parties
 
 ## Children's Privacy
 
-Goalfer is designed for users 13 years and older. We do not knowingly collect personal information from children under 13. If we discover we have collected information from a child under 13, we will delete it immediately. Parents who believe their child has provided information to us should contact us at privacy@goalstreak.app.
+Goalfer is designed for users 13 years and older. We do not knowingly collect personal information from children under 13. If we discover we have collected information from a child under 13, we will delete it immediately. Parents who believe their child has provided information to us should contact us at privacy@goalfer.app.
 
 ## International Data Transfers
 
@@ -169,17 +169,17 @@ Continued use of the app after changes constitutes acceptance of the updated pol
 ## Contact Information
 
 ### Privacy Questions and Requests
-- **Email**: privacy@goalstreak.app
+- **Email**: privacy@goalfer.app
 - **Subject Line**: Include "Privacy Request" for faster processing
 - **Response Time**: We respond to privacy requests within 30 days
 
 ### General Support
-- **Email**: support@goalstreak.app
-- **Website**: www.goalstreak.co
+- **Email**: support@goalfer.app
+- **Website**: www.goalfer.app
 
 ### Data Protection Officer
 For EU residents or GDPR-related inquiries:
-- **Email**: dpo@goalstreak.app
+- **Email**: dpo@goalfer.app
 
 ## Compliance and Certifications
 
