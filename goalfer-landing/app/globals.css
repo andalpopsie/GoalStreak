@@ -11,9 +11,9 @@
   --card-foreground: #154d71; /* Dark Blue card text */
   --popover: #fdfdfd; /* Light Gray popover background */
   --popover-foreground: #154d71; /* Dark Blue popover text */
-  /* Reverted primary color back to orange #ff894f */
-  --primary: #ff894f; /* Orange primary accent/CTA buttons */
-  --primary-foreground: #fdfdfd; /* Light text on orange buttons */
+  /* Brand primary — Goalfer purple accent (matches app theme.ts accent1) */
+  --primary: #b771e5; /* Purple primary accent/CTA buttons */
+  --primary-foreground: #fdfdfd; /* Light text on purple buttons */
   --secondary: #4a90a4; /* Teal for completed states and success */
   --secondary-foreground: #fdfdfd; /* Light text on teal */
   --muted: #f5f5f5; /* Slightly darker gray for muted backgrounds */
@@ -25,12 +25,12 @@
   --accent-cyan-foreground: #154d71; /* Dark Blue text on cyan */
   --destructive: #dc2626; /* Red for destructive actions */
   --destructive-foreground: #fdfdfd; /* Light text on red */
-  --border: #e5e7eb; /* Light border color */
+  --border: #e8e8e8; /* Brand light border color */
   --input: #fdfdfd; /* Light input background */
-  /* Reverted ring color back to orange */
-  --ring: #ff894f; /* Orange focus ring */
-  /* Updated chart colors to include both orange and cyan */
-  --chart-1: #ff894f; /* Orange for charts */
+  /* Brand purple focus ring */
+  --ring: #b771e5; /* Purple focus ring */
+  /* Chart colors: brand purple + cyan */
+  --chart-1: #b771e5; /* Purple for charts */
   --chart-2: #6fdce3; /* Cyan for charts */
   --chart-3: #4a90a4; /* Teal for charts */
   --chart-4: #154d71; /* Dark Blue for charts */
@@ -38,14 +38,14 @@
   --radius: 0.5rem;
   --sidebar: #fdfdfd; /* Light sidebar background */
   --sidebar-foreground: #154d71; /* Dark Blue sidebar text */
-  /* Reverted sidebar primary back to orange */
-  --sidebar-primary: #ff894f; /* Orange sidebar primary */
-  --sidebar-primary-foreground: #fdfdfd; /* Light text on orange */
+  /* Brand purple sidebar primary */
+  --sidebar-primary: #b771e5; /* Purple sidebar primary */
+  --sidebar-primary-foreground: #fdfdfd; /* Light text on purple */
   --sidebar-accent: #4a90a4; /* Teal sidebar accent */
   --sidebar-accent-foreground: #fdfdfd; /* Light text on teal */
   --sidebar-border: #e5e7eb; /* Light sidebar border */
-  /* Reverted sidebar ring back to orange */
-  --sidebar-ring: #ff894f; /* Orange sidebar focus ring */
+  /* Brand purple sidebar focus ring */
+  --sidebar-ring: #b771e5; /* Purple sidebar focus ring */
 }
 
 .dark {
