@@ -1,5 +1,16 @@
 # GoalStreak Changelog
 
+## [Contact Email Consolidation] - July 2026
+
+### Changed
+- Consolidated all contact addresses to a single mailbox **hello@goalfer.app**
+  (was `privacy@`, `legal@`, `support@`, `business@`, `dpo@`). Updated the
+  legal documents (`privacy-policy.md`, `terms-of-service.md`), the compliance
+  checklist, and the App Store scripts (`configure-app-store-connect.js`,
+  `ios-production-build-and-submit.js`).
+- The fictional `test@goalfer.app` demo-account example in the screenshot
+  guides is intentionally left as-is (placeholder login, not a contact address).
+
 ## [App Store Metadata — Marketing Claim Compliance] - July 2026
 
 ### App Store listing (Apple Guideline 2.3.x)

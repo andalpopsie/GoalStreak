@@ -168,11 +168,11 @@ This checklist ensures Goalfer meets all iOS App Store legal and privacy require
 - [x] **Backup access**: Documents also available in app-store folder
 
 ### Contact Information
-- [x] **Privacy inquiries**: privacy@goalfer.app
-- [x] **Legal questions**: legal@goalfer.app
-- [x] **Technical support**: support@goalfer.app
-- [x] **General business**: business@goalfer.app
-- [x] **Data protection officer**: dpo@goalfer.app (for EU users)
+- [x] **Privacy inquiries**: hello@goalfer.app
+- [x] **Legal questions**: hello@goalfer.app
+- [x] **Technical support**: hello@goalfer.app
+- [x] **General business**: hello@goalfer.app
+- [x] **Data protection officer**: hello@goalfer.app (for EU users)
 
 ### Response Procedures
 - [x] **Privacy requests**: 30-day response time commitment

@@ -512,7 +512,7 @@ function generateSubmissionTimeline() {
 ### Internal Team
 - **Developer**: [Your contact information]
 - **Marketing**: [Marketing team contact]
-- **Support**: support@goalfer.app
+- **Support**: hello@goalfer.app
 
 ### Key URLs to Monitor
 - **Privacy Policy**: https://goalfer.app/privacy
