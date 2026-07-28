@@ -1,71 +1,135 @@
 name: CI
 
-# Runs on every pull request targeting main, and on pushes to main after merge.
-# Purpose: give each PR an automatic, reviewed signal before it can join main.
+# Runs only on pull requests targeting main. (We intentionally do NOT run on
+# pushes to main after merge — the PR run already validated the change.)
 on:
   pull_request:
     branches: [main]
-  push:
-    branches: [main]
 
-# If you push again to the same PR/branch, cancel the older in-progress run
-# so we don't waste CI minutes on stale commits.
+# Least-privilege token scopes. `pull-requests: read` is needed by the
+# paths-filter action to read the PR's changed files. (Orgs often default the
+# token to restricted, so we grant scopes explicitly.)
+permissions:
+  contents: read
+  pull-requests: read
+
+# If you push again to the same PR, cancel the older in-progress run so we
+# don't burn CI minutes on stale commits.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 # The app (package.json, lockfile, scripts) lives in GoalStreakApp/, so all
-# `run:` steps execute from there. Note: `uses:` actions ignore this and use
-# repo-root-relative paths (see cache-dependency-path below).
+# `run:` steps execute from there. `uses:` actions ignore this and use
+# repo-root-relative paths.
 defaults:
   run:
     working-directory: GoalStreakApp
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────
-  # BLOCKING GATE — this is the check to mark "Required" in branch protection.
-  # Firestore security-rules tests run against the local emulator. They are
-  # green today and directly protect the class of bug that broke the App Store
-  # review account (missing / incorrect collection rules). If these fail, the
-  # PR should not merge.
+  # Detect which kinds of files changed, so the expensive jobs below can skip
+  # work that isn't needed (e.g. a docs/metadata/changelog-only PR shouldn't
+  # spin up Node, Java, or the emulator). Outputs are the strings 'true'/'false'.
+  # ─────────────────────────────────────────────────────────────────────────
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      rules: ${{ steps.filter.outputs.rules }}
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            # Files that can affect the Firestore rules tests.
+            rules:
+              - 'GoalStreakApp/firebase/firestore.rules'
+              - 'GoalStreakApp/src/**/*.rules.test.ts'
+              - 'GoalStreakApp/src/**/*.emulator.test.ts'
+              - 'GoalStreakApp/config/jest.emulator.config.js'
+              - 'GoalStreakApp/package.json'
+              - 'GoalStreakApp/package-lock.json'
+              - 'GoalStreakApp/babel.config.js'
+              - '.github/workflows/ci.yml'
+            # Files that can affect unit tests / type-check.
+            code:
+              - 'GoalStreakApp/src/**'
+              - 'GoalStreakApp/App.tsx'
+              - 'GoalStreakApp/index.ts'
+              - 'GoalStreakApp/config/**'
+              - 'GoalStreakApp/package.json'
+              - 'GoalStreakApp/package-lock.json'
+              - 'GoalStreakApp/babel.config.js'
+              - '.github/workflows/ci.yml'
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # BLOCKING GATE (required in branch protection). This job ALWAYS runs so it
+  # always reports a status — that's what keeps a required check from getting
+  # stuck "pending" on doc-only PRs. The heavy steps only run when rules-related
+  # files actually changed; otherwise the job passes in a couple of seconds.
   # ─────────────────────────────────────────────────────────────────────────
   firestore-rules:
     name: Firestore rules tests (required)
+    needs: changes
     runs-on: ubuntu-latest
     steps:
+      # Check out first and unconditionally: it's cheap, and it creates the
+      # GoalStreakApp working directory that the run steps below rely on.
       - name: Check out the code
         uses: actions/checkout@v4
 
+      - name: Report scope
+        run: echo "rules-relevant changes = ${{ needs.changes.outputs.rules }}"
+
       - name: Set up Node.js
+        if: needs.changes.outputs.rules == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: GoalStreakApp/package-lock.json
 
-      # The Firestore emulator is a Java program, so CI needs a JDK.
       - name: Set up Java (for the Firestore emulator)
+        if: needs.changes.outputs.rules == 'true'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
+      # Cache the downloaded Firestore emulator jar (~64MB) so we don't
+      # re-download it on every run. Keyed to the lockfile so a firebase-tools
+      # bump refreshes it.
+      - name: Cache Firestore emulator
+        if: needs.changes.outputs.rules == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/firebase/emulators
+          key: firebase-emulators-${{ runner.os }}-${{ hashFiles('GoalStreakApp/package-lock.json') }}
+          restore-keys: |
+            firebase-emulators-${{ runner.os }}-
+
       - name: Install dependencies
+        if: needs.changes.outputs.rules == 'true'
         run: npm ci
 
       - name: Run Firestore rules tests against the emulator
+        if: needs.changes.outputs.rules == 'true'
         run: npm run test:emulator
 
   # ─────────────────────────────────────────────────────────────────────────
-  # INFORMATIONAL (non-blocking) — these run and report, but do NOT block merge
-  # because the codebase currently has known unit-test and type-check debt.
-  # `continue-on-error: true` keeps them from failing the PR. As the debt is
-  # paid down, remove that line and mark the job "Required" to ratchet quality up.
+  # INFORMATIONAL (non-blocking). Unit tests + type-check share a single install
+  # (one `npm ci` instead of two). Skipped entirely on doc-only PRs. Not a
+  # required check, so its red/green status never blocks a merge. Type-check
+  # runs even if unit tests fail (`if: always()`), so both signals are visible.
   # ─────────────────────────────────────────────────────────────────────────
-  unit-tests:
-    name: Unit tests (informational)
+  checks:
+    name: Checks (informational)
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Check out the code
         uses: actions/checkout@v4
@@ -83,24 +147,6 @@ jobs:
       - name: Run unit tests
         run: npm test -- --ci
 
-  type-check:
-    name: Type check (informational)
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - name: Check out the code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: GoalStreakApp/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      # Scoped to src/ via config/tsconfig.json (excludes build scripts).
-      - name: Type check
+      - name: Type check (scoped to src/)
+        if: always()
         run: npx tsc --noEmit -p config/tsconfig.json
