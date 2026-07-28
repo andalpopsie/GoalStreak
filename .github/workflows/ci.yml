@@ -1,0 +1,106 @@
+name: CI
+
+# Runs on every pull request targeting main, and on pushes to main after merge.
+# Purpose: give each PR an automatic, reviewed signal before it can join main.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# If you push again to the same PR/branch, cancel the older in-progress run
+# so we don't waste CI minutes on stale commits.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# The app (package.json, lockfile, scripts) lives in GoalStreakApp/, so all
+# `run:` steps execute from there. Note: `uses:` actions ignore this and use
+# repo-root-relative paths (see cache-dependency-path below).
+defaults:
+  run:
+    working-directory: GoalStreakApp
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # BLOCKING GATE — this is the check to mark "Required" in branch protection.
+  # Firestore security-rules tests run against the local emulator. They are
+  # green today and directly protect the class of bug that broke the App Store
+  # review account (missing / incorrect collection rules). If these fail, the
+  # PR should not merge.
+  # ─────────────────────────────────────────────────────────────────────────
+  firestore-rules:
+    name: Firestore rules tests (required)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: GoalStreakApp/package-lock.json
+
+      # The Firestore emulator is a Java program, so CI needs a JDK.
+      - name: Set up Java (for the Firestore emulator)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Firestore rules tests against the emulator
+        run: npm run test:emulator
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # INFORMATIONAL (non-blocking) — these run and report, but do NOT block merge
+  # because the codebase currently has known unit-test and type-check debt.
+  # `continue-on-error: true` keeps them from failing the PR. As the debt is
+  # paid down, remove that line and mark the job "Required" to ratchet quality up.
+  # ─────────────────────────────────────────────────────────────────────────
+  unit-tests:
+    name: Unit tests (informational)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: GoalStreakApp/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm test -- --ci
+
+  type-check:
+    name: Type check (informational)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: GoalStreakApp/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Scoped to src/ via config/tsconfig.json (excludes build scripts).
+      - name: Type check
+        run: npx tsc --noEmit -p config/tsconfig.json
