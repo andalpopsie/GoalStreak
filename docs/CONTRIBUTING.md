@@ -1,405 +1,313 @@
-# 🤝 GoalStreak Contributing Guide
+# Contributing to Goalfer
 
-Complete guide for contributing to GoalStreak development including git workflow, coding standards, and best practices.
+This is the plain-language guide to how changes get into the app. If you only
+read one thing, read **The flow** below. Everything else fills in details.
 
-## 📁 Project Structure
-
-```
-GoalStreak/                    # Main project directory (git root)
-├── GoalStreakApp/            # React Native app code
-├── docs/                     # Documentation
-├── development-sessions/     # Historical development logs (archived)
-├── design-images/           # Design assets & inspiration
-├── app-store/               # App Store assets and metadata
-├── README.md                # Project overview
-└── ROADMAP.md              # Future development plans
-```
-
-## 🚀 Quick Start Commands
-
-### Daily Development Workflow
-```bash
-# Navigate to project root
-cd /Users/popsieandal/Documents/GoalStreak
-
-# Check current status
-git status
-
-# Start development server
-cd GoalStreakApp && npm start
-
-# Save your work (from project root)
-cd /Users/popsieandal/Documents/GoalStreak
-git add .
-git commit -m "✨ Your descriptive commit message"
-git push origin main
-```
-
-### Emergency Backup
-```bash
-git add .
-git commit -m "🚧 WIP: saving progress"
-git push origin main
-```
-
-## 📝 Git Workflow
-
-### 1. Start Development Session
-```bash
-# Always work from project root
-cd /Users/popsieandal/Documents/GoalStreak
-
-# Check current status and pull latest changes
-git status
-git pull origin main
-```
-
-### 2. Make Changes
-- Edit app code in `GoalStreakApp/`
-- Update documentation in `docs/`
-- Add new assets as needed
-
-### 3. Review Changes
-```bash
-# See what files you've modified
-git status
-git diff                    # See detailed changes
-```
-
-### 4. Stage and Commit Changes
-```bash
-# Stage all changes
-git add .
-
-# Or stage specific files
-git add GoalStreakApp/src/components/NewComponent.tsx
-git add docs/DEVELOPMENT.md
-
-# Commit with descriptive message
-git commit -m "✨ Add new feature: Brief description"
-
-# Push to GitHub
-git push origin main
-```
-
-## 🏷️ Commit Message Standards
-
-### Format
-```
-<emoji> <type>: <description>
-
-[optional body]
-
-[optional footer]
-```
-
-### Commit Types & Emojis
-```bash
-# New features
-git commit -m "✨ Add habit timer functionality"
-
-# Bug fixes
-git commit -m "🐛 Fix streak calculation error"
-
-# UI/UX improvements
-git commit -m "🎨 Update dashboard layout"
-
-# Performance improvements
-git commit -m "⚡ Optimize habit loading performance"
-
-# Documentation updates
-git commit -m "📋 Update development guide"
-
-# Code refactoring
-git commit -m "♻️ Refactor habit service architecture"
-
-# Dependencies
-git commit -m "📦 Add react-native-reanimated dependency"
-
-# Configuration changes
-git commit -m "🔧 Update Firebase configuration"
-
-# Work in progress
-git commit -m "🚧 WIP: implementing social features"
-
-# End of session
-git commit -m "💾 End Session: social features complete"
-```
-
-### Detailed Commit Template
-```bash
-git commit -m "✨ Add habit completion timer
-
-🔧 Technical changes:
-- Implement countdown timer with React hooks
-- Add circular progress indicator
-- Integrate with habit completion system
-
-📱 User experience:
-- Users can set focus timers for habits
-- Visual countdown with progress ring
-- Automatic habit completion when timer ends
-
-🎯 Impact:
-- Transforms app into productivity tool
-- Combines habit tracking with time management
-- Increases user engagement and focus"
-```
-
-## 🔄 Common Workflows
-
-### Feature Development
-```bash
-# Start new feature
-cd /Users/popsieandal/Documents/GoalStreak
-git pull origin main
-
-# Work on feature...
-# (edit files, test changes)
-
-# Commit feature
-git add .
-git commit -m "✨ Add [Feature Name]
-
-🔧 Implementation:
-- Key technical changes
-- New components/services
-
-📱 User benefit:
-- How it improves the app"
-
-git push origin main
-```
-
-### Bug Fix
-```bash
-# Identify and fix bug
-git add .
-git commit -m "🐛 Fix [Issue Description]
-
-🔧 Problem:
-- What was broken
-- How it affected users
-
-✅ Solution:
-- How it was fixed
-- Testing performed"
-
-git push origin main
-```
-
-### Documentation Update
-```bash
-git add docs/
-git commit -m "📋 Update documentation
-
-📝 Changes:
-- Updated development guide
-- Added new troubleshooting section
-- Fixed broken links"
-
-git push origin main
-```
-
-### End of Development Session
-```bash
-git add .
-git commit -m "💾 End development session
-
-✅ Completed:
-- Major features implemented
-- Bugs fixed
-- Documentation updated
-
-📊 Progress: [Brief status update]
-🎯 Next: [Planned next steps]"
-
-git push origin main
-```
-
-## 🛠️ Development Environment
-
-### App Development Commands
-```bash
-# Navigate to app directory for development
-cd /Users/popsieandal/Documents/GoalStreak/GoalStreakApp
-
-# Start development server
-npm start                    # Choose platform (iOS/Android/Web)
-npm run ios                  # iOS simulator directly
-npm run android             # Android emulator directly
-
-# Install new dependencies
-npm install package-name
-
-# Always commit from project root
-cd /Users/popsieandal/Documents/GoalStreak
-git add GoalStreakApp/package.json GoalStreakApp/package-lock.json
-git commit -m "📦 Add [package-name] dependency"
-git push origin main
-```
-
-### Testing Before Commit
-```bash
-# Test the app works
-cd GoalStreakApp && npm start
-
-# Check for TypeScript errors
-npm run type-check
-
-# Run linting (if configured)
-npm run lint
-
-# Then commit from project root
-cd /Users/popsieandal/Documents/GoalStreak
-git add .
-git commit -m "Your message"
-git push origin main
-```
-
-## 🎯 Best Practices
-
-### Commit Frequency
-- **Commit early and often** - Don't wait until end of session
-- **Small, focused commits** - One feature or fix per commit
-- **Working state** - Each commit should leave the app in a working state
-- **Meaningful messages** - Future you will thank you for clear descriptions
-
-### Code Quality
-- **Test before committing** - Ensure app runs without errors
-- **TypeScript compliance** - Fix type errors before committing
-- **Clean code** - Remove console.logs and debug code
-- **Documentation** - Update relevant docs with code changes
-
-### Git Hygiene
-- **Pull before push** - Always get latest changes first
-- **Review changes** - Use `git status` and `git diff` before committing
-- **Descriptive messages** - Include both technical and user impact
-- **Push regularly** - Don't let commits pile up locally
-
-## 🆘 Troubleshooting
-
-### Common Issues
-
-#### Wrong Directory Error
-```bash
-# If you get "not a git repository" error
-cd /Users/popsieandal/Documents/GoalStreak
-```
-
-#### Push Rejected
-```bash
-# If push fails due to remote changes
-git pull origin main
-git push origin main
-```
-
-#### Forgot to Commit
-```bash
-# Save current work quickly
-git add .
-git commit -m "💾 Save current progress"
-git push origin main
-```
-
-#### Undo Last Commit (Keep Changes)
-```bash
-git reset --soft HEAD~1
-# Make corrections, then commit again
-```
-
-#### See Commit History
-```bash
-git log --oneline                    # Brief history
-git log --graph --oneline --all      # Visual history
-```
-
-#### Check Repository Status
-```bash
-git status                           # Current changes
-git remote -v                        # Remote repository info
-git branch -v                        # Branch information
-```
-
-### Getting Help
-- **Git Issues** - Check this troubleshooting section first
-- **App Development** - See [Development Guide](DEVELOPMENT.md)
-- **Technical Questions** - Create GitHub issue
-- **Urgent Issues** - Check project README for contact info
-
-## 📊 Development Session Template
-
-### Session Start
-```bash
-cd /Users/popsieandal/Documents/GoalStreak
-git status
-git pull origin main
-
-# Document session goals (optional)
-# - What you plan to work on
-# - Expected outcomes
-# - Time estimate
-```
-
-### During Session
-```bash
-# Regular commits as you work
-git add .
-git commit -m "✨ Implement specific feature"
-git push origin main
-
-# Continue development...
-```
-
-### Session End
-```bash
-# Final commit with session summary
-git add .
-git commit -m "💾 End development session
-
-✅ Completed:
-- Major achievements
-- Features implemented
-- Bugs fixed
-
-📊 Status: [Current project status]
-🎯 Next: [Plans for next session]"
-
-git push origin main
-```
-
-## 🔗 Quick Reference
-
-### Essential Commands
-```bash
-cd /Users/popsieandal/Documents/GoalStreak  # Navigate to project
-git status                                   # Check status
-git add .                                   # Stage all changes
-git commit -m "Message"                     # Commit changes
-git push origin main                        # Push to GitHub
-git pull origin main                        # Get latest changes
-```
-
-### Helpful Commands
-```bash
-git log --oneline                           # View commit history
-git diff                                    # See current changes
-git diff HEAD~1                            # Changes since last commit
-git show [commit-hash]                     # Show specific commit
-```
-
-## 🎉 Success Tips
-
-1. **Always work from project root** (`/Users/popsieandal/Documents/GoalStreak`)
-2. **Commit frequently** with meaningful messages
-3. **Test before committing** to ensure app works
-4. **Push regularly** to backup your work
-5. **Use descriptive commit messages** with emojis for clarity
-6. **Update documentation** when making significant changes
-7. **Follow the established patterns** in the codebase
+The golden rule: **you never edit `main` directly.** Every change — a feature,
+a one-line fix, even a typo — travels the same short path: a branch, a pull
+request, an automatic check, then a merge.
 
 ---
 
-**Remember**: Good git practices make collaboration easier and project history clearer. When in doubt, commit more frequently rather than less!
+## The flow (six steps)
 
-**GitHub Repository**: https://github.com/andalpopsie/GoalStreak
+Think of `main` as the always-working, official version of the app. You build
+on a copy, prove it's good, then fold it back in.
+
+```
+1. Branch   →  make a personal copy to work on
+2. Commit   →  save checkpoints with a clear message
+3. Push     →  upload your branch to GitHub
+4. PR       →  open a Pull Request (the review + checks page)
+5. Merge    →  once the required check is green, fold it into main
+6. Deploy   →  push the result to production (Firebase / App Store)
+```
+
+You can't skip the PR. GitHub is configured to reject direct pushes to `main`
+(see [Branch protection](#branch-protection-whats-enforced)).
+
+---
+
+## Step by step (with the actual commands)
+
+Run git from the **project root**: `/Users/popsieandal/Documents/GoalStreak`.
+App commands (`npm ...`) run from `GoalStreakApp/`.
+
+### 1. Start from an up-to-date main
+
+```bash
+git checkout main
+git pull --ff-only
+```
+
+### 2. Create a branch
+
+Name it `<type>/<short-description>` (see [Branch names](#branch-names)):
+
+```bash
+git checkout -b fix/streak-off-by-one
+```
+
+### 3. Do the work and commit
+
+Make your changes, then save a checkpoint. Stage **specific files** rather than
+`git add .` so you don't sweep in unrelated work:
+
+```bash
+git add GoalStreakApp/src/services/streakService.ts
+git commit -m "fix(streak): count completions in the user's local timezone"
+```
+
+Commit messages follow [Conventional Commits](#commit-messages). Small, focused
+commits are better than one giant one.
+
+### 4. Push your branch
+
+```bash
+git push -u origin fix/streak-off-by-one
+```
+
+### 5. Open a Pull Request
+
+```bash
+gh pr create --base main --fill
+```
+
+`--fill` uses your commit message for the title/body. For anything non-trivial,
+write a proper description (see [PR description](#pr-description)). Opening the
+PR automatically starts the [CI checks](#what-ci-does).
+
+### 6. Wait for the check, then merge
+
+The **`Firestore rules tests (required)`** check must be green. When it is:
+
+```bash
+gh pr merge --squash --delete-branch
+```
+
+Squash merge keeps `main` tidy — one PR becomes one clean commit.
+
+### 7. Sync your local main
+
+```bash
+git checkout main
+git pull --ff-only
+```
+
+That's the whole loop. Deploys are separate — see [Deploying](#deploying).
+
+---
+
+## Branch names
+
+Prefix with the change type, kebab-case for the rest:
+
+| Type      | Prefix       | Example                              |
+|-----------|--------------|--------------------------------------|
+| Feature   | `feature/`   | `feature/pro-subscription`           |
+| Bug fix   | `fix/`       | `fix/streak-off-by-one`              |
+| Chore     | `chore/`     | `chore/bump-build-number`            |
+| Docs      | `docs/`      | `docs/contributing-workflow`         |
+| Refactor  | `refactor/`  | `refactor/habit-service`             |
+| CI/build  | `ci/`        | `ci/optimize-runs`                   |
+
+One logical change per branch. If you're mid-feature and spot an unrelated
+cleanup, ship it as its own branch/PR.
+
+---
+
+## Commit messages
+
+Format: `type(scope): short summary in the imperative mood`
+
+```
+feat(pro): add Goalfer Pro paywall
+fix(streak): count completions in the user's local timezone
+chore(assets): consolidate icon paths
+docs(contributing): document the PR + CI workflow
+ci: cache the Firestore emulator jar
+```
+
+Rules of thumb:
+- Types: `feat`, `fix`, `chore`, `docs`, `refactor`, `perf`, `test`, `build`, `ci`, `style`.
+- Keep the summary under ~72 characters, lowercase after the colon, no period.
+- Use the body (a blank line then prose) to explain *what and why*, not *how*.
+
+---
+
+## What CI does
+
+When you open or update a PR, GitHub Actions runs automatically
+(config: `.github/workflows/ci.yml`). Three jobs:
+
+| Job | Blocks merge? | What it checks |
+|-----|---------------|----------------|
+| **Detect changes** | — | Figures out which files changed so the rest can skip needless work |
+| **Firestore rules tests (required)** | ✅ yes | Runs the security-rules tests against the Firestore emulator |
+| **Checks (informational)** | ❌ no | Unit tests + type-check |
+
+Only the **rules** check blocks merging. The **informational** check currently
+shows red because there's known unit-test and type-check debt — that's expected
+and does **not** stop you from merging. As that debt is paid down, we'll promote
+it to a required check.
+
+Cost-saving behavior (the repo is private, so Actions minutes are metered):
+- A docs/metadata-only PR skips the heavy jobs — the required check still
+  reports green in a couple of seconds, so nothing gets stuck.
+- Unit tests and type-check share one install and are skipped entirely when no
+  code changed.
+
+---
+
+## Branch protection: what's enforced
+
+`main` is protected by an organization ruleset. GitHub enforces this — it's not
+just a promise:
+
+- **No direct pushes** to `main`. You must go through a PR.
+- **No force-pushes** to `main` and **`main` can't be deleted**.
+- **The `Firestore rules tests (required)` check must pass** before a PR merges.
+
+If a merge is ever "blocked," the fix is to make the required check pass — not
+to disable the rule.
+
+---
+
+## PR description
+
+For non-trivial PRs, a good body has:
+
+```markdown
+## Summary
+One or two sentences: what and why.
+
+## Changes
+- Bullet list of the concrete things done
+
+## Verification
+- Tests run, type-check status, anything you clicked manually
+
+## Risk & rollback
+- Blast radius (local / module / cross-cutting)
+- How to roll back (git revert <sha>, or re-deploy previous rules, etc.)
+```
+
+---
+
+## Running things locally
+
+From `GoalStreakApp/`:
+
+```bash
+npm start                 # run the app (choose iOS / Android / Web)
+npm test -- --ci          # unit tests (has known failures today)
+npm run type-check        # TypeScript check (has known errors today)
+npm run test:emulator     # Firestore rules tests — the required check
+```
+
+`npm run test:emulator` needs **Java** installed (the Firestore emulator is a
+Java program). On macOS: `brew install openjdk`, then either symlink it or
+prepend it for the run:
+
+```bash
+export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+npm run test:emulator
+```
+
+---
+
+## Deploying
+
+Deploys are deliberate, separate steps — merging to `main` does **not** deploy
+automatically (yet).
+
+### Firestore security rules
+
+After a rules change is merged to `main`:
+
+```bash
+git checkout main && git pull --ff-only
+cd GoalStreakApp/firebase
+npx firebase deploy --only firestore:rules --project goalstreak-app2
+```
+
+`goalstreak-app2` is the production project. The rules are validated by CI
+before merge, and Firebase keeps a version history you can roll back to in the
+console if needed.
+
+### iOS build & submit
+
+See the build/submit scripts in `GoalStreakApp/package.json`
+(`build:production:ios`, `submit:ios`) and the app-store docs. Remember to
+increment and commit the build number first.
+
+---
+
+## Common situations
+
+### "I have half-finished work and need to start something else"
+
+Finish and commit, or stash it, before switching tasks — a clean `git status`
+before you branch saves a lot of untangling.
+
+```bash
+git stash push -m "wip: what I was doing"
+# ... do the other thing on its own branch ...
+git checkout <my-branch> && git stash pop
+```
+
+### "My branch is behind main and the PR shows conflicts / stale"
+
+Pull the latest `main` into your branch:
+
+```bash
+gh pr update-branch          # merges main into your PR branch, or:
+git checkout <my-branch>
+git merge origin/main
+```
+
+### "I accidentally committed to main locally"
+
+```bash
+git reset --soft HEAD~1      # undo the commit, keep the changes
+git checkout -b fix/whatever # move them onto a proper branch
+```
+
+### "A merged change broke something"
+
+Revert is safe and non-destructive — it creates a new commit that undoes the old
+one:
+
+```bash
+git revert <sha>
+# then open a PR with the revert
+```
+
+---
+
+## Quick reference
+
+```bash
+# Start a change
+git checkout main && git pull --ff-only
+git checkout -b fix/thing
+
+# Save + share
+git add <files>
+git commit -m "fix(scope): summary"
+git push -u origin fix/thing
+
+# Review + merge
+gh pr create --base main --fill
+gh pr merge --squash --delete-branch
+
+# Back to a clean main
+git checkout main && git pull --ff-only
+```
+
+---
+
+**Repository**: https://github.com/goalfer-app/GoalStreak
+
+**More detail**: the full standard operating procedure lives in
+`.kiro/steering/git-workflow-sop.md`.
