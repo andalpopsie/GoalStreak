@@ -1,0 +1,71 @@
+name: Deploy Firestore rules
+
+# Auto-deploys Firestore security rules to production whenever a change to
+# firestore.rules lands on main. The rules were already validated by the
+# required CI check before the PR merged, so this is the "release" step.
+#
+# Scope is intentionally rules-only. Index changes (firestore.indexes.json)
+# can be slow and occasionally destructive, so those stay a manual deploy.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'GoalStreakApp/firebase/firestore.rules'
+
+# Never run two rule deploys at once; queue them (don't cancel a deploy midway).
+concurrency:
+  group: deploy-firestore-rules
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy rules to production
+    runs-on: ubuntu-latest
+    # Uses the "production" GitHub Environment. Add required reviewers to that
+    # environment later if you want a manual approval gate before each deploy.
+    environment: production
+    defaults:
+      run:
+        working-directory: GoalStreakApp
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      # Fail early with a clear message if the credential secret is missing,
+      # instead of a confusing auth error deep in the deploy.
+      - name: Verify credentials are configured
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "::error::Secret FIREBASE_SERVICE_ACCOUNT is not set. See docs/CONTRIBUTING.md → Deploying."
+            exit 1
+          fi
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: GoalStreakApp/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Write the service-account JSON to a temp file and point Google
+      # Application Default Credentials at it. firebase-tools picks this up
+      # automatically for non-interactive auth.
+      - name: Write service account key
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/gcp-key.json"
+          chmod 600 "$RUNNER_TEMP/gcp-key.json"
+
+      - name: Deploy Firestore rules
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/gcp-key.json
+        run: npx firebase deploy --only firestore:rules --project goalstreak-app2 --non-interactive
