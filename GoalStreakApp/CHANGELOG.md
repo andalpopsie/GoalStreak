@@ -1,5 +1,39 @@
 # GoalStreak Changelog
 
+## [Firestore Rules — Restore Missing Collection Rules] - July 2026
+
+### Fixed
+- **Restored security rules for collections that were denied by default**,
+  fixing `Missing or insufficient permissions` errors surfaced while testing
+  the App Store review account (comment counts and friend suggestions). When
+  the original permissive wildcard (`match /{document=**}`) was replaced with
+  granular per-collection rules during the App Launch hardening, several
+  actively-used collections were never carried over and became deny-by-default:
+  - `comments` — authenticated read (comment counts / feed), author-only
+    create, immutable.
+  - `userProfiles` — authenticated read (friend search by email, names/avatars),
+    owner-only write.
+  - `socialSettings` — authenticated read (notification-preference checks),
+    owner-only write.
+  - `usernames` — authenticated read (availability checks), uid-scoped
+    reserve/release, immutable.
+  - `timerSessions` — authenticated read, owner-only write/create (mirrors
+    `completions`).
+  - `feedback` — authenticated create only; no client reads.
+- **Opened `users` reads to any authenticated user** (was owner-only), required
+  for friend suggestions, search, and rendering names/avatars in the social
+  feed and groups. Writes remain owner-only.
+
+### Testing
+- Added `collectionRules.rules.test.ts` — Firestore emulator rules tests
+  covering the restored collections (authenticated reads, owner-only writes,
+  cross-user denial, immutability). Full suite: 45 tests across 3 rules/emulator
+  suites pass via `npm run test:emulator`.
+
+### Deploy
+- Requires `firebase deploy --only firestore:rules` (run from
+  `GoalStreakApp/firebase/`) to take effect in production.
+
 ## [Landing Site Launch — goalfer.app] - July 2026
 
 ### Added

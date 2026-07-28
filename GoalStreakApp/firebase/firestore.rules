@@ -25,8 +25,38 @@ service cloud.firestore {
     }
 
     // ── Users ──
+    // Any authenticated user can read profiles (needed for friend suggestions,
+    // search, and displaying names/avatars in the social feed and groups).
+    // Only the owner can write their own profile.
     match /users/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+
+    // ── User Profiles (social profile mirror; doc id = userId) ──
+    // Authenticated users can read (friend search by email, names/avatars in
+    // requests and feed). Only the owner can write/delete their own profile.
+    match /userProfiles/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+
+    // ── Social Settings (doc id = userId) ──
+    // Authenticated users can read (e.g. checking a recipient's notification
+    // preference before notifying). Only the owner can write their settings.
+    match /socialSettings/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+
+    // ── Usernames (uniqueness registry; doc id = username → { userId }) ──
+    // Anyone authenticated can read for availability checks. A user may only
+    // reserve/release a username tied to their own uid. Usernames are immutable.
+    match /usernames/{username} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+      allow delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow update: if false;
     }
 
     // ── Habits ──
@@ -74,9 +104,26 @@ service cloud.firestore {
       allow write: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
     }
 
+    // ── Comments (on activity feed posts) ──
+    // Any authenticated user can read comments (mirrors activity feed reads).
+    // Author can create their own comment; comments are immutable.
+    match /comments/{commentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+      allow update, delete: if false;
+    }
+
     // ── Timer States ──
     match /timerStates/{timerId} {
       allow read, write: if isAuthenticated();
+    }
+
+    // ── Timer Sessions (completed timer records; has userId) ──
+    // Mirrors completions: authenticated read, owner-only write/create.
+    match /timerSessions/{sessionId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
     }
 
     // ── Groups ──
@@ -152,6 +199,14 @@ service cloud.firestore {
       allow create: if isAuthenticated()
         && request.auth.uid == request.resource.data.reporterId;
       allow update, delete: if false;
+    }
+
+    // ── Feedback (in-app ratings & feedback) ──
+    // Write-only from the client: any authenticated user can submit feedback.
+    // Clients never read feedback back (reviewed via Firebase console only).
+    match /feedback/{feedbackId} {
+      allow create: if isAuthenticated();
+      allow read, update, delete: if false;
     }
   }
 }
