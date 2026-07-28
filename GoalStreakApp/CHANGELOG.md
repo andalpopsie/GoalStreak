@@ -1,5 +1,32 @@
 # GoalStreak Changelog
 
+## [Landing Site Launch — goalfer.app] - July 2026
+
+### Added
+- **Deployed the marketing site to Vercel** on the live domain **goalfer.app**
+  (Hobby/free tier, root directory `goalfer-landing/`). Apex `A @ → 216.198.79.1`
+  and `www` CNAME at Namecheap; `www.goalfer.app` 308-redirects to the apex;
+  SSL auto-issued. Clears the App Store Support/Privacy URL requirement.
+- **Legal + support pages**: `/privacy`, `/terms` (render the goalfer.app legal
+  markdown) and `/support` (contact, FAQ, and a report/block safety section).
+- **Waitlist**: the hero "Join waitlist" form now POSTs to the **Loops.so**
+  public newsletter-form endpoint (no API key; safe for the static client),
+  with loading/success/error states and a 60s client-side rate limit.
+  Overridable via `NEXT_PUBLIC_LOOPS_FORM_ID`.
+
+### Changed
+- **Branding**: real Goalfer app icon as the logo (header/footer/favicon),
+  renamed all "GoalStreak" → "Goalfer", brand purple `#B771E5` across the token
+  set (replaced the retired orange), site title/meta set (was "v0 App").
+- **Hero redesign**: eyebrow → headline → subheadline → prominent email +
+  "Join waitlist" → crisp vector App Store button; removed the phone mockup.
+- **iOS-only messaging**: Android shown as text-only "coming soon" (removed the
+  Play Store badge); App Store button links to the real listing.
+- Renamed the landing project directory `goalstreak-landing/` → `goalfer-landing/`.
+
+### Removed
+- Testimonials section (fictional reviews) and the "Sign In" header button.
+
 ## [Contact Email Consolidation] - July 2026
 
 ### Changed
