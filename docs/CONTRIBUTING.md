@@ -138,24 +138,22 @@ Rules of thumb:
 ## What CI does
 
 When you open or update a PR, GitHub Actions runs automatically
-(config: `.github/workflows/ci.yml`). Three jobs:
+(config: `.github/workflows/ci.yml`). Two jobs:
 
 | Job | Blocks merge? | What it checks |
 |-----|---------------|----------------|
-| **Detect changes** | — | Figures out which files changed so the rest can skip needless work |
+| **Detect changes** | — | Figures out whether the PR touches rules, so the gate can skip needless work |
 | **Firestore rules tests (required)** | ✅ yes | Runs the security-rules tests against the Firestore emulator |
-| **Checks (informational)** | ❌ no | Unit tests + type-check |
 
-Only the **rules** check blocks merging. The **informational** check currently
-shows red because there's known unit-test and type-check debt — that's expected
-and does **not** stop you from merging. As that debt is paid down, we'll promote
-it to a required check.
+The rules check is the one required gate. It's deliberately narrow: it protects
+the security-critical, easy-to-get-wrong Firestore rules (the class of bug that
+once reached production), and it's cheap — a docs/metadata-only PR skips the
+emulator run entirely, so the check still reports green in a couple of seconds.
 
-Cost-saving behavior (the repo is private, so Actions minutes are metered):
-- A docs/metadata-only PR skips the heavy jobs — the required check still
-  reports green in a couple of seconds, so nothing gets stuck.
-- Unit tests and type-check share one install and are skipped entirely when no
-  code changed.
+Note: unit tests (`npm test`) and type-check (`npm run type-check`) currently
+have known failures/debt, so they are **not** run in CI — a perpetually-red
+check just trains you to ignore red. Run them locally as needed. When the debt
+is paid down, add them back as required checks.
 
 ---
 

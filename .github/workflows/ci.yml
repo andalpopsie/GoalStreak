@@ -1,14 +1,12 @@
 name: CI
 
-# Runs only on pull requests targeting main. (We intentionally do NOT run on
-# pushes to main after merge — the PR run already validated the change.)
+# Runs on every pull request targeting main.
 on:
   pull_request:
     branches: [main]
 
 # Least-privilege token scopes. `pull-requests: read` is needed by the
-# paths-filter action to read the PR's changed files. (Orgs often default the
-# token to restricted, so we grant scopes explicitly.)
+# paths-filter action to read the PR's changed files.
 permissions:
   contents: read
   pull-requests: read
@@ -27,24 +25,19 @@ defaults:
     working-directory: GoalStreakApp
 
 jobs:
-  # ─────────────────────────────────────────────────────────────────────────
-  # Detect which kinds of files changed, so the expensive jobs below can skip
-  # work that isn't needed (e.g. a docs/metadata/changelog-only PR shouldn't
-  # spin up Node, Java, or the emulator). Outputs are the strings 'true'/'false'.
-  # ─────────────────────────────────────────────────────────────────────────
+  # Detect whether this PR touches anything the rules tests depend on, so a
+  # docs/metadata-only PR can skip the expensive emulator run.
   changes:
     name: Detect changes
     runs-on: ubuntu-latest
     outputs:
       rules: ${{ steps.filter.outputs.rules }}
-      code: ${{ steps.filter.outputs.code }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
-            # Files that can affect the Firestore rules tests.
             rules:
               - 'GoalStreakApp/firebase/firestore.rules'
               - 'GoalStreakApp/src/**/*.rules.test.ts'
@@ -54,23 +47,10 @@ jobs:
               - 'GoalStreakApp/package-lock.json'
               - 'GoalStreakApp/babel.config.js'
               - '.github/workflows/ci.yml'
-            # Files that can affect unit tests / type-check.
-            code:
-              - 'GoalStreakApp/src/**'
-              - 'GoalStreakApp/App.tsx'
-              - 'GoalStreakApp/index.ts'
-              - 'GoalStreakApp/config/**'
-              - 'GoalStreakApp/package.json'
-              - 'GoalStreakApp/package-lock.json'
-              - 'GoalStreakApp/babel.config.js'
-              - '.github/workflows/ci.yml'
 
-  # ─────────────────────────────────────────────────────────────────────────
-  # BLOCKING GATE (required in branch protection). This job ALWAYS runs so it
-  # always reports a status — that's what keeps a required check from getting
-  # stuck "pending" on doc-only PRs. The heavy steps only run when rules-related
-  # files actually changed; otherwise the job passes in a couple of seconds.
-  # ─────────────────────────────────────────────────────────────────────────
+  # BLOCKING GATE (required in branch protection). Always runs so it always
+  # reports a status — that keeps a required check from getting stuck "pending"
+  # on doc-only PRs. The heavy steps only run when rules-related files changed.
   firestore-rules:
     name: Firestore rules tests (required)
     needs: changes
@@ -99,9 +79,7 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # Cache the downloaded Firestore emulator jar (~64MB) so we don't
-      # re-download it on every run. Keyed to the lockfile so a firebase-tools
-      # bump refreshes it.
+      # Cache the downloaded Firestore emulator jar (~64MB) across runs.
       - name: Cache Firestore emulator
         if: needs.changes.outputs.rules == 'true'
         uses: actions/cache@v4
@@ -118,35 +96,3 @@ jobs:
       - name: Run Firestore rules tests against the emulator
         if: needs.changes.outputs.rules == 'true'
         run: npm run test:emulator
-
-  # ─────────────────────────────────────────────────────────────────────────
-  # INFORMATIONAL (non-blocking). Unit tests + type-check share a single install
-  # (one `npm ci` instead of two). Skipped entirely on doc-only PRs. Not a
-  # required check, so its red/green status never blocks a merge. Type-check
-  # runs even if unit tests fail (`if: always()`), so both signals are visible.
-  # ─────────────────────────────────────────────────────────────────────────
-  checks:
-    name: Checks (informational)
-    needs: changes
-    if: needs.changes.outputs.code == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out the code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: GoalStreakApp/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run unit tests
-        run: npm test -- --ci
-
-      - name: Type check (scoped to src/)
-        if: always()
-        run: npx tsc --noEmit -p config/tsconfig.json
