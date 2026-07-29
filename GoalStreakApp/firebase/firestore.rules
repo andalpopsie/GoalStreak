@@ -212,5 +212,5 @@ service cloud.firestore {
 }
 
 // Deploy: automatic on merge to main (.github/workflows/deploy-rules.yml).
-// Manual fallback: `firebase deploy --only firestore:rules --project goalstreak-app2`
-// from GoalStreakApp/firebase/.
+// Manual fallback (from GoalStreakApp/firebase/):
+//   firebase deploy --only firestore:rules --project goalstreak-app2
