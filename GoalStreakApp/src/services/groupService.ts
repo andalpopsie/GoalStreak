@@ -16,6 +16,7 @@ import {
   writeBatch,
   Timestamp,
 } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 import { db } from './firebase';
 import { resolveUserDisplayName } from '../utils/usernameUtils';
 import { friendService } from './friendService';
@@ -334,10 +335,13 @@ class GroupService {
         throw new Error('This group is full (maximum 10 members)');
       }
 
-      // Check duplicate pending invitations
+      // Check duplicate pending invitations. Scope to invitations *this* user
+      // sent (fromUserId == adminId): security rules only allow reading
+      // invitations you're a party to, so an unscoped toUserId query is denied.
       const duplicateQuery = query(
         this.groupInvitationsCollection,
         where('groupId', '==', groupId),
+        where('fromUserId', '==', adminId),
         where('toUserId', '==', friendId),
         where('status', '==', 'pending')
       );
@@ -500,13 +504,18 @@ class GroupService {
     }
   }
 
-  async getGroupInvitableFriends(groupId: string, adminId: string): Promise<Friend[]> {
+  async getGroupInvitableFriends(groupId: string, inviterId?: string): Promise<Friend[]> {
     try {
       const group = await this.getGroup(groupId);
       const existingMemberIds = new Set(group.memberIds);
 
-      // Get admin's friends
-      const friendsData = await friendService.getFriends(adminId);
+      // Invitations are drawn from the current user's own friend list — that's
+      // who is inviting, and security rules only allow reading your own friends.
+      // Fall back to the passed id, then the authenticated user.
+      const userId = inviterId || getAuth().currentUser?.uid || '';
+      if (!userId) return [];
+
+      const friendsData = await friendService.getFriends(userId);
 
       // Filter out users already in the group
       return friendsData.friends.filter(
