@@ -47,3 +47,6 @@ GoalStreakApp/node_modules/
 !GoalStreakApp/assets/**
 !GoalStreakApp/app-store-assets/**
 !GoalStreakApp/ios/**/Images.xcassets/**
+
+# Legal/business paperwork — never belongs in the repo
+docs/Apple-business-docs/

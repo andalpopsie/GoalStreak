@@ -1,5 +1,80 @@
 # GoalStreak Changelog
 
+## [App Store Compliance Re-Audit — Domain, Manifest, Review-Access] - July 2026
+
+### Compliance review (no app code changes)
+- Re-verified the iOS submission surface against the actual files (not the
+  checklists). Confirmed: build **19** in sync across `app.json`,
+  `Info.plist` (`CFBundleVersion`), and `project.pbxproj`
+  (`CURRENT_PROJECT_VERSION`); bundle id `com.goalstreak.app` consistent;
+  `NSPrivacyTracking=false` with `Product Interaction` tracking flag `false`
+  and no `NSUserTrackingUsageDescription` (ATT correctly absent); privacy
+  manifest data types match the App Store Connect privacy config; UGC safety
+  (block/report) ships and the `BlockedUsers` route is registered in
+  `AppNavigator`.
+- **Domain**: confirmed the canonical domain is `goalfer.app` (the earlier
+  `goalstreak.co` migration is complete). All in-app URLs
+  (`linkingUtils.ts`), metadata URLs (`ios-metadata.json`,
+  `app-store-connect-config.json`), and legal-doc contact emails
+  (`hello@goalfer.app`) use it. No stray `goalstreak.co` references remain in
+  `src/` or `app-store-assets/`.
+
+### Checklist updated (existing file only — no new docs)
+- `ios-legal-compliance-checklist.md` — added two newly identified
+  pre-submission items: (1) ⚠️ no demo account for review (Guideline 2.1) on a
+  login-gated app, and (2) ⚠️ cosmetic version-string drift
+  (`MARKETING_VERSION = 1.0` vs shipped `1.0.0`).
+
+### Still open before submit (unchanged genuine blockers)
+- ❌ Reviewer-contact placeholders (`[FIRST_NAME]/[LAST_NAME]/[EMAIL]/[PHONE]`)
+  in `app-store-connect-config.json`.
+- ❌ Terms of Service §12 governing-law placeholder `[Your Jurisdiction]`.
+- ⚠️ Verify `goalfer.app/privacy|/terms|/support` are live and
+  `hello@goalfer.app` is monitored; remove or justify unused permission
+  strings (microphone/calendars/reminders); provide a demo account; confirm
+  the founding-member Pro entitlement ships and the aggregated privacy label
+  shows Purchases → Purchase History.
+
+## [App Store Compliance Audit — Checklist Drift Fixes] - July 2026
+
+### Compliance review (no app code changes)
+- Ran a full pre-submission compliance pass over the iOS config, privacy
+  manifest, legal docs, and metadata. Confirmed the app is on build **19**
+  (app.json `buildNumber` and Info.plist `CFBundleVersion` both = 19),
+  bundle id `com.goalstreak.app` is consistent, `NSUserTrackingUsageDescription`
+  is correctly absent, and `PrivacyInfo.xcprivacy` has `NSPrivacyTracking=false`
+  with `Product Interaction` tracking flag = false.
+- **Verified UGC safety (Guideline 1.2) ships**: `BlockedUsersScreen` is
+  registered in `AppNavigator` (`BlockedUsers` route) and report/block actions
+  are wired across ProfileScreen, ActivityCard, GroupFeedCard, and GroupChatTab
+  via `useModeration`. Flipped this item from ⚠️ to ✅ in the legal checklist.
+
+### Checklist drift corrected (existing files only — no new docs)
+- **`ios-submission-checklist.md`**: build number `1` → `19`; repaired a
+  garbled "Changed from Goalfer to Goalfer" line and the `GoalferApp/ios/Goalfer`
+  path drift (canonical is `GoalStreakApp/ios/GoalStreak`).
+- **`ios-legal-compliance-checklist.md`**: replaced the stale "web URLs use
+  goalstreak.co / emails use @goalstreak.app" outstanding item with the actual
+  state (everything now on `goalfer.app` + `hello@goalfer.app`); reframed it as
+  a hosting/mailbox verification step. Marked the UGC safety item resolved.
+
+### Still open before submit (unchanged — genuine blockers)
+- ❌ Reviewer-contact placeholders (`[FIRST_NAME]/[LAST_NAME]/[EMAIL]/[PHONE]`)
+  in `app-store-connect-config.json`.
+- ❌ Terms of Service §12 governing-law placeholder `[Your Jurisdiction]`.
+- ⚠️ Confirm `goalfer.app/privacy|/terms|/support` are live and
+  `hello@goalfer.app` is monitored; verify unused permission strings
+  (microphone/calendars/reminders) or remove them (Guideline 5.1.1); confirm
+  the founding-member Pro entitlement and IAP products are configured.
+
+## [Repo Hygiene — Ignore Local Legal Paperwork] - July 2026
+
+### Changed
+- **`.gitignore`** now excludes `docs/Apple-business-docs/` so Apple
+  legal/business paperwork stays out of version control. This is local-only
+  documentation (e.g. Paid Apps agreements, tax/banking forms) that must not
+  be committed to the repository.
+
 ## [Firestore Rules — Restore Missing Collection Rules] - July 2026
 
 ### Fixed
