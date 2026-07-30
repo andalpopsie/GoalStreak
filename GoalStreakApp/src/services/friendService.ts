@@ -94,9 +94,18 @@ class FriendService {
         throw new Error('Friend request already sent');
       }
 
-      // Get sender info
+      // Get sender info. Older accounts (created before social profiles
+      // existed) may not have a userProfiles doc yet — backfill it from the
+      // authenticated user so sending a request never crashes on undefined data.
       const senderDoc = await getDoc(doc(this.userProfilesCollection, fromUserId));
-      const senderData = senderDoc.data() as UserProfile;
+      let senderData = senderDoc.data() as UserProfile | undefined;
+      if (!senderData) {
+        const current = this.auth.currentUser;
+        const email = (current?.email || '').toLowerCase();
+        const name = current?.displayName || email.split('@')[0] || 'User';
+        await this.createUserProfile(fromUserId, email, name);
+        senderData = { email, name } as UserProfile;
+      }
 
       // Create friend request
       const friendRequest: Omit<FriendRequest, 'id'> = {
@@ -157,15 +166,17 @@ class FriendService {
       const fromUserDoc = await getDoc(doc(this.userProfilesCollection, request.fromUserId));
       const toUserDoc = await getDoc(doc(this.userProfilesCollection, request.toUserId));
       
-      const fromUserData = fromUserDoc.data() as UserProfile;
-      const toUserData = toUserDoc.data() as UserProfile;
+      // Profiles may be missing for older accounts; the request already
+      // carries names/emails, so fall back to those instead of crashing.
+      const fromUserData = fromUserDoc.data() as UserProfile | undefined;
+      const toUserData = toUserDoc.data() as UserProfile | undefined;
 
       // Create friendship records for both users
       const friend1: Omit<Friend, 'id'> = {
         userId: request.fromUserId,
         friendId: request.toUserId,
         friendEmail: request.toUserEmail,
-        friendName: toUserData.name,
+        friendName: toUserData?.name || request.toUserEmail?.split('@')[0] || 'User',
         status: 'accepted',
         createdAt: new Date(),
         updatedAt: new Date()
@@ -175,7 +186,7 @@ class FriendService {
         userId: request.toUserId,
         friendId: request.fromUserId,
         friendEmail: request.fromUserEmail,
-        friendName: fromUserData.name,
+        friendName: fromUserData?.name || request.fromUserName || 'User',
         status: 'accepted',
         createdAt: new Date(),
         updatedAt: new Date()
