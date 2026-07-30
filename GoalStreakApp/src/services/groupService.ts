@@ -17,6 +17,7 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db } from './firebase';
+import { resolveUserDisplayName } from '../utils/usernameUtils';
 import { friendService } from './friendService';
 import { notificationService } from './notificationService';
 import {
@@ -121,9 +122,8 @@ class GroupService {
         throw new Error('You can be in up to 5 groups at a time');
       }
 
-      // Get user profile for name
-      const userDoc = await getDoc(doc(collection(db, 'userProfiles'), userId));
-      const userName = userDoc.exists() ? (userDoc.data().name || 'Unknown User') : 'Unknown User';
+      // Resolve display name across profile collections + auth.
+      const userName = await resolveUserDisplayName(userId);
 
       const batch = writeBatch(db);
 
@@ -423,9 +423,8 @@ class GroupService {
         throw new Error('You can be in up to 5 groups at a time');
       }
 
-      // Get user name
-      const userDoc = await getDoc(doc(collection(db, 'userProfiles'), userId));
-      const userName = userDoc.exists() ? (userDoc.data().name || 'Unknown User') : 'Unknown User';
+      // Resolve display name across profile collections + auth.
+      const userName = await resolveUserDisplayName(userId);
 
       const batch = writeBatch(db);
 

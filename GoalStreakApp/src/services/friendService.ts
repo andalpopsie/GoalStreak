@@ -18,6 +18,7 @@ import {
 } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { db } from './firebase';
+import { resolveUserDisplayName } from '../utils/usernameUtils';
 import { achievementsService } from './achievementsService';
 import { 
   Friend, 
@@ -343,17 +344,9 @@ class FriendService {
     additionalData?: { streakCount?: number; completionCount?: number; milestone?: string; photoUrl?: string; caption?: string }
   ): Promise<string> {
     try {
-      // Get user profile for name with fallback
-      let userName = 'Unknown User';
-      try {
-        const userDoc = await getDoc(doc(this.userProfilesCollection, userId));
-        if (userDoc.exists()) {
-          const userData = userDoc.data() as UserProfile;
-          userName = userData?.name || userData?.email || 'Unknown User';
-        }
-      } catch (profileError) {
-        // Fallback to default name if profile fetch fails
-      }
+      // Resolve the display name across both profile collections + auth so we
+      // never bake "Unknown User" into the feed when the real name exists.
+      const userName = await resolveUserDisplayName(userId);
 
       // Validate required parameters
       if (!habitName || typeof habitName !== 'string') {
