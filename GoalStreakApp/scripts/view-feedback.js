@@ -3,13 +3,13 @@
  * view-feedback.js — read in-app feedback from Firestore (admin, read-only).
  *
  * The `feedback` collection is write-only for clients (security rules deny
- * reads), so this uses the Firebase Admin SDK, which runs with a service
- * account and bypasses rules. Runs locally only; nothing here ships in the app.
+ * reads), so this authenticates with a service account and reads via the
+ * Firestore REST API. Runs locally only; nothing here ships in the app.
  *
  * AUTH (one-time setup):
  *   1. Create a service account in the goalstreak-app2 project with a
  *      read role (e.g. "Cloud Datastore Viewer").
- *   2. Download its JSON key. Keep it OUT of git.
+ *   2. Download its JSON key. Keep it OUT of git (store it outside the repo).
  *   3. Point the standard Google env var at it:
  *        export GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/key.json
  *
@@ -22,10 +22,11 @@
  *   npm run feedback -- --csv feedback.csv # also export to CSV
  */
 
-const admin = require('firebase-admin');
+const { GoogleAuth } = require('google-auth-library');
 
 const PROJECT_ID = 'goalstreak-app2';
 const COLLECTION = 'feedback';
+const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
 
 // ── Arg parsing ──
 function parseArgs(argv) {
@@ -63,7 +64,7 @@ Firestore read access on the ${PROJECT_ID} project.
 `);
 }
 
-function initAdmin() {
+async function getAuthedClient() {
   if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
     console.error(
       '\n✗ GOOGLE_APPLICATION_CREDENTIALS is not set.\n' +
@@ -73,18 +74,20 @@ function initAdmin() {
     );
     process.exit(1);
   }
-  admin.initializeApp({
-    credential: admin.credential.applicationDefault(),
-    projectId: PROJECT_ID,
-  });
-  return admin.firestore();
+  const auth = new GoogleAuth({ scopes: ['https://www.googleapis.com/auth/datastore'] });
+  return auth.getClient();
 }
 
-function toDate(value) {
-  if (!value) return null;
-  if (typeof value.toDate === 'function') return value.toDate();
-  const d = new Date(value);
-  return isNaN(d.getTime()) ? null : d;
+// ── Firestore typed-value → plain JS ──
+function fromValue(v) {
+  if (!v || typeof v !== 'object') return null;
+  if ('stringValue' in v) return v.stringValue;
+  if ('integerValue' in v) return Number(v.integerValue);
+  if ('doubleValue' in v) return v.doubleValue;
+  if ('booleanValue' in v) return v.booleanValue;
+  if ('timestampValue' in v) return new Date(v.timestampValue);
+  if ('nullValue' in v) return null;
+  return null;
 }
 
 function stars(rating) {
@@ -101,34 +104,50 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) return printHelp();
 
-  const db = initAdmin();
+  const client = await getAuthedClient();
 
-  let query = db.collection(COLLECTION).orderBy('createdAt', 'desc');
+  const structuredQuery = {
+    from: [{ collectionId: COLLECTION }],
+    orderBy: [{ field: { fieldPath: 'createdAt' }, direction: 'DESCENDING' }],
+    limit: args.limit,
+  };
   if (args.since) {
     const since = new Date(args.since);
     if (isNaN(since.getTime())) {
       console.error(`✗ Invalid --since date: ${args.since}`);
       process.exit(1);
     }
-    query = query.where('createdAt', '>=', since);
-  }
-  if (args.limit) query = query.limit(args.limit);
-
-  const snapshot = await query.get();
-  let rows = snapshot.docs.map((doc) => {
-    const d = doc.data();
-    return {
-      id: doc.id,
-      createdAt: toDate(d.createdAt),
-      rating: d.rating ?? '',
-      text: d.text || '',
-      source: d.source || '',
-      platform: d.platform || '',
-      appVersion: d.appVersion || '',
-      userName: d.userName || '',
-      userId: d.userId || '',
+    structuredQuery.where = {
+      fieldFilter: {
+        field: { fieldPath: 'createdAt' },
+        op: 'GREATER_THAN_OR_EQUAL',
+        value: { timestampValue: since.toISOString() },
+      },
     };
+  }
+
+  const resp = await client.request({
+    url: `${BASE}:runQuery`,
+    method: 'POST',
+    data: { structuredQuery },
   });
+
+  let rows = (resp.data || [])
+    .filter((r) => r.document)
+    .map((r) => {
+      const f = r.document.fields || {};
+      return {
+        id: r.document.name.split('/').pop(),
+        createdAt: fromValue(f.createdAt),
+        rating: fromValue(f.rating) ?? '',
+        text: fromValue(f.text) || '',
+        source: fromValue(f.source) || '',
+        platform: fromValue(f.platform) || '',
+        appVersion: fromValue(f.appVersion) || '',
+        userName: fromValue(f.userName) || '',
+        userId: fromValue(f.userId) || '',
+      };
+    });
 
   // Client-side rating filters (avoids extra composite indexes).
   if (args.minRating != null) rows = rows.filter((r) => Number(r.rating) >= args.minRating);
@@ -142,7 +161,9 @@ async function main() {
   // ── Console report ──
   console.log(`\n${rows.length} feedback entr${rows.length === 1 ? 'y' : 'ies'}:\n`);
   for (const r of rows) {
-    const when = r.createdAt ? r.createdAt.toISOString().replace('T', ' ').slice(0, 16) : 'unknown date';
+    const when = r.createdAt instanceof Date && !isNaN(r.createdAt)
+      ? r.createdAt.toISOString().replace('T', ' ').slice(0, 16)
+      : 'unknown date';
     console.log(`${stars(r.rating)}  ${when}  ${r.platform}${r.appVersion ? ' v' + r.appVersion : ''}  ${r.source ? '[' + r.source + ']' : ''}`);
     console.log(`  by ${r.userName || 'Anonymous'} (${r.userId || 'no uid'})`);
     if (r.text) console.log(`  "${r.text}"`);
@@ -164,7 +185,7 @@ async function main() {
     const lines = [header.join(',')];
     for (const r of rows) {
       lines.push([
-        r.createdAt ? r.createdAt.toISOString() : '',
+        r.createdAt instanceof Date && !isNaN(r.createdAt) ? r.createdAt.toISOString() : '',
         r.rating, r.source, r.platform, r.appVersion, r.userName, r.userId, r.text,
       ].map(csvEscape).join(','));
     }
@@ -174,8 +195,9 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error('\n✗ Failed to read feedback:', err.message || err);
-  if (String(err).includes('PERMISSION_DENIED') || String(err).includes('permission')) {
+  const msg = err && (err.message || String(err));
+  console.error('\n✗ Failed to read feedback:', msg);
+  if (/permission|PERMISSION_DENIED|403/i.test(msg)) {
     console.error('  The service account needs Firestore read access (e.g. Cloud Datastore Viewer).');
   }
   process.exit(1);
