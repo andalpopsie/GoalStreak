@@ -3,6 +3,7 @@ import {
   collection,
   doc,
   addDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   getDocs,
@@ -335,18 +336,15 @@ class GroupService {
         throw new Error('This group is full (maximum 10 members)');
       }
 
-      // Check duplicate pending invitations. Scope to invitations *this* user
-      // sent (fromUserId == adminId): security rules only allow reading
-      // invitations you're a party to, so an unscoped toUserId query is denied.
-      const duplicateQuery = query(
-        this.groupInvitationsCollection,
-        where('groupId', '==', groupId),
-        where('fromUserId', '==', adminId),
-        where('toUserId', '==', friendId),
-        where('status', '==', 'pending')
-      );
-      const duplicateSnapshot = await getDocs(duplicateQuery);
-      if (!duplicateSnapshot.empty) {
+      // Invitations use a deterministic id "{groupId}_{friendId}" so the
+      // Firestore rules can verify a pending invite when the invitee joins.
+      const invitationId = `${groupId}_${friendId}`;
+      const invitationRef = doc(this.groupInvitationsCollection, invitationId);
+
+      // Duplicate check via direct lookup (rule-friendly: the sender is a party
+      // to this invitation, so reading it by id is allowed).
+      const existingInvite = await getDoc(invitationRef);
+      if (existingInvite.exists() && existingInvite.data().status === 'pending') {
         throw new Error('An invitation has already been sent to this user');
       }
 
@@ -367,7 +365,10 @@ class GroupService {
         createdAt: serverTimestamp(),
       };
 
-      const docRef = await addDoc(this.groupInvitationsCollection, invitationData);
+      // setDoc (not addDoc) to honor the deterministic id; overwrites any prior
+      // declined/expired invite for the same group+user with a fresh pending one.
+      await setDoc(invitationRef, invitationData);
+      const docRef = invitationRef;
 
       // Trigger notification
       try {

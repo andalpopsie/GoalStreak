@@ -24,6 +24,28 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == groupData.adminId;
     }
 
+    // Does the caller hold a pending invitation to this group? Invitations use
+    // the deterministic id "{groupId}_{uid}" so the rule can look one up.
+    function hasPendingGroupInvite(groupId) {
+      let invId = groupId + '_' + request.auth.uid;
+      return exists(/databases/$(database)/documents/groupInvitations/$(invId))
+        && get(/databases/$(database)/documents/groupInvitations/$(invId)).data.status == 'pending';
+    }
+
+    // Allow an invited user to add ONLY themselves to a group's member arrays
+    // (accepting an invitation). Guards: caller is newly added, exactly one
+    // member added (the caller), no members removed, and only the membership
+    // fields change — nothing else (adminId, name, etc.) can be touched.
+    function isSelfJoin(groupId) {
+      return (request.auth.uid in request.resource.data.memberIds)
+        && !(request.auth.uid in resource.data.memberIds)
+        && request.resource.data.memberIds.hasAll(resource.data.memberIds)
+        && request.resource.data.memberIds.size() == resource.data.memberIds.size() + 1
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['members', 'memberIds', 'updatedAt'])
+        && hasPendingGroupInvite(groupId);
+    }
+
     // ── Users ──
     // Any authenticated user can read profiles (needed for friend suggestions,
     // search, and displaying names/avatars in the social feed and groups).
@@ -129,9 +151,13 @@ service cloud.firestore {
     // ── Groups ──
     // Members can read, admin can write. Users join only via invitation acceptance.
     match /groups/{groupId} {
-      allow read: if isAuthenticated() && isGroupMember(resource.data);
+      // Any authenticated user can read group metadata (needed so an invited
+      // user can view the group before accepting, and for group discovery).
+      allow read: if isAuthenticated();
       allow create: if isAuthenticated() && request.auth.uid == request.resource.data.adminId;
-      allow update: if isAuthenticated() && isGroupAdmin(resource.data);
+      // Admin can update freely; an invited user may add only themselves.
+      allow update: if isAuthenticated()
+        && (isGroupAdmin(resource.data) || isSelfJoin(groupId));
       allow delete: if isAuthenticated() && isGroupAdmin(resource.data);
 
       // ── Group Messages (subcollection) ──
