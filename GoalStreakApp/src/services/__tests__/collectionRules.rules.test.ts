@@ -232,3 +232,60 @@ describe('feedback rules', () => {
     await assertFails(getDoc(doc(db, 'feedback/f1')));
   });
 });
+
+describe('activities rules (feed reactions)', () => {
+  // Activity authored by BOB; ALICE is a different user reacting to it.
+  const activity = {
+    userId: BOB,
+    userName: 'Bob',
+    type: 'habit_completed',
+    reactions: {},
+  };
+
+  it('lets the author create their own activity', async () => {
+    const db = testEnv.authenticatedContext(BOB).firestore();
+    await assertSucceeds(setDoc(doc(db, 'activities/act1'), activity));
+  });
+
+  it('denies creating an activity under another uid', async () => {
+    const db = testEnv.authenticatedContext(ALICE).firestore();
+    await assertFails(setDoc(doc(db, 'activities/act1'), activity));
+  });
+
+  it('lets another user react to an activity (reaction fields only)', async () => {
+    await seed('activities/act1', activity);
+    const db = testEnv.authenticatedContext(ALICE).firestore();
+    await assertSucceeds(
+      updateDoc(doc(db, 'activities/act1'), {
+        reactions: { [ALICE]: ['fire'] },
+        updatedAt: new Date(),
+        lastReactionAt: new Date(),
+      })
+    );
+  });
+
+  it('lets the author fully update their own activity', async () => {
+    await seed('activities/act1', activity);
+    const db = testEnv.authenticatedContext(BOB).firestore();
+    await assertSucceeds(
+      updateDoc(doc(db, 'activities/act1'), { userName: 'Bob edited' })
+    );
+  });
+
+  it('denies a non-author from tampering with non-reaction fields', async () => {
+    await seed('activities/act1', activity);
+    const db = testEnv.authenticatedContext(ALICE).firestore();
+    await assertFails(
+      updateDoc(doc(db, 'activities/act1'), {
+        userName: 'Hacked',
+        updatedAt: new Date(),
+      })
+    );
+  });
+
+  it('denies a non-author from deleting an activity', async () => {
+    await seed('activities/act1', activity);
+    const db = testEnv.authenticatedContext(ALICE).firestore();
+    await assertFails(deleteDoc(doc(db, 'activities/act1')));
+  });
+});

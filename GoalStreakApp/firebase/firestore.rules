@@ -151,7 +151,18 @@ service cloud.firestore {
     // ── Activities (main feed) ──
     match /activities/{activityId} {
       allow read: if isAuthenticated();
-      allow write: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+      // Author creates/deletes their own activity.
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+      allow delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      // Author may fully update their own activity. Any authenticated user may
+      // react to another user's activity — an update that touches ONLY the
+      // reaction-related fields (mirrors the social feed where you react to
+      // friends' posts). Prevents feed tampering while allowing reactions.
+      allow update: if isAuthenticated() && (
+        request.auth.uid == resource.data.userId
+        || request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['reactions', 'updatedAt', 'lastReactionAt'])
+      );
     }
 
     // ── Comments (on activity feed posts) ──
