@@ -46,6 +46,26 @@ service cloud.firestore {
         && hasPendingGroupInvite(groupId);
     }
 
+    // Is the caller the admin of the group with this id? (Used by sibling
+    // collections — trackedHabits, groupActivities — that reference groupId.)
+    function isGroupAdminOf(groupId) {
+      return isAuthenticated()
+        && exists(/databases/$(database)/documents/groups/$(groupId))
+        && get(/databases/$(database)/documents/groups/$(groupId)).data.adminId == request.auth.uid;
+    }
+
+    // Allow a member to remove ONLY themselves from a group (leaving). Mirror
+    // of isSelfJoin: caller is removed, exactly one member removed (the caller),
+    // no one added, and only the membership fields change.
+    function isSelfLeave() {
+      return (request.auth.uid in resource.data.memberIds)
+        && !(request.auth.uid in request.resource.data.memberIds)
+        && resource.data.memberIds.hasAll(request.resource.data.memberIds)
+        && request.resource.data.memberIds.size() == resource.data.memberIds.size() - 1
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['members', 'memberIds', 'updatedAt']);
+    }
+
     // ── Users ──
     // Any authenticated user can read profiles (needed for friend suggestions,
     // search, and displaying names/avatars in the social feed and groups).
@@ -155,9 +175,10 @@ service cloud.firestore {
       // user can view the group before accepting, and for group discovery).
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && request.auth.uid == request.resource.data.adminId;
-      // Admin can update freely; an invited user may add only themselves.
+      // Admin can update freely; an invited user may add only themselves
+      // (accept), and a member may remove only themselves (leave).
       allow update: if isAuthenticated()
-        && (isGroupAdmin(resource.data) || isSelfJoin(groupId));
+        && (isGroupAdmin(resource.data) || isSelfJoin(groupId) || isSelfLeave());
       allow delete: if isAuthenticated() && isGroupAdmin(resource.data);
 
       // ── Group Messages (subcollection) ──
@@ -189,7 +210,10 @@ service cloud.firestore {
     match /trackedHabits/{trackedHabitId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
-      allow delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      // Owner can unlink their own; group admin can remove a member's tracked
+      // habits when removing that member from the group.
+      allow delete: if isAuthenticated()
+        && (request.auth.uid == resource.data.userId || isGroupAdminOf(resource.data.groupId));
       allow update: if false;
     }
 
@@ -197,7 +221,11 @@ service cloud.firestore {
     // Group members can read, members can create, no direct deletes.
     match /groupActivities/{activityId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+      // Self-authored activities (habit_completed, member_joined), or the group
+      // admin posting system events about a member (e.g. member_left on removal).
+      allow create: if isAuthenticated()
+        && (request.auth.uid == request.resource.data.userId
+            || isGroupAdminOf(request.resource.data.groupId));
       allow update: if isAuthenticated();
       allow delete: if false;
     }
