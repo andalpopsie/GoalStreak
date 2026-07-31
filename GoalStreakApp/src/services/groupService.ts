@@ -802,9 +802,13 @@ class GroupService {
         throw new Error('This group has ended');
       }
 
-      // Get user name
+      // Resolve the name fresh rather than trusting the (possibly stale)
+      // denormalized member record, so feed entries never show 'Unknown User'
+      // when the real name is available.
       const member = group.members.find(m => m.userId === userId);
-      const userName = member?.userName || 'Unknown User';
+      const userName = member?.userName && member.userName !== 'Unknown User'
+        ? member.userName
+        : await resolveUserDisplayName(userId);
 
       const activityData: Record<string, any> = {
         groupId,
