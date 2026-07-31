@@ -71,3 +71,9 @@ DIRECTORY_CLEANUP_PREVIEW.md
 # Coverage reports
 coverage/
 *.lcov
+
+# Admin tooling — never commit service-account keys or exported feedback data
+*serviceAccount*.json
+gcp-*.json
+*-key.json
+feedback*.csv
