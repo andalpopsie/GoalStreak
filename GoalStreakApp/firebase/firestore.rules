@@ -54,6 +54,14 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/groups/$(groupId)).data.adminId == request.auth.uid;
     }
 
+    // Is the caller a member of the group with this id? (For sibling collections
+    // that reference groupId, e.g. reacting on a group activity.)
+    function isGroupMemberOf(groupId) {
+      return isAuthenticated()
+        && exists(/databases/$(database)/documents/groups/$(groupId))
+        && request.auth.uid in get(/databases/$(database)/documents/groups/$(groupId)).data.memberIds;
+    }
+
     // Allow a member to remove ONLY themselves from a group (leaving). Mirror
     // of isSelfJoin: caller is removed, exactly one member removed (the caller),
     // no one added, and only the membership fields change.
@@ -226,7 +234,12 @@ service cloud.firestore {
       allow create: if isAuthenticated()
         && (request.auth.uid == request.resource.data.userId
             || isGroupAdminOf(request.resource.data.groupId));
-      allow update: if isAuthenticated();
+      // Only a group member may update, and only the reactions field (plus
+      // updatedAt) — so reacting works but feed content can't be tampered with.
+      allow update: if isAuthenticated()
+        && isGroupMemberOf(resource.data.groupId)
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['reactions', 'updatedAt']);
       allow delete: if false;
     }
 

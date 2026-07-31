@@ -241,3 +241,34 @@ describe('member self-leave', () => {
     }));
   });
 });
+
+describe('group activity reactions (update hardening)', () => {
+  const activity = { groupId: 'g1', userId: ALICE, userName: 'Alice', type: 'habit_completed', reactions: {} };
+
+  it('lets a group member add a reaction (reactions field only)', async () => {
+    await seedTwoMemberGroup();
+    await seed('groupActivities/a1', activity);
+    const db = testEnv.authenticatedContext(BOB).firestore();
+    await assertSucceeds(updateDoc(doc(db, 'groupActivities/a1'), {
+      reactions: { [BOB]: ['fire'] }, updatedAt: new Date(),
+    }));
+  });
+
+  it('denies a non-member from reacting', async () => {
+    await seedTwoMemberGroup();
+    await seed('groupActivities/a1', activity);
+    const db = testEnv.authenticatedContext(CAROL).firestore();
+    await assertFails(updateDoc(doc(db, 'groupActivities/a1'), {
+      reactions: { [CAROL]: ['fire'] }, updatedAt: new Date(),
+    }));
+  });
+
+  it('denies a member from tampering with non-reaction fields', async () => {
+    await seedTwoMemberGroup();
+    await seed('groupActivities/a1', activity);
+    const db = testEnv.authenticatedContext(BOB).firestore();
+    await assertFails(updateDoc(doc(db, 'groupActivities/a1'), {
+      userName: 'Hacked', updatedAt: new Date(),
+    }));
+  });
+});
