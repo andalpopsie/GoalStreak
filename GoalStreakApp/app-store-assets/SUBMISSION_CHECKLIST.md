@@ -36,6 +36,7 @@
 - ✅ Marketing Materials: All assets prepared
 - ✅ Legal Documents: Privacy policy and terms ready
 - ✅ Documentation: Comprehensive guides and checklists
+  - Includes `REJECTION_RESPONSE_PLAYBOOK.md` — ready-to-use Resolution Center replies for the likely App Review flags on a social app with auto-renewable subscriptions (2.1 IAP/login, 3.1.2 subscription disclosures, 2.3.x metadata, 1.2 UGC safety, 5.1.1(v) account deletion). Keep the demo account seeded during review.
 
 ### ⚠️ Optional Optimizations
 - Keywords currently 89/100 chars. Consider adding "accountability" or "groups" on the next submission to align with the updated `whatsNew` text. Both `ios-metadata.json` and `app-store-connect-config.json` must be updated together.
@@ -194,4 +195,4 @@ The `description`, `promotionalText`, and `whatsNew` in `ios-metadata.json` and 
 
 **Status Summary**: ⚠️ Metadata ready, but IAP setup now gates submission — the listing advertises Goalfer Pro, so App Store Connect IAP products, the Paid Apps Agreement, and RevenueCat wiring must be complete before "Submit for Review".
 
-Last refreshed: 2026-07-26 (softened unverified marketing claims in the App Store listing fields; corrected stale screenshot list and icon path to match the shipped asset set)
+Last refreshed: 2026-08-01 (asset audit: re-verified screenshot pixel dimensions — core 01–07 = 1320×2868 (6.9"), 6.5" set = 1284×2778, paywall variants = 1290×2796 (6.7"), and the two undersized paywall PNGs = 738×1296 / 720×1378 (do NOT upload); confirmed all three metadata JSON files parse as valid; linked the new REJECTION_RESPONSE_PLAYBOOK.md)
