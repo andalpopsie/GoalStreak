@@ -98,7 +98,7 @@ Feature specifications and implementation plans:
 **Primary working directory:** `GoalStreakApp/app-store-assets/`
 - Legal documents: `metadata/privacy-policy.md`, `metadata/terms-of-service.md`
 - App descriptions: `metadata/ios-metadata.json`
-- Screenshots: `screenshots/ios/`, `screenshots/android/`
+- Screenshots: `real-screenshots/app-store-ready/` (upload-ready PNGs; includes a 6.5" set)
 
 ### For Feature Planning
 **Primary working directory:** `.kiro/specs/`

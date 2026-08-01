@@ -24,9 +24,14 @@
   - 06-accountability-feed.png
   - 07-accountability-chat-feature.png
   - 08-pro-paywall-monthly.png / 08-pro-paywall-yearly.png (+ 1290x2796 variants)
-  - A 6.5" (1284x2778) set is also present in `app-store-ready/6.5-inch-1284x2778/`
+  - A 6.5" (1284x2778) set is also present in `app-store-ready/6.5-inch-1284x2778/` — but it contains **only** the 7 core shots (01–07); no Pro paywall shots
   - ⚠️ The former `03-habit-icons.png` screenshot has been retired; update any docs/captions that still reference it
-  - ⚠️ Confirm the target display slot in App Store Connect (6.5" vs 6.7"/6.9") matches the dimensions of the files you upload
+  - ❌ **Screenshot dimensions are inconsistent across the set (fix before upload).** Verified pixel sizes:
+    - Core set `01`–`07` (top-level): **1320×2868** (6.9" class)
+    - `6.5-inch-1284x2778/` `01`–`07`: **1284×2778** (6.5" class) ✅ self-consistent
+    - `08-pro-paywall-monthly-1290x2796.png` / `08-pro-paywall-yearly-1290x2796.png`: **1290×2796** (6.7" class) — a *third* display class, matches neither the 6.9" nor the 6.5" set
+    - `08-pro-paywall-monthly.png` (738×1296) and `08-pro-paywall-yearly.png` (720×1378): **undersized — not valid App Store screenshot dimensions. Do NOT upload these two.**
+  - ⚠️ App Store Connect requires every screenshot in a given display slot to share the same dimensions. Pick one iPhone display class per slot and make the whole sequence match: either (a) re-render the paywall shots at 1320×2868 to join the 6.9" core set, or (b) add paywall shots to the 6.5" (1284×2778) set and upload that set. The 1290×2796 and sub-1000px paywall files cannot be mixed into the 6.9" upload.
 - ✅ Metadata: Complete and comprehensive
 - ✅ Marketing Materials: All assets prepared
 - ✅ Legal Documents: Privacy policy and terms ready

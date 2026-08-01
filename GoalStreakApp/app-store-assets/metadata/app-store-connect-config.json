@@ -17,10 +17,7 @@
     "version": "1.0.0",
     "copyright": "© 2025 Goalfer. All rights reserved.",
     "tradeRepresentativeContactInformation": {
-      "firstName": "[FIRST_NAME]",
-      "lastName": "[LAST_NAME]",
-      "emailAddress": "[EMAIL]",
-      "phoneNumber": "[PHONE]",
+      "_note": "Required for South Korea App Store distribution. Entered directly in App Store Connect (App Information -> Trade Representative Contact Information). Not stored in the repo.",
       "isDisplayedOnAppStore": false
     }
   },
@@ -55,15 +52,11 @@
   },
   "appReviewInformation": {
     "contact": {
-      "firstName": "[FIRST_NAME]",
-      "lastName": "[LAST_NAME]",
-      "phoneNumber": "[PHONE]",
-      "emailAddress": "[EMAIL]"
+      "_note": "Entered directly in App Store Connect (App Review Information -> Contact Information). Not stored in the repo."
     },
     "demoAccount": {
-      "required": false,
-      "username": "",
-      "password": ""
+      "required": true,
+      "_note": "App is login-gated (Firebase email/password). A working demo account is entered directly in App Store Connect (App Review Information -> Sign-In Information). Sandbox IAP steps for the Goalfer Pro paywall are in the 'notes' field below."
     },
     "notes": "Goalfer is a social habit tracking app that helps users build lasting routines through accountability and community support.\n\nKEY FEATURES TO TEST:\n1. User Registration/Login - Create account with email/password\n2. Habit Creation - Tap '+' to create habits from 39+ categories\n3. Habit Tracking - Tap habits to mark complete, see streak counters\n4. Social Features - Add friends via email, see activity feed\n5. Analytics - View progress charts and statistics\n\nIN-APP PURCHASES (Goalfer Pro subscription):\n- Goalfer Pro is an auto-renewable subscription with two options: Monthly (goalfer_pro_monthly, $3.99) and Annual (goalfer_pro_annual, $23.99).\n- The concrete benefit delivered today is a higher habit limit: Free users can create up to 6 habits; Pro users up to 15. Additional Pro features are on our roadmap and are clearly labelled 'Coming soon' in the paywall — they are NOT advertised as currently included.\n- HOW TO REACH THE PAYWALL: create 6 habits on a Free account, then attempt to create a 7th. The Pro paywall appears. A paywall preview is also available on the Profile tab in development builds.\n- Subscriptions are managed via RevenueCat, which validates App Store receipts. No account or server login is required to test the purchase.\n- Please test with a Sandbox Apple Account. Sign out of the production Apple Account in Settings > App Store first, then approve the purchase with the sandbox tester when prompted.\n\nLAUNCH PROMOTION:\n- Our first 100 users receive Goalfer Pro free for life via a promotional entitlement granted through RevenueCat (no charge). This is a goodwill launch offer and does not affect the standard subscription products above.\n\nPRIVACY & SAFETY:\n- All user data is private by default\n- Users control what they share with friends\n- No inappropriate content or gambling mechanics\n- Family-friendly design suitable for all ages\n\nThe app promotes positive behavior change and healthy habit formation through social accountability and progress tracking."
   },

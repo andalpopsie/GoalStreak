@@ -5,18 +5,21 @@ This checklist ensures Goalfer meets all iOS App Store legal and privacy require
 
 ## ✅ Privacy Usage Descriptions (Info.plist)
 
-### Required Permissions
-- [x] **NSUserTrackingUsageDescription**: INTENTIONALLY REMOVED. Goalfer does not perform App Tracking Transparency (ATT) tracking — no IDFA, no ATT prompt, no cross-app/data-broker sharing. Analytics is first-party Firebase only. The ATT string must be absent so the App Store privacy label does not falsely claim tracking. (See privacy manifest: `NSPrivacyTracking=false`.)
-- [x] **NSCameraUsageDescription**: Profile picture capture (optional)
-- [x] **NSPhotoLibraryUsageDescription**: Profile picture selection (optional)
-- [x] **NSLocationWhenInUseUsageDescription**: Location-based reminders (optional)
+### Declared Permissions (only what the app actually requests)
+- [x] **NSUserTrackingUsageDescription**: INTENTIONALLY ABSENT. Goalfer does not perform App Tracking Transparency (ATT) tracking — no IDFA, no ATT prompt, no cross-app/data-broker sharing. Analytics is first-party Firebase only. The ATT string must be absent so the App Store privacy label does not falsely claim tracking. (See privacy manifest: `NSPrivacyTracking=false`.)
+- [x] **NSCameraUsageDescription**: Profile picture capture (optional; via `expo-image-picker`)
+- [x] **NSPhotoLibraryUsageDescription**: Profile picture selection (optional; via `expo-image-picker`)
 
-### Additional Permissions (Future-proofing)
-- [x] **NSContactsUsageDescription**: Friend discovery (optional)
-- [x] **NSMicrophoneUsageDescription**: Voice features (future)
-- [x] **NSCalendarsUsageDescription**: Calendar integration (optional)
-- [x] **NSRemindersUsageDescription**: Reminder integration (optional)
-- [x] **NSFaceIDUsageDescription**: Biometric authentication (optional)
+### Removed Permissions (Guideline 5.1.1 — no feature requests these)
+Removed from **both** `app.json` (`ios.infoPlist`) and `ios/GoalStreak/Info.plist` because no shipping feature requests them and no corresponding Expo module is installed. Do not re-add without a real feature behind them.
+- [x] **NSLocationWhenInUseUsageDescription**: REMOVED — no `expo-location`; no location-based reminders shipped
+- [x] **NSContactsUsageDescription**: REMOVED — no `expo-contacts`; friend discovery is email-based only
+- [x] **NSMicrophoneUsageDescription**: REMOVED — no `expo-av`; no voice features
+- [x] **NSCalendarsUsageDescription**: REMOVED — no `expo-calendar`
+- [x] **NSRemindersUsageDescription**: REMOVED — no `expo-calendar`/reminders integration
+- [x] **NSFaceIDUsageDescription**: REMOVED — no `expo-local-authentication`
+- [x] **Privacy policy aligned**: removed the "Location Data" collection line from `privacy-policy.md` so the policy no longer discloses a location practice the app can't perform (bumped to v1.2 / July 31, 2026)
+- [ ] ⚠️ **Android manifest leftover (non-blocking for iOS launch)**: `app.json` `android.permissions` still lists `ACCESS_FINE_LOCATION` and `ACCESS_COARSE_LOCATION`. Harmless for the iOS-only launch, but remove before any Play Store submission to keep Android permissions consistent with the (now location-free) feature set
 
 ## ✅ Privacy Manifest File (iOS 17+ Compliance)
 
@@ -41,7 +44,7 @@ This checklist ensures Goalfer meets all iOS App Store legal and privacy require
 ## ✅ Legal Documents
 
 ### Privacy Policy
-- [x] **Comprehensive privacy policy** created at `app-store/privacy-policy.md`
+- [x] **Comprehensive privacy policy** created at `app-store-assets/metadata/privacy-policy.md`
 - [x] **Covers all data collection**: Personal info, habit data, social features, technical data
 - [x] **Explains data usage**: App functionality, social features, analytics, communication
 - [x] **Data sharing disclosure**: No selling, limited sharing scenarios
@@ -54,7 +57,7 @@ This checklist ensures Goalfer meets all iOS App Store legal and privacy require
 - [x] **Compliance statements**: CCPA, GDPR, COPPA, App Store guidelines
 
 ### Terms of Service
-- [x] **Comprehensive terms** created at `app-store/terms-of-service.md`
+- [x] **Comprehensive terms** created at `app-store-assets/metadata/terms-of-service.md`
 - [x] **Acceptance of terms**: Clear agreement mechanism
 - [x] **Service description**: Detailed feature explanation
 - [x] **Eligibility requirements**: Age restrictions, account requirements
@@ -165,7 +168,7 @@ This checklist ensures Goalfer meets all iOS App Store legal and privacy require
 - [x] **Privacy policy**: Accessible at https://goalfer.app/privacy
 - [x] **Terms of service**: Accessible at https://goalfer.app/terms
 - [x] **Support page**: Accessible at https://goalfer.app/support
-- [x] **Backup access**: Documents also available in app-store folder
+- [x] **Backup access**: Documents also available in `app-store-assets/metadata/` folder
 
 ### Contact Information
 - [x] **Privacy inquiries**: hello@goalfer.app
@@ -211,19 +214,26 @@ This checklist ensures Goalfer meets all iOS App Store legal and privacy require
 
 ## ⚠️ Outstanding Pre-Submission Items (must resolve before submit)
 
-- [ ] ❌ **Reviewer contact placeholders**: `appReviewInformation.contact` and `tradeRepresentativeContactInformation` in `app-store-connect-config.json` still contain `[FIRST_NAME]`, `[LAST_NAME]`, `[EMAIL]`, `[PHONE]` — fill with real, monitored details
-- [ ] ❌ **Terms governing law placeholder**: Terms of Service §12 still contains `[Your Jurisdiction]` — set the governing jurisdiction
+- [x] ✅ **Reviewer & trade-rep contact placeholders**: RESOLVED. The `[FIRST_NAME]`/`[LAST_NAME]`/`[EMAIL]`/`[PHONE]` placeholders were removed from `app-store-connect-config.json`. Both `appReviewInformation.contact` and `versionInformation.tradeRepresentativeContactInformation` now carry a `_note` documenting that these are entered directly in App Store Connect (App Review Information → Contact Information; App Information → Trade Representative Contact Information) and intentionally not stored in the repo. ⚠️ Action moved to ASC: enter real, monitored App Review contact details before "Submit for Review". **South Korea distribution is confirmed (yes)**, so the Trade Representative Contact Information is REQUIRED and must be completed in App Store Connect (App Information → Trade Representative Contact Information)
+- [x] ✅ **Terms governing law**: RESOLVED. Terms of Service §12 now specifies the **Republic of Singapore** (country of residence / business registration) as governing law and dispute forum
 - [ ] ⚠️ **Domain hosting/mailbox verification**: all in-app URLs and metadata now use the canonical `goalfer.app` domain, and all contact emails use `hello@goalfer.app` (goalstreak.co / @goalstreak.app references have been retired). Before submit, confirm `goalfer.app/privacy`, `/terms`, and `/support` are live and the `hello@goalfer.app` mailbox is provisioned and monitored
 - [x] ✅ **UGC/social safety (Guideline 1.2)**: report + block moderation ships in the build — `BlockedUsersScreen` is registered in `AppNavigator` (`BlockedUsers` route) and `ProfileScreen`, `ActivityCard`, `GroupFeedCard`, and `GroupChatTab` expose report/block actions via `useModeration`; blocked/reported content is filtered across all social surfaces; Terms carry the zero-tolerance clause and signup gates on EULA acceptance
-- [ ] ⚠️ **Unused permission strings (Guideline 5.1.1)**: `NSMicrophoneUsageDescription`, `NSCalendarsUsageDescription`, `NSRemindersUsageDescription` (and possibly Location/Contacts) are declared as "future" features. Remove usage descriptions for permissions no feature currently requests, or a reviewer may ask which feature uses them
+- [x] ✅ **Unused permission strings (Guideline 5.1.1)**: RESOLVED. Removed `NSLocationWhenInUseUsageDescription`, `NSContactsUsageDescription`, `NSMicrophoneUsageDescription`, `NSCalendarsUsageDescription`, `NSRemindersUsageDescription`, and `NSFaceIDUsageDescription` from **both** `app.json` and `ios/GoalStreak/Info.plist`. Code audit confirmed only Camera + Photo Library (via `expo-image-picker`, for profile pictures) are actually requested; no `expo-location`/`expo-contacts`/`expo-calendar`/`expo-local-authentication`/`expo-av` deps are installed. Only `NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription` remain
 - [ ] ⚠️ **Purchase History in app-level manifest**: `ios/GoalStreak/PrivacyInfo.xcprivacy` does not list `NSPrivacyCollectedDataTypePurchaseHistory`; it relies on RevenueCat's bundled manifest. Verify the aggregated App Store privacy label shows "Purchases → Purchase History" after build
-- [ ] 📝 **Doc drift**: this checklist references legacy paths `app-store/privacy-policy.md` / `app-store/terms-of-service.md`; the canonical location is `app-store-assets/metadata/`
-- [ ] ⚠️ **Demo account for review (Guideline 2.1)**: `appReviewInformation.demoAccount.required` is `false` with empty credentials. The app is login-gated (Firebase email/password) and social/Pro features sit behind an account. A reviewer *can* self-register, but providing a working demo account (and sandbox IAP steps, already in the notes) reduces review friction and avoids a "we couldn't access the feature" rejection. Recommend creating a real demo account and populating these fields
-- [ ] ⚠️ **Version-string drift (cosmetic)**: `ios/GoalStreak.xcodeproj/project.pbxproj` has `MARKETING_VERSION = 1.0` while `Info.plist` hardcodes `CFBundleShortVersionString = 1.0.0` and `app.json` uses `1.0.0`. Info.plist's hardcoded value is what ships, so this is not a blocker, but align `MARKETING_VERSION` to `1.0.0` to prevent future confusion. (Build number `19` is correctly in sync across app.json, Info.plist, and project.pbxproj.)
+- [x] ✅ **Doc drift**: RESOLVED. Legacy `app-store/…` path references in this checklist corrected to the canonical `app-store-assets/metadata/` location
+- [x] ✅ **Demo account for review (Guideline 2.1)**: RESOLVED (repo-side). `appReviewInformation.demoAccount.required` is now `true` with a `_note`; the working demo account credentials are entered directly in App Store Connect (App Review Information → Sign-In Information), not stored in the repo. Sandbox IAP steps for the Goalfer Pro paywall are already in the `notes` field. ⚠️ Action at submit time: create the demo account and enter its email/password in ASC before "Submit for Review"
+- [x] ✅ **Version-string drift (cosmetic)**: RESOLVED. Aligned `MARKETING_VERSION` `1.0` → `1.0.0` in both Debug and Release configs of `ios/GoalStreak.xcodeproj/project.pbxproj`, matching `Info.plist` (`CFBundleShortVersionString = 1.0.0`) and `app.json` (`1.0.0`).
 
-## Status: ⚠️ NEARLY READY — resolve Outstanding Pre-Submission Items above
+## Status: ✅ REPO-SIDE COMPLETE — remaining items are App Store Connect / infrastructure actions
 
-Privacy manifest, usage descriptions, legal documents, and in-app legal links are in place. Submission is blocked only by the placeholder contact/jurisdiction fields and the verification items listed above.
+All in-repo blockers are resolved: contact/trade-rep placeholders cleared, Terms §12 governing law set to Singapore, unused permission strings removed, version strings aligned, doc drift fixed, UGC safety shipped. Nothing in the codebase or metadata files is blocking submission.
+
+The remaining checkbox items are **actions you take outside the repo** (in App Store Connect or your hosting/mail infra), to be completed as part of the submission itself:
+- Enter App Review contact + demo account credentials in App Store Connect
+- Enter the South Korea Trade Representative Contact Information in App Store Connect
+- Confirm `goalfer.app/privacy`, `/terms`, `/support` are live and `hello@goalfer.app` is monitored
+- After the production build: verify the aggregated App Store privacy label shows "Purchases → Purchase History"
+- Confirm the "first 100 users get Pro free for life" promotional entitlement is wired in the shipping build (or soften the promo copy)
 
 ### Key Achievements
 - Comprehensive privacy usage descriptions for all permissions

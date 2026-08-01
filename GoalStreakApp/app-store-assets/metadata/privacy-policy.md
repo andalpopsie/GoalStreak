@@ -1,7 +1,7 @@
 # Goalfer Privacy Policy
 
 **Effective Date:** January 1, 2025  
-**Last Updated:** July 22, 2026
+**Last Updated:** July 31, 2026
 
 ## Introduction
 
@@ -33,7 +33,6 @@ By using Goalfer, you consent to the data practices described in this policy. If
 - **Device Information**: Device type, operating system version, unique device identifiers
 - **App Usage Analytics**: Features used, time spent in app, navigation patterns
 - **Performance Data**: Crash reports, error logs, and app performance metrics
-- **Location Data**: Approximate location (only if you grant permission for location-based reminders)
 
 ### Subscription and Purchase Data
 - **Purchase History**: Which Goalfer Pro subscription you hold (if any), purchase and renewal status, and entitlement information
@@ -192,7 +191,7 @@ Goalfer complies with:
 
 ---
 
-**Last Updated**: July 22, 2026  
-**Version**: 1.1
+**Last Updated**: July 31, 2026  
+**Version**: 1.2
 
 *This privacy policy is effective as of the date listed above and applies to all users of the Goalfer mobile application.*

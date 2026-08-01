@@ -236,8 +236,8 @@ We may suspend or terminate your account for:
 ## 12. Dispute Resolution
 
 ### Governing Law
-- These Terms are governed by the laws of [Your Jurisdiction]
-- Any disputes will be resolved in the courts of [Your Jurisdiction]
+- These Terms are governed by the laws of the Republic of Singapore
+- Any disputes will be resolved in the courts of the Republic of Singapore
 - You consent to the jurisdiction of these courts
 - International users may have additional rights under local laws
 

@@ -24,12 +24,6 @@
       "infoPlist": {
         "NSCameraUsageDescription": "Goalfer requests camera access to let you take profile pictures that personalize your experience and help friends recognize you in the social features. Camera access is completely optional and only used when you choose to update your profile picture.",
         "NSPhotoLibraryUsageDescription": "Goalfer requests photo library access to let you choose existing photos for your profile picture. This helps personalize your experience and makes it easier for friends to recognize you in social features. Photo access is completely optional and only used when you choose to update your profile picture.",
-        "NSLocationWhenInUseUsageDescription": "Goalfer can use your location to provide location-based habit reminders and suggestions, helping you stay consistent with location-specific habits like 'exercise at the gym' or 'meditate in the park'. Location access is completely optional and can be disabled anytime in Settings.",
-        "NSContactsUsageDescription": "Goalfer can access your contacts to help you easily find and connect with friends who also use the app for mutual accountability and motivation. Contact access is completely optional and only used when you choose to find friends.",
-        "NSMicrophoneUsageDescription": "Goalfer may request microphone access for future features like voice notes or audio reminders. Microphone access is completely optional and will only be used with your explicit permission.",
-        "NSCalendarsUsageDescription": "Goalfer can access your calendar to help schedule habit reminders and integrate with your existing routine. Calendar access is completely optional and helps optimize your habit timing.",
-        "NSRemindersUsageDescription": "Goalfer can access your reminders to help integrate habit tracking with your existing reminder system. This access is completely optional and helps consolidate your productivity tools.",
-        "NSFaceIDUsageDescription": "Goalfer can use Face ID or Touch ID to securely and conveniently log you into your account, protecting your habit data and progress. Biometric authentication is optional and can be disabled in Settings.",
         "ITSAppUsesNonExemptEncryption": false,
         "CFBundleDisplayName": "Goalfer",
         "CFBundleName": "Goalfer",

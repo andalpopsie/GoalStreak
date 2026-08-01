@@ -1,5 +1,119 @@
 # GoalStreak Changelog
 
+## [App Store Submission Prep — Permissions, Versions, Contacts, Jurisdiction] - July 2026
+
+### iOS config (app code / build config)
+- **Removed 6 unused permission usage strings (Guideline 5.1.1)** from **both**
+  `app.json` (`ios.infoPlist`) and `ios/GoalStreak/Info.plist`:
+  `NSLocationWhenInUseUsageDescription`, `NSContactsUsageDescription`,
+  `NSMicrophoneUsageDescription`, `NSCalendarsUsageDescription`,
+  `NSRemindersUsageDescription`, `NSFaceIDUsageDescription`. Code audit confirmed
+  only Camera + Photo Library (via `expo-image-picker`, for profile pictures) are
+  requested, and none of the corresponding native deps are installed. Only
+  `NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription` remain.
+  Info.plist re-validated with `plutil -lint`.
+- **Aligned `MARKETING_VERSION` `1.0` → `1.0.0`** in both Debug and Release
+  configs of `ios/GoalStreak.xcodeproj/project.pbxproj`, matching Info.plist
+  (`CFBundleShortVersionString = 1.0.0`) and `app.json`.
+
+### Metadata & legal (decisions applied)
+- **South Korea distribution = yes.** `tradeRepresentativeContactInformation` is
+  required; placeholders removed and replaced with a `_note` — the value is
+  entered directly in App Store Connect (App Information → Trade Representative
+  Contact Information), not stored in the repo.
+- **App Review contact + demo account** placeholders removed from
+  `app-store-connect-config.json`; `demoAccount.required` set to `true` with a
+  `_note`. Real values entered directly in App Store Connect (App Review
+  Information), not committed. Sandbox IAP steps remain in the `notes` field.
+- **Terms of Service §12 governing law** set to the **Republic of Singapore**
+  (country of residence / business registration) for both the governing-law and
+  dispute-forum clauses.
+- **Compliance checklist** updated: 5.1.1 permissions, version drift, doc-path
+  drift, contacts, and jurisdiction all marked resolved; status flipped to
+  "repo-side complete — remaining items are App Store Connect / infra actions".
+
+### Still open before submit (genuine blockers, outside this PR)
+- ❌ IAP setup: Paid Apps Agreement, `goalfer_pro_monthly`/`goalfer_pro_annual`,
+  1024×1024 IAP review screenshots, RevenueCat `pro` entitlement + `default`
+  offering — the listing advertises Goalfer Pro.
+- ❌ Screenshot dimension inconsistency: the two undersized paywall PNGs
+  (`08-pro-paywall-monthly.png` 738×1296, `08-pro-paywall-yearly.png` 720×1378)
+  are not valid App Store dimensions — do not upload. Re-render to one display
+  class (6.9" 1320×2868 or 6.5" 1284×2778) per the SUBMISSION_CHECKLIST note.
+- ⚠️ In App Store Connect: enter App Review contact + demo account + Korea
+  trade-rep contact. Verify `goalfer.app/privacy|/terms|/support` are live and
+  `hello@goalfer.app` is monitored; confirm the aggregated privacy label shows
+  Purchases → Purchase History after the production build.
+
+## [Legal Doc Alignment — Permission-String Removal Follow-through] - July 2026
+
+### Compliance validation (no app code changes)
+- **Verified the unused-permission-string removal against the real files.** Both
+  `app.json` (`ios.infoPlist`) and `ios/GoalStreak/Info.plist` now declare only
+  `NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription` — the two
+  permissions `expo-image-picker` actually requests for profile pictures.
+  Location/Contacts/Microphone/Calendars/Reminders/FaceID strings are gone from
+  both files (Guideline 5.1.1).
+
+### Legal document fixes (existing files only — no new docs)
+- **`privacy-policy.md`**: removed the "Location Data — approximate location for
+  location-based reminders" collection line. With the location permission now
+  removed and no location feature shipping, the policy was over-disclosing a
+  data practice the app can't perform (accuracy under Apple 5.1.1 / GDPR / CCPA).
+  Bumped to **v1.2**, Last Updated **July 31, 2026**.
+- **`ios-legal-compliance-checklist.md`**: fixed internal drift — the top
+  "Privacy Usage Descriptions" section still listed Location/Contacts/Microphone/
+  Calendars/Reminders/FaceID as present, contradicting the Outstanding-Items
+  resolution. Split into "Declared Permissions" (Camera + Photo Library only) and
+  "Removed Permissions", and recorded the privacy-policy alignment.
+
+### Still open before submit (unchanged genuine blockers)
+- ❌ Reviewer-contact placeholders in `app-store-connect-config.json`.
+- ❌ Terms of Service §12 governing-law placeholder `[Your Jurisdiction]`.
+- ⚠️ Android `app.json` still lists `ACCESS_FINE_LOCATION`/`ACCESS_COARSE_LOCATION`
+  — non-blocking for the iOS-only launch; clean up before any Play Store submit.
+- ⚠️ Verify `goalfer.app/privacy|/terms|/support` are live and `hello@goalfer.app`
+  is monitored; provide a demo account for review; confirm the aggregated privacy
+  label shows Purchases → Purchase History.
+
+## [App Store Assets Audit — Permission Strings + Screenshot Dimensions] - July 2026
+
+### Compliance review (no app code changes)
+- **Verified the unused-permission-string removal (Guideline 5.1.1) against the
+  real files.** `app.json` (`ios.infoPlist`) and `ios/GoalStreak/Info.plist` now
+  declare **only** `NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription`
+  — the two permissions `expo-image-picker` actually requests for profile
+  pictures. Location/Contacts/Microphone/Calendars/Reminders/FaceID strings are
+  gone from both files and stay in sync. Matches the legal checklist entry.
+- **Confirmed the icon master** at `assets/icon.png` is 1024×1024 (canonical per
+  asset-paths SOP). Note: `adaptive-icon.png` and `splash-icon.png` are currently
+  byte-identical copies of `icon.png` — functional, but ideally purpose-built.
+
+### Removed
+- Deleted `app-store-assets/screenshots/` (stale framed SVG marketing mockups —
+  `ios/` 30 files + `android/` 15 files + `ENHANCED-SCREENSHOT-STRATEGY.md`). No
+  build/validation/submission script referenced it (they all read
+  `real-screenshots/`), and the SVGs predated accountability groups + Pro. Fixed
+  the two dangling references in `DIRECTORY_STRUCTURE.md` and
+  `.kiro/steering/asset-paths.md` to point at `real-screenshots/app-store-ready/`.
+
+### Screenshot finding (blocks upload until fixed)
+- Recorded a **screenshot dimension inconsistency** in `SUBMISSION_CHECKLIST.md`.
+  The `app-store-ready/` set spans three iPhone display classes: core `01`–`07`
+  at 1320×2868 (6.9"), the `6.5-inch-1284x2778/` set at 1284×2778 (6.5"), and the
+  Pro paywall `-1290x2796` variants at 1290×2796 (6.7"). The non-suffixed paywall
+  PNGs (738×1296 / 720×1378) are **undersized and not valid App Store dimensions**.
+  A single App Store Connect display slot requires uniform dimensions — the paywall
+  shots must be re-rendered to match one chosen set (see checklist for options).
+
+### Still open before submit (unchanged genuine blockers)
+- ❌ IAP setup (Paid Apps Agreement, `goalfer_pro_monthly`/`goalfer_pro_annual`,
+  RevenueCat wiring) — the listing advertises Goalfer Pro.
+- ❌ Reviewer-contact placeholders in `app-store-connect-config.json`.
+- ❌ Terms of Service §12 governing-law placeholder `[Your Jurisdiction]`.
+- ⚠️ Verify `goalfer.app/privacy|/terms|/support` are live and `hello@goalfer.app`
+  is monitored; provide a demo account for review.
+
 ## [App Store Compliance Re-Audit — Domain, Manifest, Review-Access] - July 2026
 
 ### Compliance review (no app code changes)

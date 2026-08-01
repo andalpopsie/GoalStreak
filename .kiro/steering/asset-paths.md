@@ -39,7 +39,7 @@ These are the 5 polished iPhone screenshots used for App Store submission:
 
 ### Folders to consolidate later (technical debt, not blocking)
 - `app-store-assets/real-screenshots/ios/` — older raw captures (superseded)
-- `app-store-assets/screenshots/ios/` — promotional / framed screenshots (separate use case)
+- ~~`app-store-assets/screenshots/`~~ — deleted (stale framed SVG marketing mockups + Android set; not used by any upload/build path). Do not recreate; upload PNGs live in `real-screenshots/app-store-ready/`.
 
 ## Rules
 
