@@ -130,7 +130,7 @@ Deprecated documentation files kept for historical reference.
 - **[Contributing Guide](../CONTRIBUTING.md)** - Current contribution guidelines
 
 ### Project Management
-- **[Changelog](../CHANGELOG.md)** - Current version history and progress
+- **[Changelog](../../GoalStreakApp/CHANGELOG.md)** - Current version history and progress
 - **[Roadmap](../../ROADMAP.md)** - Future development plans
 - **[Project README](../../README.md)** - Project overview and status
 

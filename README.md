@@ -81,7 +81,7 @@ npm start
 - **[Architecture Overview](docs/ARCHITECTURE.md)** - Technical decisions and patterns
 - **[App Store Assets](GoalStreakApp/app-store-assets/)** - Submission materials and metadata
 - **[Contributing Guide](docs/CONTRIBUTING.md)** - Git workflow and standards
-- **[Changelog](docs/CHANGELOG.md)** - Version history and progress
+- **[Changelog](GoalStreakApp/CHANGELOG.md)** - Version history and progress (single source of truth)
 - **[Roadmap](ROADMAP.md)** - Future development plans
 
 ## 🎯 Key Achievements

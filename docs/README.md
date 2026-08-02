@@ -8,7 +8,7 @@ process**; app-specific guides live in `GoalStreakApp/docs/`.
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** — technical decisions, patterns, structure
 - **[DEVELOPMENT.md](DEVELOPMENT.md)** — environment setup and dev workflow
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — branch → PR → CI → squash-merge flow
-- **[CHANGELOG.md](CHANGELOG.md)** — project-level version history
+- **[CHANGELOG](../GoalStreakApp/CHANGELOG.md)** — version history (single source of truth, in the app)
 - **[git-workflow.md](git-workflow.md)** / **[git-quick-reference.md](git-quick-reference.md)** — git SOP + cheat sheet
 - **[groups-audit.md](groups-audit.md)** — accountability groups flow/rules audit + optimization backlog
 - **[project/](project/)** — MVP plan and product/design specification
