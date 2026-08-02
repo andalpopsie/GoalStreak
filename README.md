@@ -76,7 +76,7 @@ npm start
 
 ## 📚 Documentation
 
-- **[Directory Structure](DIRECTORY_STRUCTURE.md)** - Project organization and navigation guide
+- **[Directory Structure](.kiro/steering/directory-structure.md)** - Project organization and navigation guide (single source of truth)
 - **[Development Guide](docs/DEVELOPMENT.md)** - Setup, workflow, and development practices
 - **[Architecture Overview](docs/ARCHITECTURE.md)** - Technical decisions and patterns
 - **[App Store Assets](GoalStreakApp/app-store-assets/)** - Submission materials and metadata
