@@ -111,7 +111,7 @@ marginBottom: 22,
 gap: 10,
 ```
 
-> 📖 **Detailed Guide**: See `.kiro/steering/spacing-standards.md` for comprehensive spacing patterns and examples
+> 📖 **Detailed Guide**: See `.kiro/steering/uiux-design-standards.md` for comprehensive spacing patterns and examples
 
 ## 🎯 Zeigarnik Effect - Leveraging Incomplete Tasks
 
