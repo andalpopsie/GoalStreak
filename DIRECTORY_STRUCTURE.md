@@ -25,19 +25,18 @@ GoalStreak/
 │   │   └── storage.rules                # Firebase Storage rules
 │   └── app-store-assets/                # App Store submission materials
 │       ├── metadata/                    # Legal docs, descriptions, configs
-│       ├── screenshots/                 # App Store screenshots
-│       ├── icons/                       # App icons and graphics
-│       ├── marketing/                   # Marketing materials
-│       └── real-screenshots/            # Screenshot capture tools
+│       ├── marketing/                   # Marketing materials (graphics, press kit, social)
+│       ├── feature-graphics/            # Feature/promo graphics
+│       └── real-screenshots/            # Upload-ready screenshots + capture guides
 │
-├── 🎨 design-images/                    # Design inspiration and assets
-├── 🌐 goalstreak-landing/               # Landing page website
-├── 📚 docs/                             # Project documentation
+├── 🌐 goalfer-landing/                  # Landing page website (Next.js)
+├── 📚 docs/                             # Project-level documentation
 ├── 🔧 development-sessions/             # Development logs and planning
 ├── ⚙️ .kiro/                            # Kiro IDE configuration
 │   ├── specs/                           # Feature specifications
-│   └── steering/                        # Development guidelines
-└── 📄 Root files                        # README, gitignore, etc.
+│   ├── steering/                        # Development guidelines
+│   └── hooks/                           # Agent hooks
+└── 📄 Root files                        # README, ROADMAP, CLAUDE.md, gitignore, etc.
 ```
 
 ## 🎯 Key Directories Explained
@@ -55,9 +54,13 @@ The main React Native application with all source code, native iOS/Android proje
 ### app-store-assets/
 Centralized location for all App Store submission materials:
 - **metadata/** - Legal documents, app descriptions, configuration files
-- **screenshots/** - App Store screenshots for iOS and Android
-- **icons/** - App icons in all required sizes
-- **marketing/** - Marketing graphics and promotional materials
+- **marketing/** - Marketing graphics, press kit, and social assets
+- **feature-graphics/** - Feature/promo graphics
+- **real-screenshots/** - Upload-ready screenshots (`app-store-ready/`) and capture guides
+
+> Note: the app icon master lives at `GoalStreakApp/assets/icon.png` (see
+> `.kiro/steering/asset-paths.md`). The former `app-store-assets/icons/` and
+> `app-store-assets/screenshots/` folders were removed as duplicates.
 
 ### firebase/
 Firebase backend configuration and deployment files:
