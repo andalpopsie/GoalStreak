@@ -62,6 +62,8 @@ for every submission.
 | 2.3.x metadata/screenshots | Fix in App Store Connect | **No** (metadata) |
 | 1.2 UGC safety | Point to existing report/block/EULA | **No** |
 | 5.1.1(v) account deletion | Point to existing Delete Account | **No** |
+| 4.8 Sign in with Apple | Explain it doesn't apply (no 3rd-party login) | **No** |
+| 5.1.1(i)/5.1.2 privacy label | Reconcile ASC label with actual collection | **No** (config) |
 | "products not loading" | Fix RevenueCat/ASC config | **No** (config) |
 | Actual code/UX bug | Fix + rebuild | **Yes** |
 
@@ -266,6 +268,76 @@ email round-trip.
 
 ---
 
+## 4.8 — Login Services (Sign in with Apple)
+
+**What it looks like:** "Your app uses a third-party login service but does not
+offer Sign in with Apple," or a reflexive note asking why Sign in with Apple
+isn't offered.
+
+**Why it happens:** Apple requires Sign in with Apple **only** when an app uses a
+**third-party or social login** (Google, Facebook, etc.) as a sign-in option. It
+is sometimes raised in error on any app that has accounts.
+
+**Your status — does not apply.** Goalfer uses **Firebase email/password
+authentication only**. There is no Google, Facebook, Apple, or other third-party
+/ social sign-in anywhere in the app, so the Sign in with Apple requirement is
+not triggered.
+
+**Response (reply, no new build):**
+> Guideline 4.8 does not apply to Goalfer. The app offers only a first-party
+> email-and-password account system (Firebase Authentication). It does not use
+> Sign in with Google, Facebook, or any other third-party or social login
+> service, so the Sign in with Apple requirement is not triggered. Account
+> creation, sign-in, and password reset are all handled directly by our own
+> email/password flow.
+
+**Prevention:** If a third-party/social login is ever added later, Sign in with
+Apple becomes mandatory alongside it — revisit this before shipping that feature.
+
+---
+
+## 5.1.1(i) / 5.1.2 — Privacy: Data Collection & Nutrition-Label Accuracy
+
+**What it looks like:** "Your privacy label does not match the data your app
+collects," questions about permission usage strings, or a request to justify a
+declared data type.
+
+**Why it happens:** Apple cross-checks the App Store Connect privacy
+("nutrition") label, the app's permission prompts, and the on-device privacy
+manifest. A mismatch — declaring data you don't collect, or collecting data you
+didn't declare — is a common metadata rejection.
+
+**Your status:** The app requests **only** Camera and Photo Library
+(`NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription`) via
+`expo-image-picker`, for profile pictures. All previously-declared but unused
+permission strings (Location, Contacts, Microphone, Calendars, Reminders, FaceID)
+were removed. `PrivacyInfo.xcprivacy` sets `NSPrivacyTracking=false`, there is no
+IDFA / ATT prompt, and analytics is first-party Firebase only. Purchase History
+is collected by the RevenueCat SDK (which ships its own manifest); the aggregated
+label declares **Purchases → Purchase History**.
+
+**Response (reply / reconcile the label in ASC, no new build):**
+> Goalfer's data practices match its privacy label:
+> - **Camera & Photos:** requested only for setting a profile picture
+>   (`expo-image-picker`). No other device permissions are requested.
+> - **No tracking:** the app does not use ATT/IDFA and does not track users across
+>   apps or websites (`NSPrivacyTracking=false`). Analytics is first-party
+>   Firebase only.
+> - **Purchases:** subscription purchase history is processed by our payments SDK
+>   (RevenueCat) and declared as Purchases → Purchase History.
+> - Account data (email, display name, habit/social content) is used only to
+>   provide the service and is deletable in-app (Profile → Delete Account).
+>
+> If a specific declared data type needs adjustment, please let us know which and
+> we will reconcile the label.
+
+**Prevention:** After each production build, re-verify the ASC privacy label
+against the shipped permissions and confirm the aggregated label shows
+Purchases → Purchase History (RevenueCat's manifest is only merged in the
+production binary, not in Expo Go / dev clients).
+
+---
+
 ## 1.1 — Safety: Objectionable Content
 
 **What it looks like:** The reviewer saw content they deem objectionable, or is
@@ -333,4 +405,4 @@ Record these short clips now so a reply is instant later:
 - [ ] Delete Account (password re-auth → account gone → back at login)
 - [ ] Terms/Privacy links opening from Sign-Up and Profile
 
-_Last updated: August 1, 2026 — build 21 / v1.0.0 submitted and in review; added the "While your app is in review" section. Verified against code: account deletion (`accountDeletionService.reauthenticateAndDeleteAccount`, password re-auth), report/block surfaces, and IAP product IDs all match the shipped build._
+_Last updated: August 5, 2026 — build 21 / v1.0.0 in "Waiting for Review"; IAP products + RevenueCat, paywall screenshot dimensions, and App Review contact/demo account/Korea trade-rep are all now in place. Added Guideline 4.8 (Sign in with Apple — does not apply, verified no third-party login in `src`) and 5.1.1(i)/5.1.2 (privacy nutrition-label accuracy) entries. Verified against code: account deletion (`accountDeletionService.reauthenticateAndDeleteAccount`, password re-auth), report/block surfaces, and IAP product IDs all match the shipped build._
