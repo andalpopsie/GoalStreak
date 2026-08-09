@@ -36,7 +36,9 @@
 - ✅ Marketing Materials: All assets prepared
 - ✅ Legal Documents: Privacy policy and terms ready
 - ✅ Documentation: Comprehensive guides and checklists
-  - Includes `REJECTION_RESPONSE_PLAYBOOK.md` — ready-to-use Resolution Center replies for the likely App Review flags on a social app with auto-renewable subscriptions (2.1 IAP/login, 3.1.2 subscription disclosures, 2.3.x metadata, 1.2 UGC safety, 5.1.1(v) account deletion). Keep the demo account seeded during review.
+  - Includes `REJECTION_RESPONSE_PLAYBOOK.md` — ready-to-use Resolution Center replies for the likely App Review flags on a social app with auto-renewable subscriptions (2.1 IAP/login, 3.1.2 subscription disclosures, 2.3.x metadata, 1.2 UGC safety, 5.1.1(v) account deletion, 4.8 Sign in with Apple, 5.1.1(i)/5.1.2 privacy-label reconciliation). Keep the demo account seeded during review.
+  - ℹ️ 4.8 note: **build 21 has no third-party/social login** (Firebase email/password only), so Sign in with Apple does not apply to the build-21 submission. **Build ≥ 22 adds Apple + Google SSO** (feature merged to `main`), which triggers 4.8 — and Sign in with Apple is offered alongside Google to satisfy it. Do NOT ship SSO in build 21; the gate is enforced by `npm run check:sso-release-gate`. The playbook reply covers 4.8 if a reviewer flags it once SSO ships.
+  - ℹ️ 5.1.1(i)/5.1.2 note: confirm the App Store Connect privacy label matches `app-store-connect-config.json > appPrivacy.dataTypes` (Contact Info, User Content, Usage Data, Identifiers, **Purchases → Purchase History**). The RevenueCat/Purchases entry must be reflected in ASC before submitting.
 
 ### ⚠️ Optional Optimizations
 - Keywords currently 89/100 chars. Consider adding "accountability" or "groups" on the next submission to align with the updated `whatsNew` text. Both `ios-metadata.json` and `app-store-connect-config.json` must be updated together.
@@ -195,4 +197,4 @@ The `description`, `promotionalText`, and `whatsNew` in `ios-metadata.json` and 
 
 **Status Summary**: ⚠️ Metadata ready, but IAP setup now gates submission — the listing advertises Goalfer Pro, so App Store Connect IAP products, the Paid Apps Agreement, and RevenueCat wiring must be complete before "Submit for Review".
 
-Last refreshed: 2026-08-01 (asset audit: re-verified screenshot pixel dimensions — core 01–07 = 1320×2868 (6.9"), 6.5" set = 1284×2778, paywall variants = 1290×2796 (6.7"), and the two undersized paywall PNGs = 738×1296 / 720×1378 (do NOT upload); confirmed all three metadata JSON files parse as valid; linked the new REJECTION_RESPONSE_PLAYBOOK.md)
+Last refreshed: 2026-08-05 (asset audit re-run: re-verified screenshot pixel dimensions — core 01–07 = 1320×2868 (6.9"), 6.5" set 01–07 = 1284×2778, paywall variants = 1290×2796 (6.7"), and the two undersized paywall PNGs = 738×1296 / 720×1378 (do NOT upload); reconfirmed all three metadata JSON files parse as valid; verified canonical `assets/icon.png` = 1024×1024 and 11 PNGs in the AppIcon.appiconset; synced the playbook summary to include the new 4.8 Sign in with Apple and 5.1.1(i)/5.1.2 privacy-label rows)
