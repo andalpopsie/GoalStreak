@@ -28,6 +28,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { auth, db } from './firebase';
 import { photoService } from './photoService';
 import { releaseUsername } from '../utils/usernameUtils';
+import { SsoError, getAppleCredential, getGoogleCredential } from './ssoService';
 
 // Firestore batch writes are limited to 500 ops; we keep a safe margin.
 const BATCH_LIMIT = 400;
@@ -62,6 +63,80 @@ export async function reauthenticate(password: string): Promise<void> {
 
   const credential = EmailAuthProvider.credential(user.email, password);
   await reauthenticateWithCredential(user, credential);
+}
+
+/**
+ * Provider-aware re-authentication for account deletion (R6.1–R6.4).
+ *
+ * Reads the primary Provider_Id from `auth.currentUser.providerData[0].providerId`
+ * and re-runs the matching re-authentication flow before the caller proceeds to
+ * delete the user:
+ *   - 'password'   → existing EmailAuthProvider path via reauthenticate() (R6.4).
+ *                    Requires the `password` argument.
+ *   - 'apple.com'  → fresh Apple credential via getAppleCredential(), then
+ *                    reauthenticateWithCredential (R6.2).
+ *   - 'google.com' → id token obtained from the hook layer via the
+ *                    `getIdTokenForGoogle` callback (expo-auth-session's
+ *                    useAuthRequest cannot run inside a service), converted with
+ *                    getGoogleCredential(), then reauthenticateWithCredential (R6.3).
+ *
+ * An absent or unsupported Provider_Id throws SsoError('unavailable') so the
+ * caller aborts and retains all data (R6.7). User cancellation / network /
+ * timeout surface as SsoError from the provider adapters and propagate here, so
+ * this function THROWS and the caller never proceeds to delete (R6.6, R6.8).
+ */
+export async function reauthenticateForDeletion(
+  password?: string,
+  getIdTokenForGoogle?: () => Promise<string>,
+): Promise<void> {
+  const user = auth.currentUser;
+  if (!user) {
+    throw new Error('No authenticated user');
+  }
+
+  const providerId = user.providerData[0]?.providerId;
+
+  switch (providerId) {
+    case 'password': {
+      if (!password) {
+        throw new Error('A password is required to re-authenticate this account.');
+      }
+      await reauthenticate(password);
+      return;
+    }
+
+    case 'apple.com': {
+      // getAppleCredential re-runs the native Apple flow and already normalizes
+      // cancel/network/timeout to SsoError — let those propagate to abort (R6.6, R6.8).
+      const { credential } = await getAppleCredential();
+      await reauthenticateWithCredential(user, credential);
+      return;
+    }
+
+    case 'google.com': {
+      if (!getIdTokenForGoogle) {
+        // The interactive Google flow lives in the hook layer; without its
+        // callback we cannot obtain a fresh id token here.
+        throw new SsoError(
+          'unavailable',
+          'Google re-authentication is unavailable: no id token provider was supplied.',
+        );
+      }
+      const idToken = await getIdTokenForGoogle();
+      const { credential } = getGoogleCredential(idToken);
+      await reauthenticateWithCredential(user, credential);
+      return;
+    }
+
+    default:
+      // Absent or unsupported provider → abort with data retained (R6.7).
+      throw new SsoError(
+        'unavailable',
+        `Cannot re-authenticate for deletion: unsupported sign-in provider "${
+          providerId ?? 'unknown'
+        }".`,
+      );
+  }
 }
 
 /**
@@ -309,12 +384,29 @@ export async function deleteAccount(): Promise<void> {
 }
 
 /**
- * Convenience: re-authenticate then delete in one call.
+ * Convenience: provider-aware re-authenticate then delete in one call (R6.5, R6.9).
+ *
+ * Delegates re-authentication to reauthenticateForDeletion() (which branches on the
+ * primary Provider_Id), then runs the UNCHANGED deleteAccount() cleanup. deleteAccount()
+ * deletes all associated data first — Firestore user-owned + per-user documents, friend
+ * data, group invitations, the reserved username, the Storage photo, and AsyncStorage —
+ * and calls deleteUser LAST, so the Firebase Auth user is removed only after the data is
+ * gone (R6.5).
+ *
+ * Errors from either step propagate to the caller: a failed/cancelled re-auth aborts
+ * before any data is touched (R6.6, R6.8), and a mid-cleanup failure preserves the
+ * not-yet-deleted data. Because deleteAccount() re-reads and re-deletes on each run, the
+ * caller can simply invoke this again to retry (R6.9).
+ *
+ * @param password           Required only when the primary provider is 'password'.
+ * @param getIdTokenForGoogle Supplied by the hook layer for the 'google.com' branch to
+ *                            obtain a fresh id token (the interactive flow can't run here).
  */
 export async function reauthenticateAndDeleteAccount(
-  password: string,
+  password?: string,
+  getIdTokenForGoogle?: () => Promise<string>,
 ): Promise<void> {
-  await reauthenticate(password);
+  await reauthenticateForDeletion(password, getIdTokenForGoogle);
   await deleteAccount();
 }
 
@@ -323,6 +415,7 @@ export async function reauthenticateAndDeleteAccount(
  */
 export const accountDeletionService = {
   reauthenticate,
+  reauthenticateForDeletion,
   deleteAccount,
   reauthenticateAndDeleteAccount,
 };

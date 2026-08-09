@@ -27,7 +27,14 @@
         "ITSAppUsesNonExemptEncryption": false,
         "CFBundleDisplayName": "Goalfer",
         "CFBundleName": "Goalfer",
-        "CFBundleIconName": "AppIcon"
+        "CFBundleIconName": "AppIcon",
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.233571046472-sjo2k8cr9dm7js36aa808avhpum2cave"
+            ]
+          }
+        ]
       },
       "appStoreUrl": "https://apps.apple.com/app/goalfer/id6754788637"
     },
@@ -54,7 +61,9 @@
       "**/*"
     ],
     "plugins": [
-      "./plugins/withFullAppIcons"
+      "./plugins/withFullAppIcons",
+      "./plugins/withAppleSignIn",
+      "expo-web-browser"
     ],
     "extra": {
       "eas": {

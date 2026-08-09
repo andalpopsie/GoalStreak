@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image, Modal, TextInput, Switch, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image, Modal, TextInput, Switch, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -12,6 +12,7 @@ import { useHabits } from '../hooks/useHabits';
 import { useFriends } from '../hooks/useFriends';
 import { useModeration } from '../hooks/useModeration';
 import { photoService } from '../services/photoService';
+import type { SsoProviderId } from '../services/ssoService';
 import { openPrivacyPolicy, openTermsOfService, openSupport } from '../utils/linkingUtils';
 import { trackScreen, trackEvent } from '../services/enhancedAnalyticsService';
 import { motivationalNotificationService, notificationPreferencesService, AppNotificationPreferences } from '../services/motivationalNotificationService';
@@ -23,7 +24,16 @@ import ReportReasonSheet from '../components/social/ReportReasonSheet';
 import { ReportReason } from '../types/social';
 
 export default function ProfileScreen() {
-  const { user, isAuthenticated, logout, updateUserProfile, deleteAccount } = useAuth();
+  const {
+    user,
+    isAuthenticated,
+    logout,
+    updateUserProfile,
+    deleteAccount,
+    connectedProviders,
+    linkProvider,
+    unlinkProvider,
+  } = useAuth();
   const { habits, streaks } = useHabits();
   const { friends } = useFriends();
   const { blockUser, reportContent } = useModeration();
@@ -55,6 +65,9 @@ export default function ProfileScreen() {
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [isCheckingUsername, setIsCheckingUsername] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  // Tracks which SSO provider is mid-link/unlink so the row shows a spinner and
+  // is non-interactive while the native provider flow runs (R8.1, R8.6).
+  const [linkingProvider, setLinkingProvider] = useState<SsoProviderId | null>(null);
 
   // Compute profile stats
   const bestStreak = Object.values(streaks).reduce((max, s) => {
@@ -331,20 +344,39 @@ export default function ProfileScreen() {
   };
 
   const handleDeleteAccountPress = () => {
-    setDeleteAccountPassword('');
-    setShowDeleteAccountModal(true);
-  };
+    // Provider-aware entry point (R6.1). Email/password users re-authenticate by
+    // typing their password, so we show the password modal. SSO users have no
+    // password — the re-auth prompt appears via the native provider flow — so we
+    // confirm inline and delete without collecting a password.
+    const providerId = auth.currentUser?.providerData[0]?.providerId;
 
-  const handleConfirmDeleteAccount = async () => {
-    if (!deleteAccountPassword.trim()) {
-      Alert.alert('Password Required', 'Please enter your password to confirm.');
+    if (providerId === 'password') {
+      setDeleteAccountPassword('');
+      setShowDeleteAccountModal(true);
       return;
     }
 
+    Alert.alert(
+      'Delete Account?',
+      'This permanently deletes your account and all of your data. This cannot be undone. You may be asked to confirm with your sign-in provider.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => runAccountDeletion(),
+        },
+      ]
+    );
+  };
+
+  // Shared deletion runner for both the password modal and the SSO confirmation.
+  // `password` is passed only for the email/password branch.
+  const runAccountDeletion = async (password?: string) => {
     setIsDeletingAccount(true);
     try {
       trackEvent('account_deletion_requested', { user_id: user?.id });
-      await deleteAccount(deleteAccountPassword);
+      await deleteAccount(password);
       // Auth listener will navigate the user to the login screen automatically
       // once Firebase Auth confirms the user has been deleted.
       setShowDeleteAccountModal(false);
@@ -358,6 +390,14 @@ export default function ProfileScreen() {
     } finally {
       setIsDeletingAccount(false);
     }
+  };
+
+  const handleConfirmDeleteAccount = async () => {
+    if (!deleteAccountPassword.trim()) {
+      Alert.alert('Password Required', 'Please enter your password to confirm.');
+      return;
+    }
+    await runAccountDeletion(deleteAccountPassword);
   };
 
   const handleCancelDeleteAccount = () => {
@@ -435,6 +475,117 @@ export default function ProfileScreen() {
     } catch {
       Alert.alert('Blocked Users', 'Manage the users you\'ve blocked — coming soon.');
     }
+  };
+
+  // ── Account linking: connect / disconnect Apple & Google (R8.3, R8.1, R8.6, R8.7) ──
+
+  // A provider is "connected" iff its provider id is a member of the account's
+  // linked-provider set exposed by useAuth (R8.3, design Property 9).
+  const isProviderConnected = (provider: SsoProviderId): boolean =>
+    connectedProviders.includes(provider);
+
+  // Connecting links the provider to the current account (R8.1); disconnecting
+  // unlinks it, guarded so the last remaining sign-in provider can't be removed
+  // (R8.7) — that guard lives in useAuth.unlinkProvider and surfaces as an error
+  // message here. Both paths confirm success and route failures to an alert.
+  const handleToggleProvider = async (provider: SsoProviderId) => {
+    const label = provider === 'apple.com' ? 'Apple' : 'Google';
+    const connected = isProviderConnected(provider);
+
+    if (connected) {
+      Alert.alert(
+        `Disconnect ${label}?`,
+        `You'll no longer be able to sign in with ${label}. At least one sign-in method must stay connected.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Disconnect',
+            style: 'destructive',
+            onPress: async () => {
+              setLinkingProvider(provider);
+              try {
+                trackEvent('sso_provider_unlink_requested', { provider, user_id: user?.id });
+                await unlinkProvider(provider);
+                Alert.alert(`${label} disconnected`, `${label} is no longer connected to your account.`);
+              } catch (error: any) {
+                // Includes the last-provider-guard rejection (R8.7).
+                Alert.alert('Could Not Disconnect', error?.message || 'Please try again.');
+              } finally {
+                setLinkingProvider(null);
+              }
+            },
+          },
+        ]
+      );
+      return;
+    }
+
+    setLinkingProvider(provider);
+    try {
+      trackEvent('sso_provider_link_requested', { provider, user_id: user?.id });
+      await linkProvider(provider);
+      Alert.alert(`${label} connected`, `You can now sign in with ${label}.`);
+    } catch (error: any) {
+      Alert.alert('Could Not Connect', error?.message || 'Please try again.');
+    } finally {
+      setLinkingProvider(null);
+    }
+  };
+
+  // Renders one connect/disconnect row. Connection state is conveyed by BOTH an
+  // icon and text (never color alone) for accessibility: a filled check + label
+  // "Connected" when linked, an outline "+" + label "Not connected" otherwise.
+  const renderProviderRow = (
+    provider: SsoProviderId,
+    label: string,
+    iconName: keyof typeof Ionicons.glyphMap,
+    isLast: boolean,
+  ) => {
+    const connected = isProviderConnected(provider);
+    const busy = linkingProvider === provider;
+    const key = provider === 'apple.com' ? 'apple' : 'google';
+
+    return (
+      <TouchableOpacity
+        style={[styles.menuItem, isLast && styles.menuItemLast]}
+        onPress={() => handleToggleProvider(provider)}
+        disabled={busy}
+        accessibilityRole="button"
+        accessibilityState={{ disabled: busy, selected: connected }}
+        accessibilityLabel={`${connected ? 'Disconnect' : 'Connect'} ${label}. Currently ${connected ? 'connected' : 'not connected'}.`}
+        testID={`sso-provider-row-${key}`}
+      >
+        <Ionicons name={iconName} size={24} color={Colors.primaryText} />
+        <Text style={styles.menuText}>{label}</Text>
+        {busy ? (
+          <ActivityIndicator
+            size="small"
+            color={Colors.accent1}
+            accessibilityLabel={`${connected ? 'Disconnecting' : 'Connecting'} ${label}`}
+          />
+        ) : (
+          <View
+            style={styles.ssoStatusRow}
+            testID={`sso-status-${key}`}
+            accessibilityLabel={connected ? `${label} connected` : `${label} not connected`}
+          >
+            <Ionicons
+              name={connected ? 'checkmark-circle' : 'add-circle-outline'}
+              size={18}
+              color={connected ? Colors.success : Colors.accent1}
+            />
+            <Text
+              style={[
+                styles.ssoStatusText,
+                { color: connected ? Colors.success : Colors.accent1 },
+              ]}
+            >
+              {connected ? 'Connected' : 'Not connected'}
+            </Text>
+          </View>
+        )}
+      </TouchableOpacity>
+    );
   };
 
 
@@ -571,6 +722,17 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           )}
         </View>
+
+        {/* Connected Accounts — Apple / Google linking (iOS-first, own profile only) */}
+        {Platform.OS === 'ios' && isOwnProfile && (
+          <>
+            <Text style={styles.sectionLabel}>CONNECTED ACCOUNTS</Text>
+            <View style={styles.menuSection} testID="sso-connected-accounts">
+              {renderProviderRow('apple.com', 'Apple', 'logo-apple', false)}
+              {renderProviderRow('google.com', 'Google', 'logo-google', true)}
+            </View>
+          </>
+        )}
 
         <View style={styles.menuSection}>
           <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
@@ -1130,6 +1292,23 @@ const styles = StyleSheet.create({
     fontSize: 16,                       // body
     color: Colors.primaryText,
     marginLeft: 16,                     // 8 * 2 (base)
+  },
+  sectionLabel: {
+    fontSize: 12,                       // small
+    fontWeight: '600',                  // semibold
+    color: Colors.secondaryText,
+    letterSpacing: 0.5,
+    marginHorizontal: 24,               // 8 * 3 (comfortable)
+    marginBottom: 8,                    // 8 * 1 (tight)
+  },
+  ssoStatusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,                             // 8 * 1 (tight) icon + label pair
+  },
+  ssoStatusText: {
+    fontSize: 14,                       // caption
+    fontWeight: '600',                  // semibold
   },
   modalContainer: {
     flex: 1,

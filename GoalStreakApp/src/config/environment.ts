@@ -15,6 +15,11 @@ export interface EnvironmentConfig {
     appId: string;
     measurementId: string;
   };
+  sso: {
+    appleClientId: string; // Apple Services ID (for Firebase provider match)
+    googleIosClientId: string; // EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID
+    googleWebClientId: string; // EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID (Firebase audience)
+  };
   analytics: {
     enabled: boolean;
   };
@@ -44,6 +49,14 @@ export const config: EnvironmentConfig = {
     messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
     appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || '',
     measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || '',
+  },
+  // SSO OAuth client identifiers. Sourced from EXPO_PUBLIC_* env vars provided
+  // as EAS secrets; no secret values are committed to source control (R9.1, R9.3).
+  // The Apple sign-in key and Services ID are configured in the Firebase Console (R9.5).
+  sso: {
+    appleClientId: process.env.EXPO_PUBLIC_APPLE_CLIENT_ID || '',
+    googleIosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || '',
+    googleWebClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID || '',
   },
   analytics: {
     enabled: process.env.EXPO_PUBLIC_ANALYTICS_ENABLED === 'true',
