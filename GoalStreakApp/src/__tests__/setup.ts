@@ -98,8 +98,13 @@ jest.mock('firebase/firestore', () => ({
 // Mock react-native-vector-icons
 jest.mock('react-native-vector-icons/Ionicons', () => 'Icon');
 
-// Mock react-native-svg
+// Mock react-native-svg. `Svg` is exported both as a named AND the default
+// export by the real library, so the mock must provide `default` (with
+// __esModule) for `import Svg from 'react-native-svg'` to resolve to a valid
+// host component rather than the module object.
 jest.mock('react-native-svg', () => ({
+  __esModule: true,
+  default: 'Svg',
   Svg: 'Svg',
   Circle: 'Circle',
   Path: 'Path',
@@ -108,6 +113,8 @@ jest.mock('react-native-svg', () => ({
   Defs: 'Defs',
   LinearGradient: 'LinearGradient',
   Stop: 'Stop',
+  Rect: 'Rect',
+  ClipPath: 'ClipPath',
 }));
 
 // Mock react-native-chart-kit

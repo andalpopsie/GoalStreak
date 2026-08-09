@@ -26,6 +26,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, Typography } from '../../constants/theme';
 import type { SsoProviderId } from '../../services/ssoService';
+import GoogleGlyph from './GoogleGlyph';
 
 interface ProviderButtonsProps {
   /** Consent gate: buttons are non-interactive for auth while this is false (R2.1). */
@@ -139,12 +140,9 @@ export default function ProviderButtons({
             <ActivityIndicator color={Colors.primaryText} size="small" testID="sso-google-loading" />
           ) : (
             <>
-              <Ionicons
-                name="logo-google"
-                size={18}
-                color={Colors.primaryText}
-                style={styles.icon}
-              />
+              <View style={styles.icon}>
+                <GoogleGlyph size={18} />
+              </View>
               <Text style={[styles.buttonText, styles.googleButtonText]}>Continue with Google</Text>
             </>
           )}
