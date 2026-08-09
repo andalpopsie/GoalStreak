@@ -287,11 +287,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,                   // heading
     fontWeight: '700',              // bold
+    fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
     marginBottom: 8,                // 8 * 1 (tight)
   },
   subtitle: {
     fontSize: 16,                   // body
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.accent2,
     textAlign: 'center',
     lineHeight: 24,                 // 1.5 line height
@@ -324,12 +326,14 @@ const styles = StyleSheet.create({
   acceptText: {
     flex: 1,
     fontSize: 14,                   // caption
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.gray.dark,
     lineHeight: 20,                 // ~1.4 line height
   },
   acceptLink: {
     color: Colors.accent1,
     fontWeight: '600',              // semibold
+    fontFamily: Typography.fontFamily.semibold,
     textDecorationLine: 'underline',
   },
   footer: {
@@ -340,12 +344,14 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 16,                   // body
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.gray.dark,
   },
   signInLink: {
     fontSize: 16,                   // body
     color: Colors.accent1,
     fontWeight: '600',              // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
   terms: {
     paddingHorizontal: 16,          // 8 * 2 (base)
@@ -353,6 +359,7 @@ const styles = StyleSheet.create({
   },
   termsText: {
     fontSize: 14,                   // caption
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.gray.dark,
     textAlign: 'center',
     lineHeight: 22,                 // ~1.6 line height
@@ -363,6 +370,7 @@ const styles = StyleSheet.create({
   termsLink: {
     color: Colors.accent1,
     fontWeight: '500',              // medium
+    fontFamily: Typography.fontFamily.medium,
     textDecorationLine: 'underline',
   },
 });

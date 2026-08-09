@@ -105,6 +105,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.medium,
+    fontFamily: Typography.fontFamily.medium,
     color: Colors.primaryText,
     marginBottom: Spacing.sm,
   },
@@ -140,6 +141,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: Typography.fontSize.base,
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.primaryText,
     paddingVertical: Spacing.md,
     minHeight: 44,
@@ -156,6 +158,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: Typography.fontSize.sm,
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.error,
     marginTop: Spacing.xs,
   },

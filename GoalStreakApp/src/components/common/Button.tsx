@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
   
   // Text styles
   text: {
+    fontFamily: Typography.fontFamily.semibold,
     fontWeight: '600',              // semibold
     textAlign: 'center',
   },

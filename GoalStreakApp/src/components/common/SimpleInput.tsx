@@ -58,6 +58,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,                   // body
     fontWeight: '600',              // semibold
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
     marginBottom: 8,                // 8 * 1 (tight)
   },
@@ -69,6 +70,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,          // More padding for rounded look
     paddingVertical: 16,            // 8 * 2
     fontSize: 16,                   // body
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.primaryText,
     minHeight: 56,                  // 8 * 7 (good touch target)
   },
@@ -81,6 +83,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 14,                   // caption
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.error,
     marginTop: 8,                   // 8 * 1 (tight)
   },

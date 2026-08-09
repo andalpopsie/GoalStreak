@@ -28,7 +28,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useOnboarding } from '../hooks/useOnboarding';
 
 // Import theme
-import { Colors } from '../constants/theme';
+import { Colors, Typography } from '../constants/theme';
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -81,11 +81,16 @@ function MainTabNavigator() {
           paddingBottom: 20,
           paddingTop: 10,
         },
+        tabBarLabelStyle: {
+          fontFamily: Typography.fontFamily.medium,
+          fontSize: 12,
+        },
         headerStyle: {
           backgroundColor: Colors.background,
         },
         headerTintColor: Colors.primaryText,
         headerTitleStyle: {
+          fontFamily: Typography.fontFamily.bold,
           fontWeight: 'bold',
         },
       })}
@@ -158,6 +163,10 @@ function MainStackNavigator() {
             backgroundColor: Colors.background,
           },
           headerTintColor: Colors.primaryText,
+          headerTitleStyle: {
+            fontFamily: Typography.fontFamily.bold,
+            fontWeight: 'bold',
+          },
         }}
       />
     </Stack.Navigator>
