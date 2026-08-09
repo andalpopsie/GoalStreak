@@ -197,6 +197,7 @@ const styles = StyleSheet.create({
     minHeight: 48,                        // Touch target
   },
   skipButtonText: {
+    fontFamily: Typography.fontFamily.medium,
     fontSize: Typography.fontSize.body,   // 16px
     color: Colors.accent2,
     fontWeight: Typography.fontWeight.medium,
@@ -223,6 +224,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.comfortable,    // 24px
   },
   title: {
+    fontFamily: Typography.fontFamily.bold,
     fontSize: Typography.fontSize.heading, // 24px
     fontWeight: Typography.fontWeight.bold,
     color: Colors.primaryText,
@@ -230,6 +232,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   subtitle: {
+    fontFamily: Typography.fontFamily.regular,
     fontSize: Typography.fontSize.body,   // 16px
     color: Colors.gray.dark,
     textAlign: 'center',
@@ -260,6 +263,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   toggleText: {
+    fontFamily: Typography.fontFamily.semibold,
     fontSize: Typography.fontSize.subheading, // 20px
     fontWeight: Typography.fontWeight.semibold,
     color: Colors.primaryText,
@@ -276,6 +280,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   timeLabel: {
+    fontFamily: Typography.fontFamily.medium,
     fontSize: Typography.fontSize.caption, // 14px
     fontWeight: Typography.fontWeight.medium,
     color: Colors.gray.dark,
@@ -298,6 +303,7 @@ const styles = StyleSheet.create({
     gap: Spacing.tight,                   // 8px
   },
   timeText: {
+    fontFamily: Typography.fontFamily.bold,
     fontSize: Typography.fontSize.subheading, // 20px
     fontWeight: Typography.fontWeight.bold,
     color: Colors.accent1,
@@ -313,6 +319,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   benefitsTitle: {
+    fontFamily: Typography.fontFamily.semibold,
     fontSize: Typography.fontSize.subheading, // 20px
     fontWeight: Typography.fontWeight.semibold,
     color: Colors.primaryText,
@@ -326,6 +333,7 @@ const styles = StyleSheet.create({
     minHeight: 32,                        // 8 * 4
   },
   benefitText: {
+    fontFamily: Typography.fontFamily.regular,
     fontSize: Typography.fontSize.body,   // 16px
     color: Colors.gray.dark,
     lineHeight: 24,                       // 16 * 1.5
@@ -357,6 +365,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   continueButtonText: {
+    fontFamily: Typography.fontFamily.bold,
     fontSize: Typography.fontSize.subheading, // 20px
     fontWeight: Typography.fontWeight.bold,
     color: Colors.white,
@@ -383,11 +392,13 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.gray.light,
   },
   modalTitle: {
+    fontFamily: Typography.fontFamily.semibold,
     fontSize: Typography.fontSize.subheading, // 20px
     fontWeight: Typography.fontWeight.semibold,
     color: Colors.primaryText,
   },
   modalCancelText: {
+    fontFamily: Typography.fontFamily.regular,
     fontSize: Typography.fontSize.body,   // 16px
     color: Colors.gray.dark,
   },
@@ -408,11 +419,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accent1,
   },
   timeOptionText: {
+    fontFamily: Typography.fontFamily.medium,
     fontSize: Typography.fontSize.subheading, // 20px
     color: Colors.primaryText,
     fontWeight: Typography.fontWeight.medium,
   },
   timeOptionTextSelected: {
+    fontFamily: Typography.fontFamily.bold,
     color: Colors.white,
     fontWeight: Typography.fontWeight.bold,
   },

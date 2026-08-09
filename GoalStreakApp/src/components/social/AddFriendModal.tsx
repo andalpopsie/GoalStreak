@@ -132,16 +132,19 @@ const styles = StyleSheet.create({
   cancelButton: {
     fontSize: 16,
     color: Colors.primary,
+    fontFamily: Typography.fontFamily.regular,
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.semibold,
   },
   sendButton: {
     fontSize: 16,
     fontWeight: '600',
     color: Colors.primary,
+    fontFamily: Typography.fontFamily.semibold,
   },
   sendButtonDisabled: {
     color: Colors.secondaryText,
@@ -156,6 +159,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.primaryText,
     marginBottom: 8,
+    fontFamily: Typography.fontFamily.semibold,
   },
   input: {
     borderWidth: 1,
@@ -167,6 +171,7 @@ const styles = StyleSheet.create({
     color: Colors.primaryText,
     backgroundColor: Colors.surface,
     marginBottom: 20,
+    fontFamily: Typography.fontFamily.regular,
   },
   messageInput: {
     height: 80,
@@ -177,5 +182,6 @@ const styles = StyleSheet.create({
     color: Colors.secondaryText,
     lineHeight: 20,
     marginTop: 10,
+    fontFamily: Typography.fontFamily.regular,
   },
 });

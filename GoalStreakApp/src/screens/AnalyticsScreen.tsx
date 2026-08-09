@@ -330,6 +330,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,                   // large body
     fontWeight: '600',              // semibold
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
     marginHorizontal: 16,           // 8 * 2 (base)
     marginBottom: 12,               // 8 * 1.5
@@ -358,6 +359,7 @@ const styles = StyleSheet.create({
   habitRowName: {
     fontSize: 15,                   // body-ish
     fontWeight: '600',              // semibold
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
     marginBottom: 6,
   },
@@ -379,6 +381,7 @@ const styles = StyleSheet.create({
   habitRowRate: {
     fontSize: 16,                   // body
     fontWeight: '700',              // bold
+    fontFamily: Typography.fontFamily.bold,
   },
   habitRowExpanded: {
     marginTop: 12,                  // 8 * 1.5
@@ -397,16 +400,19 @@ const styles = StyleSheet.create({
   habitRowStatValue: {
     fontSize: 18,                   // large body
     fontWeight: '700',              // bold
+    fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
   },
   habitRowStatLabel: {
     fontSize: 11,                   // small
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
     marginTop: 2,
   },
   habitRowPerformance: {
     fontSize: 13,                   // small
     fontWeight: '600',              // semibold
+    fontFamily: Typography.fontFamily.semibold,
     textAlign: 'center',
   },
   emptySection: {
@@ -425,6 +431,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,                   // body
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.gray.dark,
     textAlign: 'center',
     lineHeight: 24,                 // 1.5 line height

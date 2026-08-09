@@ -127,10 +127,12 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.medium,
     color: Colors.primaryText,
     marginBottom: Spacing.xs,
+    fontFamily: Typography.fontFamily.medium,
   },
   description: {
     fontSize: Typography.fontSize.sm,
     color: Colors.gray.dark,
+    fontFamily: Typography.fontFamily.regular,
   },
   actionContainer: {
     flexDirection: 'row',

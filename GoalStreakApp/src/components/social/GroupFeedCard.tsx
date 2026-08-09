@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Shadows } from '../../constants/theme';
+import { Colors, Shadows, Typography } from '../../constants/theme';
 import { GroupActivity, ReactionType } from '../../types/social';
 import { getCategoryIcon, getCategoryColor } from '../../utils/categoryIcons';
 import { formatRelativeTime } from '../../utils/timeUtils';
@@ -191,14 +191,17 @@ const styles = StyleSheet.create({
     fontSize: 16,                       // body
     color: Colors.primaryText,
     lineHeight: 24,                     // 1.5 line height
+    fontFamily: Typography.fontFamily.regular,
   },
   userName: {
     fontWeight: '600',                  // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
   timestamp: {
     fontSize: 12,                       // small
     color: Colors.secondaryText,
     marginTop: 4,
+    fontFamily: Typography.fontFamily.regular,
   },
   reactionsRow: {
     flexDirection: 'row',
@@ -223,6 +226,7 @@ const styles = StyleSheet.create({
     fontSize: 12,                       // small
     fontWeight: '600',                  // semibold
     color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.semibold,
   },
   reactionCountActive: {
     color: Colors.accent1,

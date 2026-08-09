@@ -148,6 +148,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: Typography.fontSize.xl,
     fontWeight: Typography.fontWeight.bold,
+    fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
   },
   closeButton: {
@@ -162,6 +163,7 @@ const styles = StyleSheet.create({
   categoryTitle: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
     marginBottom: Spacing.md,
   },

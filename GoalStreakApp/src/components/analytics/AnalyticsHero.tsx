@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '../../constants/theme';
+import { Colors, Typography } from '../../constants/theme';
 
 interface AnalyticsHeroProps {
   userName?: string;
@@ -106,6 +106,7 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 20,                     // subheading
     fontWeight: '700',                // bold
+    fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
     marginBottom: 16,                 // 8 × 2 (base)
   },
@@ -126,11 +127,13 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 24,                     // heading
     fontWeight: '700',                // bold
+    fontFamily: Typography.fontFamily.bold,
   },
   statLabel: {
     fontSize: 12,                     // small
     color: Colors.secondaryText,
     fontWeight: '500',                // medium
+    fontFamily: Typography.fontFamily.medium,
   },
   statDivider: {
     width: 1,

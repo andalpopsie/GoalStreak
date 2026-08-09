@@ -372,11 +372,13 @@ const styles = StyleSheet.create({
   cancelText: {
     fontSize: Typography.fontSize.base,
     color: Colors.gray.dark,
+    fontFamily: Typography.fontFamily.regular,
   },
   title: {
     fontSize: Typography.fontSize.xl,
     fontWeight: Typography.fontWeight.bold,
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.bold,
   },
   saveButton: {
     padding: Spacing.sm,
@@ -385,6 +387,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
     color: Colors.accent1,
+    fontFamily: Typography.fontFamily.semibold,
   },
   saveTextDisabled: {
     color: Colors.gray.medium,
@@ -404,10 +407,12 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.semibold,
     color: Colors.primaryText,
     marginBottom: Spacing.xs,
+    fontFamily: Typography.fontFamily.semibold,
   },
   habitDescription: {
     fontSize: Typography.fontSize.sm,
     color: Colors.gray.dark,
+    fontFamily: Typography.fontFamily.regular,
   },
   section: {
     marginBottom: Spacing.xl,
@@ -417,11 +422,13 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.semibold,
     color: Colors.primaryText,
     marginBottom: Spacing.xs,
+    fontFamily: Typography.fontFamily.semibold,
   },
   sectionDescription: {
     fontSize: Typography.fontSize.sm,
     color: Colors.gray.dark,
     marginBottom: Spacing.md,
+    fontFamily: Typography.fontFamily.regular,
   },
   toggleContainer: {
     flexDirection: 'row',
@@ -438,10 +445,12 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.medium,
     color: Colors.primaryText,
     marginBottom: Spacing.xs,
+    fontFamily: Typography.fontFamily.medium,
   },
   toggleDescription: {
     fontSize: Typography.fontSize.sm,
     color: Colors.gray.dark,
+    fontFamily: Typography.fontFamily.regular,
   },
   toggle: {
     width: 24,
@@ -470,11 +479,13 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize['2xl'],
     fontWeight: Typography.fontWeight.bold,
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.bold,
   },
   validationText: {
     fontSize: Typography.fontSize.sm,
     color: Colors.error,
     marginTop: Spacing.xs,
+    fontFamily: Typography.fontFamily.regular,
   },
   totalDuration: {
     backgroundColor: Colors.accent1 + '10',
@@ -486,6 +497,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.medium,
     color: Colors.accent1,
+    fontFamily: Typography.fontFamily.medium,
   },
   quickDurationContainer: {
     flexDirection: 'row',
@@ -510,6 +522,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.medium,
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.medium,
   },
   quickDurationTextSelected: {
     color: Colors.white,
@@ -524,6 +537,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.sm,
     color: Colors.error,
     marginBottom: Spacing.xs,
+    fontFamily: Typography.fontFamily.regular,
   },
   buttonContainer: {
     marginTop: Spacing.lg,

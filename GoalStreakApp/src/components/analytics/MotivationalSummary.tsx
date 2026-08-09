@@ -111,6 +111,7 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: Typography.fontSize.body,       // 16
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
     lineHeight: Typography.fontSize.body * Typography.lineHeight.normal, // 24
   },

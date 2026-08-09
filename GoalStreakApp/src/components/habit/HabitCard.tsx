@@ -232,6 +232,7 @@ const styles = StyleSheet.create({
   habitName: {
     fontSize: Typography.fontSize.lg,
     fontWeight: Typography.fontWeight.semibold,
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
     marginBottom: Spacing.xs,
   },
@@ -246,16 +247,19 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.sm,
     color: Colors.accent2,
     fontWeight: Typography.fontWeight.medium,
+    fontFamily: Typography.fontFamily.medium,
   },
   separator: {
     fontSize: Typography.fontSize.sm,
     color: Colors.accent2,
+    fontFamily: Typography.fontFamily.regular,
     marginHorizontal: Spacing.xs,
   },
   target: {
     fontSize: Typography.fontSize.sm,
     color: Colors.accent2,
     fontWeight: Typography.fontWeight.medium,
+    fontFamily: Typography.fontFamily.medium,
   },
   actions: {
     flexDirection: 'row',
@@ -267,6 +271,7 @@ const styles = StyleSheet.create({
   description: {
     fontSize: Typography.fontSize.base,
     color: Colors.gray.dark,
+    fontFamily: Typography.fontFamily.regular,
     marginBottom: Spacing.sm,
     lineHeight: Typography.lineHeight.relaxed * Typography.fontSize.base,
   },
@@ -284,6 +289,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.sm,
     color: Colors.primaryText,
     fontWeight: Typography.fontWeight.medium,
+    fontFamily: Typography.fontFamily.medium,
     marginLeft: Spacing.xs,
   },
   completeButton: {
@@ -305,6 +311,7 @@ const styles = StyleSheet.create({
   completeButtonText: {
     fontSize: Typography.fontSize.base,
     fontWeight: Typography.fontWeight.semibold,
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.white,
     marginLeft: Spacing.sm,
   },

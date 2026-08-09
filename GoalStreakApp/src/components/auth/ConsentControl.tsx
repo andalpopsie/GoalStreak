@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing } from '../../constants/theme';
+import { Colors, Spacing, Typography } from '../../constants/theme';
 import { openPrivacyPolicy, openTermsOfService } from '../../utils/linkingUtils';
 
 interface ConsentControlProps {
@@ -85,12 +85,14 @@ const styles = StyleSheet.create({
   },
   acceptText: {
     flexShrink: 1,                    // hug content + wrap gracefully, stays centered
+    fontFamily: Typography.fontFamily.regular,
     fontSize: 13,                     // caption-small, quiet footnote
     color: Colors.gray.dark,
     lineHeight: 18,                   // ~1.4 line height
   },
   acceptLink: {
     color: Colors.accent1,
+    fontFamily: Typography.fontFamily.semibold,
     fontWeight: '600',                // semibold
     textDecorationLine: 'underline',
   },

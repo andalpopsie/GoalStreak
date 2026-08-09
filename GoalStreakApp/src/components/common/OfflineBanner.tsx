@@ -37,6 +37,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.medium,
+    fontFamily: Typography.fontFamily.medium,
     marginLeft: Spacing.xs,
   },
 });

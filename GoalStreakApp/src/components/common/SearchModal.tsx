@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '../../constants/theme';
+import { Colors, Typography } from '../../constants/theme';
 import friendService from '../../services/friendService';
 import { UserSearchResult } from '../../types/social';
 import { useModeration } from '../../hooks/useModeration';
@@ -191,10 +191,12 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.border,
   },
   cancelButton: {
+    fontFamily: Typography.fontFamily.regular,
     fontSize: 16,
     color: Colors.primary,
   },
   title: {
+    fontFamily: Typography.fontFamily.semibold,
     fontSize: 18,
     fontWeight: '600',
     color: Colors.primaryText,
@@ -220,6 +222,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
+    fontFamily: Typography.fontFamily.regular,
     fontSize: 16,
     color: Colors.primaryText,
     paddingVertical: 4,
@@ -253,6 +256,7 @@ const styles = StyleSheet.create({
   },
   initials: {
     color: Colors.white,
+    fontFamily: Typography.fontFamily.semibold,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -262,11 +266,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   resultName: {
+    fontFamily: Typography.fontFamily.semibold,
     fontSize: 16,
     fontWeight: '600',
     color: Colors.primaryText,
   },
   resultEmail: {
+    fontFamily: Typography.fontFamily.regular,
     fontSize: 14,
     color: Colors.secondaryText,
     marginTop: 2,
@@ -283,6 +289,7 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     color: Colors.white,
+    fontFamily: Typography.fontFamily.semibold,
     fontSize: 12,
     fontWeight: '600',
     marginLeft: 4,
@@ -301,12 +308,14 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   emptyStateText: {
+    fontFamily: Typography.fontFamily.semibold,
     fontSize: 18,
     fontWeight: '600',
     color: Colors.primaryText,
     marginTop: 12,
   },
   emptyStateSubtext: {
+    fontFamily: Typography.fontFamily.regular,
     fontSize: 14,
     color: Colors.secondaryText,
     marginTop: 4,

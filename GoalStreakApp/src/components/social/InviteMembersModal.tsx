@@ -11,7 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Shadows } from '../../constants/theme';
+import { Colors, Shadows, Typography } from '../../constants/theme';
 import { Friend } from '../../types/social';
 import groupService from '../../services/groupService';
 
@@ -206,6 +206,7 @@ const styles = StyleSheet.create({
     fontSize: 20,                       // subheading
     fontWeight: '600',                  // semibold
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.semibold,
   },
   headerSpacer: {
     width: 48,
@@ -225,6 +226,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',                  // medium
     color: Colors.primaryText,
     flex: 1,
+    fontFamily: Typography.fontFamily.medium,
   },
   fullBadge: {
     backgroundColor: Colors.error,
@@ -236,6 +238,7 @@ const styles = StyleSheet.create({
     fontSize: 12,                       // small
     fontWeight: '600',                  // semibold
     color: Colors.white,
+    fontFamily: Typography.fontFamily.semibold,
   },
   fullMessage: {
     flexDirection: 'row',
@@ -250,6 +253,7 @@ const styles = StyleSheet.create({
     fontSize: 14,                       // caption
     color: Colors.secondaryText,
     lineHeight: 20,
+    fontFamily: Typography.fontFamily.regular,
   },
   scrollContent: {
     flex: 1,
@@ -265,6 +269,7 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,                       // body
     color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.regular,
   },
   emptyState: {
     alignItems: 'center',
@@ -277,6 +282,7 @@ const styles = StyleSheet.create({
     color: Colors.secondaryText,
     textAlign: 'center',
     lineHeight: 24,                     // 1.5 line height
+    fontFamily: Typography.fontFamily.regular,
   },
   friendRow: {
     flexDirection: 'row',
@@ -301,6 +307,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 16,                       // body
     fontWeight: '600',                  // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
   friendInfo: {
     flex: 1,
@@ -311,10 +318,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',                  // semibold
     color: Colors.primaryText,
     marginBottom: 2,
+    fontFamily: Typography.fontFamily.semibold,
   },
   friendEmail: {
     fontSize: 14,                       // caption
     color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.regular,
   },
   inviteButton: {
     flexDirection: 'row',
@@ -334,5 +343,6 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 14,                       // caption
     fontWeight: '600',                  // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
 });

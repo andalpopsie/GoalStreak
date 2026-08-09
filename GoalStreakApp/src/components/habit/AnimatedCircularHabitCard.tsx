@@ -522,6 +522,7 @@ const styles = StyleSheet.create({
   streakText: {
     fontSize: Typography.fontSize.xs,
     fontWeight: Typography.fontWeight.bold,
+    fontFamily: Typography.fontFamily.bold,
     color: Colors.accent1,
     marginLeft: 2,
   },
@@ -548,6 +549,7 @@ const styles = StyleSheet.create({
   timerText: {
     fontSize: Typography.fontSize.xs,
     fontWeight: Typography.fontWeight.bold,
+    fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
     backgroundColor: Colors.background,
     paddingHorizontal: Spacing.xs,

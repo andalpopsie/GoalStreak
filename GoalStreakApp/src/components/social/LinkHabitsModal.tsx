@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Shadows } from '../../constants/theme';
+import { Colors, Shadows, Typography } from '../../constants/theme';
 import { Habit } from '../../types/index';
 import { getCategoryIcon, getCategoryColor } from '../../utils/categoryIcons';
 
@@ -236,6 +236,7 @@ const styles = StyleSheet.create({
     fontSize: 20,                       // subheading
     fontWeight: '600',                  // semibold
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.semibold,
   },
   headerSpacer: {
     width: 48,
@@ -252,6 +253,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',                  // medium
     color: Colors.primaryText,
     marginBottom: 8,                    // 8 × 1 (tight)
+    fontFamily: Typography.fontFamily.medium,
   },
   limitProgress: {
     height: 8,                          // 8 × 1
@@ -282,6 +284,7 @@ const styles = StyleSheet.create({
     fontSize: 16,                       // body
     color: Colors.secondaryText,
     textAlign: 'center',
+    fontFamily: Typography.fontFamily.regular,
   },
   habitRow: {
     flexDirection: 'row',
@@ -333,6 +336,7 @@ const styles = StyleSheet.create({
     fontSize: 16,                       // body
     fontWeight: '500',                  // medium
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.medium,
   },
   habitNameLinked: {
     color: Colors.secondaryText,
@@ -341,6 +345,7 @@ const styles = StyleSheet.create({
     fontSize: 12,                       // small
     color: Colors.secondaryText,
     marginTop: 2,
+    fontFamily: Typography.fontFamily.regular,
   },
   footer: {
     padding: 16,                        // 8 × 2 (base)
@@ -363,5 +368,6 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 16,                       // body
     fontWeight: '700',                  // bold
+    fontFamily: Typography.fontFamily.bold,
   },
 });

@@ -387,17 +387,20 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.md,
     color: Colors.primaryText,
     fontWeight: Typography.fontWeight.medium,
+    fontFamily: Typography.fontFamily.medium,
   },
   habitCounterSubtext: {
     fontSize: Typography.fontSize.sm,
     color: Colors.accent2,
     marginTop: 2,
+    fontFamily: Typography.fontFamily.regular,
   },
   habitCounterLimitText: {
     fontSize: Typography.fontSize.sm,
     color: Colors.accent1,
     marginTop: 2,
     fontWeight: Typography.fontWeight.medium,
+    fontFamily: Typography.fontFamily.medium,
   },
   scrollView: {
     flex: 1,
@@ -414,6 +417,7 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSize.lg,
     color: Colors.primaryText,
     fontWeight: Typography.fontWeight.medium,
+    fontFamily: Typography.fontFamily.medium,
   },
   habitsGrid: {
     flexDirection: 'row',
@@ -488,6 +492,7 @@ const styles = StyleSheet.create({
     color: Colors.accent2,
     textAlign: 'center',
     marginTop: 2,
+    fontFamily: Typography.fontFamily.regular,
   },
   // ── Pro upgrade card ──
   // Mirrors the limitReachedCard layout (same aspectRatio + circle size +

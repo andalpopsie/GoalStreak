@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-import { Colors, Spacing, CategoryColors } from '../../constants/theme';
+import { Colors, Spacing, CategoryColors, Typography } from '../../constants/theme';
 import { LIMITS } from '../../constants/limits';
 import { HabitTemplate, HabitCategory } from '../../types';
 
@@ -279,6 +279,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
   title: {
+    fontFamily: Typography.fontFamily.bold,
     fontSize: 28,
     fontWeight: '700',
     color: Colors.primaryText,
@@ -286,6 +287,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   subtitle: {
+    fontFamily: Typography.fontFamily.regular,
     fontSize: 16,
     color: Colors.primaryText,
     lineHeight: 24,
@@ -334,6 +336,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   habitName: {
+    fontFamily: Typography.fontFamily.semibold,
     fontSize: 18,
     fontWeight: '600',
     color: Colors.primaryText,
@@ -341,6 +344,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   habitDescription: {
+    fontFamily: Typography.fontFamily.regular,
     fontSize: 14,
     color: Colors.primaryText,
     marginBottom: Spacing.md,
@@ -358,12 +362,14 @@ const styles = StyleSheet.create({
     marginRight: Spacing.md,
   },
   difficultyText: {
+    fontFamily: Typography.fontFamily.semibold,
     fontSize: 12,
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   popularityText: {
+    fontFamily: Typography.fontFamily.medium,
     fontSize: 12,
     color: Colors.primaryText,
     opacity: 0.6,
@@ -388,6 +394,7 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.gray.light,
   },
   selectionCount: {
+    fontFamily: Typography.fontFamily.medium,
     fontSize: 16,
     color: Colors.primaryText,
     textAlign: 'center',
@@ -405,6 +412,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   skipButtonText: {
+    fontFamily: Typography.fontFamily.medium,
     fontSize: 16,
     color: Colors.primaryText,
     opacity: 0.7,
@@ -429,6 +437,7 @@ const styles = StyleSheet.create({
     elevation: 0,
   },
   continueButtonText: {
+    fontFamily: Typography.fontFamily.semibold,
     fontSize: 16,
     fontWeight: '600',
     color: Colors.white,

@@ -269,6 +269,7 @@ const styles = StyleSheet.create({
   errorTitle: {
     fontSize: Typography.fontSize.sm,
     fontWeight: Typography.fontWeight.bold,
+    fontFamily: Typography.fontFamily.bold,
     color: Colors.error,
     marginBottom: Spacing.xs,
   },

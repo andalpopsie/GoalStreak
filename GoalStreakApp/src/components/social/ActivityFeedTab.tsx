@@ -827,6 +827,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 16,
     fontWeight: '600',
+    fontFamily: Typography.fontFamily.semibold,
   },
   activityContent: {
     flex: 1,
@@ -841,16 +842,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.semibold,
   },
   activityTime: {
     fontSize: 15,
     color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.regular,
   },
   activityText: {
     fontSize: 16,
     color: Colors.primaryText,
     marginBottom: 4,
     lineHeight: 22,
+    fontFamily: Typography.fontFamily.regular,
   },
   activityCaption: {
     fontSize: 15,
@@ -858,6 +862,7 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     lineHeight: 21,
     marginBottom: 4,
+    fontFamily: Typography.fontFamily.regular,
   },
   streakInfo: {
     backgroundColor: '#00BCD415',
@@ -872,6 +877,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#00BCD4',
     fontWeight: '600',
+    fontFamily: Typography.fontFamily.semibold,
   },
   reactionsContainer: {
     flexDirection: 'row',
@@ -895,6 +901,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.secondaryText,
     fontWeight: '500',
+    fontFamily: Typography.fontFamily.medium,
   },
   reactionCountActive: {
     color: Colors.accent3,
@@ -924,6 +931,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.semibold,
   },
   activityPreview: {
     flexDirection: 'row',
@@ -950,6 +958,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 14,
     fontWeight: '600',
+    fontFamily: Typography.fontFamily.semibold,
   },
   previewContent: {
     flex: 1,
@@ -959,10 +968,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.primaryText,
     marginBottom: 2,
+    fontFamily: Typography.fontFamily.semibold,
   },
   previewText: {
     fontSize: 14,
     color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.regular,
   },
   commentInputContainer: {
     flexDirection: 'row',
@@ -996,12 +1007,14 @@ const styles = StyleSheet.create({
     color: Colors.primaryText,
     maxHeight: 100,
     paddingVertical: 8,
+    fontFamily: Typography.fontFamily.regular,
   },
   postButton: {
     fontSize: 15,
     fontWeight: '600',
     color: Colors.accent1,
     paddingVertical: 8,
+    fontFamily: Typography.fontFamily.semibold,
   },
   postButtonDisabled: {
     color: Colors.gray.medium,
@@ -1043,20 +1056,24 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.primaryText,
     lineHeight: 20,
+    fontFamily: Typography.fontFamily.regular,
   },
   commentUser: {
     fontWeight: '600',
+    fontFamily: Typography.fontFamily.semibold,
   },
   commentTime: {
     fontSize: 12,
     color: Colors.secondaryText,
     marginTop: 4,
+    fontFamily: Typography.fontFamily.regular,
   },
   noComments: {
     textAlign: 'center',
     color: Colors.secondaryText,
     fontSize: 14,
     paddingVertical: 32,
+    fontFamily: Typography.fontFamily.regular,
   },
   // ── Create Post Button ──
   createPostButton: {
@@ -1088,6 +1105,7 @@ const styles = StyleSheet.create({
   createPostText: {
     fontSize: 16,                      // body
     color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.regular,
   },
   // ── Activity Photo ──
   activityPhoto: {
@@ -1117,11 +1135,13 @@ const styles = StyleSheet.create({
     fontSize: 16,                      // body
     color: Colors.secondaryText,
     minWidth: 60,
+    fontFamily: Typography.fontFamily.regular,
   },
   postModalTitle: {
     fontSize: 18,                      // large body
     fontWeight: '600',                 // semibold
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.semibold,
   },
   postModalShare: {
     fontSize: 16,                      // body
@@ -1129,6 +1149,7 @@ const styles = StyleSheet.create({
     color: Colors.accent1,
     minWidth: 60,
     textAlign: 'right',
+    fontFamily: Typography.fontFamily.semibold,
   },
   postModalShareDisabled: {
     color: Colors.gray.medium,
@@ -1179,6 +1200,7 @@ const styles = StyleSheet.create({
     fontSize: 14,                      // caption
     color: Colors.accent1,
     fontWeight: '500',                 // medium
+    fontFamily: Typography.fontFamily.medium,
   },
   postPhotoDivider: {
     width: 1,
@@ -1197,12 +1219,14 @@ const styles = StyleSheet.create({
     color: Colors.primaryText,
     minHeight: 80,                     // 8 × 10
     lineHeight: 24,
+    fontFamily: Typography.fontFamily.regular,
   },
   postCaptionCount: {
     fontSize: 12,                      // small
     color: Colors.secondaryText,
     textAlign: 'right',
     marginTop: 8,                      // 8 × 1 (tight)
+    fontFamily: Typography.fontFamily.regular,
   },
   // Habit selector
   postHabitSection: {
@@ -1213,6 +1237,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',                 // semibold
     color: Colors.primaryText,
     marginBottom: 12,                  // 8 × 1.5
+    fontFamily: Typography.fontFamily.semibold,
   },
   postHabitScroll: {
     gap: 8,                            // 8 × 1 (tight)
@@ -1234,6 +1259,7 @@ const styles = StyleSheet.create({
     fontSize: 14,                      // caption
     color: Colors.primaryText,
     fontWeight: '500',                 // medium
+    fontFamily: Typography.fontFamily.medium,
   },
   postHabitChipTextSelected: {
     color: Colors.white,

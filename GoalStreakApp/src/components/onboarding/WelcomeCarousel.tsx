@@ -240,6 +240,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     ...Typography.body,
+    fontFamily: Typography.fontFamily.medium,
     color: Colors.primaryText,
     fontWeight: '500',
   },
@@ -272,6 +273,7 @@ const styles = StyleSheet.create({
     maxWidth: 320,
   },
   title: {
+    fontFamily: Typography.fontFamily.bold,
     fontSize: getResponsiveFontSize(32), // Fully dynamic font size
     fontWeight: '700',
     color: Colors.primaryText,
@@ -280,6 +282,7 @@ const styles = StyleSheet.create({
     lineHeight: getResponsiveFontSize(38),
   },
   description: {
+    fontFamily: Typography.fontFamily.regular,
     fontSize: getResponsiveFontSize(18), // Fully dynamic font size
     color: Colors.primaryText,
     textAlign: 'center',
@@ -300,6 +303,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,     // 4px = base unit
   },
   benefitText: {
+    fontFamily: Typography.fontFamily.medium,
     fontSize: 16,           // 16px = body text
     color: Colors.primaryText,
     marginLeft: 8,          // 8px = tight (icon-text pair)
@@ -351,6 +355,7 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   nextButtonText: {
+    fontFamily: Typography.fontFamily.semibold,
     fontSize: 18,           // 18px (slightly larger than body)
     fontWeight: '600',
     color: Colors.white,

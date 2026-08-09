@@ -117,6 +117,7 @@ const styles = StyleSheet.create({
   },
   pickerTitle: {
     fontSize: Typography.fontSize.sm,
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.accent2,
     textAlign: 'center',
     marginBottom: Spacing.xs,
@@ -135,10 +136,12 @@ const styles = StyleSheet.create({
   },
   pickerText: {
     fontSize: Typography.fontSize.base,
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.primaryText,
   },
   pickerTextSelected: {
     color: Colors.white,
     fontWeight: Typography.fontWeight.medium,
+    fontFamily: Typography.fontFamily.medium,
   },
 });

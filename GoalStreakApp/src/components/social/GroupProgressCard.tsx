@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Shadows } from '../../constants/theme';
+import { Colors, Shadows, Typography } from '../../constants/theme';
 import { GroupProgress } from '../../types/social';
 import { getCategoryIcon, getCategoryColor } from '../../utils/categoryIcons';
 
@@ -102,6 +102,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 16,                       // body
     fontWeight: '700',                  // bold
+    fontFamily: Typography.fontFamily.bold,
   },
   headerInfo: {
     flex: 1,
@@ -111,10 +112,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',                  // semibold
     color: Colors.primaryText,
     marginBottom: 2,
+    fontFamily: Typography.fontFamily.semibold,
   },
   completionSummary: {
     fontSize: 14,                       // caption
     color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.regular,
   },
   habitsContainer: {
     gap: 8,                             // 8 × 1 (tight)
@@ -145,6 +148,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,                       // caption
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.regular,
   },
   streakBadge: {
     flexDirection: 'row',
@@ -159,6 +163,7 @@ const styles = StyleSheet.create({
     fontSize: 12,                       // small
     fontWeight: '600',                  // semibold
     color: Colors.accent1,
+    fontFamily: Typography.fontFamily.semibold,
   },
   noHabitsText: {
     fontSize: 14,                       // caption
@@ -166,5 +171,6 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     textAlign: 'center',
     paddingVertical: 8,                // 8 × 1 (tight)
+    fontFamily: Typography.fontFamily.regular,
   },
 });

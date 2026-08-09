@@ -432,6 +432,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 10,
     fontWeight: '700',                  // bold
+    fontFamily: Typography.fontFamily.bold,
   },
   activeTabButton: {
     borderBottomWidth: 2,
@@ -440,11 +441,13 @@ const styles = StyleSheet.create({
   tabButtonText: {
     fontSize: 16,                       // body
     fontWeight: '500',                  // medium
+    fontFamily: Typography.fontFamily.medium,
     color: Colors.secondaryText,
   },
   activeTabButtonText: {
     color: Colors.primary,
     fontWeight: '600',                  // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
   searchTabButton: {
     alignItems: 'center',
@@ -473,12 +476,14 @@ const styles = StyleSheet.create({
   emptyStateTitle: {
     fontSize: 20,                       // subheading
     fontWeight: '600',                  // semibold
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
     marginTop: 16,                      // 8 * 2 (base)
     marginBottom: 8,                    // 8 * 1 (tight)
   },
   emptyStateText: {
     fontSize: 16,                       // body
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
     textAlign: 'center',
     lineHeight: 24,                     // 1.5 line height
@@ -495,5 +500,6 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 16,                       // body
     fontWeight: '600',                  // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
 });

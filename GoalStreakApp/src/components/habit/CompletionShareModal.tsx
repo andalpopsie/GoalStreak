@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { Colors } from '../../constants/theme';
+import { Colors, Typography } from '../../constants/theme';
 
 interface CompletionShareModalProps {
   visible: boolean;
@@ -248,11 +248,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
+    fontFamily: Typography.fontFamily.bold,
     fontSize: 18,                    // large body
     fontWeight: '700',               // bold
     color: Colors.primaryText,
   },
   headerSubtitle: {
+    fontFamily: Typography.fontFamily.regular,
     fontSize: 14,                    // caption
     color: Colors.secondaryText,
     marginTop: 2,
@@ -274,6 +276,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   visibilityText: {
+    fontFamily: Typography.fontFamily.medium,
     fontSize: 11,                    // small
     color: Colors.secondaryText,
     fontWeight: '500',               // medium
@@ -298,6 +301,7 @@ const styles = StyleSheet.create({
     minHeight: 48,                   // 8 × 6 (touch target)
   },
   photoButtonText: {
+    fontFamily: Typography.fontFamily.semibold,
     fontSize: 14,                    // caption
     fontWeight: '600',               // semibold
     color: Colors.accent1,
@@ -319,6 +323,7 @@ const styles = StyleSheet.create({
   },
   // Caption
   captionInput: {
+    fontFamily: Typography.fontFamily.regular,
     fontSize: 15,                    // body-ish
     color: Colors.primaryText,
     backgroundColor: Colors.background,
@@ -344,6 +349,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   skipText: {
+    fontFamily: Typography.fontFamily.medium,
     fontSize: 16,                    // body
     fontWeight: '500',               // medium
     color: Colors.secondaryText,
@@ -363,11 +369,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.gray.medium,
   },
   shareText: {
+    fontFamily: Typography.fontFamily.semibold,
     fontSize: 16,                    // body
     fontWeight: '600',               // semibold
     color: Colors.white,
   },
   privateNote: {
+    fontFamily: Typography.fontFamily.regular,
     fontSize: 13,                    // small
     color: Colors.secondaryText,
     textAlign: 'center',

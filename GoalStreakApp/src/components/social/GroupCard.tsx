@@ -81,6 +81,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',                  // semibold
     color: Colors.primaryText,
     marginBottom: 4,
+    fontFamily: Typography.fontFamily.semibold,
   },
   metaRow: {
     flexDirection: 'row',
@@ -90,6 +91,7 @@ const styles = StyleSheet.create({
   memberCount: {
     fontSize: 14,                       // caption
     color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.regular,
   },
   completionContainer: {
     alignItems: 'center',
@@ -99,9 +101,11 @@ const styles = StyleSheet.create({
     fontSize: 20,                       // subheading
     fontWeight: '700',                  // bold
     color: Colors.accent3,             // teal (#4A90A4)
+    fontFamily: Typography.fontFamily.bold,
   },
   completionLabel: {
     fontSize: 12,                       // small
     color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.regular,
   },
 });

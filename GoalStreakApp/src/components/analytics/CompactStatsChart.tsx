@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { LineChart } from 'react-native-chart-kit';
-import { Colors } from '../../constants/theme';
+import { Colors, Typography } from '../../constants/theme';
 import { TrendData } from '../../services/analyticsService';
 import { PeriodAnalytics } from '../../services/analyticsService';
 
@@ -142,6 +142,7 @@ const styles = StyleSheet.create({
   periodText: {
     fontSize: 13,                    // small
     fontWeight: '600',               // semibold
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.secondaryText,
   },
   periodTextActive: {
@@ -159,12 +160,14 @@ const styles = StyleSheet.create({
   bigNumber: {
     fontSize: 28,                    // large
     fontWeight: '700',               // bold
+    fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
   },
   numberLabel: {
     fontSize: 12,                    // small
     color: Colors.secondaryText,
     fontWeight: '500',               // medium
+    fontFamily: Typography.fontFamily.medium,
     marginTop: 2,
   },
   // Chart

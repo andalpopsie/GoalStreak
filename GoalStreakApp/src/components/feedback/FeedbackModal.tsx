@@ -15,7 +15,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../services/firebase';
-import { Colors } from '../../constants/theme';
+import { Colors, Typography } from '../../constants/theme';
 
 interface FeedbackModalProps {
   visible: boolean;
@@ -202,6 +202,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,                // 8 × 3 (comfortable)
   },
   title: {
+    fontFamily: Typography.fontFamily.bold,
     fontSize: 22,                    // between subheading and heading
     fontWeight: '700',               // bold
     color: Colors.primaryText,
@@ -209,6 +210,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   subtitle: {
+    fontFamily: Typography.fontFamily.regular,
     fontSize: 15,                    // body-ish
     color: Colors.secondaryText,
     textAlign: 'center',
@@ -231,6 +233,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   starLabel: {
+    fontFamily: Typography.fontFamily.semibold,
     fontSize: 14,                    // caption
     fontWeight: '600',               // semibold
     color: Colors.accent1,
@@ -238,6 +241,7 @@ const styles = StyleSheet.create({
   },
   // Text input
   textInput: {
+    fontFamily: Typography.fontFamily.regular,
     fontSize: 15,                    // body-ish
     color: Colors.primaryText,
     backgroundColor: Colors.background,
@@ -249,6 +253,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   charCount: {
+    fontFamily: Typography.fontFamily.regular,
     fontSize: 12,                    // small
     color: Colors.secondaryText,
     textAlign: 'right',
@@ -270,6 +275,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cancelText: {
+    fontFamily: Typography.fontFamily.medium,
     fontSize: 16,                    // body
     fontWeight: '500',               // medium
     color: Colors.secondaryText,
@@ -289,6 +295,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.gray.medium,
   },
   submitText: {
+    fontFamily: Typography.fontFamily.semibold,
     fontSize: 16,                    // body
     fontWeight: '600',               // semibold
     color: Colors.white,
@@ -308,12 +315,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,                // 8 × 2 (base)
   },
   thankYouTitle: {
+    fontFamily: Typography.fontFamily.bold,
     fontSize: 22,
     fontWeight: '700',               // bold
     color: Colors.primaryText,
     marginBottom: 8,                 // 8 × 1 (tight)
   },
   thankYouText: {
+    fontFamily: Typography.fontFamily.regular,
     fontSize: 15,
     color: Colors.secondaryText,
     textAlign: 'center',
@@ -329,6 +338,7 @@ const styles = StyleSheet.create({
     minHeight: 48,                   // 8 × 6 (touch target)
   },
   doneButtonText: {
+    fontFamily: Typography.fontFamily.semibold,
     fontSize: 16,                    // body
     fontWeight: '600',               // semibold
     color: Colors.white,

@@ -902,6 +902,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,                   // subheading
     fontWeight: '700',              // bold
+    fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
     letterSpacing: -0.3,
   },
@@ -915,6 +916,7 @@ const styles = StyleSheet.create({
     fontSize: 12,                   // small
     color: Colors.accent1,
     fontWeight: '600',              // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
 
   scrollView: {
@@ -950,6 +952,7 @@ const styles = StyleSheet.create({
   heroName: {
     fontSize: 20,                   // subheading
     fontWeight: '700',              // bold
+    fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
     marginBottom: 8,                // 8 × 1
     textAlign: 'center',
@@ -966,12 +969,14 @@ const styles = StyleSheet.create({
   heroCategoryText: {
     fontSize: 12,                   // small
     fontWeight: '600',              // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
 
   // Section Label
   sectionLabel: {
     fontSize: 12,                   // small
     fontWeight: '600',              // semibold
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.secondaryText,
     letterSpacing: 1,
     marginBottom: 8,                // 8 × 1
@@ -1016,6 +1021,7 @@ const styles = StyleSheet.create({
     fontSize: 12,                   // small
     color: Colors.secondaryText,
     fontWeight: '500',              // medium
+    fontFamily: Typography.fontFamily.medium,
     marginBottom: 2,
     letterSpacing: 0.2,
   },
@@ -1023,6 +1029,7 @@ const styles = StyleSheet.create({
     fontSize: 16,                   // body
     color: Colors.primaryText,
     fontWeight: '600',              // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
   expandedContent: {
     paddingHorizontal: 12,          // 8 × 1.5
@@ -1076,6 +1083,7 @@ const styles = StyleSheet.create({
   categoryLabel: {
     fontSize: 14,                   // caption
     fontWeight: '600',              // semibold
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
     flex: 1,
   },
@@ -1102,6 +1110,7 @@ const styles = StyleSheet.create({
     fontSize: 14,                   // caption
     color: Colors.accent1,
     fontWeight: '600',              // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
 
   // Option Row
@@ -1131,11 +1140,13 @@ const styles = StyleSheet.create({
   optionLabel: {
     fontSize: 15,                   // between caption and body
     fontWeight: '500',              // medium
+    fontFamily: Typography.fontFamily.medium,
     color: Colors.primaryText,
     marginBottom: 1,
   },
   optionDescription: {
     fontSize: 13,                   // between small and caption
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
   },
 
@@ -1159,6 +1170,7 @@ const styles = StyleSheet.create({
     fontSize: 15,                   // between caption and body
     color: Colors.primaryText,
     fontWeight: '500',              // medium
+    fontFamily: Typography.fontFamily.medium,
   },
   timerDurationRight: {
     flexDirection: 'row',
@@ -1169,6 +1181,7 @@ const styles = StyleSheet.create({
     fontSize: 15,                   // between caption and body
     color: Colors.accent1,
     fontWeight: '600',              // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
 
   // Time Selector
@@ -1186,6 +1199,7 @@ const styles = StyleSheet.create({
     fontSize: 15,                   // between caption and body
     color: Colors.primaryText,
     fontWeight: '600',              // semibold
+    fontFamily: Typography.fontFamily.semibold,
     marginLeft: 10,
   },
 
@@ -1219,6 +1233,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,                   // between body and subheading
     fontWeight: '700',              // bold
+    fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
   },
   modalScroll: {
@@ -1241,9 +1256,11 @@ const styles = StyleSheet.create({
     fontSize: 18,                   // between body and subheading
     color: Colors.primaryText,
     fontWeight: '400',              // regular
+    fontFamily: Typography.fontFamily.regular,
   },
   durationOptionTextSelected: {
     color: Colors.accent1,
     fontWeight: '600',              // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
 });

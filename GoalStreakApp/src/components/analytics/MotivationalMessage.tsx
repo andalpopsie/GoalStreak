@@ -173,6 +173,7 @@ const styles = StyleSheet.create({
   },
   emoji: {
     fontSize: 24,
+    fontFamily: Typography.fontFamily.regular,
     marginRight: Spacing.sm,
   },
   message: {

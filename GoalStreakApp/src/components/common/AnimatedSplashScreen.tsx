@@ -10,6 +10,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import Svg, { Circle, Line } from 'react-native-svg';
+import { Typography } from '../../constants/theme';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const AnimatedLine = Animated.createAnimatedComponent(Line);
@@ -134,12 +135,14 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   title: {
+    fontFamily: Typography.fontFamily.medium,
     fontSize: 38,
     fontWeight: '500',
     color: 'white',
     letterSpacing: -0.5,
   },
   tagline: {
+    fontFamily: Typography.fontFamily.regular,
     fontSize: 15,
     color: 'white',
     textAlign: 'center',

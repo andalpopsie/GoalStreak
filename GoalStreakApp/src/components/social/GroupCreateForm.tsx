@@ -13,7 +13,7 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Shadows } from '../../constants/theme';
+import { Colors, Shadows, Typography } from '../../constants/theme';
 import { CreateGroupForm } from '../../types/social';
 import { HabitCategory } from '../../types/index';
 import groupService from '../../services/groupService';
@@ -376,6 +376,7 @@ const styles = StyleSheet.create({
     fontSize: 20,                       // subheading
     fontWeight: '600',                  // semibold
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.semibold,
   },
   headerSpacer: {
     width: 48,                          // Balance the close button
@@ -395,6 +396,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',                  // semibold
     color: Colors.primaryText,
     marginBottom: 8,                    // 8 × 1 (tight)
+    fontFamily: Typography.fontFamily.semibold,
   },
   required: {
     color: Colors.error,               // Red (#FF4444)
@@ -409,6 +411,7 @@ const styles = StyleSheet.create({
     fontSize: 16,                       // body
     color: Colors.primaryText,
     minHeight: 48,                      // 8 × 6 (touch target)
+    fontFamily: Typography.fontFamily.regular,
   },
   textArea: {
     minHeight: 80,                      // 8 × 10
@@ -430,15 +433,18 @@ const styles = StyleSheet.create({
     fontSize: 12,                       // small
     color: Colors.error,               // Red (#FF4444)
     flex: 1,
+    fontFamily: Typography.fontFamily.regular,
   },
   successText: {
     fontSize: 12,                       // small
     color: Colors.accent3,             // Teal (#4A90A4)
     flex: 1,
+    fontFamily: Typography.fontFamily.regular,
   },
   charCount: {
     fontSize: 12,                       // small
     color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.regular,
   },
   categoryGrid: {
     flexDirection: 'row',
@@ -461,6 +467,7 @@ const styles = StyleSheet.create({
     fontSize: 14,                       // caption
     fontWeight: '500',                  // medium
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.medium,
   },
   categoryChipTextSelected: {
     color: Colors.white,
@@ -495,6 +502,7 @@ const styles = StyleSheet.create({
     fontSize: 12,                       // small
     color: Colors.secondaryText,
     marginTop: 4,
+    fontFamily: Typography.fontFamily.regular,
   },
   datePickerContainer: {
     marginTop: 16,                      // 8 × 2 (base)
@@ -514,6 +522,7 @@ const styles = StyleSheet.create({
   dateButtonText: {
     fontSize: 16,                       // body
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.regular,
   },
   dateAdjustRow: {
     flexDirection: 'row',
@@ -533,6 +542,7 @@ const styles = StyleSheet.create({
     fontSize: 12,                       // small
     fontWeight: '500',                  // medium
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.medium,
   },
   footer: {
     padding: 16,                        // 8 × 2 (base)
@@ -557,5 +567,6 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 16,                       // body
     fontWeight: '700',                  // bold
+    fontFamily: Typography.fontFamily.bold,
   },
 });

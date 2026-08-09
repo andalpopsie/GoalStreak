@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '../../constants/theme';
+import { Colors, Typography } from '../../constants/theme';
 
 interface StreakHeroProps {
   currentStreak: number;
@@ -89,12 +89,14 @@ const styles = StyleSheet.create({
   streakNumber: {
     fontSize: 36,                     // hero number
     fontWeight: '800',                // extra bold
+    fontFamily: Typography.fontFamily.heavy,
     marginTop: -2,
   },
   streakUnit: {
     fontSize: 12,                     // small
     color: Colors.secondaryText,
     fontWeight: '500',                // medium
+    fontFamily: Typography.fontFamily.medium,
     marginTop: -2,
   },
   tierBadge: {
@@ -105,6 +107,7 @@ const styles = StyleSheet.create({
   tierText: {
     fontSize: 12,                     // small
     fontWeight: '700',                // bold
+    fontFamily: Typography.fontFamily.bold,
     color: Colors.white,
     textTransform: 'uppercase',
     letterSpacing: 1,
@@ -126,12 +129,14 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,                     // subheading
     fontWeight: '700',                // bold
+    fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
   },
   statLabel: {
     fontSize: 12,                     // small
     color: Colors.secondaryText,
     fontWeight: '500',                // medium
+    fontFamily: Typography.fontFamily.medium,
   },
   statDivider: {
     width: 1,

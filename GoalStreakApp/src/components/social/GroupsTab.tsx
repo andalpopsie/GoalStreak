@@ -2,7 +2,7 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Shadows } from '../../constants/theme';
+import { Colors, Shadows, Typography } from '../../constants/theme';
 import { useGroups } from '../../hooks/useGroups';
 import { Group } from '../../types/social';
 import groupService from '../../services/groupService';
@@ -192,6 +192,7 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 16,                       // body
     color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.regular,
   },
   emptyContainer: {
     alignItems: 'center',
@@ -204,6 +205,7 @@ const styles = StyleSheet.create({
     color: Colors.primaryText,
     marginTop: 16,                      // 8 × 2 (base)
     marginBottom: 8,                    // 8 × 1 (tight)
+    fontFamily: Typography.fontFamily.semibold,
   },
   emptyText: {
     fontSize: 16,                       // body
@@ -211,6 +213,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,                     // 1.5 line height
     marginBottom: 24,                   // 8 × 3 (comfortable)
+    fontFamily: Typography.fontFamily.regular,
   },
   createButton: {
     flexDirection: 'row',
@@ -227,6 +230,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 16,                       // body
     fontWeight: '600',                  // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
   invitationsSection: {
     marginBottom: 8,                    // 8 × 1 (tight)
@@ -249,11 +253,13 @@ const styles = StyleSheet.create({
     fontSize: 20,                       // subheading
     fontWeight: '600',                  // semibold
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.semibold,
   },
   endedSectionTitle: {
     fontSize: 20,                       // subheading
     fontWeight: '600',                  // semibold
     color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.semibold,
   },
   badge: {
     backgroundColor: Colors.accent1,
@@ -268,11 +274,13 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 12,                       // small
     fontWeight: '700',                  // bold
+    fontFamily: Typography.fontFamily.bold,
   },
   groupCount: {
     fontSize: 16,                       // body
     fontWeight: '600',                  // semibold
     color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.semibold,
   },
   fab: {
     position: 'absolute',

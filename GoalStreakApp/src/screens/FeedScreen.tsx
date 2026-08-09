@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,                       // heading
     fontWeight: '700',                  // bold
+    fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
   },
   scrollView: {
@@ -91,12 +92,14 @@ const styles = StyleSheet.create({
   placeholderTitle: {
     fontSize: 20,                       // subheading
     fontWeight: '600',                  // semibold
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
     marginTop: 16,                      // 8 * 2 (base)
     marginBottom: 8,                    // 8 * 1 (tight)
   },
   placeholderText: {
     fontSize: 16,                       // body
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
     textAlign: 'center',
     lineHeight: 24,                     // 1.5 line height
@@ -107,6 +110,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,                       // subheading
     fontWeight: '600',                  // semibold
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
     marginBottom: 16,                   // 8 * 2 (base)
   },
@@ -128,6 +132,7 @@ const styles = StyleSheet.create({
   },
   featureText: {
     fontSize: 16,                       // body
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.primaryText,
     marginLeft: 16,                     // 8 * 2 (base)
     flex: 1,

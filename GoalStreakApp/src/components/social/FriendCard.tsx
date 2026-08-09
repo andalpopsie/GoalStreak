@@ -212,6 +212,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 18,                       // Slightly larger
     fontWeight: '600',                  // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
   content: {
     flex: 1,
@@ -228,17 +229,20 @@ const styles = StyleSheet.create({
     fontWeight: '600',                  // semibold
     color: Colors.primaryText,
     marginBottom: 4,                    // 8 * 0.5 (extra tight)
+    fontFamily: Typography.fontFamily.semibold,
   },
   email: {
     fontSize: 14,                       // small
     color: Colors.secondaryText,
     marginBottom: 4,                    // 8 * 0.5 (extra tight)
+    fontFamily: Typography.fontFamily.regular,
   },
   message: {
     fontSize: 14,                       // small
     color: Colors.accent2,
     fontStyle: 'italic',
     lineHeight: 20,                     // Comfortable reading
+    fontFamily: Typography.fontFamily.regular,
   },
   actionsContainer: {
     flexDirection: 'row',

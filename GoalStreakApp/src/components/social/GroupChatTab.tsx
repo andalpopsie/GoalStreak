@@ -13,7 +13,7 @@ import {
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '../../constants/theme';
+import { Colors, Typography } from '../../constants/theme';
 import { GroupMessage, ReportReason } from '../../types/social';
 import groupService from '../../services/groupService';
 import { useModeration } from '../../hooks/useModeration';
@@ -318,6 +318,7 @@ const styles = StyleSheet.create({
     fontSize: 12,                    // small
     fontWeight: '600',               // semibold
     color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.semibold,
     backgroundColor: Colors.gray.light,
     paddingHorizontal: 12,           // 8 × 1.5
     paddingVertical: 4,
@@ -349,6 +350,7 @@ const styles = StyleSheet.create({
     fontSize: 12,                    // small
     fontWeight: '600',               // semibold
     color: Colors.white,
+    fontFamily: Typography.fontFamily.semibold,
   },
   messageBubbleWrapper: {
     flexShrink: 1,
@@ -359,6 +361,7 @@ const styles = StyleSheet.create({
     color: Colors.accent1,
     marginBottom: 2,
     marginLeft: 4,
+    fontFamily: Typography.fontFamily.semibold,
   },
   bubble: {
     paddingHorizontal: 14,          // comfortable
@@ -383,6 +386,7 @@ const styles = StyleSheet.create({
     fontSize: 15,                    // body-ish
     color: Colors.primaryText,
     lineHeight: 21,
+    fontFamily: Typography.fontFamily.regular,
   },
   bubbleTextMe: {
     color: Colors.white,
@@ -392,6 +396,7 @@ const styles = StyleSheet.create({
     color: Colors.secondaryText,
     marginTop: 2,
     marginLeft: 4,
+    fontFamily: Typography.fontFamily.regular,
   },
   timeTextMe: {
     textAlign: 'right',
@@ -413,6 +418,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,                    // body-ish
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.regular,
     backgroundColor: Colors.background,
     borderRadius: 20,
     paddingHorizontal: 16,           // 8 × 2 (base)
@@ -444,11 +450,13 @@ const styles = StyleSheet.create({
     fontSize: 18,                    // large body
     fontWeight: '600',               // semibold
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.semibold,
   },
   emptyText: {
     fontSize: 15,                    // body-ish
     color: Colors.secondaryText,
     textAlign: 'center',
     lineHeight: 22,
+    fontFamily: Typography.fontFamily.regular,
   },
 });

@@ -201,6 +201,7 @@ const styles = StyleSheet.create({
     fontSize: 20,                      // subheading
     fontWeight: '600',                 // semibold
     color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.semibold,
   },
 
   // ── Badge ──
@@ -217,11 +218,13 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 12,                      // small
     fontWeight: '700',                 // bold
+    fontFamily: Typography.fontFamily.bold,
   },
   friendCount: {
     fontSize: 16,                      // body
     fontWeight: '600',                 // semibold
     color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.semibold,
   },
 
   // ── Request Cards ──
@@ -253,6 +256,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 20,                      // subheading
     fontWeight: '700',                 // bold
+    fontFamily: Typography.fontFamily.bold,
   },
   requestInfo: {
     flex: 1,
@@ -263,10 +267,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',                 // semibold
     color: Colors.primaryText,
     marginBottom: 2,
+    fontFamily: Typography.fontFamily.semibold,
   },
   requestEmail: {
     fontSize: 14,                      // caption
     color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.regular,
   },
   requestMessage: {
     fontSize: 14,                      // caption
@@ -274,6 +280,7 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginTop: 4,
     lineHeight: 20,
+    fontFamily: Typography.fontFamily.regular,
   },
   requestActions: {
     flexDirection: 'row',
@@ -294,6 +301,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 14,                      // caption
     fontWeight: '600',                 // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
   declineButton: {
     width: 40,                         // 8 × 5
@@ -318,6 +326,7 @@ const styles = StyleSheet.create({
     color: Colors.secondaryText,
     textAlign: 'center',
     lineHeight: 24,                    // 1.5 line height
+    fontFamily: Typography.fontFamily.regular,
   },
 
   // ── Suggestions ──
@@ -356,6 +365,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 24,                      // heading
     fontWeight: '700',                 // bold
+    fontFamily: Typography.fontFamily.bold,
   },
   suggestionName: {
     fontSize: 14,                      // caption
@@ -363,6 +373,7 @@ const styles = StyleSheet.create({
     color: Colors.primaryText,
     textAlign: 'center',
     marginBottom: 4,
+    fontFamily: Typography.fontFamily.semibold,
   },
   suggestionReason: {
     fontSize: 12,                      // small
@@ -371,6 +382,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     marginBottom: 12,                  // 8 × 1.5
     minHeight: 32,                     // 2 lines
+    fontFamily: Typography.fontFamily.regular,
   },
   addFriendButton: {
     flexDirection: 'row',
@@ -388,5 +400,6 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 14,                      // caption
     fontWeight: '600',                 // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
 });

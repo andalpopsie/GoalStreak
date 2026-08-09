@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '../../constants/theme';
+import { Colors, Typography } from '../../constants/theme';
 import { TrendData } from '../../services/analyticsService';
 
 interface WeeklyActivityDotsProps {
@@ -116,11 +116,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,                     // body
     fontWeight: '600',                // semibold
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
   },
   weekRate: {
     fontSize: 14,                     // caption
     fontWeight: '600',                // semibold
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.accent1,
   },
   dotsRow: {
@@ -135,12 +137,14 @@ const styles = StyleSheet.create({
     fontSize: 11,                     // small
     color: Colors.secondaryText,
     fontWeight: '500',                // medium
+    fontFamily: Typography.fontFamily.medium,
     marginBottom: 8,                  // 8 × 1 (tight)
     textTransform: 'uppercase',
   },
   dayLabelToday: {
     color: Colors.accent1,
     fontWeight: '700',                // bold
+    fontFamily: Typography.fontFamily.bold,
   },
   dotContainer: {
     width: 36,                        // 8 × 4.5
@@ -158,5 +162,6 @@ const styles = StyleSheet.create({
     color: Colors.secondaryText,
     marginTop: 4,
     fontWeight: '500',                // medium
+    fontFamily: Typography.fontFamily.medium,
   },
 });

@@ -16,7 +16,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { Colors, Shadows } from '../constants/theme';
+import { Colors, Shadows, Typography } from '../constants/theme';
 import { RootStackParamList } from '../types/index';
 import { GroupActivity, ReactionType } from '../types/social';
 import { useGroupDetail } from '../hooks/useGroupDetail';
@@ -536,6 +536,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 16,                       // body
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
   },
   errorContainer: {
@@ -548,6 +549,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,                       // body
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.error,
     textAlign: 'center',
   },
@@ -564,6 +566,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 16,                       // body
     fontWeight: '600',                  // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
   headerButton: {
     width: 48,                          // 8 × 6 (touch target)
@@ -589,10 +592,12 @@ const styles = StyleSheet.create({
   summaryValue: {
     fontSize: 24,                       // heading
     fontWeight: '700',                  // bold
+    fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
   },
   summaryLabel: {
     fontSize: 12,                       // small
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
     marginTop: 4,
   },
@@ -629,6 +634,7 @@ const styles = StyleSheet.create({
   stackedAvatarText: {
     fontSize: 14,                      // caption
     fontWeight: '600',                 // semibold
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.white,
   },
   stackedAvatarMore: {
@@ -637,6 +643,7 @@ const styles = StyleSheet.create({
   stackedAvatarMoreText: {
     fontSize: 11,                      // small
     fontWeight: '700',                 // bold
+    fontFamily: Typography.fontFamily.bold,
     color: Colors.white,
   },
   membersInfo: {
@@ -644,6 +651,7 @@ const styles = StyleSheet.create({
   },
   membersNames: {
     fontSize: 14,                      // caption
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
   },
   // ── Member List Modal ──
@@ -679,6 +687,7 @@ const styles = StyleSheet.create({
   memberModalTitle: {
     fontSize: 18,                      // large body
     fontWeight: '600',                 // semibold
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
   },
   memberModalList: {
@@ -706,6 +715,7 @@ const styles = StyleSheet.create({
   memberAvatarText: {
     fontSize: 18,                      // large body
     fontWeight: '600',                 // semibold
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.white,
   },
   memberDetails: {
@@ -714,18 +724,21 @@ const styles = StyleSheet.create({
   memberName: {
     fontSize: 16,                      // body
     fontWeight: '500',                 // medium
+    fontFamily: Typography.fontFamily.medium,
     color: Colors.primaryText,
   },
   memberRole: {
     fontSize: 12,                      // small
     color: Colors.accent1,
     fontWeight: '600',                 // semibold
+    fontFamily: Typography.fontFamily.semibold,
     marginTop: 2,
   },
   memberYou: {
     fontSize: 12,                      // small
     color: Colors.secondaryText,
     fontWeight: '500',                 // medium
+    fontFamily: Typography.fontFamily.medium,
     backgroundColor: Colors.gray.light,
     paddingHorizontal: 8,              // 8 × 1 (tight)
     paddingVertical: 2,
@@ -760,6 +773,7 @@ const styles = StyleSheet.create({
   actionButtonText: {
     fontSize: 14,                       // caption
     fontWeight: '600',                  // semibold
+    fontFamily: Typography.fontFamily.semibold,
     color: Colors.accent1,
   },
   tabContainer: {
@@ -784,11 +798,13 @@ const styles = StyleSheet.create({
   tabButtonText: {
     fontSize: 16,                       // body
     fontWeight: '500',                  // medium
+    fontFamily: Typography.fontFamily.medium,
     color: Colors.secondaryText,
   },
   activeTabButtonText: {
     color: Colors.primary,
     fontWeight: '600',                  // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
   tabContent: {
     flex: 1,
@@ -804,6 +820,7 @@ const styles = StyleSheet.create({
   },
   emptyTabText: {
     fontSize: 16,                       // body
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
     textAlign: 'center',
     lineHeight: 24,                     // 1.5 line height

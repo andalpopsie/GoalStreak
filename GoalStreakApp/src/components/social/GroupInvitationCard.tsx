@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Shadows } from '../../constants/theme';
+import { Colors, Shadows, Typography } from '../../constants/theme';
 import { GroupInvitation } from '../../types/social';
 
 interface GroupInvitationCardProps {
@@ -116,16 +116,19 @@ const styles = StyleSheet.create({
     fontWeight: '600',                  // semibold
     color: Colors.primaryText,
     marginBottom: 2,
+    fontFamily: Typography.fontFamily.semibold,
   },
   fromText: {
     fontSize: 14,                       // caption
     color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.regular,
   },
   description: {
     fontSize: 14,                       // caption
     color: Colors.secondaryText,
     lineHeight: 20,
     marginBottom: 8,                    // 8 × 1 (tight)
+    fontFamily: Typography.fontFamily.regular,
   },
   metaRow: {
     flexDirection: 'row',
@@ -136,6 +139,7 @@ const styles = StyleSheet.create({
   metaText: {
     fontSize: 14,                       // caption
     color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.regular,
   },
   actionsRow: {
     flexDirection: 'row',
@@ -156,6 +160,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 16,                       // body
     fontWeight: '600',                  // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
   declineButton: {
     flex: 1,
@@ -172,5 +177,6 @@ const styles = StyleSheet.create({
     color: Colors.secondaryText,
     fontSize: 16,                       // body
     fontWeight: '500',                  // medium
+    fontFamily: Typography.fontFamily.medium,
   },
 });

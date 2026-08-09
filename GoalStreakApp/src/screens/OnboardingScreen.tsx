@@ -6,7 +6,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors } from '../constants/theme';
+import { Colors, Typography } from '../constants/theme';
 import { WelcomeCarousel, HabitSuggestions, NotificationSetup } from '../components/onboarding';
 import { motivationalNotificationService } from '../services/motivationalNotificationService';
 import { useOnboarding } from '../hooks/useOnboarding';
@@ -279,5 +279,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.primaryText,
     fontWeight: '500',
+    fontFamily: Typography.fontFamily.medium,
   },
 });
