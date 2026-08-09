@@ -5,11 +5,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Notifications from 'expo-notifications';
-import { Colors } from '../constants/theme';
+import { Colors, Typography } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
 import { auth } from '../services/firebase';
-import { useHabits } from '../hooks/useHabits';
-import { useFriends } from '../hooks/useFriends';
 import { useModeration } from '../hooks/useModeration';
 import { photoService } from '../services/photoService';
 import type { SsoProviderId } from '../services/ssoService';
@@ -28,14 +26,13 @@ export default function ProfileScreen() {
     user,
     isAuthenticated,
     logout,
+    resetPassword,
     updateUserProfile,
     deleteAccount,
     connectedProviders,
     linkProvider,
     unlinkProvider,
   } = useAuth();
-  const { habits, streaks } = useHabits();
-  const { friends } = useFriends();
   const { blockUser, reportContent } = useModeration();
   const navigation = useNavigation<any>();
   const route = useRoute();
@@ -68,12 +65,6 @@ export default function ProfileScreen() {
   // Tracks which SSO provider is mid-link/unlink so the row shows a spinner and
   // is non-interactive while the native provider flow runs (R8.1, R8.6).
   const [linkingProvider, setLinkingProvider] = useState<SsoProviderId | null>(null);
-
-  // Compute profile stats
-  const bestStreak = Object.values(streaks).reduce((max, s) => {
-    const current = (s as any)?.longestStreak || (s as any)?.currentStreak || 0;
-    return current > max ? current : max;
-  }, 0);
 
   const memberSince = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
@@ -547,7 +538,7 @@ export default function ProfileScreen() {
 
     return (
       <TouchableOpacity
-        style={[styles.menuItem, isLast && styles.menuItemLast]}
+        style={[styles.row, isLast && styles.rowLast]}
         onPress={() => handleToggleProvider(provider)}
         disabled={busy}
         accessibilityRole="button"
@@ -555,8 +546,10 @@ export default function ProfileScreen() {
         accessibilityLabel={`${connected ? 'Disconnect' : 'Connect'} ${label}. Currently ${connected ? 'connected' : 'not connected'}.`}
         testID={`sso-provider-row-${key}`}
       >
-        <Ionicons name={iconName} size={24} color={Colors.primaryText} />
-        <Text style={styles.menuText}>{label}</Text>
+        <View style={styles.iconChip}>
+          <Ionicons name={iconName} size={20} color={Colors.primaryText} />
+        </View>
+        <Text style={styles.rowLabel}>{label}</Text>
         {busy ? (
           <ActivityIndicator
             size="small"
@@ -590,8 +583,69 @@ export default function ProfileScreen() {
 
 
 
+  // An account can reset its password only if it has the email/password provider
+  // linked; SSO-only accounts (Apple/Google) have no password, so the row hides.
+  const isEmailProvider = connectedProviders.includes('password');
+
+  // Sends a Firebase password-reset email to the account's address (email
+  // provider only). Confirmed first so an accidental tap doesn't fire an email.
+  const handleResetPassword = () => {
+    const email = user?.email;
+    if (!email) {
+      Alert.alert('Reset Password', 'No email is associated with this account.');
+      return;
+    }
+    Alert.alert(
+      'Reset Password',
+      `We'll email a password reset link to ${email}.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Send Link',
+          onPress: async () => {
+            try {
+              trackEvent('password_reset_requested', { user_id: user?.id, source: 'profile' });
+              await resetPassword(email);
+              Alert.alert('Check Your Email', `A password reset link was sent to ${email}.`);
+            } catch (error: any) {
+              Alert.alert('Could Not Send', error?.message || 'Please try again.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  // Generic settings row: icon chip + label + chevron. Used across the Account
+  // and Support sections so every row shares the same rhythm and touch target.
+  const renderMenuRow = (
+    icon: keyof typeof Ionicons.glyphMap,
+    label: string,
+    onPress: () => void,
+    opts?: { isLast?: boolean; danger?: boolean; accessibilityLabel?: string; testID?: string },
+  ) => {
+    const danger = !!opts?.danger;
+    return (
+      <TouchableOpacity
+        style={[styles.row, opts?.isLast && styles.rowLast]}
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={opts?.accessibilityLabel ?? label}
+        testID={opts?.testID}
+      >
+        <View style={[styles.iconChip, danger && styles.iconChipDanger]}>
+          <Ionicons name={icon} size={20} color={danger ? Colors.error : Colors.primaryText} />
+        </View>
+        <Text style={[styles.rowLabel, danger && styles.rowLabelDanger]}>{label}</Text>
+        <Ionicons name="chevron-forward" size={20} color={Colors.gray.medium} />
+      </TouchableOpacity>
+    );
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
+    // The tab navigator already renders the "Profile" header in the top safe
+    // area, so exclude the top edge here to avoid a redundant inset/gap.
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         {!isOwnProfile && (
           <View style={styles.moderationHeader}>
@@ -607,168 +661,131 @@ export default function ProfileScreen() {
           </View>
         )}
 
-        <View style={styles.profileHeader}>
+        {/* Profile card: avatar + identity + edit affordance (own profile). */}
+        <View style={styles.profileCard}>
           <TouchableOpacity
-            style={styles.avatarContainer}
-            onPress={showImagePicker}
-            activeOpacity={0.7}
+            style={styles.profileAvatarWrap}
+            onPress={isOwnProfile ? showImagePicker : undefined}
+            activeOpacity={isOwnProfile ? 0.7 : 1}
+            disabled={!isOwnProfile}
+            accessibilityLabel={isOwnProfile ? 'Change profile photo' : undefined}
           >
             {isUploading ? (
               <ActivityIndicator
-                size="large"
+                size="small"
                 color={Colors.primary}
                 accessibilityLabel="Uploading profile photo"
               />
-            ) : profileImage ? (
-              <Image
-                source={{ uri: profileImage }}
-                style={styles.avatar}
-                resizeMode="cover"
-              />
+            ) : isOwnProfile && profileImage ? (
+              <Image source={{ uri: profileImage }} style={styles.profileAvatar} resizeMode="cover" />
             ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Ionicons name="person" size={60} color={Colors.accent2} />
+              <View style={styles.profileAvatarPlaceholder}>
+                <Ionicons name="person" size={28} color={Colors.accent2} />
               </View>
             )}
-            <View style={styles.cameraIcon}>
-              <Ionicons name="camera" size={20} color={Colors.white} />
-            </View>
+            {isOwnProfile && (
+              <View style={styles.profileCameraBadge}>
+                <Ionicons name="camera" size={12} color={Colors.white} />
+              </View>
+            )}
           </TouchableOpacity>
 
-          <Text style={styles.userName}>{user?.displayName || 'User'}</Text>
-          {user?.username && (
-            <Text style={styles.userUsername}>@{user.username}</Text>
-          )}
-          <Text style={styles.userEmail}>{user?.email}</Text>
-          {memberSince ? (
-            <Text style={styles.memberSince}>Member since {memberSince}</Text>
-          ) : null}
-        </View>
-
-        {/* Stats Row */}
-        <View style={styles.statsRow}>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{habits.length}</Text>
-            <Text style={styles.statLabel}>Habits</Text>
+          <View style={styles.profileInfo}>
+            <Text style={styles.profileName} numberOfLines={1}>
+              {isOwnProfile ? (user?.displayName || 'User') : targetName}
+            </Text>
+            {isOwnProfile && !!user?.email && (
+              <View style={styles.profileEmailRow}>
+                <Ionicons
+                  name="mail-outline"
+                  size={14}
+                  color={Colors.gray.dark}
+                  style={styles.profileEmailIcon}
+                />
+                <Text style={styles.profileEmail} numberOfLines={1}>{user.email}</Text>
+              </View>
+            )}
+            {isOwnProfile && !!user?.username && (
+              <Text style={styles.profileUsername}>@{user.username}</Text>
+            )}
           </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{bestStreak}</Text>
-            <Text style={styles.statLabel}>Best Streak</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{friends.length}</Text>
-            <Text style={styles.statLabel}>Friends</Text>
-          </View>
-        </View>
-
-        {/* Badge Showcase */}
-        <BadgeShowcase 
-          refreshKey={0}
-          onViewAll={() => Alert.alert('Coming Soon', 'Full achievements view coming soon!')} 
-        />
-
-        <View style={styles.menuSection}>
-          <TouchableOpacity style={styles.menuItem} onPress={() => setShowEditModal(true)}>
-            <Ionicons name="person-outline" size={24} color={Colors.primaryText} />
-            <Text style={styles.menuText}>Edit Profile</Text>
-            <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} onPress={() => setShowNotificationsModal(true)}>
-            <Ionicons name="notifications-outline" size={24} color={Colors.primaryText} />
-            <Text style={styles.menuText}>Notifications</Text>
-            <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} onPress={handleLearnPress}>
-            <Ionicons name="book-outline" size={24} color={Colors.primaryText} />
-            <Text style={styles.menuText}>Learn & Insights</Text>
-            <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem} onPress={() => setShowFeedbackModal(true)}>
-            <Ionicons name="chatbubble-ellipses-outline" size={24} color={Colors.primaryText} />
-            <Text style={styles.menuText}>Send Feedback</Text>
-            <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
-          </TouchableOpacity>
 
           {isOwnProfile && (
             <TouchableOpacity
-              style={styles.menuItem}
-              onPress={handleOpenBlockedUsers}
+              style={styles.profileEditButton}
+              onPress={() => setShowEditModal(true)}
               accessibilityRole="button"
-              accessibilityLabel="Manage blocked users"
+              accessibilityLabel="Edit profile"
+              hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
             >
-              <Ionicons name="ban-outline" size={24} color={Colors.primaryText} />
-              <Text style={styles.menuText}>Blocked Users</Text>
-              <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
-            </TouchableOpacity>
-          )}
-
-          {__DEV__ && (
-            <TouchableOpacity
-              style={styles.menuItem}
-              onPress={() => setShowPaywallPreview(true)}
-              accessibilityRole="button"
-              accessibilityLabel="Preview Pro paywall (dev only)"
-            >
-              <Ionicons name="flask-outline" size={24} color={Colors.accent1} />
-              <Text style={[styles.menuText, { color: Colors.accent1 }]}>
-                🧪 Preview Pro Paywall
-              </Text>
-              <Ionicons name="chevron-forward" size={20} color={Colors.accent2} />
+              <Ionicons name="create-outline" size={22} color={Colors.primaryText} />
             </TouchableOpacity>
           )}
         </View>
 
-        {/* Connected Accounts — Apple / Google linking (iOS-first, own profile only) */}
-        {Platform.OS === 'ios' && isOwnProfile && (
+        {isOwnProfile && (
           <>
-            <Text style={styles.sectionLabel}>CONNECTED ACCOUNTS</Text>
-            <View style={styles.menuSection} testID="sso-connected-accounts">
-              {renderProviderRow('apple.com', 'Apple', 'logo-apple', false)}
-              {renderProviderRow('google.com', 'Google', 'logo-google', true)}
+            {/* Badge Showcase */}
+            <BadgeShowcase
+              refreshKey={0}
+              onViewAll={() => Alert.alert('Coming Soon', 'Full achievements view coming soon!')}
+            />
+
+            {/* Account */}
+            <Text style={styles.sectionHeader}>Account</Text>
+            <View style={styles.sectionCard}>
+              {renderMenuRow('person-outline', 'Edit Profile', () => setShowEditModal(true))}
+              {renderMenuRow('notifications-outline', 'Notifications', () => setShowNotificationsModal(true))}
+              {isEmailProvider &&
+                renderMenuRow('key-outline', 'Reset Password', handleResetPassword)}
+              {renderMenuRow('ban-outline', 'Blocked Users', handleOpenBlockedUsers, {
+                isLast: !__DEV__,
+                accessibilityLabel: 'Manage blocked users',
+              })}
+              {__DEV__ &&
+                renderMenuRow('flask-outline', 'Preview Pro Paywall', () => setShowPaywallPreview(true), {
+                  isLast: true,
+                  accessibilityLabel: 'Preview Pro paywall (dev only)',
+                })}
             </View>
+
+            {/* Connected Accounts — Apple / Google linking (iOS-first) */}
+            {Platform.OS === 'ios' && (
+              <>
+                <Text style={styles.sectionHeader}>Connected Accounts</Text>
+                <View style={styles.sectionCard} testID="sso-connected-accounts">
+                  {renderProviderRow('apple.com', 'Apple', 'logo-apple', false)}
+                  {renderProviderRow('google.com', 'Google', 'logo-google', true)}
+                </View>
+              </>
+            )}
+
+            {/* Support & Help */}
+            <Text style={styles.sectionHeader}>Support & Help</Text>
+            <View style={styles.sectionCard}>
+              {renderMenuRow('chatbubble-ellipses-outline', 'Send Feedback', () => setShowFeedbackModal(true))}
+              {renderMenuRow('book-outline', 'Learn & Insights', handleLearnPress)}
+              {renderMenuRow('lock-closed-outline', 'Privacy Policy', openPrivacyPolicy)}
+              {renderMenuRow('document-text-outline', 'Terms of Service', openTermsOfService)}
+              {renderMenuRow('help-circle-outline', 'Help & Support', openSupport, { isLast: true })}
+            </View>
+
+            {/* Account actions */}
+            <View style={styles.sectionCard}>
+              {renderMenuRow('log-out-outline', 'Sign Out', handleLogout, { danger: true })}
+              {renderMenuRow('trash-outline', 'Delete Account', handleDeleteAccountPress, {
+                danger: true,
+                isLast: true,
+                accessibilityLabel: 'Delete account permanently',
+              })}
+            </View>
+
+            {memberSince ? (
+              <Text style={styles.memberSince}>Member since {memberSince}</Text>
+            ) : null}
+            <Text style={styles.footerCopyright}>© {new Date().getFullYear()} Goalfer</Text>
           </>
         )}
-
-        <View style={styles.menuSection}>
-          <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={24} color={Colors.error} />
-            <Text style={[styles.menuText, { color: Colors.error }]}>Sign Out</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.menuItem, styles.menuItemLast]}
-            onPress={handleDeleteAccountPress}
-            accessibilityRole="button"
-            accessibilityLabel="Delete account permanently"
-          >
-            <Ionicons name="trash-outline" size={24} color={Colors.error} />
-            <Text style={[styles.menuText, { color: Colors.error }]}>Delete Account</Text>
-            <Ionicons name="chevron-forward" size={20} color={Colors.error} />
-          </TouchableOpacity>
-        </View>
-
-        {/* Footer Links - Like modern apps */}
-        <View style={styles.footer}>
-          <View style={styles.footerLinks}>
-            <TouchableOpacity onPress={openPrivacyPolicy} style={styles.footerLink}>
-              <Text style={styles.footerLinkText}>Privacy Policy</Text>
-            </TouchableOpacity>
-            <Text style={styles.footerDivider}>•</Text>
-            <TouchableOpacity onPress={openTermsOfService} style={styles.footerLink}>
-              <Text style={styles.footerLinkText}>Terms of Service</Text>
-            </TouchableOpacity>
-            <Text style={styles.footerDivider}>•</Text>
-            <TouchableOpacity onPress={openSupport} style={styles.footerLink}>
-              <Text style={styles.footerLinkText}>Help & Support</Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.footerCopyright}>© {new Date().getFullYear()} Goalfer</Text>
-        </View>
       </ScrollView>
 
       {/* Edit Profile Modal */}
@@ -1229,8 +1246,10 @@ const styles = StyleSheet.create({
   },
   memberSince: {
     fontSize: 14,                       // caption
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
     marginTop: 4,
+    textAlign: 'center',
   },
   // ── Stats Row ──
   statsRow: {
@@ -1271,6 +1290,147 @@ const styles = StyleSheet.create({
     height: 32,                        // 8 × 4
     backgroundColor: Colors.gray.light,
   },
+  // ── Redesigned settings layout ──
+  profileCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,               // 8 × 2 (base)
+    marginTop: 8,                       // 8 × 1 (tight)
+    marginBottom: 24,                   // 8 × 3 (comfortable)
+    padding: 16,                        // 8 × 2 (base)
+    backgroundColor: Colors.white,
+    borderRadius: 16,                   // 8 × 2
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  profileAvatarWrap: {
+    width: 56,                          // 8 × 7
+    height: 56,                         // 8 × 7
+    marginRight: 16,                    // 8 × 2 (base)
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileAvatar: {
+    width: 56,                          // 8 × 7
+    height: 56,                         // 8 × 7
+    borderRadius: 28,
+  },
+  profileAvatarPlaceholder: {
+    width: 56,                          // 8 × 7
+    height: 56,                         // 8 × 7
+    borderRadius: 28,
+    backgroundColor: Colors.gray.light,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileCameraBadge: {
+    position: 'absolute',
+    bottom: -2,
+    right: -2,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: Colors.white,
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  profileName: {
+    fontSize: 20,                       // subheading
+    fontWeight: '700',                  // bold
+    fontFamily: Typography.fontFamily.bold,
+    color: Colors.primaryText,
+  },
+  profileEmailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  profileEmailIcon: {
+    marginRight: 4,
+  },
+  profileEmail: {
+    flexShrink: 1,
+    fontSize: 14,                       // caption
+    fontFamily: Typography.fontFamily.regular,
+    color: Colors.gray.dark,
+  },
+  profileUsername: {
+    fontSize: 14,                       // caption
+    color: Colors.accent1,
+    fontWeight: '500',                  // medium
+    fontFamily: Typography.fontFamily.medium,
+    marginTop: 2,
+  },
+  profileEditButton: {
+    width: 40,                          // 8 × 5
+    height: 40,                         // 8 × 5
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,                      // 8 × 1 (tight)
+  },
+  sectionHeader: {
+    fontSize: 20,                       // subheading
+    fontWeight: '700',                  // bold
+    fontFamily: Typography.fontFamily.bold,
+    color: Colors.primaryText,
+    marginLeft: 24,                     // 8 × 3 (comfortable)
+    marginTop: 8,                       // 8 × 1 (tight)
+    marginBottom: 12,                   // 8 × 1.5
+  },
+  sectionCard: {
+    marginHorizontal: 16,               // 8 × 2 (base)
+    marginBottom: 24,                   // 8 × 3 (comfortable)
+    backgroundColor: Colors.white,
+    borderRadius: 16,                   // 8 × 2
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,                // comfortable within a 64px row
+    paddingHorizontal: 16,              // 8 × 2 (base)
+    minHeight: 64,                      // 8 × 8 (touch target)
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.gray.light,
+  },
+  rowLast: {
+    borderBottomWidth: 0,
+  },
+  iconChip: {
+    width: 40,                          // 8 × 5
+    height: 40,                         // 8 × 5
+    borderRadius: 20,
+    backgroundColor: Colors.gray.light,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,                    // 8 × 2 (base)
+  },
+  iconChipDanger: {
+    backgroundColor: Colors.error + '15', // 15% red tint
+  },
+  rowLabel: {
+    flex: 1,
+    fontSize: 16,                       // body
+    color: Colors.primaryText,
+    fontWeight: '500',                  // medium
+    fontFamily: Typography.fontFamily.medium,
+  },
+  rowLabelDanger: {
+    color: Colors.error,
+  },
   menuSection: {
     marginHorizontal: 16,               // 8 * 2 (base)
     marginBottom: 16,                   // 8 * 2 (base)
@@ -1309,6 +1469,7 @@ const styles = StyleSheet.create({
   ssoStatusText: {
     fontSize: 14,                       // caption
     fontWeight: '600',                  // semibold
+    fontFamily: Typography.fontFamily.semibold,
   },
   modalContainer: {
     flex: 1,
@@ -1541,7 +1702,11 @@ const styles = StyleSheet.create({
   },
   footerCopyright: {
     fontSize: 12,                       // caption
+    fontFamily: Typography.fontFamily.regular,
     color: Colors.gray.medium,
+    textAlign: 'center',
+    marginTop: 4,
+    marginBottom: 24,                   // 8 × 3 (breathing room at the bottom)
   },
   // ── Delete Account Modal Styles ──
   menuItemLast: {
