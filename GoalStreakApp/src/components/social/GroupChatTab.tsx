@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   bubbleText: {
-    fontSize: 15,                    // body-ish
+    fontSize: 16,                    // body
     color: Colors.primaryText,
     lineHeight: 21,
     fontFamily: Typography.fontFamily.regular,
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
   timeText: {
-    fontSize: 11,                    // small
+    fontSize: 12,                    // small
     color: Colors.secondaryText,
     marginTop: 2,
     marginLeft: 4,
@@ -416,7 +416,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    fontSize: 15,                    // body-ish
+    fontSize: 16,                    // body
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.regular,
     backgroundColor: Colors.background,
@@ -447,13 +447,13 @@ const styles = StyleSheet.create({
     gap: 8,                          // 8 × 1 (tight)
   },
   emptyTitle: {
-    fontSize: 18,                    // large body
+    fontSize: 20,                    // subheading
     fontWeight: '600',               // semibold
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,
   },
   emptyText: {
-    fontSize: 15,                    // body-ish
+    fontSize: 16,                    // body
     color: Colors.secondaryText,
     textAlign: 'center',
     lineHeight: 22,

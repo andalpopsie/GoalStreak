@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
   },
   nextButtonText: {
     fontFamily: Typography.fontFamily.semibold,
-    fontSize: 18,           // 18px (slightly larger than body)
+    fontSize: 16,           // body
     fontWeight: '600',
     color: Colors.white,
     marginRight: 8,         // 8px = tight spacing (icon-text)

@@ -1138,14 +1138,14 @@ const styles = StyleSheet.create({
     marginRight: 12,                // 8 × 1.5
   },
   optionLabel: {
-    fontSize: 15,                   // between caption and body
+    fontSize: 16,                   // body
     fontWeight: '500',              // medium
     fontFamily: Typography.fontFamily.medium,
     color: Colors.primaryText,
     marginBottom: 1,
   },
   optionDescription: {
-    fontSize: 13,                   // between small and caption
+    fontSize: 14,                   // caption
     fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
   },
@@ -1167,7 +1167,7 @@ const styles = StyleSheet.create({
     gap: 12,                        // 8 × 1.5
   },
   timerDurationLabel: {
-    fontSize: 15,                   // between caption and body
+    fontSize: 16,                   // body
     color: Colors.primaryText,
     fontWeight: '500',              // medium
     fontFamily: Typography.fontFamily.medium,
@@ -1178,7 +1178,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   timerDurationValue: {
-    fontSize: 15,                   // between caption and body
+    fontSize: 16,                   // body
     color: Colors.accent1,
     fontWeight: '600',              // semibold
     fontFamily: Typography.fontFamily.semibold,
@@ -1196,7 +1196,7 @@ const styles = StyleSheet.create({
   },
   timeText: {
     flex: 1,
-    fontSize: 15,                   // between caption and body
+    fontSize: 16,                   // body
     color: Colors.primaryText,
     fontWeight: '600',              // semibold
     fontFamily: Typography.fontFamily.semibold,
@@ -1231,7 +1231,7 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.gray.light,
   },
   modalTitle: {
-    fontSize: 18,                   // between body and subheading
+    fontSize: 20,                   // subheading
     fontWeight: '700',              // bold
     fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
@@ -1253,7 +1253,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accent1 + '08',
   },
   durationOptionText: {
-    fontSize: 18,                   // between body and subheading
+    fontSize: 16,                   // body
     color: Colors.primaryText,
     fontWeight: '400',              // regular
     fontFamily: Typography.fontFamily.regular,

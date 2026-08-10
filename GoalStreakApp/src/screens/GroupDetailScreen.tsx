@@ -641,7 +641,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.gray.medium,
   },
   stackedAvatarMoreText: {
-    fontSize: 11,                      // small
+    fontSize: 12,                      // small
     fontWeight: '700',                 // bold
     fontFamily: Typography.fontFamily.bold,
     color: Colors.white,
@@ -685,7 +685,7 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.gray.light,
   },
   memberModalTitle: {
-    fontSize: 18,                      // large body
+    fontSize: 20,                      // subheading
     fontWeight: '600',                 // semibold
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
@@ -713,7 +713,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accent1,
   },
   memberAvatarText: {
-    fontSize: 18,                      // large body
+    fontSize: 16,                      // body
     fontWeight: '600',                 // semibold
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.white,

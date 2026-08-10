@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: Typography.fontFamily.bold,
-    fontSize: 22,                    // between subheading and heading
+    fontSize: 24,                    // heading
     fontWeight: '700',               // bold
     color: Colors.primaryText,
     textAlign: 'center',
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontFamily: Typography.fontFamily.regular,
-    fontSize: 15,                    // body-ish
+    fontSize: 16,                    // body
     color: Colors.secondaryText,
     textAlign: 'center',
     marginBottom: 24,                // 8 × 3 (comfortable)
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   // Text input
   textInput: {
     fontFamily: Typography.fontFamily.regular,
-    fontSize: 15,                    // body-ish
+    fontSize: 16,                    // body
     color: Colors.primaryText,
     backgroundColor: Colors.background,
     borderRadius: 12,
@@ -316,14 +316,14 @@ const styles = StyleSheet.create({
   },
   thankYouTitle: {
     fontFamily: Typography.fontFamily.bold,
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '700',               // bold
     color: Colors.primaryText,
     marginBottom: 8,                 // 8 × 1 (tight)
   },
   thankYouText: {
     fontFamily: Typography.fontFamily.regular,
-    fontSize: 15,
+    fontSize: 16,
     color: Colors.secondaryText,
     textAlign: 'center',
     lineHeight: 22,

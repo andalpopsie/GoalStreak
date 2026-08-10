@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   },
   initials: {
     color: Colors.white,
-    fontSize: 18,                       // Slightly larger
+    fontSize: 16,                       // body
     fontWeight: '600',                  // semibold
     fontFamily: Typography.fontFamily.semibold,
   },

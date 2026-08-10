@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,              // 8 * 1 (tight)
   },
   sectionTitle: {
-    fontSize: 18,                   // large body
+    fontSize: 20,                   // subheading
     fontWeight: '600',              // semibold
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
     marginRight: 12,               // 8 * 1.5
   },
   habitRowName: {
-    fontSize: 15,                   // body-ish
+    fontSize: 16,                   // body
     fontWeight: '600',              // semibold
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
@@ -398,19 +398,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   habitRowStatValue: {
-    fontSize: 18,                   // large body
+    fontSize: 16,                   // body
     fontWeight: '700',              // bold
     fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
   },
   habitRowStatLabel: {
-    fontSize: 11,                   // small
+    fontSize: 12,                   // small
     fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
     marginTop: 2,
   },
   habitRowPerformance: {
-    fontSize: 13,                   // small
+    fontSize: 14,                   // caption
     fontWeight: '600',              // semibold
     fontFamily: Typography.fontFamily.semibold,
     textAlign: 'center',

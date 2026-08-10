@@ -1559,12 +1559,12 @@ const styles = StyleSheet.create({
     right: 16,                          // 8 × 2 (base)
   },
   usernameErrorText: {
-    fontSize: 13,                       // small
+    fontSize: 14,                       // caption
     color: Colors.error,
     marginTop: 4,
   },
   usernameAvailableText: {
-    fontSize: 13,                       // small
+    fontSize: 14,                       // caption
     color: Colors.accent3,
     marginTop: 4,
   },
@@ -1656,7 +1656,7 @@ const styles = StyleSheet.create({
     color: Colors.primaryText,
   },
   notifRowDesc: {
-    fontSize: 13,                      // small
+    fontSize: 14,                      // caption
     color: Colors.secondaryText,
     marginTop: 2,
     lineHeight: 18,
@@ -1691,12 +1691,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,               // 8 * 0.5
   },
   footerLinkText: {
-    fontSize: 13,                       // small
+    fontSize: 14,                       // caption
     color: Colors.secondaryText,
     textDecorationLine: 'underline',
   },
   footerDivider: {
-    fontSize: 13,                       // small
+    fontSize: 14,                       // caption
     color: Colors.secondaryText,
     marginHorizontal: 8,                // 8 * 1 (tight)
   },

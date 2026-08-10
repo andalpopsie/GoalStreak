@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
   },
   tabBadgeText: {
     color: Colors.white,
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '700',                  // bold
     fontFamily: Typography.fontFamily.bold,
   },

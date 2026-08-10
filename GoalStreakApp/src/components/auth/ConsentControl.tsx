@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
   acceptText: {
     flexShrink: 1,                    // hug content + wrap gracefully, stays centered
     fontFamily: Typography.fontFamily.regular,
-    fontSize: 13,                     // caption-small, quiet footnote
+    fontSize: 14,                     // caption
     color: Colors.gray.dark,
     lineHeight: 18,                   // ~1.4 line height
   },

@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dayLabel: {
-    fontSize: 11,                     // small
+    fontSize: 12,                     // small
     color: Colors.secondaryText,
     fontWeight: '500',                // medium
     fontFamily: Typography.fontFamily.medium,
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.accent1 + '40',
   },
   countLabel: {
-    fontSize: 11,                     // small
+    fontSize: 12,                     // small
     color: Colors.secondaryText,
     marginTop: 4,
     fontWeight: '500',                // medium

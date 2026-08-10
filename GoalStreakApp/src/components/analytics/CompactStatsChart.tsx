@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primaryText,
   },
   periodText: {
-    fontSize: 13,                    // small
+    fontSize: 14,                    // caption
     fontWeight: '600',               // semibold
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.secondaryText,

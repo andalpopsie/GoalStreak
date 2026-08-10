@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     fontFamily: Typography.fontFamily.regular,
   },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '600',
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,

@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: Typography.fontFamily.bold,
-    fontSize: 18,                    // large body
+    fontSize: 20,                    // subheading
     fontWeight: '700',               // bold
     color: Colors.primaryText,
   },
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   },
   visibilityText: {
     fontFamily: Typography.fontFamily.medium,
-    fontSize: 11,                    // small
+    fontSize: 12,                    // small
     color: Colors.secondaryText,
     fontWeight: '500',               // medium
   },
@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
   // Caption
   captionInput: {
     fontFamily: Typography.fontFamily.regular,
-    fontSize: 15,                    // body-ish
+    fontSize: 16,                    // body
     color: Colors.primaryText,
     backgroundColor: Colors.background,
     borderRadius: 12,
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
   },
   privateNote: {
     fontFamily: Typography.fontFamily.regular,
-    fontSize: 13,                    // small
+    fontSize: 14,                    // caption
     color: Colors.secondaryText,
     textAlign: 'center',
     marginTop: 8,                    // 8 × 1 (tight)

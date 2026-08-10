@@ -845,7 +845,7 @@ const styles = StyleSheet.create({
     fontFamily: Typography.fontFamily.semibold,
   },
   activityTime: {
-    fontSize: 15,
+    fontSize: 16,
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.regular,
   },
@@ -857,7 +857,7 @@ const styles = StyleSheet.create({
     fontFamily: Typography.fontFamily.regular,
   },
   activityCaption: {
-    fontSize: 15,
+    fontSize: 16,
     color: Colors.secondaryText,
     fontStyle: 'italic',
     lineHeight: 21,
@@ -1003,14 +1003,14 @@ const styles = StyleSheet.create({
   },
   commentInput: {
     flex: 1,
-    fontSize: 15,
+    fontSize: 16,
     color: Colors.primaryText,
     maxHeight: 100,
     paddingVertical: 8,
     fontFamily: Typography.fontFamily.regular,
   },
   postButton: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '600',
     color: Colors.accent1,
     paddingVertical: 8,
@@ -1138,7 +1138,7 @@ const styles = StyleSheet.create({
     fontFamily: Typography.fontFamily.regular,
   },
   postModalTitle: {
-    fontSize: 18,                      // large body
+    fontSize: 20,                      // subheading
     fontWeight: '600',                 // semibold
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,

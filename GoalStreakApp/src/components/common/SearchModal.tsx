@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: Typography.fontFamily.semibold,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '600',
     color: Colors.primaryText,
   },
@@ -309,7 +309,7 @@ const styles = StyleSheet.create({
   },
   emptyStateText: {
     fontFamily: Typography.fontFamily.semibold,
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: Colors.primaryText,
     marginTop: 12,

@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   },
   tagline: {
     fontFamily: Typography.fontFamily.regular,
-    fontSize: 15,
+    fontSize: 16,
     color: 'white',
     textAlign: 'center',
   },

@@ -337,7 +337,7 @@ const styles = StyleSheet.create({
   },
   habitName: {
     fontFamily: Typography.fontFamily.semibold,
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '600',
     color: Colors.primaryText,
     marginBottom: 6,
