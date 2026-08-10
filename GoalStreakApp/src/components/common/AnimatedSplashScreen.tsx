@@ -10,7 +10,6 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import Svg, { Circle, Line } from 'react-native-svg';
-import { Typography } from '../../constants/theme';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const AnimatedLine = Animated.createAnimatedComponent(Line);
@@ -134,15 +133,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 16,
   },
+  // NOTE: The splash renders at launch IN PARALLEL with font loading (see
+  // App.tsx — it shows while `!splashDone`, before `fontsLoaded`). Referencing a
+  // not-yet-loaded custom font (Montserrat) here mis-measures the text box on
+  // iOS and clips it (e.g. "Goalfer" → "Goalf"). So the splash intentionally
+  // uses the always-available system font; this is the one screen that must not
+  // depend on the bundled fonts.
   title: {
-    fontFamily: Typography.fontFamily.medium,
     fontSize: 38,
     fontWeight: '500',
     color: 'white',
     letterSpacing: -0.5,
   },
   tagline: {
-    fontFamily: Typography.fontFamily.regular,
     fontSize: 16,
     color: 'white',
     textAlign: 'center',
