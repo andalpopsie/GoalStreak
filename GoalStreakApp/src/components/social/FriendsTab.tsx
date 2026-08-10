@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography } from '../../constants/theme';
@@ -18,6 +18,30 @@ interface FriendsTabProps {
   onSendFriendRequest?: (email: string) => Promise<void>;
 }
 
+// The three switchable segments. "Your Friends" is the default landing view.
+type Segment = 'friends' | 'requests' | 'suggestions';
+
+/** Compact relative time ("just now", "3h ago", "1d ago") from a Date/Timestamp. */
+function timeAgo(value: Date | { toDate?: () => Date } | undefined): string {
+  if (!value) return '';
+  const date = value instanceof Date ? value : value.toDate?.();
+  if (!date) return '';
+  const seconds = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  const weeks = Math.floor(days / 7);
+  return `${weeks}w ago`;
+}
+
+function initial(name?: string): string {
+  return (name || '?').charAt(0).toUpperCase();
+}
+
 export default function FriendsTab({
   friends,
   pendingRequests,
@@ -27,6 +51,8 @@ export default function FriendsTab({
   onRemoveFriend,
   onSendFriendRequest,
 }: FriendsTabProps) {
+  const [segment, setSegment] = useState<Segment>('friends');
+
   // Moderation: hide friend requests from blocked users. Gate on `ready` so a
   // stale, unfiltered list is never shown before the block set has loaded.
   const { state: moderationState, ready: moderationReady } = useModeration();
@@ -34,76 +60,55 @@ export default function FriendsTab({
     ? ModerationFilter.filterFriendRequests(moderationState, pendingRequests)
     : [];
 
+  const segments: { key: Segment; label: string; count: number }[] = [
+    { key: 'friends', label: 'Your Friends', count: friends.length },
+    { key: 'requests', label: 'Requests', count: visibleRequests.length },
+    { key: 'suggestions', label: 'Suggestions', count: suggestedFriends.length },
+  ];
+
+  const activeTitle =
+    segment === 'friends' ? 'Your Friends' : segment === 'requests' ? 'Friend Requests' : 'Suggestions';
+  const activeCount =
+    segment === 'friends' ? friends.length : segment === 'requests' ? visibleRequests.length : suggestedFriends.length;
+
   return (
     <>
-      {/* ── Friend Requests Section ── */}
-      {visibleRequests.length > 0 && (
-        <View style={styles.requestsSection}>
-          <View style={styles.sectionHeader}>
-            <View style={styles.sectionTitleRow}>
-              <Ionicons name="person-add" size={20} color={Colors.accent1} />
-              <Text style={styles.sectionTitle}>Friend Requests</Text>
-            </View>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{visibleRequests.length}</Text>
-            </View>
-          </View>
+      {/* ── Segmented switcher ── */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.segmentBar}
+      >
+        {segments.map(({ key, label, count }) => {
+          const active = segment === key;
+          return (
+            <TouchableOpacity
+              key={key}
+              style={[styles.segmentPill, active && styles.segmentPillActive]}
+              onPress={() => setSegment(key)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+              accessibilityLabel={`${label}, ${count}`}
+              testID={`friends-segment-${key}`}
+            >
+              <Text style={[styles.segmentText, active && styles.segmentTextActive]}>
+                {label}
+                {count > 0 ? `  ${count}` : ''}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
 
-          {visibleRequests.map((request) => (
-            <View key={request.id} style={styles.requestCard}>
-              <View style={styles.requestAvatar}>
-                <Text style={styles.requestAvatarText}>
-                  {(request.fromUserName || '?').charAt(0).toUpperCase()}
-                </Text>
-              </View>
-              <View style={styles.requestInfo}>
-                <Text style={styles.requestName} numberOfLines={1}>
-                  {request.fromUserName}
-                </Text>
-                <Text style={styles.requestEmail} numberOfLines={1}>
-                  {request.fromUserEmail}
-                </Text>
-                {request.message && (
-                  <Text style={styles.requestMessage} numberOfLines={2}>
-                    "{request.message}"
-                  </Text>
-                )}
-              </View>
-              <View style={styles.requestActions}>
-                <TouchableOpacity
-                  style={styles.acceptButton}
-                  onPress={() => onAcceptRequest(request.id)}
-                  accessibilityLabel="Accept friend request"
-                  accessibilityRole="button"
-                >
-                  <Ionicons name="checkmark" size={20} color={Colors.white} />
-                  <Text style={styles.acceptButtonText}>Accept</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.declineButton}
-                  onPress={() => onDeclineRequest(request.id)}
-                  accessibilityLabel="Decline friend request"
-                  accessibilityRole="button"
-                >
-                  <Ionicons name="close" size={18} color={Colors.secondaryText} />
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
-        </View>
-      )}
+      {/* ── Active section header ── */}
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>{activeTitle}</Text>
+        {activeCount > 0 && <Text style={styles.sectionCount}>{activeCount}</Text>}
+      </View>
 
-      {/* ── My Friends Section ── */}
-      <View style={styles.friendsSection}>
-        <View style={styles.sectionHeader}>
-          <View style={styles.sectionTitleRow}>
-            <Ionicons name="people" size={20} color={Colors.primaryText} />
-            <Text style={styles.sectionTitle}>My Friends</Text>
-          </View>
-          <Text style={styles.friendCount}>{friends.length}</Text>
-        </View>
-
-        {friends.length > 0 ? (
+      {/* ── Your Friends ── */}
+      {segment === 'friends' &&
+        (friends.length > 0 ? (
           friends.map((friend) => (
             <FriendCard
               key={friend.id}
@@ -113,89 +118,131 @@ export default function FriendsTab({
             />
           ))
         ) : (
-          <View style={styles.emptyFriends}>
+          <View style={styles.empty}>
             <Ionicons name="people-outline" size={40} color={Colors.gray.medium} />
-            <Text style={styles.emptyFriendsText}>
-              No friends yet. Search to find people you know!
-            </Text>
+            <Text style={styles.emptyText}>No friends yet. Check Suggestions to find people you know!</Text>
           </View>
-        )}
-      </View>
+        ))}
 
-      {/* ── Suggested Friends Section ── */}
-      {suggestedFriends.length > 0 && (
-        <View style={styles.suggestionsSection}>
-          <View style={styles.sectionHeader}>
-            <View style={styles.sectionTitleRow}>
-              <Ionicons name="sparkles" size={20} color={Colors.accent1} />
-              <Text style={styles.sectionTitle}>People You May Know</Text>
-            </View>
-          </View>
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.suggestionsScroll}
-          >
-            {suggestedFriends.map((suggestion) => (
-              <View key={suggestion.id} style={styles.suggestionCard}>
-                <View style={styles.suggestionAvatar}>
-                  {suggestion.photoURL ? (
-                    <Image
-                      source={{ uri: suggestion.photoURL }}
-                      style={styles.suggestionAvatarImage}
-                    />
-                  ) : (
-                    <Text style={styles.suggestionAvatarText}>
-                      {suggestion.name.charAt(0).toUpperCase()}
-                    </Text>
-                  )}
-                </View>
-                <Text style={styles.suggestionName} numberOfLines={1}>
-                  {suggestion.name}
-                </Text>
-                <Text style={styles.suggestionReason} numberOfLines={2}>
-                  {suggestion.matchReason}
-                </Text>
-                <TouchableOpacity
-                  style={styles.addFriendButton}
-                  onPress={() => onSendFriendRequest?.(suggestion.email)}
-                  accessibilityLabel={`Add ${suggestion.name} as friend`}
-                  accessibilityRole="button"
-                >
-                  <Ionicons name="person-add-outline" size={16} color={Colors.white} />
-                  <Text style={styles.addFriendButtonText}>Add</Text>
-                </TouchableOpacity>
+      {/* ── Requests ── */}
+      {segment === 'requests' &&
+        (visibleRequests.length > 0 ? (
+          visibleRequests.map((request) => (
+            <View key={request.id} style={styles.requestCard}>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>{initial(request.fromUserName)}</Text>
               </View>
-            ))}
-          </ScrollView>
-        </View>
-      )}
+              <View style={styles.requestBody}>
+                <Text style={styles.name} numberOfLines={1}>{request.fromUserName}</Text>
+                <Text style={styles.subtext} numberOfLines={1}>
+                  {[timeAgo(request.createdAt), request.fromUserEmail].filter(Boolean).join(' · ')}
+                </Text>
+                {request.message ? (
+                  <Text style={styles.message} numberOfLines={2}>"{request.message}"</Text>
+                ) : null}
+                <View style={styles.requestButtons}>
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() => onDeclineRequest(request.id)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Delete friend request from ${request.fromUserName}`}
+                  >
+                    <Text style={styles.deleteButtonText}>Delete</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.confirmButton}
+                    onPress={() => onAcceptRequest(request.id)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Confirm friend request from ${request.fromUserName}`}
+                  >
+                    <Text style={styles.confirmButtonText}>Confirm</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          ))
+        ) : (
+          <View style={styles.empty}>
+            <Ionicons name="person-add-outline" size={40} color={Colors.gray.medium} />
+            <Text style={styles.emptyText}>No pending friend requests.</Text>
+          </View>
+        ))}
+
+      {/* ── Suggestions (vertical list) ── */}
+      {segment === 'suggestions' &&
+        (suggestedFriends.length > 0 ? (
+          suggestedFriends.map((suggestion) => (
+            <View key={suggestion.id} style={styles.suggestRow}>
+              <View style={styles.avatar}>
+                {suggestion.photoURL ? (
+                  <Image source={{ uri: suggestion.photoURL }} style={styles.avatarImage} />
+                ) : (
+                  <Text style={styles.avatarText}>{initial(suggestion.name)}</Text>
+                )}
+              </View>
+              <View style={styles.suggestBody}>
+                <Text style={styles.name} numberOfLines={1}>{suggestion.name}</Text>
+                <Text style={styles.subtext} numberOfLines={2}>{suggestion.matchReason}</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => onSendFriendRequest?.(suggestion.email)}
+                accessibilityRole="button"
+                accessibilityLabel={`Add ${suggestion.name} as friend`}
+              >
+                <Ionicons name="person-add" size={16} color={Colors.white} />
+                <Text style={styles.addButtonText}>Add</Text>
+              </TouchableOpacity>
+            </View>
+          ))
+        ) : (
+          <View style={styles.empty}>
+            <Ionicons name="sparkles-outline" size={40} color={Colors.gray.medium} />
+            <Text style={styles.emptyText}>No suggestions right now. Check back later!</Text>
+          </View>
+        ))}
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  // ── Section Layout ──
-  requestsSection: {
-    marginBottom: 8,                    // 8 × 1 (tight gap before next section)
+  // ── Segmented switcher ──
+  segmentBar: {
+    flexDirection: 'row',
+    gap: 8,                            // 8 × 1 (tight)
+    paddingVertical: 12,               // comfortable
+    paddingRight: 16,                  // trailing space when scrolled
   },
-  friendsSection: {
-    marginBottom: 8,                    // 8 × 1
+  segmentPill: {
+    paddingHorizontal: 16,             // 8 × 2 (base)
+    paddingVertical: 8,                // 8 × 1 (tight)
+    borderRadius: 20,                  // pill
+    borderWidth: 1,
+    borderColor: Colors.gray.light,
+    backgroundColor: Colors.white,
+    minHeight: 40,                     // 8 × 5 (touch target)
+    justifyContent: 'center',
   },
-  suggestionsSection: {
-    marginBottom: 24,                   // 8 × 3 (comfortable)
+  segmentPillActive: {
+    backgroundColor: Colors.accent1,
+    borderColor: Colors.accent1,
   },
+  segmentText: {
+    fontSize: 14,                      // caption
+    color: Colors.secondaryText,
+    fontFamily: Typography.fontFamily.medium,
+  },
+  segmentTextActive: {
+    color: Colors.white,
+    fontFamily: Typography.fontFamily.semibold,
+  },
+
+  // ── Section header ──
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 16,               // 8 × 2 (base)
-  },
-  sectionTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,                            // 8 × 1 (tight)
+    paddingVertical: 8,                // 8 × 1 (tight)
   },
   sectionTitle: {
     fontSize: 20,                      // subheading
@@ -203,78 +250,49 @@ const styles = StyleSheet.create({
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,
   },
-
-  // ── Badge ──
-  badge: {
-    backgroundColor: Colors.accent1,
-    borderRadius: 12,                  // pill
-    minWidth: 24,                      // 8 × 3
-    height: 24,                        // 8 × 3
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 8,              // 8 × 1 (tight)
-  },
-  badgeText: {
-    color: Colors.white,
-    fontSize: 12,                      // small
-    fontWeight: '700',                 // bold
-    fontFamily: Typography.fontFamily.bold,
-  },
-  friendCount: {
+  sectionCount: {
     fontSize: 16,                      // body
     fontWeight: '600',                 // semibold
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.semibold,
   },
 
-  // ── Request Cards ──
-  requestCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.white,
-    borderRadius: 16,
-    padding: 16,                       // 8 × 2 (base)
-    marginBottom: 8,                   // 8 × 1 (tight)
-    borderLeftWidth: 3,
-    borderLeftColor: Colors.accent1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  requestAvatar: {
-    width: 48,                         // 8 × 6
-    height: 48,                        // 8 × 6
-    borderRadius: 24,
+  // ── Shared avatar ──
+  avatar: {
+    width: 56,                         // 8 × 7
+    height: 56,                        // 8 × 7
+    borderRadius: 28,
     backgroundColor: Colors.accent1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,                   // 8 × 2 (base)
+    overflow: 'hidden',
   },
-  requestAvatarText: {
+  avatarImage: {
+    width: 56,                         // 8 × 7
+    height: 56,                        // 8 × 7
+    borderRadius: 28,
+  },
+  avatarText: {
     color: Colors.white,
     fontSize: 20,                      // subheading
     fontWeight: '700',                 // bold
     fontFamily: Typography.fontFamily.bold,
   },
-  requestInfo: {
-    flex: 1,
-    marginRight: 8,                    // 8 × 1 (tight)
-  },
-  requestName: {
+
+  // ── Shared text ──
+  name: {
     fontSize: 16,                      // body
     fontWeight: '600',                 // semibold
     color: Colors.primaryText,
-    marginBottom: 2,
     fontFamily: Typography.fontFamily.semibold,
   },
-  requestEmail: {
+  subtext: {
     fontSize: 14,                      // caption
     color: Colors.secondaryText,
+    marginTop: 2,
     fontFamily: Typography.fontFamily.regular,
   },
-  requestMessage: {
+  message: {
     fontSize: 14,                      // caption
     color: Colors.secondaryText,
     fontStyle: 'italic',
@@ -282,38 +300,96 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     fontFamily: Typography.fontFamily.regular,
   },
-  requestActions: {
+
+  // ── Request card (avatar + body with buttons underneath) ──
+  requestCard: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,                            // 8 × 1 (tight)
+    alignItems: 'flex-start',
+    backgroundColor: Colors.white,
+    borderRadius: 16,
+    padding: 16,                       // 8 × 2 (base)
+    marginBottom: 8,                   // 8 × 1 (tight)
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
   },
-  acceptButton: {
+  requestBody: {
+    flex: 1,
+    marginLeft: 16,                    // 8 × 2 (base)
+  },
+  requestButtons: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: Colors.accent3,
-    paddingHorizontal: 16,             // 8 × 2 (base)
-    paddingVertical: 10,               // comfortable tap
-    borderRadius: 24,                  // pill
-    minHeight: 40,                     // 8 × 5
+    gap: 12,                           // 8 × 1.5
+    marginTop: 12,                     // 8 × 1.5
   },
-  acceptButtonText: {
-    color: Colors.white,
-    fontSize: 14,                      // caption
-    fontWeight: '600',                 // semibold
-    fontFamily: Typography.fontFamily.semibold,
-  },
-  declineButton: {
-    width: 40,                         // 8 × 5
-    height: 40,                        // 8 × 5
-    borderRadius: 20,
-    backgroundColor: Colors.gray.light,
+  deleteButton: {
+    flex: 1,
+    minHeight: 40,                     // 8 × 5 (touch target)
+    borderRadius: 20,                  // pill
+    borderWidth: 1,
+    borderColor: Colors.gray.medium,
+    backgroundColor: Colors.white,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  deleteButtonText: {
+    fontSize: 14,                      // caption
+    color: Colors.primaryText,
+    fontFamily: Typography.fontFamily.semibold,
+  },
+  confirmButton: {
+    flex: 1,
+    minHeight: 40,                     // 8 × 5 (touch target)
+    borderRadius: 20,                  // pill
+    backgroundColor: Colors.accent1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  confirmButtonText: {
+    fontSize: 14,                      // caption
+    color: Colors.white,
+    fontFamily: Typography.fontFamily.semibold,
+  },
 
-  // ── Empty Friends ──
-  emptyFriends: {
+  // ── Suggestion row (avatar + body + Add) ──
+  suggestRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.white,
+    borderRadius: 16,
+    padding: 16,                       // 8 × 2 (base)
+    marginBottom: 8,                   // 8 × 1 (tight)
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  suggestBody: {
+    flex: 1,
+    marginLeft: 16,                    // 8 × 2 (base)
+    marginRight: 12,                   // 8 × 1.5
+  },
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    backgroundColor: Colors.accent1,
+    paddingHorizontal: 16,             // 8 × 2 (base)
+    minHeight: 40,                     // 8 × 5 (touch target)
+    borderRadius: 20,                  // pill
+  },
+  addButtonText: {
+    color: Colors.white,
+    fontSize: 14,                      // caption
+    fontFamily: Typography.fontFamily.semibold,
+  },
+
+  // ── Empty state ──
+  empty: {
     alignItems: 'center',
     paddingVertical: 32,               // 8 × 4 (loose)
     paddingHorizontal: 24,             // 8 × 3 (comfortable)
@@ -321,85 +397,11 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     gap: 8,                            // 8 × 1 (tight)
   },
-  emptyFriendsText: {
+  emptyText: {
     fontSize: 16,                      // body
     color: Colors.secondaryText,
     textAlign: 'center',
     lineHeight: 24,                    // 1.5 line height
     fontFamily: Typography.fontFamily.regular,
-  },
-
-  // ── Suggestions ──
-  suggestionsScroll: {
-    paddingRight: 16,                  // 8 × 2 (base) trailing space
-  },
-  suggestionCard: {
-    width: 152,                        // 8 × 19 (compact card)
-    backgroundColor: Colors.white,
-    borderRadius: 16,
-    padding: 16,                       // 8 × 2 (base)
-    marginRight: 12,                   // 8 × 1.5
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
-  },
-  suggestionAvatar: {
-    width: 56,                         // 8 × 7
-    height: 56,                        // 8 × 7
-    borderRadius: 28,
-    backgroundColor: Colors.accent1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,                   // 8 × 1 (tight)
-    overflow: 'hidden',
-  },
-  suggestionAvatarImage: {
-    width: 56,                         // 8 × 7
-    height: 56,                        // 8 × 7
-    borderRadius: 28,
-  },
-  suggestionAvatarText: {
-    color: Colors.white,
-    fontSize: 24,                      // heading
-    fontWeight: '700',                 // bold
-    fontFamily: Typography.fontFamily.bold,
-  },
-  suggestionName: {
-    fontSize: 14,                      // caption
-    fontWeight: '600',                 // semibold
-    color: Colors.primaryText,
-    textAlign: 'center',
-    marginBottom: 4,
-    fontFamily: Typography.fontFamily.semibold,
-  },
-  suggestionReason: {
-    fontSize: 12,                      // small
-    color: Colors.secondaryText,
-    textAlign: 'center',
-    lineHeight: 16,
-    marginBottom: 12,                  // 8 × 1.5
-    minHeight: 32,                     // 2 lines
-    fontFamily: Typography.fontFamily.regular,
-  },
-  addFriendButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    backgroundColor: Colors.accent1,
-    paddingHorizontal: 16,             // 8 × 2 (base)
-    paddingVertical: 8,                // 8 × 1 (tight)
-    borderRadius: 16,                  // pill
-    minHeight: 36,                     // compact but tappable
-    width: '100%',
-  },
-  addFriendButtonText: {
-    color: Colors.white,
-    fontSize: 14,                      // caption
-    fontWeight: '600',                 // semibold
-    fontFamily: Typography.fontFamily.semibold,
   },
 });
