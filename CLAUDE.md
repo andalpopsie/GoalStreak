@@ -4,7 +4,7 @@
 
 **Goalfer** (internal: GoalStreak) — social habit tracking app for iOS & Android.
 React Native 0.81.5 + Expo SDK 54 + TypeScript (strict) + Firebase.
-App name: Goalfer | Bundle ID: `com.goalstreak.app` | Version: 1.0.0 (Build 7)
+App name: Goalfer | Bundle ID: `com.goalstreak.app` | Version: 1.1.0 (Build 23) — submitted to App Store, ready for distribution
 Primary working directory: `GoalStreakApp/`
 
 ## Tech Stack
@@ -30,7 +30,7 @@ Primary working directory: `GoalStreakApp/`
 - `src/components/` — pure UI, no direct Firebase calls
 - `src/screens/` — compose hooks + components, handle navigation
 
-**Key services:** `habitService`, `completionService`, `streakService`, `friendService`, `groupService`, `notificationService`, `achievementsService`, `photoService`, `timerService`
+**Key services:** `habitService` (streak/completion logic lives here — there is no separate `streakService`/`completionService`), `friendService`, `groupService`, `notificationService`, `achievementsService`, `photoService`, `timerService`, `firebaseTimerService`, `ssoService`, `subscriptionService`
 
 **Key hooks:** `useAuth`, `useHabits`, `useHabitsWithSocial`, `useFriends`, `useGroups`, `useGroupDetail`, `useAnalytics`, `useMilestones`, `useOnboarding`, `useNetworkStatus`
 
@@ -135,28 +135,27 @@ import { Colors, Typography, Spacing, Layout, Shadows } from '../constants/theme
 No one-off hex codes, no arbitrary spacing, no font sizes outside the 5-size scale.
 
 ## App Limits
-- `MAX_HABITS = 6` per user (MVP constraint — `src/constants/limits.ts`)
+- Habits per user: 6 free / 15 Pro — use `getHabitLimit(isPro)`, not the raw `MAX_HABITS` constant (`src/constants/limits.ts`)
 - Max 3 concurrent timers
 - Max 10 members per group
 - Max 5 active groups per user
 
 ## Active Specs
 
-### `.kiro/specs/app-store-launch/` — ALL TASKS COMPLETE ✅
-iOS App Store submission is the current focus. EAS Build + Submit pipeline is configured.
+Status below reflects actual `tasks.md` checkbox counts (verify before trusting — this table drifts).
 
-### `.kiro/specs/accountability-groups/` — CORE COMPLETE, TESTS OPTIONAL
-All `[x]` tasks done. Remaining `[ ]*` tasks are optional property tests (fast-check).
-Key files: `groupService.ts`, `useGroups.ts`, `useGroupDetail.ts`, `GroupDetailScreen.tsx`, `src/components/social/Group*.tsx`
-
-### `.kiro/specs/comprehensive-testing-suite/` — PENDING
-Jest unit + Detox E2E test coverage. See `.kiro/specs/comprehensive-testing-suite/tasks.md`.
-
-### `.kiro/specs/habit-timer-feature/` — COMPLETE ✅
-Timer fully integrated. See `timerService.ts`, `firebaseTimerService.ts`, `TimerContext`.
+| Spec | Status |
+|---|---|
+| `sso-authentication` | 58/58 ✅ complete — Apple + Google Sign-In, account linking, iOS-first |
+| `pro-subscription` | 40/40 ✅ complete — RevenueCat paywall, habit limit 6→15 |
+| `app-store-launch` | 8/8 ✅ complete |
+| `comprehensive-testing-suite` | 40/40 checked, but **Detox is not actually wired up** — no `.detoxrc.json` or `e2e/` dir exists despite the spec/deps being present. Treat E2E as not started if asked to extend it. |
+| `report-and-block` | 58/67 (87%) — moderation/blocking for Apple Guideline 1.2 |
+| `accountability-groups` | 40/51 (78%) — core complete, remaining tasks are optional fast-check property tests. Key files: `groupService.ts`, `useGroups.ts`, `useGroupDetail.ts`, `GroupDetailScreen.tsx`, `src/components/social/Group*.tsx` |
+| `habit-timer-feature` | 11/18 (61%) — **not complete**, despite prior notes here saying otherwise. See `timerService.ts`, `firebaseTimerService.ts`, `TimerContext`. |
 
 ## Roadmap Phases
-- **Phase 1 (now):** App Store launch — iOS submission
+- **Phase 1:** App Store launch — v1.1.0 (Build 23) submitted, ready for distribution
 - **Phase 2 (Q2-Q3 2026):** Gamification (XP/levels), advanced friend discovery, AI notifications
 - **Phase 3 (Q4 2026):** Web app, Apple Watch, third-party integrations
 
@@ -197,10 +196,14 @@ cd GoalStreakApp/firebase && firebase deploy --only firestore:indexes
 
 ## Git Workflow
 
-1. Make change → verify with `git diff`
-2. Commit immediately with descriptive message
-3. Test locally before pushing
-4. Push when session's work is stable
+Full SOP: `.kiro/steering/git-workflow-sop.md`. Summary:
+
+- **Never commit directly to `main`.** Every change goes through a branch + PR.
+- Branch naming: `<type>/<kebab-name>` where type is `feature|fix|chore|docs|refactor|perf|test` (e.g. `fix/streak-off-by-one`).
+- Commit messages: [Conventional Commits](https://www.conventionalcommits.org/) — `<type>(<scope>): <imperative summary>`.
+- Flow: sync `main` → branch → commit → verify (tests + typecheck) → push → `gh pr create` → wait for review → `gh pr merge --squash --delete-branch` → sync `main`.
+- Squash-merge by default; never rebase-and-merge on this repo.
+- PAUSE for confirmation before: merging a non-trivial PR, force-pushing, rewriting history, or any operation on `main` other than a fast-forward pull.
 
 ## Spec-Driven Development
 

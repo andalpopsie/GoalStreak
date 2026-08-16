@@ -1,0 +1,51 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git status *)",
+      "Bash(git diff)",
+      "Bash(git diff *)",
+      "Bash(git log)",
+      "Bash(git log *)",
+      "Bash(git branch)",
+      "Bash(git branch *)",
+      "Bash(git checkout -b *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push -u origin *)",
+      "Bash(git fetch *)",
+      "Bash(git pull --ff-only)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr list *)",
+      "Bash(gh pr diff *)",
+      "Bash(gh pr checks *)",
+      "Bash(npm run test)",
+      "Bash(npm run test:*)",
+      "Bash(npm test)",
+      "Bash(npm run lint)",
+      "Bash(npm run type-check)",
+      "Bash(npm run increment-build)",
+      "Bash(npm run sync-build-number)",
+      "Bash(npm run validate:build)",
+      "Bash(npm run validate:comprehensive)",
+      "Bash(npm run validate:all)",
+      "Bash(npm run check:sso-release-gate)",
+      "Bash(npm run changelog:dry)",
+      "Bash(npx expo start*)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(firebase deploy --only firestore:rules*)",
+      "Bash(firebase deploy --only firestore:indexes*)"
+    ],
+    "ask": [
+      "Bash(git push --force*)",
+      "Bash(git reset --hard*)",
+      "Bash(git rebase*)",
+      "Bash(gh pr merge*)",
+      "Bash(eas build*)",
+      "Bash(eas submit*)",
+      "Bash(npm run ios:*)",
+      "Bash(npm run cleanup:*)"
+    ]
+  }
+}
