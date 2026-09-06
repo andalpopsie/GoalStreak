@@ -24,15 +24,17 @@ export default function CompactStatsChart({
   const last7 = trendData.slice(-7);
 
   const chartData = {
-    labels: last7.map(item => {
+    labels: last7.map((item) => {
       const date = new Date(item.date);
       return date.toLocaleDateString('en-US', { weekday: 'short' }).charAt(0);
     }),
-    datasets: [{
-      data: last7.length > 0 ? last7.map(item => item.completions) : [0],
-      color: () => Colors.accent1,
-      strokeWidth: 2,
-    }],
+    datasets: [
+      {
+        data: last7.length > 0 ? last7.map((item) => item.completions) : [0],
+        color: () => Colors.accent1,
+        strokeWidth: 2,
+      },
+    ],
   };
 
   const chartConfig = {
@@ -111,11 +113,11 @@ export default function CompactStatsChart({
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 16,             // 8 × 2 (base)
-    marginVertical: 8,                // 8 × 1 (tight)
+    marginHorizontal: 16, // 8 × 2 (base)
+    marginVertical: 8, // 8 × 1 (tight)
     backgroundColor: Colors.white,
     borderRadius: 16,
-    padding: 16,                      // 8 × 2 (base)
+    padding: 16, // 8 × 2 (base)
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
@@ -128,11 +130,11 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.gray.light,
     borderRadius: 8,
     padding: 3,
-    marginBottom: 16,                 // 8 × 2 (base)
+    marginBottom: 16, // 8 × 2 (base)
   },
   periodTab: {
     flex: 1,
-    paddingVertical: 8,              // 8 × 1 (tight)
+    paddingVertical: 8, // 8 × 1 (tight)
     borderRadius: 6,
     alignItems: 'center',
   },
@@ -140,8 +142,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primaryText,
   },
   periodText: {
-    fontSize: 14,                    // caption
-    fontWeight: '600',               // semibold
+    fontSize: 14, // caption
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.secondaryText,
   },
@@ -151,22 +153,22 @@ const styles = StyleSheet.create({
   // Numbers
   numbersRow: {
     flexDirection: 'row',
-    marginBottom: 12,                // 8 × 1.5
+    marginBottom: 12, // 8 × 1.5
   },
   numberBlock: {
     flex: 1,
     alignItems: 'center',
   },
   bigNumber: {
-    fontSize: 28,                    // large
-    fontWeight: '700',               // bold
+    fontSize: 28, // large
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
   },
   numberLabel: {
-    fontSize: 12,                    // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
-    fontWeight: '500',               // medium
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
     marginTop: 2,
   },
@@ -177,6 +179,6 @@ const styles = StyleSheet.create({
   },
   chart: {
     borderRadius: 8,
-    marginLeft: -16,                 // offset chart padding
+    marginLeft: -16, // offset chart padding
   },
 });

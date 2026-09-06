@@ -25,7 +25,7 @@ export default function FriendCard({
   onDecline,
   onRemove,
   onCancel,
-  isLoading = false
+  isLoading = false,
 }: FriendCardProps) {
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
 
@@ -37,7 +37,7 @@ export default function FriendCard({
   const loadProfilePhoto = async () => {
     try {
       const userId = friend?.friendId || friendRequest?.fromUserId;
-      
+
       if (userId) {
         // Use the new photoService
         const photoUri = await photoService.getProfilePhoto(userId);
@@ -53,9 +53,9 @@ export default function FriendCard({
   const getName = () => {
     if (friend) return friend.friendName || 'Unknown User';
     if (friendRequest) {
-      return type === 'pending' 
-        ? (friendRequest.fromUserName || 'Unknown User')
-        : (friendRequest.toUserEmail || 'Unknown User');
+      return type === 'pending'
+        ? friendRequest.fromUserName || 'Unknown User'
+        : friendRequest.toUserEmail || 'Unknown User';
     }
     return 'Unknown User';
   };
@@ -63,9 +63,9 @@ export default function FriendCard({
   const getEmail = () => {
     if (friend) return friend.friendEmail || '';
     if (friendRequest) {
-      return type === 'pending' 
-        ? (friendRequest.fromUserEmail || '')
-        : (friendRequest.toUserEmail || '');
+      return type === 'pending'
+        ? friendRequest.fromUserEmail || ''
+        : friendRequest.toUserEmail || '';
     }
     return '';
   };
@@ -73,13 +73,11 @@ export default function FriendCard({
   const getPhotoURL = () => {
     // First try the loaded profile photo from AsyncStorage
     if (profilePhoto) return profilePhoto;
-    
+
     // Then try the original sources
     if (friend) return friend.friendPhotoURL || null;
     if (friendRequest) {
-      return type === 'pending' 
-        ? (friendRequest.fromUserPhotoURL || null)
-        : null;
+      return type === 'pending' ? friendRequest.fromUserPhotoURL || null : null;
     }
     return null;
   };
@@ -87,7 +85,7 @@ export default function FriendCard({
   const getInitials = (name: string) => {
     return name
       .split(' ')
-      .map(word => word.charAt(0))
+      .map((word) => word.charAt(0))
       .join('')
       .toUpperCase()
       .slice(0, 2);
@@ -98,15 +96,15 @@ export default function FriendCard({
       case 'pending':
         return (
           <View style={styles.actionsContainer}>
-            <TouchableOpacity 
-              style={[styles.iconButton, styles.acceptButton]} 
+            <TouchableOpacity
+              style={[styles.iconButton, styles.acceptButton]}
               onPress={onAccept}
               disabled={isLoading}
             >
               <Ionicons name="checkmark" size={32} color="#FFFFFF" />
             </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.iconButton, styles.declineButton]} 
+            <TouchableOpacity
+              style={[styles.iconButton, styles.declineButton]}
               onPress={onDecline}
               disabled={isLoading}
             >
@@ -117,22 +115,14 @@ export default function FriendCard({
 
       case 'sent':
         return (
-          <TouchableOpacity 
-            style={styles.iconButton} 
-            onPress={onCancel}
-            disabled={isLoading}
-          >
+          <TouchableOpacity style={styles.iconButton} onPress={onCancel} disabled={isLoading}>
             <Ionicons name="close" size={24} color={Colors.error} />
           </TouchableOpacity>
         );
 
       case 'friend':
         return (
-          <TouchableOpacity 
-            style={styles.iconButton} 
-            onPress={onRemove}
-            disabled={isLoading}
-          >
+          <TouchableOpacity style={styles.iconButton} onPress={onRemove} disabled={isLoading}>
             <Ionicons name="close" size={24} color={Colors.error} />
           </TouchableOpacity>
         );
@@ -147,14 +137,9 @@ export default function FriendCard({
       {/* Profile Photo */}
       <View style={styles.profilePhoto}>
         {getPhotoURL() ? (
-          <Image 
-            source={{ uri: getPhotoURL()! }} 
-            style={styles.profileImage}
-          />
+          <Image source={{ uri: getPhotoURL()! }} style={styles.profileImage} />
         ) : (
-          <Text style={styles.initials}>
-            {getInitials(getName())}
-          </Text>
+          <Text style={styles.initials}>{getInitials(getName())}</Text>
         )}
       </View>
 
@@ -182,11 +167,11 @@ export default function FriendCard({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    paddingVertical: 12,                // 8 * 1.5
-    paddingHorizontal: 16,              // 8 * 2 (base)
+    paddingVertical: 12, // 8 * 1.5
+    paddingHorizontal: 16, // 8 * 2 (base)
     backgroundColor: Colors.white,
-    borderRadius: 16,                   // Modern rounded
-    marginBottom: 8,                    // 8 * 1 (tight)
+    borderRadius: 16, // Modern rounded
+    marginBottom: 8, // 8 * 1 (tight)
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.03,
@@ -194,24 +179,24 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   profilePhoto: {
-    width: 48,                          // 8 * 6 (larger)
-    height: 48,                         // 8 * 6 (larger)
+    width: 48, // 8 * 6 (larger)
+    height: 48, // 8 * 6 (larger)
     borderRadius: 24,
     backgroundColor: Colors.accent3,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,                    // 8 * 2 (base)
+    marginRight: 16, // 8 * 2 (base)
     overflow: 'hidden',
   },
   profileImage: {
-    width: 48,                          // 8 * 6
-    height: 48,                         // 8 * 6
+    width: 48, // 8 * 6
+    height: 48, // 8 * 6
     borderRadius: 24,
   },
   initials: {
     color: Colors.white,
-    fontSize: 16,                       // body
-    fontWeight: '600',                  // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
   content: {
@@ -222,35 +207,35 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     flex: 1,
-    marginRight: 16,                    // 8 * 2 (base)
+    marginRight: 16, // 8 * 2 (base)
   },
   name: {
-    fontSize: 16,                       // body
-    fontWeight: '600',                  // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
-    marginBottom: 4,                    // 8 * 0.5 (extra tight)
+    marginBottom: 4, // 8 * 0.5 (extra tight)
     fontFamily: Typography.fontFamily.semibold,
   },
   email: {
-    fontSize: 14,                       // small
+    fontSize: 14, // small
     color: Colors.secondaryText,
-    marginBottom: 4,                    // 8 * 0.5 (extra tight)
+    marginBottom: 4, // 8 * 0.5 (extra tight)
     fontFamily: Typography.fontFamily.regular,
   },
   message: {
-    fontSize: 14,                       // small
+    fontSize: 14, // small
     color: Colors.accent2,
     fontStyle: 'italic',
-    lineHeight: 20,                     // Comfortable reading
+    lineHeight: 20, // Comfortable reading
     fontFamily: Typography.fontFamily.regular,
   },
   actionsContainer: {
     flexDirection: 'row',
-    gap: 8,                             // 8 * 1 (tight)
+    gap: 8, // 8 * 1 (tight)
   },
   iconButton: {
-    width: 48,                          // 8 * 6 (touch target)
-    height: 48,                         // 8 * 6 (touch target)
+    width: 48, // 8 * 6 (touch target)
+    height: 48, // 8 * 6 (touch target)
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',

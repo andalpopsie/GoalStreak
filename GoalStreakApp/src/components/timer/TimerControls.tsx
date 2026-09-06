@@ -28,7 +28,6 @@ export default function TimerControls({
   compact = false,
   disabled = false,
 }: TimerControlsProps) {
-  
   // Trigger haptic feedback for timer interactions
   const triggerHapticFeedback = (intensity: 'light' | 'medium' | 'heavy' = 'medium') => {
     const hapticStyle = {
@@ -36,14 +35,14 @@ export default function TimerControls({
       medium: Haptics.ImpactFeedbackStyle.Medium,
       heavy: Haptics.ImpactFeedbackStyle.Heavy,
     };
-    
+
     Haptics.impactAsync(hapticStyle[intensity]);
   };
 
   // Handle start timer action with error handling
   const handleStart = async () => {
     if (disabled) return;
-    
+
     try {
       triggerHapticFeedback('light');
       await onStart();
@@ -57,7 +56,7 @@ export default function TimerControls({
   // Handle pause timer action with error handling
   const handlePause = async () => {
     if (disabled) return;
-    
+
     try {
       triggerHapticFeedback('medium');
       await onPause();
@@ -71,7 +70,7 @@ export default function TimerControls({
   // Handle resume timer action with error handling
   const handleResume = async () => {
     if (disabled) return;
-    
+
     try {
       triggerHapticFeedback('light');
       await onResume();
@@ -85,7 +84,7 @@ export default function TimerControls({
   // Handle reset timer action with error handling
   const handleReset = async () => {
     if (disabled) return;
-    
+
     try {
       triggerHapticFeedback('medium');
       await onReset();
@@ -99,7 +98,7 @@ export default function TimerControls({
   // Handle complete timer action with error handling
   const handleComplete = async () => {
     if (disabled || !onComplete) return;
-    
+
     try {
       triggerHapticFeedback('heavy');
       await onComplete();
@@ -168,23 +167,27 @@ export default function TimerControls({
     // Timer completed - show complete and reset buttons (if onComplete provided)
     if (timerState.progress >= 1) {
       return {
-        primary: onComplete ? {
-          icon: 'checkmark-circle' as const,
-          onPress: handleComplete,
-          accessibilityLabel: 'Complete habit',
-          color: Colors.accent3, // Teal for complete
-        } : {
-          icon: 'refresh' as const,
-          onPress: handleReset,
-          accessibilityLabel: TIMER_ACCESSIBILITY.LABELS.RESET_TIMER,
-          color: Colors.accent1, // Orange for restart
-        },
-        secondary: onComplete ? {
-          icon: 'refresh' as const,
-          onPress: handleReset,
-          accessibilityLabel: TIMER_ACCESSIBILITY.LABELS.RESET_TIMER,
-          color: Colors.gray.dark, // Gray for reset
-        } : null,
+        primary: onComplete
+          ? {
+              icon: 'checkmark-circle' as const,
+              onPress: handleComplete,
+              accessibilityLabel: 'Complete habit',
+              color: Colors.accent3, // Teal for complete
+            }
+          : {
+              icon: 'refresh' as const,
+              onPress: handleReset,
+              accessibilityLabel: TIMER_ACCESSIBILITY.LABELS.RESET_TIMER,
+              color: Colors.accent1, // Orange for restart
+            },
+        secondary: onComplete
+          ? {
+              icon: 'refresh' as const,
+              onPress: handleReset,
+              accessibilityLabel: TIMER_ACCESSIBILITY.LABELS.RESET_TIMER,
+              color: Colors.gray.dark, // Gray for reset
+            }
+          : null,
       };
     }
 
@@ -205,13 +208,7 @@ export default function TimerControls({
   const iconSize = compact ? 18 : 24;
 
   return (
-    <View 
-      style={[
-        styles.container,
-        compact && styles.compactContainer,
-      ]}
-      testID="timer-controls"
-    >
+    <View style={[styles.container, compact && styles.compactContainer]} testID="timer-controls">
       {/* Primary Action Button */}
       <TouchableOpacity
         style={[
@@ -236,11 +233,7 @@ export default function TimerControls({
           disabled: disabled,
         }}
       >
-        <Ionicons
-          name={buttonConfig.primary.icon}
-          size={iconSize}
-          color={Colors.white}
-        />
+        <Ionicons name={buttonConfig.primary.icon} size={iconSize} color={Colors.white} />
       </TouchableOpacity>
 
       {/* Secondary Action Button (if available) */}

@@ -137,7 +137,8 @@ export default function InviteMembersModal({
             <View style={styles.emptyState}>
               <Ionicons name="people-outline" size={48} color={Colors.gray.medium} />
               <Text style={styles.emptyText}>
-                No friends available to invite. All your friends are already in this group or have pending invitations.
+                No friends available to invite. All your friends are already in this group or have
+                pending invitations.
               </Text>
             </View>
           ) : (
@@ -190,21 +191,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,             // 8 × 2 (base)
-    paddingVertical: 16,               // 8 × 2 (base)
+    paddingHorizontal: 16, // 8 × 2 (base)
+    paddingVertical: 16, // 8 × 2 (base)
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
     backgroundColor: Colors.white,
   },
   closeButton: {
-    width: 48,                          // 8 × 6 (touch target)
-    height: 48,                         // 8 × 6 (touch target)
+    width: 48, // 8 × 6 (touch target)
+    height: 48, // 8 × 6 (touch target)
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 20,                       // subheading
-    fontWeight: '600',                  // semibold
+    fontSize: 20, // subheading
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,
   },
@@ -214,16 +215,16 @@ const styles = StyleSheet.create({
   countBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,                             // 8 × 1 (tight)
-    paddingHorizontal: 16,             // 8 × 2 (base)
-    paddingVertical: 16,               // 8 × 2 (base)
+    gap: 8, // 8 × 1 (tight)
+    paddingHorizontal: 16, // 8 × 2 (base)
+    paddingVertical: 16, // 8 × 2 (base)
     backgroundColor: Colors.white,
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
   },
   countText: {
-    fontSize: 14,                       // caption
-    fontWeight: '500',                  // medium
+    fontSize: 14, // caption
+    fontWeight: '500', // medium
     color: Colors.primaryText,
     flex: 1,
     fontFamily: Typography.fontFamily.medium,
@@ -231,26 +232,26 @@ const styles = StyleSheet.create({
   fullBadge: {
     backgroundColor: Colors.error,
     borderRadius: 8,
-    paddingHorizontal: 8,              // 8 × 1 (tight)
+    paddingHorizontal: 8, // 8 × 1 (tight)
     paddingVertical: 4,
   },
   fullBadgeText: {
-    fontSize: 12,                       // small
-    fontWeight: '600',                  // semibold
+    fontSize: 12, // small
+    fontWeight: '600', // semibold
     color: Colors.white,
     fontFamily: Typography.fontFamily.semibold,
   },
   fullMessage: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,                             // 8 × 1 (tight)
-    paddingHorizontal: 16,             // 8 × 2 (base)
-    paddingVertical: 16,               // 8 × 2 (base)
+    gap: 8, // 8 × 1 (tight)
+    paddingHorizontal: 16, // 8 × 2 (base)
+    paddingVertical: 16, // 8 × 2 (base)
     backgroundColor: '#FFF4F4',
   },
   fullMessageText: {
     flex: 1,
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
     lineHeight: 20,
     fontFamily: Typography.fontFamily.regular,
@@ -259,29 +260,29 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContentContainer: {
-    padding: 16,                        // 8 × 2 (base)
+    padding: 16, // 8 × 2 (base)
   },
   loadingState: {
     alignItems: 'center',
-    paddingVertical: 48,               // 8 × 6 (spacious)
-    gap: 16,                            // 8 × 2 (base)
+    paddingVertical: 48, // 8 × 6 (spacious)
+    gap: 16, // 8 × 2 (base)
   },
   loadingText: {
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.regular,
   },
   emptyState: {
     alignItems: 'center',
-    paddingVertical: 48,               // 8 × 6 (spacious)
-    paddingHorizontal: 24,             // 8 × 3 (comfortable)
-    gap: 16,                            // 8 × 2 (base)
+    paddingVertical: 48, // 8 × 6 (spacious)
+    paddingHorizontal: 24, // 8 × 3 (comfortable)
+    gap: 16, // 8 × 2 (base)
   },
   emptyText: {
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     color: Colors.secondaryText,
     textAlign: 'center',
-    lineHeight: 24,                     // 1.5 line height
+    lineHeight: 24, // 1.5 line height
     fontFamily: Typography.fontFamily.regular,
   },
   friendRow: {
@@ -289,39 +290,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.white,
     borderRadius: 12,
-    padding: 16,                        // 8 × 2 (base)
-    marginBottom: 8,                    // 8 × 1 (tight)
-    minHeight: 56,                      // 8 × 7
+    padding: 16, // 8 × 2 (base)
+    marginBottom: 8, // 8 × 1 (tight)
+    minHeight: 56, // 8 × 7
     ...Shadows.sm,
   },
   friendAvatar: {
-    width: 40,                          // 8 × 5
-    height: 40,                         // 8 × 5
+    width: 40, // 8 × 5
+    height: 40, // 8 × 5
     borderRadius: 20,
     backgroundColor: Colors.accent3,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,                    // 8 × 2 (base)
+    marginRight: 16, // 8 × 2 (base)
   },
   friendAvatarText: {
     color: Colors.white,
-    fontSize: 16,                       // body
-    fontWeight: '600',                  // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
   friendInfo: {
     flex: 1,
-    marginRight: 16,                    // 8 × 2 (base)
+    marginRight: 16, // 8 × 2 (base)
   },
   friendName: {
-    fontSize: 16,                       // body
-    fontWeight: '600',                  // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
     marginBottom: 2,
     fontFamily: Typography.fontFamily.semibold,
   },
   friendEmail: {
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.regular,
   },
@@ -329,20 +330,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: Colors.accent1,   // Purple
-    paddingHorizontal: 16,             // 8 × 2 (base)
+    backgroundColor: Colors.accent1, // Purple
+    paddingHorizontal: 16, // 8 × 2 (base)
     paddingVertical: 10,
-    borderRadius: 24,                   // Pill
-    minHeight: 40,                      // 8 × 5
-    minWidth: 48,                       // 8 × 6 (touch target)
+    borderRadius: 24, // Pill
+    minHeight: 40, // 8 × 5
+    minWidth: 48, // 8 × 6 (touch target)
   },
   inviteButtonDisabled: {
     opacity: 0.5,
   },
   inviteButtonText: {
     color: Colors.white,
-    fontSize: 14,                       // caption
-    fontWeight: '600',                  // semibold
+    fontSize: 14, // caption
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
 });

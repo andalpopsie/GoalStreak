@@ -1,13 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Modal,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius } from '../../constants/theme';
@@ -55,9 +47,9 @@ export default function TimerConfigModal({
     try {
       // Enhanced validation with better error messages
       const validation = validateTimerForm(form);
-      
+
       if (!validation.isValid) {
-        const errorMessages = validation.errors.map(error => {
+        const errorMessages = validation.errors.map((error) => {
           // Provide more user-friendly error messages
           switch (error.code) {
             case 'INVALID_HOURS':
@@ -72,7 +64,7 @@ export default function TimerConfigModal({
               return error.message;
           }
         });
-        
+
         setErrors(errorMessages);
         setIsSaving(false);
         return;
@@ -85,7 +77,7 @@ export default function TimerConfigModal({
       }
 
       // Additional validation for edge cases
-      const totalMinutes = (form.hours * 60) + form.minutes;
+      const totalMinutes = form.hours * 60 + form.minutes;
       if (form.enabled && totalMinutes === 0) {
         setErrors(['Please set a timer duration when timer is enabled']);
         setIsSaving(false);
@@ -101,33 +93,35 @@ export default function TimerConfigModal({
       };
 
       await onSave(timerConfig);
-      
+
       // Success feedback
-      
     } catch (error: any) {
       console.error('Error saving timer config:', error);
-      
+
       // Enhanced error handling with specific error types
       let errorMessage = 'Failed to save timer configuration';
-      
+
       if (error.name === 'INVALID_DURATION') {
-        errorMessage = 'Invalid timer duration. Please choose a duration between 1 minute and 24 hours.';
+        errorMessage =
+          'Invalid timer duration. Please choose a duration between 1 minute and 24 hours.';
       } else if (error.name === 'TIMER_ALREADY_ACTIVE') {
-        errorMessage = 'Cannot modify timer settings while timer is active. Please stop the timer first.';
+        errorMessage =
+          'Cannot modify timer settings while timer is active. Please stop the timer first.';
       } else if (error.name === 'STORAGE_QUOTA_EXCEEDED') {
-        errorMessage = 'Unable to save timer settings due to storage limitations. Please free up some space.';
+        errorMessage =
+          'Unable to save timer settings due to storage limitations. Please free up some space.';
       } else if (error.message) {
         errorMessage = error.message;
       }
-      
+
       // Show error in both state and alert for better UX
       setErrors([errorMessage]);
-      
+
       // Only show alert for critical errors
       if (error.name === 'STORAGE_QUOTA_EXCEEDED' || error.name === 'TIMER_PERSISTENCE_FAILED') {
         Alert.alert('Error', errorMessage, [
           { text: 'OK', style: 'default' },
-          { text: 'Retry', style: 'default', onPress: () => handleSave() }
+          { text: 'Retry', style: 'default', onPress: () => handleSave() },
         ]);
       }
     } finally {
@@ -141,28 +135,29 @@ export default function TimerConfigModal({
   };
 
   const handleToggleEnabled = () => {
-    setForm(prev => ({ ...prev, enabled: !prev.enabled }));
+    setForm((prev) => ({ ...prev, enabled: !prev.enabled }));
   };
 
   const handleHoursChange = (text: string) => {
     const hours = parseInt(text) || 0;
-    setForm(prev => ({ ...prev, hours: Math.max(0, Math.min(23, hours)) }));
+    setForm((prev) => ({ ...prev, hours: Math.max(0, Math.min(23, hours)) }));
   };
 
   const handleMinutesChange = (text: string) => {
     const minutes = parseInt(text) || 0;
-    setForm(prev => ({ ...prev, minutes: Math.max(0, Math.min(59, minutes)) }));
+    setForm((prev) => ({ ...prev, minutes: Math.max(0, Math.min(59, minutes)) }));
   };
 
   const handleQuickDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
-    setForm(prev => ({ ...prev, hours, minutes: remainingMinutes }));
+    setForm((prev) => ({ ...prev, hours, minutes: remainingMinutes }));
   };
 
-  const totalMinutes = (form.hours * 60) + form.minutes;
-  const isValidDuration = totalMinutes >= TIMER_CONSTANTS.MIN_DURATION_MINUTES && 
-                         totalMinutes <= TIMER_CONSTANTS.MAX_DURATION_MINUTES;
+  const totalMinutes = form.hours * 60 + form.minutes;
+  const isValidDuration =
+    totalMinutes >= TIMER_CONSTANTS.MIN_DURATION_MINUTES &&
+    totalMinutes <= TIMER_CONSTANTS.MAX_DURATION_MINUTES;
 
   return (
     <Modal
@@ -178,15 +173,14 @@ export default function TimerConfigModal({
             <Text style={styles.cancelText}>Cancel</Text>
           </TouchableOpacity>
           <Text style={styles.title}>Timer Settings</Text>
-          <TouchableOpacity 
-            onPress={handleSave} 
+          <TouchableOpacity
+            onPress={handleSave}
             style={styles.saveButton}
             disabled={isSaving || !isValidDuration}
           >
-            <Text style={[
-              styles.saveText,
-              (!isValidDuration || isSaving) && styles.saveTextDisabled
-            ]}>
+            <Text
+              style={[styles.saveText, (!isValidDuration || isSaving) && styles.saveTextDisabled]}
+            >
               {isSaving ? 'Saving...' : 'Save'}
             </Text>
           </TouchableOpacity>
@@ -205,23 +199,15 @@ export default function TimerConfigModal({
 
           {/* Timer Toggle */}
           <View style={styles.section}>
-            <TouchableOpacity 
-              style={styles.toggleContainer}
-              onPress={handleToggleEnabled}
-            >
+            <TouchableOpacity style={styles.toggleContainer} onPress={handleToggleEnabled}>
               <View style={styles.toggleInfo}>
                 <Text style={styles.toggleTitle}>Enable Timer</Text>
                 <Text style={styles.toggleDescription}>
                   Track time spent on this habit with a visual countdown
                 </Text>
               </View>
-              <View style={[
-                styles.toggle,
-                form.enabled && styles.toggleActive
-              ]}>
-                {form.enabled && (
-                  <Ionicons name="checkmark" size={16} color={Colors.white} />
-                )}
+              <View style={[styles.toggle, form.enabled && styles.toggleActive]}>
+                {form.enabled && <Ionicons name="checkmark" size={16} color={Colors.white} />}
               </View>
             </TouchableOpacity>
           </View>
@@ -262,7 +248,8 @@ export default function TimerConfigModal({
                 {/* Duration Validation */}
                 {!isValidDuration && totalMinutes > 0 && (
                   <Text style={styles.validationText}>
-                    Duration must be between {TIMER_CONSTANTS.MIN_DURATION_MINUTES} minute and {TIMER_CONSTANTS.MAX_DURATION_MINUTES / 60} hours
+                    Duration must be between {TIMER_CONSTANTS.MIN_DURATION_MINUTES} minute and{' '}
+                    {TIMER_CONSTANTS.MAX_DURATION_MINUTES / 60} hours
                   </Text>
                 )}
 
@@ -285,14 +272,16 @@ export default function TimerConfigModal({
                       key={minutes}
                       style={[
                         styles.quickDurationButton,
-                        totalMinutes === minutes && styles.quickDurationButtonSelected
+                        totalMinutes === minutes && styles.quickDurationButtonSelected,
                       ]}
                       onPress={() => handleQuickDuration(minutes)}
                     >
-                      <Text style={[
-                        styles.quickDurationText,
-                        totalMinutes === minutes && styles.quickDurationTextSelected
-                      ]}>
+                      <Text
+                        style={[
+                          styles.quickDurationText,
+                          totalMinutes === minutes && styles.quickDurationTextSelected,
+                        ]}
+                      >
                         {minutes < 60 ? `${minutes}m` : `${Math.floor(minutes / 60)}h`}
                       </Text>
                     </TouchableOpacity>
@@ -302,9 +291,9 @@ export default function TimerConfigModal({
 
               {/* Auto-Complete Setting */}
               <View style={styles.section}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.toggleContainer}
-                  onPress={() => setForm(prev => ({ ...prev, autoComplete: !prev.autoComplete }))}
+                  onPress={() => setForm((prev) => ({ ...prev, autoComplete: !prev.autoComplete }))}
                 >
                   <View style={styles.toggleInfo}>
                     <Text style={styles.toggleTitle}>Auto-complete habit</Text>
@@ -312,10 +301,7 @@ export default function TimerConfigModal({
                       Automatically mark habit as complete when timer finishes
                     </Text>
                   </View>
-                  <View style={[
-                    styles.toggle,
-                    form.autoComplete && styles.toggleActive
-                  ]}>
+                  <View style={[styles.toggle, form.autoComplete && styles.toggleActive]}>
                     {form.autoComplete && (
                       <Ionicons name="checkmark" size={16} color={Colors.white} />
                     )}
@@ -339,7 +325,7 @@ export default function TimerConfigModal({
           {/* Save Button */}
           <View style={styles.buttonContainer}>
             <Button
-              title={isSaving ? "Saving..." : "Save Timer Settings"}
+              title={isSaving ? 'Saving...' : 'Save Timer Settings'}
               onPress={handleSave}
               loading={isSaving}
               disabled={!isValidDuration}

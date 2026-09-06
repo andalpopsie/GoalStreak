@@ -47,8 +47,8 @@ export default function Button({
       }}
     >
       {loading ? (
-        <ActivityIndicator 
-          color={variant === 'primary' ? Colors.white : Colors.primaryText} 
+        <ActivityIndicator
+          color={variant === 'primary' ? Colors.white : Colors.primaryText}
           size="small"
           testID="loading-indicator"
         />
@@ -61,12 +61,12 @@ export default function Button({
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: 32,               // Fully rounded (pill-shaped)
+    borderRadius: 32, // Fully rounded (pill-shaped)
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
   },
-  
+
   // Variants
   primary: {
     backgroundColor: Colors.accent1,
@@ -79,36 +79,36 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Colors.accent1,
   },
-  
+
   // Sizes (Fitts's Law - larger touch targets)
   sm: {
-    paddingHorizontal: 16,          // 8 * 2
-    paddingVertical: 12,            // 8 * 1.5
-    minHeight: 48,                  // 8 * 6 (minimum touch target)
+    paddingHorizontal: 16, // 8 * 2
+    paddingVertical: 12, // 8 * 1.5
+    minHeight: 48, // 8 * 6 (minimum touch target)
   },
   md: {
-    paddingHorizontal: 24,          // 8 * 3
-    paddingVertical: 16,            // 8 * 2
-    minHeight: 56,                  // 8 * 7 (recommended)
+    paddingHorizontal: 24, // 8 * 3
+    paddingVertical: 16, // 8 * 2
+    minHeight: 56, // 8 * 7 (recommended)
   },
   lg: {
-    paddingHorizontal: 32,          // 8 * 4
-    paddingVertical: 20,            // 8 * 2.5
-    minHeight: 64,                  // 8 * 8 (optimal)
+    paddingHorizontal: 32, // 8 * 4
+    paddingVertical: 20, // 8 * 2.5
+    minHeight: 64, // 8 * 8 (optimal)
   },
-  
+
   // Disabled state
   disabled: {
     opacity: 0.5,
   },
-  
+
   // Text styles
   text: {
     fontFamily: Typography.fontFamily.semibold,
-    fontWeight: '600',              // semibold
+    fontWeight: '600', // semibold
     textAlign: 'center',
   },
-  
+
   // Text variants
   primaryText: {
     color: Colors.white,
@@ -119,18 +119,18 @@ const styles = StyleSheet.create({
   outlineText: {
     color: Colors.accent1,
   },
-  
+
   // Text sizes (simplified scale)
   smText: {
-    fontSize: 14,                   // caption
+    fontSize: 14, // caption
   },
   mdText: {
-    fontSize: 16,                   // body
+    fontSize: 16, // body
   },
   lgText: {
-    fontSize: 16,                   // body (use weight for hierarchy)
+    fontSize: 16, // body (use weight for hierarchy)
   },
-  
+
   // Disabled text
   disabledText: {
     opacity: 0.7,

@@ -1,6 +1,6 @@
 /**
  * Enhanced Analytics Service
- * 
+ *
  * Provides comprehensive user behavior tracking and analytics for iOS launch.
  * Implements Task 7.2: Set up Firebase Analytics for iOS user behavior tracking
  * Implements Task 8.1: Track initial iOS download and conversion metrics
@@ -73,7 +73,6 @@ class EnhancedAnalyticsService {
 
       // Track app launch
       this.trackAppLaunch();
-
     } catch (error) {
       logWarn('analytics', 'Enhanced Analytics: Failed to initialize', { error: error.message });
     }
@@ -87,12 +86,12 @@ class EnhancedAnalyticsService {
       platform: Platform.OS,
       app_version: config.app.version,
       launch_time: new Date().toISOString(),
-      session_id: this.generateSessionId()
+      session_id: this.generateSessionId(),
     });
 
     this.trackEvent('session_start', {
       platform: Platform.OS,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   }
 
@@ -112,13 +111,12 @@ class EnhancedAnalyticsService {
         displayName: properties.displayName,
         appVersion: config.app.version,
         platform: Platform.OS,
-        deviceModel: properties.deviceModel
+        deviceModel: properties.deviceModel,
       });
 
       this.trackEvent('user_properties_set', {
-        properties_count: Object.keys(this.userProperties).length
+        properties_count: Object.keys(this.userProperties).length,
       });
-
     } catch (error) {
       console.warn('📊 Analytics: Failed to set user properties:', error);
     }
@@ -137,12 +135,12 @@ class EnhancedAnalyticsService {
       ...parameters,
       timestamp: new Date().toISOString(),
       session_id: this.generateSessionId(),
-      user_id: this.userProperties.userId || 'anonymous'
+      user_id: this.userProperties.userId || 'anonymous',
     };
 
     // Use smart logging instead of direct console logging
     logAnalytics(`Analytics Event: ${eventName}`, eventData);
-    
+
     // Only send to Firebase in production
     if (config.environment === 'production') {
       logAnalyticsEvent(eventName, eventData);
@@ -158,7 +156,7 @@ class EnhancedAnalyticsService {
       conversion_value: metric.value || 0,
       currency: metric.currency || 'USD',
       user_id: metric.userId || this.userProperties.userId,
-      ...metric.metadata
+      ...metric.metadata,
     });
 
     // Track specific conversion events
@@ -191,9 +189,9 @@ class EnhancedAnalyticsService {
       step_completed: step.completed,
       time_spent: step.timeSpent || 0,
       user_id: step.userId || this.userProperties.userId,
-      onboarding_session_duration: this.onboardingStartTime 
-        ? Date.now() - this.onboardingStartTime.getTime() 
-        : 0
+      onboarding_session_duration: this.onboardingStartTime
+        ? Date.now() - this.onboardingStartTime.getTime()
+        : 0,
     });
 
     // Track onboarding completion
@@ -211,7 +209,7 @@ class EnhancedAnalyticsService {
       campaign: metric.campaign || 'unknown',
       keyword: metric.keyword || 'unknown',
       user_id: metric.userId || this.userProperties.userId,
-      platform: Platform.OS
+      platform: Platform.OS,
     });
   }
 
@@ -222,7 +220,7 @@ class EnhancedAnalyticsService {
     this.trackEvent('screen_view', {
       screen_name: screenName,
       screen_class: screenName,
-      ...parameters
+      ...parameters,
     });
   }
 
@@ -232,7 +230,7 @@ class EnhancedAnalyticsService {
   trackEngagement(action: string, parameters?: Record<string, any>): void {
     this.trackEvent('user_engagement', {
       engagement_action: action,
-      ...parameters
+      ...parameters,
     });
   }
 
@@ -242,7 +240,7 @@ class EnhancedAnalyticsService {
   trackHabitEvent(action: string, habitData?: Record<string, any>): void {
     this.trackEvent('habit_action', {
       habit_action: action,
-      ...habitData
+      ...habitData,
     });
   }
 
@@ -252,7 +250,7 @@ class EnhancedAnalyticsService {
   trackSocialEvent(action: string, socialData?: Record<string, any>): void {
     this.trackEvent('social_action', {
       social_action: action,
-      ...socialData
+      ...socialData,
     });
   }
 
@@ -264,7 +262,7 @@ class EnhancedAnalyticsService {
       install_source: 'app_store',
       platform: Platform.OS,
       app_version: config.app.version,
-      install_timestamp: new Date().toISOString()
+      install_timestamp: new Date().toISOString(),
     });
   }
 
@@ -274,9 +272,7 @@ class EnhancedAnalyticsService {
   private trackFirstHabitCreated(): void {
     this.trackEvent('first_habit_created', {
       user_id: this.userProperties.userId,
-      time_to_first_habit: this.sessionStartTime 
-        ? Date.now() - this.sessionStartTime.getTime() 
-        : 0
+      time_to_first_habit: this.sessionStartTime ? Date.now() - this.sessionStartTime.getTime() : 0,
     });
   }
 
@@ -286,9 +282,9 @@ class EnhancedAnalyticsService {
   private trackFirstHabitCompleted(): void {
     this.trackEvent('first_habit_completed', {
       user_id: this.userProperties.userId,
-      time_to_first_completion: this.sessionStartTime 
-        ? Date.now() - this.sessionStartTime.getTime() 
-        : 0
+      time_to_first_completion: this.sessionStartTime
+        ? Date.now() - this.sessionStartTime.getTime()
+        : 0,
     });
   }
 
@@ -298,9 +294,9 @@ class EnhancedAnalyticsService {
   private trackFirstFriendAdded(): void {
     this.trackEvent('first_friend_added', {
       user_id: this.userProperties.userId,
-      time_to_first_friend: this.sessionStartTime 
-        ? Date.now() - this.sessionStartTime.getTime() 
-        : 0
+      time_to_first_friend: this.sessionStartTime
+        ? Date.now() - this.sessionStartTime.getTime()
+        : 0,
     });
   }
 
@@ -308,14 +304,14 @@ class EnhancedAnalyticsService {
    * Track onboarding completion
    */
   private trackOnboardingCompletion(): void {
-    const completionTime = this.onboardingStartTime 
-      ? Date.now() - this.onboardingStartTime.getTime() 
+    const completionTime = this.onboardingStartTime
+      ? Date.now() - this.onboardingStartTime.getTime()
       : 0;
 
     this.trackEvent('onboarding_completed', {
       user_id: this.userProperties.userId,
       completion_time: completionTime,
-      completed_at: new Date().toISOString()
+      completed_at: new Date().toISOString(),
     });
 
     // Reset onboarding timer
@@ -326,13 +322,13 @@ class EnhancedAnalyticsService {
    * Track session end
    */
   trackSessionEnd(): void {
-    const sessionDuration = this.sessionStartTime 
-      ? Date.now() - this.sessionStartTime.getTime() 
+    const sessionDuration = this.sessionStartTime
+      ? Date.now() - this.sessionStartTime.getTime()
       : 0;
 
     this.trackEvent('session_end', {
       session_duration: sessionDuration,
-      end_timestamp: new Date().toISOString()
+      end_timestamp: new Date().toISOString(),
     });
   }
 
@@ -360,7 +356,7 @@ class EnhancedAnalyticsService {
       sessionStartTime: this.sessionStartTime,
       userProperties: this.userProperties,
       platform: Platform.OS,
-      appVersion: config.app.version
+      appVersion: config.app.version,
     };
   }
 
@@ -391,7 +387,7 @@ export const trackConversion = (event: string, value?: number, metadata?: Record
   enhancedAnalyticsService.trackConversion({
     event,
     value,
-    metadata
+    metadata,
   });
 };
 
@@ -399,7 +395,7 @@ export const trackOnboarding = (step: string, completed: boolean, timeSpent?: nu
   enhancedAnalyticsService.trackOnboardingStep({
     step,
     completed,
-    timeSpent
+    timeSpent,
   });
 };
 
@@ -416,7 +412,7 @@ export const trackFeature = (feature: string, action: string, value?: number) =>
     feature,
     action,
     value,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 };
 

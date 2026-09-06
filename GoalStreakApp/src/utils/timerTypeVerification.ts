@@ -7,14 +7,14 @@ import {
   TimerSession,
   TimerConfigForm,
   TimerError,
-  TimerValidationResult
+  TimerValidationResult,
 } from '../types/timer';
 import {
   validateTimerConfig,
   validateTimerForm,
   timerConfigToForm,
   formatTimerDuration,
-  formatRemainingTime
+  formatRemainingTime,
 } from './timerValidation';
 import { TIMER_CONSTANTS } from '../constants/timer';
 
@@ -24,7 +24,7 @@ const sampleTimerConfig: TimerConfig = {
   durationMinutes: 25,
   autoComplete: true,
   createdAt: new Date(),
-  updatedAt: new Date()
+  updatedAt: new Date(),
 };
 
 // Verify TimerState interface
@@ -36,7 +36,7 @@ const sampleTimerState: TimerState = {
   pausedTime: 0,
   remainingTime: 1500000, // 25 minutes in milliseconds
   progress: 0.0,
-  lastUpdate: new Date()
+  lastUpdate: new Date(),
 };
 
 // Verify TimerSession interface
@@ -51,7 +51,7 @@ const sampleTimerSession: TimerSession = {
   pausedDuration: 2,
   completed: true,
   completionMethod: 'timer',
-  createdAt: new Date()
+  createdAt: new Date(),
 };
 
 // Verify TimerConfigForm interface
@@ -59,12 +59,11 @@ const sampleTimerForm: TimerConfigForm = {
   enabled: true,
   hours: 0,
   minutes: 25,
-  autoComplete: true
+  autoComplete: true,
 };
 
 // Verify validation functions work
 export const verifyTimerTypes = () => {
-
   // Test timer config validation
   const configValidation = validateTimerConfig(sampleTimerConfig);
 
@@ -82,7 +81,7 @@ export const verifyTimerTypes = () => {
   const testConstants = {
     minDuration: TIMER_CONSTANTS.MIN_DURATION_MINUTES,
     maxDuration: TIMER_CONSTANTS.MAX_DURATION_MINUTES,
-    defaultDuration: TIMER_CONSTANTS.DEFAULT_DURATION_MINUTES
+    defaultDuration: TIMER_CONSTANTS.DEFAULT_DURATION_MINUTES,
   };
 
   // Test error enum
@@ -97,7 +96,7 @@ export const verifyTimerTypes = () => {
     constants: TIMER_CONSTANTS,
     sampleConfig: sampleTimerConfig,
     sampleState: sampleTimerState,
-    sampleSession: sampleTimerSession
+    sampleSession: sampleTimerSession,
   };
 };
 
@@ -106,7 +105,7 @@ export const SAMPLE_TIMER_DATA = {
   config: sampleTimerConfig,
   state: sampleTimerState,
   session: sampleTimerSession,
-  form: sampleTimerForm
+  form: sampleTimerForm,
 };
 
 // Verify enhanced Habit interface with timer
@@ -132,8 +131,7 @@ const sampleHabitWithTimer: HabitWithTimer = {
   isPublic: false,
   timer: sampleTimerConfig,
   createdAt: new Date(),
-  updatedAt: new Date()
+  updatedAt: new Date(),
 };
-
 
 export { sampleHabitWithTimer };

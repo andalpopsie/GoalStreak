@@ -26,14 +26,7 @@ import { ReportContentType, ReportReason } from '../../types/social';
 // A small pool of distinct user ids keeps collisions (same author, same
 // blocker/blocked, cross-links) frequent enough to exercise the interesting
 // branches while staying human-debuggable.
-const userIdArb: fc.Arbitrary<string> = fc.constantFrom(
-  'u1',
-  'u2',
-  'u3',
-  'u4',
-  'u5',
-  'u6',
-);
+const userIdArb: fc.Arbitrary<string> = fc.constantFrom('u1', 'u2', 'u3', 'u4', 'u5', 'u6');
 
 // A directional block record drawn from the user-id pool.
 const blockRecordArb: fc.Arbitrary<BlockRecord> = fc.record({
@@ -77,7 +70,7 @@ const contentTypeArb: fc.Arbitrary<ReportContentType> = fc.constantFrom(
   'user',
   'activity',
   'group_activity',
-  'group_message',
+  'group_message'
 );
 
 const reasonArb: fc.Arbitrary<ReportReason> = fc.constantFrom(
@@ -86,7 +79,7 @@ const reasonArb: fc.Arbitrary<ReportReason> = fc.constantFrom(
   'inappropriate',
   'hate_speech',
   'impersonation',
-  'other',
+  'other'
 );
 
 const reportInputArb: fc.Arbitrary<BuildReportInput> = fc.record({
@@ -116,7 +109,7 @@ describe('moderationTransitions - Property 6: Block is idempotent', () => {
         expect(once.length).toBeLessThanOrEqual(set.length + 1);
         expect(once.length).toBeGreaterThanOrEqual(set.length);
       }),
-      { numRuns: 100 },
+      { numRuns: 100 }
     );
   });
 });
@@ -134,9 +127,7 @@ describe('moderationTransitions - Property 7: Block then unblock is an identity 
         // Constrain to sets that do NOT already contain the (A -> B) record so
         // the round trip is a true identity (block adds exactly one record that
         // unblock then removes).
-        const set = rawSet.filter(
-          (r) => !(r.blockerId === a && r.blockedUserId === b),
-        );
+        const set = rawSet.filter((r) => !(r.blockerId === a && r.blockedUserId === b));
 
         const blocked = block(set, a, b);
         const roundTrip = unblock(blocked, a, b);
@@ -145,16 +136,12 @@ describe('moderationTransitions - Property 7: Block then unblock is an identity 
         expect(roundTrip).toEqual(set);
 
         // unblock removes exactly the A->B record: no such record survives...
-        expect(
-          roundTrip.some((r) => r.blockerId === a && r.blockedUserId === b),
-        ).toBe(false);
+        expect(roundTrip.some((r) => r.blockerId === a && r.blockedUserId === b)).toBe(false);
         // ...and every other record from the blocked set is preserved.
-        const others = blocked.filter(
-          (r) => !(r.blockerId === a && r.blockedUserId === b),
-        );
+        const others = blocked.filter((r) => !(r.blockerId === a && r.blockedUserId === b));
         expect(roundTrip).toEqual(others);
       }),
-      { numRuns: 100 },
+      { numRuns: 100 }
     );
   });
 });
@@ -188,7 +175,7 @@ describe("moderationTransitions - Property 8: Block_List is exactly the user's o
           expect(outgoing).not.toContain(record);
         }
       }),
-      { numRuns: 100 },
+      { numRuns: 100 }
     );
   });
 });
@@ -210,67 +197,56 @@ describe('moderationTransitions - Property 9: Teardown selects exactly the recor
         distinctPairArb,
         (friendships, requests, [a, b]) => {
           // ── Friendship endpoints (Requirement 1.8) ──
-          const selectedFriendships = selectTeardownRecords(
-            friendships,
-            a,
-            b,
-            (r) => [r.userId, r.friendId],
-          );
+          const selectedFriendships = selectTeardownRecords(friendships, a, b, (r) => [
+            r.userId,
+            r.friendId,
+          ]);
 
           for (const r of selectedFriendships) {
             const links =
-              (r.userId === a && r.friendId === b) ||
-              (r.userId === b && r.friendId === a);
+              (r.userId === a && r.friendId === b) || (r.userId === b && r.friendId === a);
             expect(links).toBe(true);
           }
 
           const expectedFriendships = friendships.filter(
-            (r) =>
-              (r.userId === a && r.friendId === b) ||
-              (r.userId === b && r.friendId === a),
+            (r) => (r.userId === a && r.friendId === b) || (r.userId === b && r.friendId === a)
           );
           expect(selectedFriendships).toEqual(expectedFriendships);
 
           // No third-party friendship record is ever selected.
           for (const r of selectedFriendships) {
             const involvesThirdParty =
-              (r.userId !== a && r.userId !== b) ||
-              (r.friendId !== a && r.friendId !== b);
+              (r.userId !== a && r.userId !== b) || (r.friendId !== a && r.friendId !== b);
             expect(involvesThirdParty).toBe(false);
           }
 
           // ── Friend-request endpoints (Requirement 1.9) ──
-          const selectedRequests = selectTeardownRecords(
-            requests,
-            a,
-            b,
-            (r) => [r.fromUserId, r.toUserId],
-          );
+          const selectedRequests = selectTeardownRecords(requests, a, b, (r) => [
+            r.fromUserId,
+            r.toUserId,
+          ]);
 
           for (const r of selectedRequests) {
             const links =
-              (r.fromUserId === a && r.toUserId === b) ||
-              (r.fromUserId === b && r.toUserId === a);
+              (r.fromUserId === a && r.toUserId === b) || (r.fromUserId === b && r.toUserId === a);
             expect(links).toBe(true);
           }
 
           const expectedRequests = requests.filter(
             (r) =>
-              (r.fromUserId === a && r.toUserId === b) ||
-              (r.fromUserId === b && r.toUserId === a),
+              (r.fromUserId === a && r.toUserId === b) || (r.fromUserId === b && r.toUserId === a)
           );
           expect(selectedRequests).toEqual(expectedRequests);
 
           // No third-party friend-request record is ever selected.
           for (const r of selectedRequests) {
             const involvesThirdParty =
-              (r.fromUserId !== a && r.fromUserId !== b) ||
-              (r.toUserId !== a && r.toUserId !== b);
+              (r.fromUserId !== a && r.fromUserId !== b) || (r.toUserId !== a && r.toUserId !== b);
             expect(involvesThirdParty).toBe(false);
           }
-        },
+        }
       ),
-      { numRuns: 100 },
+      { numRuns: 100 }
     );
   });
 });
@@ -312,9 +288,9 @@ describe('moderationTransitions - Property 10: Report construction maps all fiel
           } else {
             expect(report.contentId).toBe(input.contentId);
           }
-        },
+        }
       ),
-      { numRuns: 100 },
+      { numRuns: 100 }
     );
   });
 });

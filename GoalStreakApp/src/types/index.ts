@@ -36,18 +36,16 @@ export interface Habit {
   updatedAt: Date;
 }
 
-export type HabitCategory = 
+export type HabitCategory =
   // 6-category system with optimized color palette
-  | 'fitness'      // 🟣 Purple (#B771E5) - Exercise, workouts, running, sports
-  | 'wellness'     // 🔷 Teal (#48B3AF) - Health, meditation, sleep, mindfulness
-  | 'nutrition'    // 🟢 Light Green (#A7E399) - Food, water, vitamins, diet
-  | 'social'       // ⚫ Dark Charcoal (#3C3D37) - Friends, family, relationships, music
+  | 'fitness' // 🟣 Purple (#B771E5) - Exercise, workouts, running, sports
+  | 'wellness' // 🔷 Teal (#48B3AF) - Health, meditation, sleep, mindfulness
+  | 'nutrition' // 🟢 Light Green (#A7E399) - Food, water, vitamins, diet
+  | 'social' // ⚫ Dark Charcoal (#3C3D37) - Friends, family, relationships, music
   | 'productivity' // 🔷 Navy (#003161) - Work, learning, organization, writing
-  | 'other';       // 🟠 Orange (#FF9013) - Other habits
+  | 'other'; // 🟠 Orange (#FF9013) - Other habits
 
 export type HabitFrequency = 'daily' | 'weekly' | 'monthly';
-
-
 
 // Habit Completion Types
 export interface HabitCompletion {
@@ -94,7 +92,7 @@ export interface ActivityFeedItem {
   createdAt: Date;
 }
 
-export type ActivityType = 
+export type ActivityType =
   | 'habit_completed'
   | 'streak_milestone'
   | 'habit_created'
@@ -117,8 +115,6 @@ export interface Reaction {
 }
 
 export type ReactionType = '👏' | '🔥' | '💪' | '❤️';
-
-
 
 // Navigation Types
 export type RootStackParamList = {
@@ -192,8 +188,6 @@ export interface CreateHabitForm {
   reminderEnabled?: boolean; // Whether reminder notifications are enabled
 }
 
-
-
 // Component Props Types
 export interface ButtonProps {
   title: string;
@@ -227,8 +221,6 @@ export interface HabitsState {
   streaks: Record<string, Streak>;
   isLoading: boolean;
 }
-
-
 
 export interface FriendsState {
   friends: Friend[];

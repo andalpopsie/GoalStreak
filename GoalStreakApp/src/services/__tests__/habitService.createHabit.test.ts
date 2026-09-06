@@ -147,9 +147,7 @@ describe('habitService.createHabit — Free tier limit enforcement', () => {
     (subscriptionService.getProStatus as jest.Mock).mockResolvedValue(false);
     (getDocs as jest.Mock).mockResolvedValue(makeHabitsSnapshot(6));
 
-    await expect(
-      habitService.createHabit(TEST_USER_ID, makeForm())
-    ).rejects.toMatchObject({
+    await expect(habitService.createHabit(TEST_USER_ID, makeForm())).rejects.toMatchObject({
       name: 'HabitLimitError',
       isPro: false,
       limit: LIMITS.MAX_HABITS_FREE,
@@ -157,9 +155,9 @@ describe('habitService.createHabit — Free tier limit enforcement', () => {
 
     // The thrown error should be the typed class so screens can branch on
     // `instanceof HabitLimitError`.
-    await expect(
-      habitService.createHabit(TEST_USER_ID, makeForm())
-    ).rejects.toBeInstanceOf(HabitLimitError);
+    await expect(habitService.createHabit(TEST_USER_ID, makeForm())).rejects.toBeInstanceOf(
+      HabitLimitError
+    );
 
     // No write should occur once the limit is hit.
     expect(addDoc).not.toHaveBeenCalled();
@@ -187,17 +185,15 @@ describe('habitService.createHabit — Pro tier limit enforcement', () => {
     (subscriptionService.getProStatus as jest.Mock).mockResolvedValue(true);
     (getDocs as jest.Mock).mockResolvedValue(makeHabitsSnapshot(15));
 
-    await expect(
-      habitService.createHabit(TEST_USER_ID, makeForm())
-    ).rejects.toMatchObject({
+    await expect(habitService.createHabit(TEST_USER_ID, makeForm())).rejects.toMatchObject({
       name: 'HabitLimitError',
       isPro: true,
       limit: LIMITS.MAX_HABITS_PRO,
     });
 
-    await expect(
-      habitService.createHabit(TEST_USER_ID, makeForm())
-    ).rejects.toBeInstanceOf(HabitLimitError);
+    await expect(habitService.createHabit(TEST_USER_ID, makeForm())).rejects.toBeInstanceOf(
+      HabitLimitError
+    );
 
     expect(addDoc).not.toHaveBeenCalled();
   });

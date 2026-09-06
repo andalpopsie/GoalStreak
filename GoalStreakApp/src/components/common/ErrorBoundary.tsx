@@ -48,7 +48,7 @@ export default class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: any) {
     const now = Date.now();
-    
+
     // Throttle error reporting to prevent spam
     if (now - this.lastErrorTime < this.ERROR_THROTTLE_MS) {
       this.errorCount++;
@@ -59,11 +59,11 @@ export default class ErrorBoundary extends Component<Props, State> {
     } else {
       this.errorCount = 1;
     }
-    
+
     this.lastErrorTime = now;
-    
+
     console.error(`ErrorBoundary [${this.state.errorId}]:`, error, errorInfo);
-    
+
     // Check if services are initialized before using them
     if (initializationService.isServicesInitialized()) {
       this.reportError(error, errorInfo);
@@ -78,58 +78,77 @@ export default class ErrorBoundary extends Component<Props, State> {
     const message = error.message.toLowerCase();
     const stack = error.stack?.toLowerCase() || '';
     const name = error.name.toLowerCase();
-    
+
     // Network-related errors
-    if (message.includes('network') || message.includes('fetch') || 
-        message.includes('timeout') || name.includes('networkerror')) {
+    if (
+      message.includes('network') ||
+      message.includes('fetch') ||
+      message.includes('timeout') ||
+      name.includes('networkerror')
+    ) {
       return 'network';
     }
-    
+
     // Firebase/Database errors
-    if (message.includes('firebase') || stack.includes('firestore') || 
-        message.includes('auth') || stack.includes('firebase')) {
+    if (
+      message.includes('firebase') ||
+      stack.includes('firestore') ||
+      message.includes('auth') ||
+      stack.includes('firebase')
+    ) {
       return 'firebase';
     }
-    
+
     // Navigation errors
-    if (message.includes('navigation') || stack.includes('navigation') ||
-        message.includes('route') || stack.includes('navigator')) {
+    if (
+      message.includes('navigation') ||
+      stack.includes('navigation') ||
+      message.includes('route') ||
+      stack.includes('navigator')
+    ) {
       return 'navigation';
     }
-    
+
     // Rendering errors
-    if (message.includes('render') || stack.includes('render') ||
-        name.includes('invariantviolation') || message.includes('element')) {
+    if (
+      message.includes('render') ||
+      stack.includes('render') ||
+      name.includes('invariantviolation') ||
+      message.includes('element')
+    ) {
       return 'render';
     }
-    
+
     // Permission errors
-    if (message.includes('permission') || message.includes('denied') ||
-        message.includes('unauthorized')) {
+    if (
+      message.includes('permission') ||
+      message.includes('denied') ||
+      message.includes('unauthorized')
+    ) {
       return 'permission';
     }
-    
+
     // Memory/Performance errors
-    if (message.includes('memory') || message.includes('heap') ||
-        message.includes('performance')) {
+    if (message.includes('memory') || message.includes('heap') || message.includes('performance')) {
       return 'performance';
     }
-    
+
     return 'unknown';
   };
 
   private sanitizeErrorData = (error: Error, errorInfo: any): ErrorContext => {
     // Enhanced sensitive information filtering
     const sensitivePatterns = /password|token|key|secret|auth|email|phone|address|ssn|credit/gi;
-    
+
     const sanitizedStack = error.stack?.replace(sensitivePatterns, '[REDACTED]');
     const sanitizedMessage = error.message.replace(sensitivePatterns, '[REDACTED]');
-    
+
     // Truncate very long stack traces to prevent log bloat
-    const truncatedStack = sanitizedStack?.length > 2000 
-      ? sanitizedStack.substring(0, 2000) + '...[TRUNCATED]'
-      : sanitizedStack;
-    
+    const truncatedStack =
+      sanitizedStack?.length > 2000
+        ? sanitizedStack.substring(0, 2000) + '...[TRUNCATED]'
+        : sanitizedStack;
+
     return {
       error_id: this.state.errorId || `error_${Date.now()}`,
       error_message: sanitizedMessage,
@@ -146,7 +165,7 @@ export default class ErrorBoundary extends Component<Props, State> {
   private reportError = (error: Error, errorInfo: any) => {
     try {
       const errorContext = this.sanitizeErrorData(error, errorInfo);
-      
+
       crashlyticsService.recordError(error, `ErrorBoundary: ${errorInfo.componentStack}`, 'high');
       trackEvent('app_error_boundary_triggered', errorContext);
     } catch (analyticsError) {
@@ -162,7 +181,7 @@ export default class ErrorBoundary extends Component<Props, State> {
       componentStack: errorInfo.componentStack,
       timestamp: new Date().toISOString(),
     };
-    
+
     console.error('Fallback error logging:', errorData);
     // Could store in AsyncStorage for later reporting when services initialize
   };
@@ -181,9 +200,9 @@ export default class ErrorBoundary extends Component<Props, State> {
         <View style={styles.container}>
           <View style={styles.content}>
             <Ionicons name="warning" size={64} color={Colors.warning} />
-            
+
             <Text style={styles.title}>Oops! Something went wrong</Text>
-            
+
             <Text style={styles.message}>
               We encountered an unexpected error. Don't worry, your habits are safe!
             </Text>

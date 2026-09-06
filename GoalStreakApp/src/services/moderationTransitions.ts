@@ -34,14 +34,9 @@ export interface BlockRecord {
  *
  * Requirements: 1.5 (idempotent add), 3.3.
  */
-export function block(
-  set: BlockRecord[],
-  blockerId: string,
-  blockedUserId: string
-): BlockRecord[] {
+export function block(set: BlockRecord[], blockerId: string, blockedUserId: string): BlockRecord[] {
   const alreadyBlocked = set.some(
-    (record) =>
-      record.blockerId === blockerId && record.blockedUserId === blockedUserId
+    (record) => record.blockerId === blockerId && record.blockedUserId === blockedUserId
   );
 
   if (alreadyBlocked) {
@@ -64,8 +59,7 @@ export function unblock(
   blockedUserId: string
 ): BlockRecord[] {
   return set.filter(
-    (record) =>
-      !(record.blockerId === blockerId && record.blockedUserId === blockedUserId)
+    (record) => !(record.blockerId === blockerId && record.blockedUserId === blockedUserId)
   );
 }
 
@@ -97,9 +91,7 @@ export function selectTeardownRecords<T>(
 ): T[] {
   return records.filter((record) => {
     const [from, to] = getEndpoints(record);
-    return (
-      (from === userA && to === userB) || (from === userB && to === userA)
-    );
+    return (from === userA && to === userB) || (from === userB && to === userA);
   });
 }
 
@@ -143,12 +135,8 @@ export interface BuildReportInput {
  * Requirements: 4.5 (field mapping, status 'pending', timestamp), 4.9 (user
  * content id).
  */
-export function buildReport(
-  input: BuildReportInput,
-  timestamp: Date
-): Omit<Report, 'id'> {
-  const contentId =
-    input.contentType === 'user' ? input.reportedUserId : input.contentId;
+export function buildReport(input: BuildReportInput, timestamp: Date): Omit<Report, 'id'> {
+  const contentId = input.contentType === 'user' ? input.reportedUserId : input.contentId;
 
   return {
     reporterId: input.reporterId,

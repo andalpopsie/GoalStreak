@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Typography } from '../constants/theme';
 import { WelcomeCarousel, HabitSuggestions, NotificationSetup } from '../components/onboarding';
@@ -28,14 +23,20 @@ interface HabitTemplate {
 
 export default function OnboardingScreen() {
   const { user } = useAuth();
-  const { onboardingState, completeWelcome, completeHabitSuggestions, completeNotificationSetup, skipOnboarding } = useOnboarding();
+  const {
+    onboardingState,
+    completeWelcome,
+    completeHabitSuggestions,
+    completeNotificationSetup,
+    skipOnboarding,
+  } = useOnboarding();
   const [isCreatingHabits, setIsCreatingHabits] = useState(false);
 
   // DEBUG: Log when component re-renders
 
   useEffect(() => {
     // DEBUG: Log when step changes
-    
+
     // Track onboarding screen view
     trackScreenView('OnboardingScreen', {
       onboarding_step: onboardingState.onboardingStep,
@@ -82,7 +83,7 @@ export default function OnboardingScreen() {
       // Create habits from selected templates
       const createdHabits: string[] = [];
       const failedHabits: string[] = [];
-      
+
       for (const template of selectedHabits) {
         try {
           const habitData: CreateHabitForm = {
@@ -108,7 +109,7 @@ export default function OnboardingScreen() {
         } catch (error) {
           console.error(`Error creating habit ${template.name}:`, error);
           failedHabits.push(template.name);
-          
+
           // Track individual habit creation failure
           trackEvent('onboarding_habit_creation_failed', {
             user_id: user.id,
@@ -117,13 +118,13 @@ export default function OnboardingScreen() {
             template_id: template.id,
             error_message: error instanceof Error ? error.message : 'Unknown error',
           });
-          
+
           // Continue with other habits even if one fails
         }
       }
 
       // Complete onboarding with selected template IDs
-      const templateIds = selectedHabits.map(h => h.id);
+      const templateIds = selectedHabits.map((h) => h.id);
       await completeHabitSuggestions(templateIds);
 
       // Track successful habit creation
@@ -144,10 +145,10 @@ export default function OnboardingScreen() {
       }
     } catch (error) {
       console.error('Error creating habits:', error);
-      
+
       // Still complete onboarding even if habit creation fails
       try {
-        const templateIds = selectedHabits.map(h => h.id);
+        const templateIds = selectedHabits.map((h) => h.id);
         await completeHabitSuggestions(templateIds);
       } catch (onboardingError) {
         console.error('Error completing onboarding:', onboardingError);
@@ -173,7 +174,11 @@ export default function OnboardingScreen() {
     }
   };
 
-  const handleNotificationSetupComplete = async (enabled: boolean, hour: number, minute: number) => {
+  const handleNotificationSetupComplete = async (
+    enabled: boolean,
+    hour: number,
+    minute: number
+  ) => {
     try {
       if (enabled) {
         // Initialize notification service and schedule
@@ -196,24 +201,14 @@ export default function OnboardingScreen() {
 
   const renderCurrentStep = () => {
     // DEBUG: Log current step
-    
+
     switch (onboardingState.onboardingStep) {
       case 'welcome':
-        return (
-          <WelcomeCarousel
-            onComplete={handleWelcomeComplete}
-            onSkip={handleWelcomeSkip}
-          />
-        );
-      
+        return <WelcomeCarousel onComplete={handleWelcomeComplete} onSkip={handleWelcomeSkip} />;
+
       case 'habit_suggestions':
-        return (
-          <HabitSuggestions
-            onSelectHabits={handleHabitsSelected}
-            onSkip={handleHabitsSkip}
-          />
-        );
-      
+        return <HabitSuggestions onSelectHabits={handleHabitsSelected} onSkip={handleHabitsSkip} />;
+
       case 'notification_setup':
         return (
           <NotificationSetup
@@ -221,24 +216,17 @@ export default function OnboardingScreen() {
             onSkip={handleNotificationSetupSkip}
           />
         );
-      
+
       default:
         // This shouldn't happen, but handle it gracefully
-        return (
-          <WelcomeCarousel
-            onComplete={handleWelcomeComplete}
-            onSkip={handleWelcomeSkip}
-          />
-        );
+        return <WelcomeCarousel onComplete={handleWelcomeComplete} onSkip={handleWelcomeSkip} />;
     }
   };
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <View style={styles.content}>
-        {renderCurrentStep()}
-      </View>
-      
+      <View style={styles.content}>{renderCurrentStep()}</View>
+
       {/* Loading overlay for habit creation */}
       {isCreatingHabits && (
         <View style={styles.loadingOverlay}>

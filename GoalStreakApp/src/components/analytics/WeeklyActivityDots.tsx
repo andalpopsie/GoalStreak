@@ -15,7 +15,10 @@ function getDayLabel(dateStr: string): string {
   return date.toLocaleDateString('en-US', { weekday: 'short' });
 }
 
-function getDotStyle(completions: number, totalHabits: number): { color: string; icon: string; opacity: number } {
+function getDotStyle(
+  completions: number,
+  totalHabits: number
+): { color: string; icon: string; opacity: number } {
   if (totalHabits === 0 || completions === 0) {
     return { color: Colors.gray.light, icon: 'ellipse-outline', opacity: 0.5 };
   }
@@ -23,15 +26,15 @@ function getDotStyle(completions: number, totalHabits: number): { color: string;
   const rate = completions / totalHabits;
 
   if (rate >= 0.8) {
-    return { color: '#B771E5', icon: 'checkmark-circle', opacity: 1 };       // Purple — excellent
+    return { color: '#B771E5', icon: 'checkmark-circle', opacity: 1 }; // Purple — excellent
   }
   if (rate >= 0.5) {
     return { color: Colors.accent3, icon: 'checkmark-circle', opacity: 0.85 }; // Teal — good
   }
   if (rate > 0) {
-    return { color: Colors.accent1, icon: 'ellipse', opacity: 0.6 };          // Accent — partial
+    return { color: Colors.accent1, icon: 'ellipse', opacity: 0.6 }; // Accent — partial
   }
-  return { color: Colors.gray.light, icon: 'ellipse-outline', opacity: 0.5 };  // Empty
+  return { color: Colors.gray.light, icon: 'ellipse-outline', opacity: 0.5 }; // Empty
 }
 
 function isToday(dateStr: string): boolean {
@@ -45,9 +48,10 @@ export default function WeeklyActivityDots({ data, totalHabits }: WeeklyActivity
 
   // Pad to 7 days if less data
   while (last7.length < 7) {
-    const prevDate = last7.length > 0
-      ? new Date(new Date(last7[0].date).getTime() - 86400000)
-      : new Date(Date.now() - (7 - last7.length) * 86400000);
+    const prevDate =
+      last7.length > 0
+        ? new Date(new Date(last7[0].date).getTime() - 86400000)
+        : new Date(Date.now() - (7 - last7.length) * 86400000);
     last7.unshift({ date: prevDate.toISOString().split('T')[0], completions: 0, totalHabits: 0 });
   }
 
@@ -72,10 +76,7 @@ export default function WeeklyActivityDots({ data, totalHabits }: WeeklyActivity
               <Text style={[styles.dayLabel, today && styles.dayLabelToday]}>
                 {getDayLabel(day.date)}
               </Text>
-              <View style={[
-                styles.dotContainer,
-                today && styles.dotContainerToday,
-              ]}>
+              <View style={[styles.dotContainer, today && styles.dotContainerToday]}>
                 <Ionicons
                   name={dot.icon as any}
                   size={28}
@@ -83,9 +84,7 @@ export default function WeeklyActivityDots({ data, totalHabits }: WeeklyActivity
                   style={{ opacity: dot.opacity }}
                 />
               </View>
-              <Text style={styles.countLabel}>
-                {day.completions > 0 ? day.completions : '–'}
-              </Text>
+              <Text style={styles.countLabel}>{day.completions > 0 ? day.completions : '–'}</Text>
             </View>
           );
         })}
@@ -96,11 +95,11 @@ export default function WeeklyActivityDots({ data, totalHabits }: WeeklyActivity
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 16,             // 8 × 2 (base)
-    marginVertical: 8,                // 8 × 1 (tight)
+    marginHorizontal: 16, // 8 × 2 (base)
+    marginVertical: 8, // 8 × 1 (tight)
     backgroundColor: Colors.white,
     borderRadius: 16,
-    padding: 16,                      // 8 × 2 (base)
+    padding: 16, // 8 × 2 (base)
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
@@ -111,17 +110,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,                 // 8 × 2 (base)
+    marginBottom: 16, // 8 × 2 (base)
   },
   title: {
-    fontSize: 16,                     // body
-    fontWeight: '600',                // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
   },
   weekRate: {
-    fontSize: 14,                     // caption
-    fontWeight: '600',                // semibold
+    fontSize: 14, // caption
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.accent1,
   },
@@ -134,21 +133,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   dayLabel: {
-    fontSize: 12,                     // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
-    fontWeight: '500',                // medium
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
-    marginBottom: 8,                  // 8 × 1 (tight)
+    marginBottom: 8, // 8 × 1 (tight)
     textTransform: 'uppercase',
   },
   dayLabelToday: {
     color: Colors.accent1,
-    fontWeight: '700',                // bold
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
   },
   dotContainer: {
-    width: 36,                        // 8 × 4.5
-    height: 36,                       // 8 × 4.5
+    width: 36, // 8 × 4.5
+    height: 36, // 8 × 4.5
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
@@ -158,10 +157,10 @@ const styles = StyleSheet.create({
     borderColor: Colors.accent1 + '40',
   },
   countLabel: {
-    fontSize: 12,                     // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
     marginTop: 4,
-    fontWeight: '500',                // medium
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
   },
 });

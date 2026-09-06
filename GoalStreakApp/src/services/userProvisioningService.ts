@@ -48,7 +48,7 @@ export interface ProvisionResult {
  */
 export async function isNewUser(
   firebaseUser: User,
-  additionalUserInfoIsNew?: boolean | null,
+  additionalUserInfoIsNew?: boolean | null
 ): Promise<boolean> {
   // The provider-supplied flag takes precedence whenever it is defined.
   if (additionalUserInfoIsNew !== undefined && additionalUserInfoIsNew !== null) {
@@ -77,9 +77,7 @@ export async function isNewUser(
  *     the next authentication can re-run provisioning; records already written
  *     are safe to overwrite on retry (R5.11).
  */
-export async function provisionNewUser(
-  input: ProvisionInput,
-): Promise<ProvisionResult> {
+export async function provisionNewUser(input: ProvisionInput): Promise<ProvisionResult> {
   const { firebaseUser, eulaVersion } = input;
   const uid = firebaseUser.uid;
 
@@ -94,8 +92,7 @@ export async function provisionNewUser(
   // Generate a unique username, bounded to MAX_USERNAME_ATTEMPTS tries (R5.5).
   // The generation seed prefers the supplied display name, falling back to any
   // provider name on the Firebase user and finally a generic seed.
-  const usernameSeed =
-    input.displayName || firebaseUser.displayName || 'user';
+  const usernameSeed = input.displayName || firebaseUser.displayName || 'user';
 
   let username: string | undefined;
   for (let attempt = 0; attempt < MAX_USERNAME_ATTEMPTS; attempt++) {
@@ -109,7 +106,7 @@ export async function provisionNewUser(
   // All attempts collided: fail before reserving anything (R5.5, R5.11).
   if (!username) {
     throw new Error(
-      `Unable to generate an available username after ${MAX_USERNAME_ATTEMPTS} attempts`,
+      `Unable to generate an available username after ${MAX_USERNAME_ATTEMPTS} attempts`
     );
   }
 

@@ -1,5 +1,5 @@
 // Friend Suggestions Service - Suggest active users on the platform
-// 
+//
 // PRIVACY MODEL:
 // - Shows random active users who aren't already friends
 // - No habit data exposed until they become friends
@@ -32,15 +32,12 @@ export const friendSuggestionsService = {
       console.log('🔍 Finding suggested friends from platform users...');
 
       // Query random users (limit to 20, then filter and randomize)
-      const usersQuery = query(
-        collection(db, 'users'),
-        limit(20)
-      );
+      const usersQuery = query(collection(db, 'users'), limit(20));
 
       const usersSnapshot = await getDocs(usersQuery);
       const suggestions: SuggestedFriend[] = [];
 
-      usersSnapshot.forEach(doc => {
+      usersSnapshot.forEach((doc) => {
         const userData = doc.data();
         const suggestedUserId = doc.id;
 

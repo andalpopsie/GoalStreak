@@ -1,5 +1,17 @@
 import React, { useCallback, useState, useEffect, useMemo } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, Modal, Alert, ScrollView, ActivityIndicator, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  TextInput,
+  Modal,
+  Alert,
+  ScrollView,
+  ActivityIndicator,
+  Dimensions,
+} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
@@ -11,7 +23,17 @@ import { filterActivities, filterReactions } from '../../services/moderationFilt
 import ReportReasonSheet from './ReportReasonSheet';
 import { formatRelativeTime } from '../../utils/timeUtils';
 import { photoService } from '../../services/photoService';
-import { addDoc, collection, serverTimestamp, query, where, getDocs, orderBy, doc, getDoc } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  serverTimestamp,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  doc,
+  getDoc,
+} from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import { achievementsService } from '../../services/achievementsService';
 
@@ -20,7 +42,13 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 interface ActivityFeedTabProps {
   activityFeed: SocialActivity[];
   onReaction: (activityId: string, reactionType: ReactionType) => Promise<void>;
-  onCreatePost?: (habitId: string, habitName: string, habitCategory: string, photoUri: string, caption?: string) => Promise<void>;
+  onCreatePost?: (
+    habitId: string,
+    habitName: string,
+    habitCategory: string,
+    photoUri: string,
+    caption?: string
+  ) => Promise<void>;
   currentUserId?: string;
   currentUserName?: string;
   habits?: { id: string; name: string; category: string }[];
@@ -34,12 +62,12 @@ export default function ActivityFeedTab({
   currentUserName,
   habits = [],
 }: ActivityFeedTabProps) {
-  const [profilePhotos, setProfilePhotos] = useState<{[key: string]: string}>({});
+  const [profilePhotos, setProfilePhotos] = useState<{ [key: string]: string }>({});
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<SocialActivity | null>(null);
   const [commentText, setCommentText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [commentCounts, setCommentCounts] = useState<{[activityId: string]: number}>({});
+  const [commentCounts, setCommentCounts] = useState<{ [activityId: string]: number }>({});
   const [comments, setComments] = useState<any[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
 
@@ -83,8 +111,8 @@ export default function ActivityFeedTab({
       return;
     }
 
-    const photos: {[key: string]: string} = {};
-    
+    const photos: { [key: string]: string } = {};
+
     for (const activity of filteredFeed) {
       if (activity?.userId && !photos[activity.userId]) {
         try {
@@ -97,7 +125,7 @@ export default function ActivityFeedTab({
         }
       }
     }
-    
+
     if (currentUserId && !photos[currentUserId]) {
       try {
         const photoUri = await photoService.getProfilePhoto(currentUserId);
@@ -108,25 +136,28 @@ export default function ActivityFeedTab({
         console.error('Error loading current user photo:', error);
       }
     }
-    
+
     setProfilePhotos(photos);
   };
 
-  const handleReaction = useCallback(async (activityId: string, reactionType: ReactionType) => {
-    await onReaction(activityId, reactionType);
-  }, [onReaction]);
+  const handleReaction = useCallback(
+    async (activityId: string, reactionType: ReactionType) => {
+      await onReaction(activityId, reactionType);
+    },
+    [onReaction]
+  );
 
   const getReactionCount = (activity: SocialActivity, reactionType: ReactionType) => {
     if (!activity.reactions) return 0;
-    
-    return Object.values(activity.reactions).filter((userReactions: any) => 
-      Array.isArray(userReactions) && userReactions.includes(reactionType)
+
+    return Object.values(activity.reactions).filter(
+      (userReactions: any) => Array.isArray(userReactions) && userReactions.includes(reactionType)
     ).length;
   };
 
   const hasUserReacted = (activity: SocialActivity, reactionType: ReactionType) => {
     if (!activity.reactions || !currentUserId) return false;
-    
+
     const userReactions = activity.reactions[currentUserId];
     return Array.isArray(userReactions) && userReactions.includes(reactionType);
   };
@@ -152,21 +183,18 @@ export default function ActivityFeedTab({
       return;
     }
 
-    const counts: {[activityId: string]: number} = {};
-    
+    const counts: { [activityId: string]: number } = {};
+
     for (const activity of filteredFeed) {
       try {
-        const q = query(
-          collection(db, 'comments'),
-          where('activityId', '==', activity.id)
-        );
+        const q = query(collection(db, 'comments'), where('activityId', '==', activity.id));
         const snapshot = await getDocs(q);
         counts[activity.id] = snapshot.size;
       } catch (error) {
         console.error('Error loading comment count:', error);
       }
     }
-    
+
     setCommentCounts(counts);
   };
 
@@ -184,7 +212,7 @@ export default function ActivityFeedTab({
         orderBy('createdAt', 'desc')
       );
       const snapshot = await getDocs(q);
-      const loadedComments = snapshot.docs.map(doc => ({
+      const loadedComments = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
@@ -202,10 +230,10 @@ export default function ActivityFeedTab({
 
     try {
       setIsSubmitting(true);
-      
+
       // Use the current user's name passed from parent
       const userName = currentUserName || 'User';
-      
+
       await addDoc(collection(db, 'comments'), {
         activityId: selectedActivity.id,
         userId: currentUserId,
@@ -231,9 +259,9 @@ export default function ActivityFeedTab({
       }
 
       // Update comment count locally
-      setCommentCounts(prev => ({
+      setCommentCounts((prev) => ({
         ...prev,
-        [selectedActivity.id]: (prev[selectedActivity.id] || 0) + 1
+        [selectedActivity.id]: (prev[selectedActivity.id] || 0) + 1,
       }));
 
       // Reload comments to show the new one
@@ -254,12 +282,9 @@ export default function ActivityFeedTab({
   const checkCommentAchievements = async (userId: string) => {
     try {
       // Count total comments by user
-      const q = query(
-        collection(db, 'comments'),
-        where('userId', '==', userId)
-      );
+      const q = query(collection(db, 'comments'), where('userId', '==', userId));
       const snapshot = await getDocs(q);
-      
+
       if (snapshot.size >= 5) {
         await achievementsService.unlockAchievement('conversation_starter');
       }
@@ -334,12 +359,18 @@ export default function ActivityFeedTab({
   const handleSubmitPost = async () => {
     if (!postPhotoUri || !selectedHabitId || !onCreatePost) return;
 
-    const habit = habits.find(h => h.id === selectedHabitId);
+    const habit = habits.find((h) => h.id === selectedHabitId);
     if (!habit) return;
 
     setIsPosting(true);
     try {
-      await onCreatePost(habit.id, habit.name, habit.category, postPhotoUri, postCaption.trim() || undefined);
+      await onCreatePost(
+        habit.id,
+        habit.name,
+        habit.category,
+        postPhotoUri,
+        postCaption.trim() || undefined
+      );
       // Reset and close
       setPostPhotoUri(null);
       setPostCaption('');
@@ -384,164 +415,168 @@ export default function ActivityFeedTab({
         <ActivityIndicator size="small" color={Colors.accent1} style={styles.moderationLoader} />
       ) : (
         filteredFeed.map((activity, index) => (
-        <View key={activity?.id || index} style={styles.activityCard}>
-          <View style={styles.activityHeader}>
-            <View style={styles.profilePhoto}>
-              {profilePhotos[activity?.userId || ''] ? (
-                <Image 
-                  source={{ uri: profilePhotos[activity?.userId || ''] }} 
-                  style={styles.profileImage}
-                  onError={(error) => console.warn('Image load error:', error.nativeEvent.error)}
-                />
-              ) : (
-                <Text style={styles.initials}>
-                  {String(activity?.userName || 'U').charAt(0).toUpperCase()}
-                </Text>
-              )}
-            </View>
-            <View style={styles.activityContent}>
-              <View style={styles.userInfo}>
-                <Text style={styles.activityUser}>
-                  {String(activity?.userName || 'Unknown User')}
-                </Text>
-                {activity?.visibility && (
-                  <Ionicons
-                    name={activity.visibility === 'private' ? 'lock-closed' : 'people'}
-                    size={12}
-                    color={Colors.gray.medium}
+          <View key={activity?.id || index} style={styles.activityCard}>
+            <View style={styles.activityHeader}>
+              <View style={styles.profilePhoto}>
+                {profilePhotos[activity?.userId || ''] ? (
+                  <Image
+                    source={{ uri: profilePhotos[activity?.userId || ''] }}
+                    style={styles.profileImage}
+                    onError={(error) => console.warn('Image load error:', error.nativeEvent.error)}
+                  />
+                ) : (
+                  <Text style={styles.initials}>
+                    {String(activity?.userName || 'U')
+                      .charAt(0)
+                      .toUpperCase()}
+                  </Text>
+                )}
+              </View>
+              <View style={styles.activityContent}>
+                <View style={styles.userInfo}>
+                  <Text style={styles.activityUser}>
+                    {String(activity?.userName || 'Unknown User')}
+                  </Text>
+                  {activity?.visibility && (
+                    <Ionicons
+                      name={activity.visibility === 'private' ? 'lock-closed' : 'people'}
+                      size={12}
+                      color={Colors.gray.medium}
+                    />
+                  )}
+                  <Text style={styles.activityTime}>{formatRelativeTime(activity?.timestamp)}</Text>
+                </View>
+                <Text style={styles.activityText}>{getActivityText(activity)}</Text>
+
+                {/* Caption — shown below activity text when present */}
+                {activity.caption && activity.type !== 'progress_post' && (
+                  <Text style={styles.activityCaption}>"{activity.caption}"</Text>
+                )}
+
+                {/* Progress Photo — displayed below the text */}
+                {activity.photoUrl && (
+                  <Image
+                    source={{ uri: activity.photoUrl }}
+                    style={styles.activityPhoto}
+                    resizeMode="cover"
+                    accessible={true}
+                    accessibilityLabel={`Progress photo for ${activity.habitName}`}
                   />
                 )}
-                <Text style={styles.activityTime}>
-                  {formatRelativeTime(activity?.timestamp)}
-                </Text>
+
+                {/* Reactions */}
+                <View style={styles.reactionsContainer}>
+                  <TouchableOpacity
+                    style={[
+                      styles.reactionButton,
+                      hasUserReacted(activity, 'heart') && styles.reactionButtonActive,
+                    ]}
+                    onPress={() => handleReaction(activity.id, 'heart')}
+                  >
+                    <Ionicons
+                      name={hasUserReacted(activity, 'heart') ? 'heart' : 'heart-outline'}
+                      size={18}
+                      color={hasUserReacted(activity, 'heart') ? '#FF6B6B' : Colors.secondaryText}
+                    />
+                    {getReactionCount(activity, 'heart') > 0 && (
+                      <Text
+                        style={[
+                          styles.reactionCount,
+                          hasUserReacted(activity, 'heart') && styles.reactionCountActive,
+                        ]}
+                      >
+                        {getReactionCount(activity, 'heart')}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.reactionButton,
+                      hasUserReacted(activity, 'flame') && styles.reactionButtonActive,
+                    ]}
+                    onPress={() => handleReaction(activity.id, 'flame')}
+                  >
+                    <Ionicons
+                      name={hasUserReacted(activity, 'flame') ? 'flame' : 'flame-outline'}
+                      size={18}
+                      color={hasUserReacted(activity, 'flame') ? '#FF8C00' : Colors.secondaryText}
+                    />
+                    {getReactionCount(activity, 'flame') > 0 && (
+                      <Text
+                        style={[
+                          styles.reactionCount,
+                          hasUserReacted(activity, 'flame') && styles.reactionCountActive,
+                        ]}
+                      >
+                        {getReactionCount(activity, 'flame')}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.reactionButton,
+                      hasUserReacted(activity, 'medal') && styles.reactionButtonActive,
+                    ]}
+                    onPress={() => handleReaction(activity.id, 'medal')}
+                  >
+                    <Ionicons
+                      name={hasUserReacted(activity, 'medal') ? 'medal' : 'medal-outline'}
+                      size={18}
+                      color={hasUserReacted(activity, 'medal') ? '#FFD700' : Colors.secondaryText}
+                    />
+                    {getReactionCount(activity, 'medal') > 0 && (
+                      <Text
+                        style={[
+                          styles.reactionCount,
+                          hasUserReacted(activity, 'medal') && styles.reactionCountActive,
+                        ]}
+                      >
+                        {getReactionCount(activity, 'medal')}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.reactionButton}
+                    onPress={() => {
+                      setSelectedActivity(activity);
+                      loadCommentsForActivity(activity.id);
+                      setShowCommentModal(true);
+                    }}
+                  >
+                    <Ionicons
+                      name={commentCounts[activity.id] > 0 ? 'chatbubble' : 'chatbubble-outline'}
+                      size={18}
+                      color={commentCounts[activity.id] > 0 ? Colors.accent1 : Colors.secondaryText}
+                    />
+                    {commentCounts[activity.id] > 0 && (
+                      <Text
+                        style={[
+                          styles.reactionCount,
+                          commentCounts[activity.id] > 0 && styles.reactionCountActive,
+                        ]}
+                      >
+                        {commentCounts[activity.id]}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
               </View>
-              <Text style={styles.activityText}>
-                {getActivityText(activity)}
-              </Text>
 
-              {/* Caption — shown below activity text when present */}
-              {activity.caption && activity.type !== 'progress_post' && (
-                <Text style={styles.activityCaption}>
-                  "{activity.caption}"
-                </Text>
-              )}
-
-              {/* Progress Photo — displayed below the text */}
-              {activity.photoUrl && (
-                <Image
-                  source={{ uri: activity.photoUrl }}
-                  style={styles.activityPhoto}
-                  resizeMode="cover"
-                  accessible={true}
-                  accessibilityLabel={`Progress photo for ${activity.habitName}`}
-                />
-              )}
-
-              {/* Reactions */}
-              <View style={styles.reactionsContainer}>
-                <TouchableOpacity 
-                  style={[
-                    styles.reactionButton,
-                    hasUserReacted(activity, 'heart') && styles.reactionButtonActive
-                  ]}
-                  onPress={() => handleReaction(activity.id, 'heart')}
-                >
-                  <Ionicons 
-                    name={hasUserReacted(activity, 'heart') ? "heart" : "heart-outline"} 
-                    size={18} 
-                    color={hasUserReacted(activity, 'heart') ? '#FF6B6B' : Colors.secondaryText} 
-                  />
-                  {getReactionCount(activity, 'heart') > 0 && (
-                    <Text style={[
-                      styles.reactionCount,
-                      hasUserReacted(activity, 'heart') && styles.reactionCountActive
-                    ]}>
-                      {getReactionCount(activity, 'heart')}
-                    </Text>
-                  )}
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={[
-                    styles.reactionButton,
-                    hasUserReacted(activity, 'flame') && styles.reactionButtonActive
-                  ]}
-                  onPress={() => handleReaction(activity.id, 'flame')}
-                >
-                  <Ionicons 
-                    name={hasUserReacted(activity, 'flame') ? "flame" : "flame-outline"} 
-                    size={18} 
-                    color={hasUserReacted(activity, 'flame') ? '#FF8C00' : Colors.secondaryText} 
-                  />
-                  {getReactionCount(activity, 'flame') > 0 && (
-                    <Text style={[
-                      styles.reactionCount,
-                      hasUserReacted(activity, 'flame') && styles.reactionCountActive
-                    ]}>
-                      {getReactionCount(activity, 'flame')}
-                    </Text>
-                  )}
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={[
-                    styles.reactionButton,
-                    hasUserReacted(activity, 'medal') && styles.reactionButtonActive
-                  ]}
-                  onPress={() => handleReaction(activity.id, 'medal')}
-                >
-                  <Ionicons 
-                    name={hasUserReacted(activity, 'medal') ? "medal" : "medal-outline"} 
-                    size={18} 
-                    color={hasUserReacted(activity, 'medal') ? '#FFD700' : Colors.secondaryText} 
-                  />
-                  {getReactionCount(activity, 'medal') > 0 && (
-                    <Text style={[
-                      styles.reactionCount,
-                      hasUserReacted(activity, 'medal') && styles.reactionCountActive
-                    ]}>
-                      {getReactionCount(activity, 'medal')}
-                    </Text>
-                  )}
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={styles.reactionButton}
-                  onPress={() => {
-                    setSelectedActivity(activity);
-                    loadCommentsForActivity(activity.id);
-                    setShowCommentModal(true);
-                  }}
-                >
-                  <Ionicons 
-                    name={commentCounts[activity.id] > 0 ? "chatbubble" : "chatbubble-outline"} 
-                    size={18} 
-                    color={commentCounts[activity.id] > 0 ? Colors.accent1 : Colors.secondaryText} 
-                  />
-                  {commentCounts[activity.id] > 0 && (
-                    <Text style={[
-                      styles.reactionCount,
-                      commentCounts[activity.id] > 0 && styles.reactionCountActive
-                    ]}>
-                      {commentCounts[activity.id]}
-                    </Text>
-                  )}
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Report affordance — only offered on other users' activity, never
+              {/* Report affordance — only offered on other users' activity, never
                 the user's own (Requirement 4.2). Opens the shared ReportReasonSheet. */}
-            {activity?.userId && activity.userId !== currentUserId && (
-              <TouchableOpacity
-                style={styles.reportButton}
-                onPress={() => setReportTarget(activity)}
-                hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
-                accessibilityRole="button"
-                accessibilityLabel={`Report ${activity?.userName || 'this'} activity`}
-              >
-                <Ionicons name="ellipsis-horizontal" size={20} color={Colors.secondaryText} />
-              </TouchableOpacity>
-            )}
+              {activity?.userId && activity.userId !== currentUserId && (
+                <TouchableOpacity
+                  style={styles.reportButton}
+                  onPress={() => setReportTarget(activity)}
+                  hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Report ${activity?.userName || 'this'} activity`}
+                >
+                  <Ionicons name="ellipsis-horizontal" size={20} color={Colors.secondaryText} />
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
-        </View>
         ))
       )}
 
@@ -552,12 +587,12 @@ export default function ActivityFeedTab({
         transparent={true}
         onRequestClose={() => setShowCommentModal(false)}
       >
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
           onPress={() => setShowCommentModal(false)}
         >
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.modalContent}
             activeOpacity={1}
             onPress={(e) => e.stopPropagation()}
@@ -576,8 +611,8 @@ export default function ActivityFeedTab({
               <View style={styles.activityPreview}>
                 <View style={styles.previewPhoto}>
                   {profilePhotos[selectedActivity.userId] ? (
-                    <Image 
-                      source={{ uri: profilePhotos[selectedActivity.userId] }} 
+                    <Image
+                      source={{ uri: profilePhotos[selectedActivity.userId] }}
                       style={styles.previewImage}
                     />
                   ) : (
@@ -598,14 +633,18 @@ export default function ActivityFeedTab({
             {/* Comments List */}
             <ScrollView style={styles.commentsList}>
               {loadingComments ? (
-                <ActivityIndicator size="small" color={Colors.accent1} style={{ marginVertical: 20 }} />
+                <ActivityIndicator
+                  size="small"
+                  color={Colors.accent1}
+                  style={{ marginVertical: 20 }}
+                />
               ) : comments.length > 0 ? (
                 comments.map((comment) => (
                   <View key={comment.id} style={styles.commentItem}>
                     <View style={styles.commentPhoto}>
                       {profilePhotos[comment.userId] ? (
-                        <Image 
-                          source={{ uri: profilePhotos[comment.userId] }} 
+                        <Image
+                          source={{ uri: profilePhotos[comment.userId] }}
                           style={styles.commentImage}
                         />
                       ) : (
@@ -620,7 +659,9 @@ export default function ActivityFeedTab({
                         {comment.text}
                       </Text>
                       <Text style={styles.commentTime}>
-                        {comment.createdAt ? formatRelativeTime(comment.createdAt.toDate()) : 'Just now'}
+                        {comment.createdAt
+                          ? formatRelativeTime(comment.createdAt.toDate())
+                          : 'Just now'}
                       </Text>
                     </View>
                   </View>
@@ -634,8 +675,8 @@ export default function ActivityFeedTab({
             <View style={styles.commentInputContainer}>
               <View style={styles.currentUserPhoto}>
                 {profilePhotos[currentUserId || ''] ? (
-                  <Image 
-                    source={{ uri: profilePhotos[currentUserId || ''] }} 
+                  <Image
+                    source={{ uri: profilePhotos[currentUserId || ''] }}
                     style={styles.currentUserImage}
                   />
                 ) : (
@@ -658,10 +699,12 @@ export default function ActivityFeedTab({
                 onPress={handleAddComment}
                 disabled={!commentText.trim() || isSubmitting}
               >
-                <Text style={[
-                  styles.postButton,
-                  (!commentText.trim() || isSubmitting) && styles.postButtonDisabled
-                ]}>
+                <Text
+                  style={[
+                    styles.postButton,
+                    (!commentText.trim() || isSubmitting) && styles.postButtonDisabled,
+                  ]}
+                >
                   {isSubmitting ? '...' : 'Post'}
                 </Text>
               </TouchableOpacity>
@@ -688,10 +731,12 @@ export default function ActivityFeedTab({
               onPress={handleSubmitPost}
               disabled={!postPhotoUri || !selectedHabitId || isPosting}
             >
-              <Text style={[
-                styles.postModalShare,
-                (!postPhotoUri || !selectedHabitId || isPosting) && styles.postModalShareDisabled,
-              ]}>
+              <Text
+                style={[
+                  styles.postModalShare,
+                  (!postPhotoUri || !selectedHabitId || isPosting) && styles.postModalShareDisabled,
+                ]}
+              >
                 {isPosting ? 'Posting...' : 'Share'}
               </Text>
             </TouchableOpacity>
@@ -701,8 +746,15 @@ export default function ActivityFeedTab({
             {/* Photo Section */}
             {postPhotoUri ? (
               <View style={styles.postPhotoPreview}>
-                <Image source={{ uri: postPhotoUri }} style={styles.postPhotoImage} resizeMode="cover" />
-                <TouchableOpacity style={styles.postPhotoRemove} onPress={() => setPostPhotoUri(null)}>
+                <Image
+                  source={{ uri: postPhotoUri }}
+                  style={styles.postPhotoImage}
+                  resizeMode="cover"
+                />
+                <TouchableOpacity
+                  style={styles.postPhotoRemove}
+                  onPress={() => setPostPhotoUri(null)}
+                >
                   <Ionicons name="close-circle" size={28} color={Colors.white} />
                 </TouchableOpacity>
               </View>
@@ -740,7 +792,11 @@ export default function ActivityFeedTab({
             {/* Habit Selector */}
             <View style={styles.postHabitSection}>
               <Text style={styles.postHabitLabel}>Which habit is this for?</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.postHabitScroll}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.postHabitScroll}
+              >
                 {habits.map((habit) => (
                   <TouchableOpacity
                     key={habit.id}
@@ -750,10 +806,12 @@ export default function ActivityFeedTab({
                     ]}
                     onPress={() => setSelectedHabitId(habit.id)}
                   >
-                    <Text style={[
-                      styles.postHabitChipText,
-                      selectedHabitId === habit.id && styles.postHabitChipTextSelected,
-                    ]}>
+                    <Text
+                      style={[
+                        styles.postHabitChipText,
+                        selectedHabitId === habit.id && styles.postHabitChipTextSelected,
+                      ]}
+                    >
                       {habit.name}
                     </Text>
                   </TouchableOpacity>
@@ -801,12 +859,12 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   reportButton: {
-    width: 48,                         // 8 × 6 (touch target ≥ 48px)
-    height: 48,                        // 8 × 6
+    width: 48, // 8 × 6 (touch target ≥ 48px)
+    height: 48, // 8 × 6
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 8,                     // 8 × 1 (tight) — separate from content
-    marginTop: -4,                     // nudge up to align with the header row
+    marginLeft: 8, // 8 × 1 (tight) — separate from content
+    marginTop: -4, // nudge up to align with the header row
   },
   profilePhoto: {
     width: 40,
@@ -1081,9 +1139,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: Colors.white,
-    marginHorizontal: 16,              // 8 × 2 (base)
-    marginVertical: 12,                // 8 × 1.5
-    padding: 16,                       // 8 × 2 (base)
+    marginHorizontal: 16, // 8 × 2 (base)
+    marginVertical: 12, // 8 × 1.5
+    padding: 16, // 8 × 2 (base)
     borderRadius: 16,
     borderWidth: 1,
     borderColor: Colors.gray.light,
@@ -1092,27 +1150,27 @@ const styles = StyleSheet.create({
   createPostLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,                           // 8 × 1.5
+    gap: 12, // 8 × 1.5
   },
   createPostIcon: {
-    width: 40,                         // 8 × 5
-    height: 40,                        // 8 × 5
+    width: 40, // 8 × 5
+    height: 40, // 8 × 5
     borderRadius: 20,
     backgroundColor: Colors.accent1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   createPostText: {
-    fontSize: 16,                      // body
+    fontSize: 16, // body
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.regular,
   },
   // ── Activity Photo ──
   activityPhoto: {
     width: '100%',
-    height: 240,                       // 8 × 30
+    height: 240, // 8 × 30
     borderRadius: 12,
-    marginTop: 8,                      // 8 × 1 (tight)
+    marginTop: 8, // 8 × 1 (tight)
     marginBottom: 4,
     backgroundColor: Colors.gray.light,
   },
@@ -1125,27 +1183,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,             // 8 × 2 (base)
-    paddingVertical: 16,               // 8 × 2 (base)
+    paddingHorizontal: 16, // 8 × 2 (base)
+    paddingVertical: 16, // 8 × 2 (base)
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
     backgroundColor: Colors.white,
   },
   postModalCancel: {
-    fontSize: 16,                      // body
+    fontSize: 16, // body
     color: Colors.secondaryText,
     minWidth: 60,
     fontFamily: Typography.fontFamily.regular,
   },
   postModalTitle: {
-    fontSize: 20,                      // subheading
-    fontWeight: '600',                 // semibold
+    fontSize: 20, // subheading
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,
   },
   postModalShare: {
-    fontSize: 16,                      // body
-    fontWeight: '600',                 // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     color: Colors.accent1,
     minWidth: 60,
     textAlign: 'right',
@@ -1156,16 +1214,16 @@ const styles = StyleSheet.create({
   },
   postModalBody: {
     flex: 1,
-    padding: 16,                       // 8 × 2 (base)
+    padding: 16, // 8 × 2 (base)
   },
   // Photo preview
   postPhotoPreview: {
     position: 'relative',
-    marginBottom: 16,                  // 8 × 2 (base)
+    marginBottom: 16, // 8 × 2 (base)
   },
   postPhotoImage: {
     width: '100%',
-    height: 280,                       // 8 × 35
+    height: 280, // 8 × 35
     borderRadius: 16,
     backgroundColor: Colors.gray.light,
   },
@@ -1178,8 +1236,8 @@ const styles = StyleSheet.create({
   postPhotoPlaceholder: {
     backgroundColor: Colors.white,
     borderRadius: 16,
-    padding: 32,                       // 8 × 4 (loose)
-    marginBottom: 16,                  // 8 × 2 (base)
+    padding: 32, // 8 × 4 (loose)
+    marginBottom: 16, // 8 × 2 (base)
     alignItems: 'center',
     borderWidth: 2,
     borderColor: Colors.gray.light,
@@ -1188,77 +1246,77 @@ const styles = StyleSheet.create({
   postPhotoActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 32,                           // 8 × 4 (loose)
+    gap: 32, // 8 × 4 (loose)
   },
   postPhotoButton: {
     alignItems: 'center',
-    gap: 8,                            // 8 × 1 (tight)
-    minWidth: 80,                      // 8 × 10
-    minHeight: 56,                     // 8 × 7 (touch target)
+    gap: 8, // 8 × 1 (tight)
+    minWidth: 80, // 8 × 10
+    minHeight: 56, // 8 × 7 (touch target)
   },
   postPhotoButtonText: {
-    fontSize: 14,                      // caption
+    fontSize: 14, // caption
     color: Colors.accent1,
-    fontWeight: '500',                 // medium
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
   },
   postPhotoDivider: {
     width: 1,
-    height: 48,                        // 8 × 6
+    height: 48, // 8 × 6
     backgroundColor: Colors.gray.light,
   },
   // Caption
   postCaptionSection: {
     backgroundColor: Colors.white,
     borderRadius: 16,
-    padding: 16,                       // 8 × 2 (base)
-    marginBottom: 16,                  // 8 × 2 (base)
+    padding: 16, // 8 × 2 (base)
+    marginBottom: 16, // 8 × 2 (base)
   },
   postCaptionInput: {
-    fontSize: 16,                      // body
+    fontSize: 16, // body
     color: Colors.primaryText,
-    minHeight: 80,                     // 8 × 10
+    minHeight: 80, // 8 × 10
     lineHeight: 24,
     fontFamily: Typography.fontFamily.regular,
   },
   postCaptionCount: {
-    fontSize: 12,                      // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
     textAlign: 'right',
-    marginTop: 8,                      // 8 × 1 (tight)
+    marginTop: 8, // 8 × 1 (tight)
     fontFamily: Typography.fontFamily.regular,
   },
   // Habit selector
   postHabitSection: {
-    marginBottom: 32,                  // 8 × 4 (loose)
+    marginBottom: 32, // 8 × 4 (loose)
   },
   postHabitLabel: {
-    fontSize: 16,                      // body
-    fontWeight: '600',                 // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
-    marginBottom: 12,                  // 8 × 1.5
+    marginBottom: 12, // 8 × 1.5
     fontFamily: Typography.fontFamily.semibold,
   },
   postHabitScroll: {
-    gap: 8,                            // 8 × 1 (tight)
+    gap: 8, // 8 × 1 (tight)
   },
   postHabitChip: {
-    paddingHorizontal: 16,             // 8 × 2 (base)
+    paddingHorizontal: 16, // 8 × 2 (base)
     paddingVertical: 10,
-    borderRadius: 20,                  // pill
+    borderRadius: 20, // pill
     backgroundColor: Colors.white,
     borderWidth: 1,
     borderColor: Colors.gray.light,
-    minHeight: 40,                     // 8 × 5
+    minHeight: 40, // 8 × 5
   },
   postHabitChipSelected: {
     backgroundColor: Colors.accent1,
     borderColor: Colors.accent1,
   },
   postHabitChipText: {
-    fontSize: 14,                      // caption
+    fontSize: 14, // caption
     color: Colors.primaryText,
-    fontWeight: '500',                 // medium
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
   },
   postHabitChipTextSelected: {

@@ -93,32 +93,32 @@ export default function ActivityCard({ activity, onReport, onBlock }: ActivityCa
 
   const getActivityText = () => {
     const { userName, habitName, type, streakCount, milestone } = activity;
-    
+
     // Ensure all values are strings
     const safeUserName = userName || 'Someone';
     const safeHabitName = habitName || 'a habit';
     const safeStreakCount = streakCount || 0;
     const safeMilestone = milestone || 'milestone';
-    
+
     switch (type) {
       case 'habit_completed':
         if (safeStreakCount > 1) {
           return `${safeUserName} completed "${safeHabitName}" (${safeStreakCount} day streak!)`;
         }
         return `${safeUserName} completed "${safeHabitName}"`;
-      
+
       case 'streak_milestone':
         return `${safeUserName} reached a ${safeMilestone} streak with "${safeHabitName}"! 🔥`;
-      
+
       case 'habit_created':
         return `${safeUserName} started tracking "${safeHabitName}"`;
-      
+
       case 'goal_achieved':
         return `${safeUserName} achieved their goal with "${safeHabitName}"!`;
-      
+
       case 'weekly_goal_met':
         return `${safeUserName} met their weekly goal for "${safeHabitName}"`;
-      
+
       default:
         return `${safeUserName} updated "${safeHabitName}"`;
     }
@@ -127,7 +127,7 @@ export default function ActivityCard({ activity, onReport, onBlock }: ActivityCa
   const getInitials = (name: string) => {
     return name
       .split(' ')
-      .map(word => word.charAt(0))
+      .map((word) => word.charAt(0))
       .join('')
       .toUpperCase()
       .slice(0, 2);
@@ -147,34 +147,26 @@ export default function ActivityCard({ activity, onReport, onBlock }: ActivityCa
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{getInitials(activity.userName)}</Text>
         </View>
-        
+
         {/* Activity Type Indicator */}
         <View style={[styles.activityIndicator, { backgroundColor: getActivityColor() }]}>
-          <Ionicons 
-            name={getActivityIcon() as any} 
-            size={12} 
-            color={Colors.white} 
-          />
+          <Ionicons name={getActivityIcon() as any} size={12} color={Colors.white} />
         </View>
       </View>
 
       {/* Activity Content */}
       <View style={styles.contentContainer}>
         <View style={styles.activityHeader}>
-          <Text style={styles.activityText}>
-            {getActivityText()}
-          </Text>
-          <Text style={styles.timeText}>
-            {formatRelativeTime(activity.timestamp)}
-          </Text>
+          <Text style={styles.activityText}>{getActivityText()}</Text>
+          <Text style={styles.timeText}>{formatRelativeTime(activity.timestamp)}</Text>
         </View>
 
         {/* Habit Category Badge */}
         <View style={styles.habitBadge}>
-          <Ionicons 
-            name={getCategoryIcon(activity.habitCategory) as any} 
-            size={14} 
-            color={Colors.gray.dark} 
+          <Ionicons
+            name={getCategoryIcon(activity.habitCategory) as any}
+            size={14}
+            color={Colors.gray.dark}
           />
           <Text style={styles.categoryText}>
             {activity.habitCategory.charAt(0).toUpperCase() + activity.habitCategory.slice(1)}
@@ -186,9 +178,7 @@ export default function ActivityCard({ activity, onReport, onBlock }: ActivityCa
           <View style={styles.milestoneContainer}>
             <View style={styles.milestoneContent}>
               <Ionicons name="flame" size={16} color={Colors.accent1} />
-              <Text style={styles.milestoneText}>
-                {activity.streakCount} Day Streak!
-              </Text>
+              <Text style={styles.milestoneText}>{activity.streakCount} Day Streak!</Text>
             </View>
             {activity.streakCount >= 30 && (
               <Text style={styles.celebrationText}>🎉 Amazing dedication!</Text>
@@ -261,13 +251,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   moreButton: {
-    width: 48,                 // 8 × 6 (touch target ≥ 48px)
-    height: 48,                // 8 × 6
+    width: 48, // 8 × 6 (touch target ≥ 48px)
+    height: 48, // 8 × 6
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: Spacing.xs,    // 8 — separate from content
-    marginTop: -Spacing.xs,    // pull up to align with the first text line
-    marginRight: -Spacing.xs,  // absorb into the card's right padding
+    marginLeft: Spacing.xs, // 8 — separate from content
+    marginTop: -Spacing.xs, // pull up to align with the first text line
+    marginRight: -Spacing.xs, // absorb into the card's right padding
   },
   activityHeader: {
     flexDirection: 'row',

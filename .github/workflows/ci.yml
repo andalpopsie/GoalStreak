@@ -96,3 +96,31 @@ jobs:
       - name: Run Firestore rules tests against the emulator
         if: needs.changes.outputs.rules == 'true'
         run: npm run test:emulator
+
+  # NON-BLOCKING security audit. Reports vulnerabilities on every PR so they
+  # are visible in the CI log, but never fails the build. Once the existing
+  # vulnerability backlog is cleared, change `continue-on-error: true` to
+  # `false` and add `-- --audit-level=high` to the audit command to gate on
+  # high/critical findings.
+  security-audit:
+    name: Dependency vulnerability audit (non-blocking)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: GoalStreakApp/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit (report only)
+        # continue-on-error keeps this job green even when vulnerabilities are
+        # found. Flip to false once the backlog is cleared.
+        continue-on-error: true
+        run: npm audit --audit-level=info

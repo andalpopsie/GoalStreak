@@ -37,18 +37,21 @@ export default function GoalferLanding() {
             streaks, accountability partners, and a supportive community.
           </p>
 
-          {/* Waitlist form — prominent, right under the subheader */}
-          <div className="mb-8">
-            <WaitlistForm />
-          </div>
-
-          {/* Prominent App Store download */}
-          <div className="flex justify-center">
+          {/* Primary CTA — App Store download */}
+          <div className="mb-4 flex justify-center">
             <AppStoreButton />
           </div>
-          <p className="mt-4 text-sm text-muted-foreground">
-            Available now on iOS · Android coming soon
+          <p className="mb-12 text-sm text-muted-foreground">
+            Free to download · Available now on iOS
           </p>
+
+          {/* Secondary — Android waitlist */}
+          <div className="mx-auto max-w-md">
+            <p className="mb-3 text-sm font-medium text-foreground">
+              On Android? Get notified when we launch.
+            </p>
+            <WaitlistForm />
+          </div>
         </div>
       </section>
 

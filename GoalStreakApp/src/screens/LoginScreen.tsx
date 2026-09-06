@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Image
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -52,7 +52,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   useEffect(() => {
     trackScreen('LoginScreen', { source: 'app_navigation' });
     trackEvent('login_screen_viewed', {
-      source: 'app_navigation'
+      source: 'app_navigation',
     });
   }, []);
 
@@ -82,8 +82,8 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
         errors: Object.keys(errors),
         form_completion: {
           has_email: !!form.email.trim(),
-          has_password: !!form.password
-        }
+          has_password: !!form.password,
+        },
       });
       return;
     }
@@ -92,24 +92,24 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
     try {
       // Track login attempt
       trackEvent('login_started', {
-        email_domain: form.email.split('@')[1]
+        email_domain: form.email.split('@')[1],
       });
 
       await signIn(form.email.trim(), form.password);
-      
+
       // Track successful login
       trackEvent('login_completed', {
-        email_domain: form.email.split('@')[1]
+        email_domain: form.email.split('@')[1],
       });
-      
+
       // Navigation will be handled by the auth state change
     } catch (error: any) {
       // Track login error
       trackEvent('login_error', {
         error_message: error.message,
-        email_domain: form.email.split('@')[1]
+        email_domain: form.email.split('@')[1],
       });
-      
+
       Alert.alert('Sign In Failed', error.message);
     } finally {
       setIsLoading(false);
@@ -177,8 +177,7 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
   // (R1.4, R1.5). When it's visible we lead with the provider chooser and reveal
   // the email/password form on demand (progressive disclosure); when it's not,
   // the email form is the only method, so it's shown directly.
-  const ssoVisible =
-    Platform.OS === 'ios' && (ssoAvailability.apple || ssoAvailability.google);
+  const ssoVisible = Platform.OS === 'ios' && (ssoAvailability.apple || ssoAvailability.google);
   const showChooser = ssoVisible && !showEmailForm;
 
   return (
@@ -313,75 +312,75 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 16,                    // 8 * 2 (base spacing)
+    padding: 16, // 8 * 2 (base spacing)
     justifyContent: 'center',
   },
   header: {
     alignItems: 'center',
-    marginBottom: 48,               // 8 * 6 (spacious)
+    marginBottom: 48, // 8 * 6 (spacious)
   },
   logo: {
-    width: 96,                      // 8 * 12 (larger for brand presence)
-    height: 96,                     // 8 * 12
-    marginBottom: 24,               // 8 * 3 (comfortable)
+    width: 96, // 8 * 12 (larger for brand presence)
+    height: 96, // 8 * 12
+    marginBottom: 24, // 8 * 3 (comfortable)
   },
   title: {
-    fontSize: 24,                   // heading
-    fontWeight: '700',              // bold
+    fontSize: 24, // heading
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
-    marginBottom: 8,                // 8 * 1 (tight)
+    marginBottom: 8, // 8 * 1 (tight)
   },
   subtitle: {
-    fontSize: 16,                   // body
+    fontSize: 16, // body
     fontFamily: Typography.fontFamily.regular,
     color: Colors.accent2,
     textAlign: 'center',
-    lineHeight: 24,                 // 1.5 line height
+    lineHeight: 24, // 1.5 line height
   },
   form: {
-    marginBottom: 32,               // 8 * 4 (loose)
+    marginBottom: 32, // 8 * 4 (loose)
   },
   chooser: {
-    marginBottom: 32,               // 8 * 4 (loose)
+    marginBottom: 32, // 8 * 4 (loose)
   },
   dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 24,             // 8 * 3 (comfortable) — space above & below
+    marginVertical: 24, // 8 * 3 (comfortable) — space above & below
   },
   emailButton: {
     width: '100%',
-    minHeight: 56,                  // 8 * 7 (primary touch target)
-    paddingVertical: 16,            // 8 * 2 (base)
-    paddingHorizontal: 24,          // 8 * 3 (comfortable)
-    borderRadius: 32,               // pill, matches the SSO buttons
+    minHeight: 56, // 8 * 7 (primary touch target)
+    paddingVertical: 16, // 8 * 2 (base)
+    paddingHorizontal: 24, // 8 * 3 (comfortable)
+    borderRadius: 32, // pill, matches the SSO buttons
     backgroundColor: Colors.accent1, // purple CTA (#B771E5)
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
   emailButtonIcon: {
-    marginRight: 8,                 // 8 * 1 (tight) icon-label pair
+    marginRight: 8, // 8 * 1 (tight) icon-label pair
   },
   emailButtonText: {
     fontFamily: Typography.fontFamily.semibold,
-    fontSize: 16,                   // body
-    fontWeight: '600',              // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     color: Colors.white,
   },
   backLink: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'center',
-    marginTop: 16,                  // 8 * 2 (base)
-    minHeight: 44,                  // touch target
-    paddingVertical: 8,             // 8 * 1 (tight)
+    marginTop: 16, // 8 * 2 (base)
+    minHeight: 44, // touch target
+    paddingVertical: 8, // 8 * 1 (tight)
   },
   backLinkText: {
-    fontSize: 16,                   // body
+    fontSize: 16, // body
     color: Colors.primaryText,
-    fontWeight: '500',              // medium
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
   },
   dividerLine: {
@@ -390,39 +389,39 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.border,
   },
   dividerText: {
-    fontSize: 14,                   // caption
+    fontSize: 14, // caption
     fontFamily: Typography.fontFamily.regular,
     color: Colors.gray.dark,
-    marginHorizontal: 16,           // 8 * 2 (base)
+    marginHorizontal: 16, // 8 * 2 (base)
   },
   forgotPassword: {
-    alignSelf: 'center',            // Centered (modern pattern)
-    marginTop: 16,                  // 8 * 2 (base)
-    minHeight: 44,                  // Touch target
+    alignSelf: 'center', // Centered (modern pattern)
+    marginTop: 16, // 8 * 2 (base)
+    minHeight: 44, // Touch target
     justifyContent: 'center',
-    paddingVertical: 8,             // 8 * 1 (easier to tap)
+    paddingVertical: 8, // 8 * 1 (easier to tap)
   },
   forgotPasswordText: {
-    fontSize: 16,                   // body (readable, interactive text)
-    color: Colors.primaryText,      // Darker, more subtle
-    fontWeight: '500',              // medium
+    fontSize: 16, // body (readable, interactive text)
+    color: Colors.primaryText, // Darker, more subtle
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,                  // 8 * 2 (base)
+    marginTop: 16, // 8 * 2 (base)
   },
   footerText: {
-    fontSize: 16,                   // body
+    fontSize: 16, // body
     fontFamily: Typography.fontFamily.regular,
     color: Colors.gray.dark,
   },
   signUpLink: {
-    fontSize: 16,                   // body
+    fontSize: 16, // body
     color: Colors.accent1,
-    fontWeight: '600',              // semibold
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
 });

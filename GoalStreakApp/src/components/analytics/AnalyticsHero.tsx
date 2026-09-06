@@ -69,7 +69,9 @@ export default function AnalyticsHero({
         <View style={styles.statBlock}>
           <View style={styles.statIconRow}>
             <Ionicons name="checkmark-done" size={18} color={Colors.accent3} />
-            <Text style={[styles.statNumber, { color: Colors.accent3 }]}>{completionRate.toFixed(0)}%</Text>
+            <Text style={[styles.statNumber, { color: Colors.accent3 }]}>
+              {completionRate.toFixed(0)}%
+            </Text>
           </View>
           <Text style={styles.statLabel}>This Week</Text>
         </View>
@@ -91,12 +93,12 @@ export default function AnalyticsHero({
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 16,             // 8 × 2 (base)
-    marginTop: 16,                    // 8 × 2 (base)
-    marginBottom: 8,                  // 8 × 1 (tight)
+    marginHorizontal: 16, // 8 × 2 (base)
+    marginTop: 16, // 8 × 2 (base)
+    marginBottom: 8, // 8 × 1 (tight)
     backgroundColor: Colors.white,
     borderRadius: 16,
-    padding: 20,                      // 8 × 2.5
+    padding: 20, // 8 × 2.5
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
@@ -104,11 +106,11 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   greeting: {
-    fontSize: 20,                     // subheading
-    fontWeight: '700',                // bold
+    fontSize: 20, // subheading
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
-    marginBottom: 16,                 // 8 × 2 (base)
+    marginBottom: 16, // 8 × 2 (base)
   },
   statsRow: {
     flexDirection: 'row',
@@ -125,19 +127,19 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   statNumber: {
-    fontSize: 24,                     // heading
-    fontWeight: '700',                // bold
+    fontSize: 24, // heading
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
   },
   statLabel: {
-    fontSize: 12,                     // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
-    fontWeight: '500',                // medium
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
   },
   statDivider: {
     width: 1,
-    height: 32,                       // 8 × 4
+    height: 32, // 8 × 4
     backgroundColor: Colors.gray.light,
   },
 });

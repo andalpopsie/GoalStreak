@@ -42,12 +42,7 @@ export default function MilestoneCelebration({
   if (!milestone) return null;
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="none"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
       <View style={styles.overlay}>
         {/* Confetti */}
         <ConfettiCannon
@@ -61,39 +56,27 @@ export default function MilestoneCelebration({
         />
 
         {/* Celebration Card */}
-        <Animated.View 
+        <Animated.View
           entering={ZoomIn.delay(200).duration(600)}
           exiting={FadeOut.duration(300)}
           style={styles.card}
         >
           {/* Icon */}
-          <Animated.View 
+          <Animated.View
             entering={ZoomIn.delay(400).duration(600)}
             style={[styles.iconContainer, { backgroundColor: milestone.color + '20' }]}
           >
-            <Ionicons 
-              name={milestone.icon as any} 
-              size={64} 
-              color={milestone.color} 
-            />
+            <Ionicons name={milestone.icon as any} size={64} color={milestone.color} />
           </Animated.View>
 
           {/* Title */}
-          <Animated.Text 
-            entering={FadeIn.delay(600)}
-            style={styles.title}
-          >
+          <Animated.Text entering={FadeIn.delay(600)} style={styles.title}>
             {milestone.title}
           </Animated.Text>
 
           {/* Value */}
-          <Animated.View 
-            entering={ZoomIn.delay(700).duration(500)}
-            style={styles.valueContainer}
-          >
-            <Text style={[styles.value, { color: milestone.color }]}>
-              {milestone.value}
-            </Text>
+          <Animated.View entering={ZoomIn.delay(700).duration(500)} style={styles.valueContainer}>
+            <Text style={[styles.value, { color: milestone.color }]}>{milestone.value}</Text>
             <Text style={styles.valueLabel}>
               {milestone.type === 'completion' && 'Completions'}
               {milestone.type === 'streak' && 'Day Streak'}
@@ -102,16 +85,13 @@ export default function MilestoneCelebration({
           </Animated.View>
 
           {/* Message */}
-          <Animated.Text 
-            entering={FadeIn.delay(800)}
-            style={styles.message}
-          >
+          <Animated.Text entering={FadeIn.delay(800)} style={styles.message}>
             {milestone.message}
           </Animated.Text>
 
           {/* Close Button */}
           <Animated.View entering={FadeIn.delay(1000)}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.closeButton, { backgroundColor: milestone.color }]}
               onPress={onClose}
             >

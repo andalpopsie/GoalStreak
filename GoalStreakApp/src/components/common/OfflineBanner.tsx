@@ -12,7 +12,7 @@ export default function OfflineBanner({ isVisible }: OfflineBannerProps) {
   if (!isVisible) return null;
 
   return (
-    <Animated.View 
+    <Animated.View
       style={styles.container}
       entering={FadeInDown.duration(300)}
       exiting={FadeOutUp.duration(300)}

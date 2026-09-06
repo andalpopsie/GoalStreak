@@ -15,7 +15,13 @@ export interface NetworkState {
 
 export interface OfflineOperation {
   id: string;
-  type: 'timer_start' | 'timer_pause' | 'timer_resume' | 'timer_reset' | 'timer_complete' | 'session_save';
+  type:
+    | 'timer_start'
+    | 'timer_pause'
+    | 'timer_resume'
+    | 'timer_reset'
+    | 'timer_complete'
+    | 'session_save';
   data: any;
   timestamp: Date;
   retryCount: number;
@@ -65,7 +71,7 @@ export class TimerNetworkHandler {
    */
   addNetworkListener(listener: (state: NetworkState) => void): () => void {
     this.networkListeners.push(listener);
-    
+
     // Return unsubscribe function
     return () => {
       const index = this.networkListeners.indexOf(listener);
@@ -89,7 +95,7 @@ export class TimerNetworkHandler {
       data,
       timestamp: new Date(),
       retryCount: 0,
-      maxRetries
+      maxRetries,
     };
 
     this.offlineQueue.push(operation);
@@ -116,7 +122,7 @@ export class TimerNetworkHandler {
         fallbackData.data,
         fallbackData.maxRetries
       );
-      
+
       // Handle offline scenario based on operation type
       return this.handleOfflineScenario(fallbackData.type, fallbackData.data);
     }
@@ -125,7 +131,7 @@ export class TimerNetworkHandler {
       return await operation();
     } catch (error) {
       console.error('Network operation failed:', error);
-      
+
       // Check if it's a network error
       if (this.isNetworkError(error)) {
         // Queue for retry
@@ -134,11 +140,11 @@ export class TimerNetworkHandler {
           fallbackData.data,
           fallbackData.maxRetries
         );
-        
+
         // Handle as offline scenario
         return this.handleOfflineScenario(fallbackData.type, fallbackData.data);
       }
-      
+
       // Re-throw non-network errors
       throw error;
     }
@@ -163,34 +169,28 @@ export class TimerNetworkHandler {
         successfulOperations.push(operation.id);
       } catch (error) {
         console.error(`Failed to sync operation ${operation.id}:`, error);
-        
+
         // Increment retry count
         operation.retryCount++;
-        
+
         if (operation.retryCount >= operation.maxRetries) {
           console.warn(`Max retries reached for operation ${operation.id}, removing from queue`);
           successfulOperations.push(operation.id); // Remove from queue
-          
+
           // Handle failed operation
-          await timerErrorHandler.handleError(
-            TimerError.BACKGROUND_SYNC_FAILED,
-            {
-              operation: operation.type,
-              additionalData: { operationId: operation.id, retryCount: operation.retryCount }
-            }
-          );
+          await timerErrorHandler.handleError(TimerError.BACKGROUND_SYNC_FAILED, {
+            operation: operation.type,
+            additionalData: { operationId: operation.id, retryCount: operation.retryCount },
+          });
         }
       }
     }
 
     // Remove successful operations from queue
-    this.offlineQueue = this.offlineQueue.filter(
-      op => !successfulOperations.includes(op.id)
-    );
+    this.offlineQueue = this.offlineQueue.filter((op) => !successfulOperations.includes(op.id));
 
     await this.saveOfflineQueue();
     this.syncInProgress = false;
-
   }
 
   /**
@@ -230,10 +230,10 @@ export class TimerNetworkHandler {
   private async executeOfflineOperation(operation: OfflineOperation): Promise<void> {
     // This would be implemented by the calling service
     // For now, we'll just simulate the execution
-    
+
     // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     // In a real implementation, this would call the appropriate service method
     switch (operation.type) {
       case 'timer_start':
@@ -262,10 +262,10 @@ export class TimerNetworkHandler {
    */
   private isNetworkError(error: any): boolean {
     if (!error) return false;
-    
+
     const message = error.message?.toLowerCase() || '';
     const code = error.code?.toLowerCase() || '';
-    
+
     return (
       message.includes('network') ||
       message.includes('connection') ||
@@ -290,11 +290,11 @@ export class TimerNetworkHandler {
     this.networkCheckInterval = setInterval(async () => {
       const previousState = { ...this.networkState };
       await this.updateNetworkState();
-      
+
       // Check if network state changed
       if (previousState.isConnected !== this.networkState.isConnected) {
         this.notifyNetworkListeners();
-        
+
         // If we just came online, sync offline operations
         if (this.networkState.isConnected && !previousState.isConnected) {
           setTimeout(() => this.syncOfflineOperations(), 1000); // Small delay to ensure stability
@@ -312,7 +312,7 @@ export class TimerNetworkHandler {
       this.networkState = {
         isConnected: networkState.isConnected ?? false,
         type: networkState.type,
-        isInternetReachable: networkState.isInternetReachable ?? undefined
+        isInternetReachable: networkState.isInternetReachable ?? undefined,
       };
     } catch (error) {
       console.error('Error checking network state:', error);
@@ -324,7 +324,7 @@ export class TimerNetworkHandler {
    * Notify network listeners
    */
   private notifyNetworkListeners(): void {
-    this.networkListeners.forEach(listener => {
+    this.networkListeners.forEach((listener) => {
       try {
         listener(this.networkState);
       } catch (error) {
@@ -352,11 +352,13 @@ export class TimerNetworkHandler {
    */
   private async loadOfflineQueue(): Promise<void> {
     try {
-      const stored = await AsyncStorage.getItem(TIMER_STORAGE_KEYS.TIMER_HISTORY + '_offline_queue');
+      const stored = await AsyncStorage.getItem(
+        TIMER_STORAGE_KEYS.TIMER_HISTORY + '_offline_queue'
+      );
       if (stored) {
         this.offlineQueue = JSON.parse(stored).map((op: any) => ({
           ...op,
-          timestamp: new Date(op.timestamp)
+          timestamp: new Date(op.timestamp),
         }));
       }
     } catch (error) {
@@ -385,11 +387,11 @@ export class TimerNetworkHandler {
       return { count: 0 };
     }
 
-    const timestamps = this.offlineQueue.map(op => op.timestamp);
+    const timestamps = this.offlineQueue.map((op) => op.timestamp);
     return {
       count: this.offlineQueue.length,
-      oldestOperation: new Date(Math.min(...timestamps.map(t => t.getTime()))),
-      newestOperation: new Date(Math.max(...timestamps.map(t => t.getTime())))
+      oldestOperation: new Date(Math.min(...timestamps.map((t) => t.getTime()))),
+      newestOperation: new Date(Math.max(...timestamps.map((t) => t.getTime()))),
     };
   }
 
@@ -444,7 +446,7 @@ export const networkUtils = {
   /**
    * Add network listener
    */
-  onNetworkChange: (listener: (state: NetworkState) => void): (() => void) => 
+  onNetworkChange: (listener: (state: NetworkState) => void): (() => void) =>
     timerNetworkHandler.addNetworkListener(listener),
 
   /**
@@ -455,5 +457,5 @@ export const networkUtils = {
   /**
    * Force sync offline operations
    */
-  syncNow: (): Promise<void> => timerNetworkHandler.syncOfflineOperations()
+  syncNow: (): Promise<void> => timerNetworkHandler.syncOfflineOperations(),
 };

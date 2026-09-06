@@ -12,11 +12,7 @@ export default function SkeletonHabitCard() {
   const opacity = useSharedValue(0.3);
 
   useEffect(() => {
-    opacity.value = withRepeat(
-      withTiming(1, { duration: 1000 }),
-      -1,
-      true
-    );
+    opacity.value = withRepeat(withTiming(1, { duration: 1000 }), -1, true);
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({

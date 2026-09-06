@@ -1,6 +1,6 @@
 /**
  * iOS Pre-Launch Testing Execution Script
- * 
+ *
  * Main script to execute comprehensive iOS pre-launch testing
  * Requirements: 5.1, 5.2, 5.3, 5.4, 5.5 - Execute comprehensive iOS pre-launch testing
  */
@@ -20,18 +20,20 @@ export async function runIOSPreLaunchTests(
   // Validate environment
   console.log('🔍 Validating iOS testing environment...');
   const envValidation = IOSTestRunner.validateEnvironment();
-  
+
   if (!envValidation.isValid) {
     console.log('❌ Environment validation failed:');
-    envValidation.issues.forEach(issue => console.log(`  • ${issue}`));
-    
+    envValidation.issues.forEach((issue) => console.log(`  • ${issue}`));
+
     if (envValidation.recommendations.length > 0) {
       console.log('\n💡 Recommendations:');
-      envValidation.recommendations.forEach(rec => console.log(`  • ${rec}`));
+      envValidation.recommendations.forEach((rec) => console.log(`  • ${rec}`));
     }
-    
+
     // Continue with warnings but note limitations
-    console.log('\n⚠️  Continuing with testing (results may not be fully accurate on non-iOS platform)...\n');
+    console.log(
+      '\n⚠️  Continuing with testing (results may not be fully accurate on non-iOS platform)...\n'
+    );
   } else {
     console.log('✅ Environment validation passed!\n');
   }
@@ -72,7 +74,6 @@ export async function runIOSPreLaunchTests(
     console.log(`App Store Ready: ${report.readyForAppStore ? 'YES' : 'NO'}`);
 
     return testsPassed;
-
   } catch (error) {
     console.error('\n❌ FATAL ERROR: iOS testing failed unexpectedly:');
     console.error(error);
@@ -88,16 +89,16 @@ export async function runIOSSmokeTests(): Promise<boolean> {
   console.log('============================');
 
   const testRunner = new IOSTestRunner();
-  
+
   try {
     const passed = await testRunner.runSmokeTests();
-    
+
     if (passed) {
       console.log('\n✅ All smoke tests passed! Core functionality is working.');
     } else {
       console.log('\n❌ Some smoke tests failed. Critical issues detected.');
     }
-    
+
     return passed;
   } catch (error) {
     console.error('\n❌ Smoke tests failed:', error);
@@ -122,14 +123,14 @@ export async function runIOSTestCategory(
   };
 
   const testRunner = new IOSTestRunner(config);
-  
+
   try {
     const report = await testRunner.runComprehensiveTests();
     const passed = report.summary.criticalFailures === 0;
-    
+
     console.log(`\n${passed ? '✅' : '❌'} ${category} tests completed`);
     console.log(`Pass Rate: ${report.summary.passRate.toFixed(1)}%`);
-    
+
     return passed;
   } catch (error) {
     console.error(`\n❌ ${category} tests failed:`, error);
@@ -149,35 +150,35 @@ export async function runIOSTestsCLI(): Promise<void> {
     case 'comprehensive':
       await runIOSPreLaunchTests();
       break;
-      
+
     case 'smoke':
       await runIOSSmokeTests();
       break;
-      
+
     case 'device':
       await runIOSTestCategory('device');
       break;
-      
+
     case 'version':
       await runIOSTestCategory('version');
       break;
-      
+
     case 'userflow':
     case 'flows':
       await runIOSTestCategory('userFlow');
       break;
-      
+
     case 'features':
     case 'ios':
       await runIOSTestCategory('iosFeature');
       break;
-      
+
     case 'help':
     case '--help':
     case '-h':
       printHelp();
       break;
-      
+
     default:
       console.log(`❌ Unknown command: ${command}`);
       printHelp();
@@ -225,7 +226,7 @@ export default {
 
 // Run CLI if this file is executed directly
 if (require.main === module) {
-  runIOSTestsCLI().catch(error => {
+  runIOSTestsCLI().catch((error) => {
     console.error('❌ Test execution failed:', error);
     process.exit(1);
   });

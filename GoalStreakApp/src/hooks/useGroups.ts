@@ -2,11 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from './useAuth';
 import groupService from '../services/groupService';
-import {
-  Group,
-  GroupInvitation,
-  CreateGroupForm,
-} from '../types/social';
+import { Group, GroupInvitation, CreateGroupForm } from '../types/social';
 
 interface UseGroupsReturn {
   // State
@@ -61,28 +57,25 @@ export const useGroups = (): UseGroupsReturn => {
 
     setIsLoadingGroups(true);
 
-    const unsubscribe = groupService.subscribeToUserGroups(
-      user.id,
-      async (updatedGroups) => {
-        // On first load, check for expired groups and auto-end them (Req 7.4)
-        if (!hasCheckedExpired.current) {
-          hasCheckedExpired.current = true;
-          try {
-            const endedIds = await groupService.checkAndEndExpiredGroups(updatedGroups);
-            if (endedIds.length > 0) {
-              // Filter out the just-ended groups from the active list;
-              // the subscription will fire again with the updated data
-              updatedGroups = updatedGroups.filter(g => !endedIds.includes(g.id));
-            }
-          } catch (err) {
-            console.warn('Error checking expired groups:', err);
+    const unsubscribe = groupService.subscribeToUserGroups(user.id, async (updatedGroups) => {
+      // On first load, check for expired groups and auto-end them (Req 7.4)
+      if (!hasCheckedExpired.current) {
+        hasCheckedExpired.current = true;
+        try {
+          const endedIds = await groupService.checkAndEndExpiredGroups(updatedGroups);
+          if (endedIds.length > 0) {
+            // Filter out the just-ended groups from the active list;
+            // the subscription will fire again with the updated data
+            updatedGroups = updatedGroups.filter((g) => !endedIds.includes(g.id));
           }
+        } catch (err) {
+          console.warn('Error checking expired groups:', err);
         }
-
-        setGroups(updatedGroups);
-        setIsLoadingGroups(false);
       }
-    );
+
+      setGroups(updatedGroups);
+      setIsLoadingGroups(false);
+    });
 
     return unsubscribe;
   }, [user?.id]);
@@ -113,73 +106,79 @@ export const useGroups = (): UseGroupsReturn => {
       return;
     }
 
-    const unsubscribe = groupService.subscribeToGroupInvitations(
-      user.id,
-      (invitations) => {
-        setPendingInvitations(invitations);
-      }
-    );
+    const unsubscribe = groupService.subscribeToGroupInvitations(user.id, (invitations) => {
+      setPendingInvitations(invitations);
+    });
 
     return unsubscribe;
   }, [user?.id]);
 
   // Create a new accountability group
-  const createGroup = useCallback(async (form: CreateGroupForm): Promise<string> => {
-    if (!user?.id) throw new Error('User not authenticated');
+  const createGroup = useCallback(
+    async (form: CreateGroupForm): Promise<string> => {
+      if (!user?.id) throw new Error('User not authenticated');
 
-    setIsCreating(true);
-    setError(null);
+      setIsCreating(true);
+      setError(null);
 
-    try {
-      const groupId = await groupService.createGroup(user.id, form);
-      return groupId;
-    } catch (err: any) {
-      console.error('Error creating group:', err);
-      const message = err.message || 'Failed to create group';
-      setError(message);
-      throw err;
-    } finally {
-      setIsCreating(false);
-    }
-  }, [user?.id]);
+      try {
+        const groupId = await groupService.createGroup(user.id, form);
+        return groupId;
+      } catch (err: any) {
+        console.error('Error creating group:', err);
+        const message = err.message || 'Failed to create group';
+        setError(message);
+        throw err;
+      } finally {
+        setIsCreating(false);
+      }
+    },
+    [user?.id]
+  );
 
   // Accept a pending group invitation
-  const acceptInvitation = useCallback(async (invitationId: string): Promise<void> => {
-    if (!user?.id) throw new Error('User not authenticated');
+  const acceptInvitation = useCallback(
+    async (invitationId: string): Promise<void> => {
+      if (!user?.id) throw new Error('User not authenticated');
 
-    setIsProcessingInvitation(true);
-    setError(null);
+      setIsProcessingInvitation(true);
+      setError(null);
 
-    try {
-      await groupService.acceptInvitation(invitationId, user.id);
-    } catch (err: any) {
-      console.error('Error accepting invitation:', err);
-      const message = err.message || 'Failed to accept invitation';
-      setError(message);
-      throw err;
-    } finally {
-      setIsProcessingInvitation(false);
-    }
-  }, [user?.id]);
+      try {
+        await groupService.acceptInvitation(invitationId, user.id);
+      } catch (err: any) {
+        console.error('Error accepting invitation:', err);
+        const message = err.message || 'Failed to accept invitation';
+        setError(message);
+        throw err;
+      } finally {
+        setIsProcessingInvitation(false);
+      }
+    },
+    [user?.id]
+  );
 
   // Decline a pending group invitation
-  const declineInvitation = useCallback(async (invitationId: string): Promise<void> => {
-    if (!user?.id) throw new Error('User not authenticated');
+  const declineInvitation = useCallback(
+    async (invitationId: string): Promise<void> => {
+      if (!user?.id) throw new Error('User not authenticated');
 
-    setIsProcessingInvitation(true);
-    setError(null);
+      setIsProcessingInvitation(true);
+      setError(null);
 
-    try {
-      await groupService.declineInvitation(invitationId);
-    } catch (err: any) {
-      console.error('Error declining invitation:', err);
-      const message = err.message || 'Failed to decline invitation';
-      setError(message);
-      throw err;
-    } finally {
-      setIsProcessingInvitation(false);
-    }
-  }, [user?.id]);
+      try {
+        await groupService.declineInvitation(invitationId);
+      } catch (err: any) {
+        console.error('Error declining invitation:', err);
+        const message = err.message || 'Failed to decline invitation';
+        setError(message);
+        throw err;
+      } finally {
+        setIsProcessingInvitation(false);
+      }
+    },
+    [user?.id]
+  );
 
   // Manual refresh — re-fetches groups via one-shot query
   const refreshGroups = useCallback(async (): Promise<void> => {

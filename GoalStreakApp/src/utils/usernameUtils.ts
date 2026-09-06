@@ -37,7 +37,11 @@ export function validateUsername(username: string): { isValid: boolean; error?: 
   }
 
   if (!/^[a-z][a-z0-9_]*$/.test(username)) {
-    return { isValid: false, error: 'Username must start with a letter and contain only lowercase letters, numbers, and underscores' };
+    return {
+      isValid: false,
+      error:
+        'Username must start with a letter and contain only lowercase letters, numbers, and underscores',
+    };
   }
 
   return { isValid: true };

@@ -82,11 +82,7 @@ export default function ProviderButtons({
       {/* Apple first so it sits at or above Google (R1.2). */}
       {availability.apple && (
         <TouchableOpacity
-          style={[
-            styles.button,
-            styles.appleButton,
-            !consentAccepted && styles.disabledVisual,
-          ]}
+          style={[styles.button, styles.appleButton, !consentAccepted && styles.disabledVisual]}
           onPress={makePressHandler(onApple)}
           // Only block taps while loading; taps while consent is unchecked must
           // still register so onBlockedPress can fire (R2.5).
@@ -105,12 +101,7 @@ export default function ProviderButtons({
             <ActivityIndicator color={Colors.white} size="small" testID="sso-apple-loading" />
           ) : (
             <>
-              <Ionicons
-                name="logo-apple"
-                size={20}
-                color={Colors.white}
-                style={styles.icon}
-              />
+              <Ionicons name="logo-apple" size={20} color={Colors.white} style={styles.icon} />
               <Text style={[styles.buttonText, styles.appleButtonText]}>Continue with Apple</Text>
             </>
           )}
@@ -119,11 +110,7 @@ export default function ProviderButtons({
 
       {availability.google && (
         <TouchableOpacity
-          style={[
-            styles.button,
-            styles.googleButton,
-            !consentAccepted && styles.disabledVisual,
-          ]}
+          style={[styles.button, styles.googleButton, !consentAccepted && styles.disabledVisual]}
           onPress={makePressHandler(onGoogle)}
           disabled={anyLoading}
           activeOpacity={0.7}
@@ -137,7 +124,11 @@ export default function ProviderButtons({
           }}
         >
           {loadingProvider === 'google.com' ? (
-            <ActivityIndicator color={Colors.primaryText} size="small" testID="sso-google-loading" />
+            <ActivityIndicator
+              color={Colors.primaryText}
+              size="small"
+              testID="sso-google-loading"
+            />
           ) : (
             <>
               <View style={styles.icon}>

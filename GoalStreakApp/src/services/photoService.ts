@@ -35,13 +35,13 @@ export class PhotoService {
       const compressedUri = await this.compressImage(imageUri);
       const response = await fetch(compressedUri);
       const blob = await response.blob();
-      
+
       const photoRef = ref(this.storage, `profile-photos/${userId}.jpg`);
       await uploadBytes(photoRef, blob);
       const downloadURL = await getDownloadURL(photoRef);
-      
+
       await AsyncStorage.setItem(`profilePhoto_${userId}`, downloadURL);
-      
+
       return downloadURL;
     } catch (error) {
       console.error('❌ Error saving profile photo:', error);
@@ -58,12 +58,12 @@ export class PhotoService {
       if (cachedUrl) {
         return cachedUrl;
       }
-      
+
       const photoRef = ref(this.storage, `profile-photos/${userId}.jpg`);
       const downloadURL = await getDownloadURL(photoRef);
-      
+
       await AsyncStorage.setItem(`profilePhoto_${userId}`, downloadURL);
-      
+
       return downloadURL;
     } catch (error) {
       if (error.code !== 'storage/object-not-found') {
@@ -113,7 +113,7 @@ export class PhotoService {
   async clearCache(): Promise<void> {
     try {
       const keys = await AsyncStorage.getAllKeys();
-      const photoKeys = keys.filter(key => key.startsWith('profilePhoto_'));
+      const photoKeys = keys.filter((key) => key.startsWith('profilePhoto_'));
       await AsyncStorage.multiRemove(photoKeys);
     } catch (error) {
       console.error('❌ Error clearing cache:', error);

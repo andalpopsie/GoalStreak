@@ -87,79 +87,79 @@ export default function GroupInvitationCard({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.white,
-    borderRadius: 16,                   // Standard card recipe
-    padding: 16,                        // 8 × 2 (base)
-    marginBottom: 8,                    // 8 × 1 (tight)
+    borderRadius: 16, // Standard card recipe
+    padding: 16, // 8 × 2 (base)
+    marginBottom: 8, // 8 × 1 (tight)
     borderLeftWidth: 3,
-    borderLeftColor: Colors.accent1,   // Purple accent
+    borderLeftColor: Colors.accent1, // Purple accent
     ...Shadows.sm,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,                    // 8 × 1 (tight)
+    marginBottom: 8, // 8 × 1 (tight)
   },
   iconContainer: {
-    width: 40,                          // 8 × 5
-    height: 40,                         // 8 × 5
+    width: 40, // 8 × 5
+    height: 40, // 8 × 5
     borderRadius: 20,
-    backgroundColor: Colors.accent1,   // Purple
+    backgroundColor: Colors.accent1, // Purple
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,                    // 8 × 2 (base)
+    marginRight: 16, // 8 × 2 (base)
   },
   headerInfo: {
     flex: 1,
   },
   groupName: {
-    fontSize: 16,                       // body
-    fontWeight: '600',                  // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
     marginBottom: 2,
     fontFamily: Typography.fontFamily.semibold,
   },
   fromText: {
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.regular,
   },
   description: {
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
     lineHeight: 20,
-    marginBottom: 8,                    // 8 × 1 (tight)
+    marginBottom: 8, // 8 × 1 (tight)
     fontFamily: Typography.fontFamily.regular,
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginBottom: 16,                   // 8 × 2 (base)
+    marginBottom: 16, // 8 × 2 (base)
   },
   metaText: {
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.regular,
   },
   actionsRow: {
     flexDirection: 'row',
-    gap: 16,                            // 8 × 2 (base) — min 16px between buttons
+    gap: 16, // 8 × 2 (base) — min 16px between buttons
   },
   acceptButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,                             // 8 × 1 (tight)
-    backgroundColor: Colors.accent1,   // Purple accent (#B771E5)
+    gap: 8, // 8 × 1 (tight)
+    backgroundColor: Colors.accent1, // Purple accent (#B771E5)
     paddingVertical: 12,
     borderRadius: 12,
-    minHeight: 48,                      // 8 × 6 (touch target)
+    minHeight: 48, // 8 × 6 (touch target)
   },
   acceptButtonText: {
     color: Colors.white,
-    fontSize: 16,                       // body
-    fontWeight: '600',                  // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
   declineButton: {
@@ -167,16 +167,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,                             // 8 × 1 (tight)
+    gap: 8, // 8 × 1 (tight)
     backgroundColor: Colors.gray.light,
     paddingVertical: 12,
     borderRadius: 12,
-    minHeight: 48,                      // 8 × 6 (touch target)
+    minHeight: 48, // 8 × 6 (touch target)
   },
   declineButtonText: {
     color: Colors.secondaryText,
-    fontSize: 16,                       // body
-    fontWeight: '500',                  // medium
+    fontSize: 16, // body
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
   },
 });

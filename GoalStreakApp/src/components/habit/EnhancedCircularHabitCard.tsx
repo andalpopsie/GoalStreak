@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withSpring, 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
   withTiming,
   interpolate,
   runOnJS,
@@ -22,7 +22,7 @@ import TimerProgressRing from '../timer/TimerProgressRing';
 import TimerControls from '../timer/TimerControls';
 
 const { width: screenWidth } = Dimensions.get('window');
-const cardSize = (screenWidth - (Spacing.md * 3)) / 2; // 2 columns with spacing
+const cardSize = (screenWidth - Spacing.md * 3) / 2; // 2 columns with spacing
 
 interface EnhancedCircularHabitCardProps {
   habit: Habit;
@@ -41,7 +41,6 @@ export default function EnhancedCircularHabitCard({
   onToggle,
   onDelete,
 }: EnhancedCircularHabitCardProps) {
-  
   // Timer integration
   const {
     timerState,
@@ -57,7 +56,7 @@ export default function EnhancedCircularHabitCard({
 
   // Local state for timer controls visibility
   const [showTimerControls, setShowTimerControls] = useState(false);
-  
+
   // Animation values
   const scale = useSharedValue(1);
   const completionProgress = useSharedValue(isCompleted ? 1 : 0);
@@ -72,7 +71,7 @@ export default function EnhancedCircularHabitCard({
         damping: 15,
         stiffness: 150,
       });
-      
+
       // Animate progress ring with null safety
       const progressPercentage = getProgressPercentage();
       const targetRotation = progressPercentage * 3.6; // Convert percentage to degrees
@@ -105,10 +104,10 @@ export default function EnhancedCircularHabitCard({
       scale.value = withSpring(0.92, { damping: 15, stiffness: 300 }, () => {
         scale.value = withSpring(1, { damping: 15, stiffness: 300 });
       });
-      
+
       // Haptic feedback
       runOnJS(triggerHapticFeedback)();
-      
+
       // If habit has timer and is not completed, show timer controls
       if (habit.timer?.enabled && !isCompleted) {
         runOnJS(setShowTimerControls)(!showTimerControls);
@@ -131,11 +130,11 @@ export default function EnhancedCircularHabitCard({
         `Are you sure you want to delete "${habit.name}"? This action cannot be undone.`,
         [
           { text: 'Cancel', style: 'cancel' },
-          { 
-            text: 'Delete', 
+          {
+            text: 'Delete',
             style: 'destructive',
-            onPress: onDelete
-          }
+            onPress: onDelete,
+          },
         ]
       );
     }
@@ -144,7 +143,7 @@ export default function EnhancedCircularHabitCard({
   // Timer control handlers
   const handleTimerStart = async () => {
     if (!habit.timer?.enabled) return;
-    
+
     try {
       await startTimer(habit.timer.durationMinutes);
       setShowTimerControls(false);
@@ -213,7 +212,7 @@ export default function EnhancedCircularHabitCard({
     const totalSeconds = Math.ceil(remainingMs / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-    
+
     if (minutes > 0) {
       return `${minutes}:${seconds.toString().padStart(2, '0')}`;
     }
@@ -224,10 +223,7 @@ export default function EnhancedCircularHabitCard({
   const animatedContainerStyle = useAnimatedStyle(() => {
     try {
       return {
-        transform: [
-          { scale: scale.value },
-          { scale: bounceScale.value }
-        ],
+        transform: [{ scale: scale.value }, { scale: bounceScale.value }],
       };
     } catch (error) {
       return {
@@ -287,7 +283,7 @@ export default function EnhancedCircularHabitCard({
   return (
     <Animated.View style={[styles.container, animatedContainerStyle]}>
       <Animated.View style={[styles.card, animatedCardStyle]}>
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={handlePress}
           onLongPress={handleLongPress}
           disabled={isLoading}
@@ -297,16 +293,14 @@ export default function EnhancedCircularHabitCard({
           accessible={true}
           accessibilityRole="button"
           accessibilityLabel={`${habit.name} habit${isCompleted ? ', completed' : ''}${isLoading ? ', loading' : ''}`}
-          accessibilityHint={isCompleted ? 'Double tap to mark as incomplete' : 'Double tap to mark as complete'}
+          accessibilityHint={
+            isCompleted ? 'Double tap to mark as incomplete' : 'Double tap to mark as complete'
+          }
         >
           {/* Glow Effect for Completion */}
           {isCompleted && (
-            <Animated.View 
-              style={[
-                styles.glowEffect, 
-                { backgroundColor: getCircleColor() },
-                animatedGlowStyle
-              ]} 
+            <Animated.View
+              style={[styles.glowEffect, { backgroundColor: getCircleColor() }, animatedGlowStyle]}
             />
           )}
 
@@ -325,17 +319,17 @@ export default function EnhancedCircularHabitCard({
                 onTimerComplete={handleTimerComplete}
               />
             )}
-            
+
             <View style={[styles.progressRing, { borderColor: getCircleColor() }]}>
               {/* Animated Progress Fill */}
-              <Animated.View 
+              <Animated.View
                 style={[
                   styles.progressFill,
                   { borderTopColor: getCircleColor(), borderRightColor: getCircleColor() },
-                  animatedProgressStyle
-                ]} 
+                  animatedProgressStyle,
+                ]}
               />
-              
+
               {/* Animated Inner Circle */}
               <Animated.View style={[styles.innerCircle, animatedInnerCircleStyle]}>
                 {isLoading ? (
@@ -349,7 +343,7 @@ export default function EnhancedCircularHabitCard({
                 )}
               </Animated.View>
             </View>
-            
+
             {/* Timer Display - Show remaining time when timer is active */}
             {habit.timer?.enabled && timerState && (
               <View style={styles.timerDisplay}>
@@ -358,35 +352,28 @@ export default function EnhancedCircularHabitCard({
                 </Text>
               </View>
             )}
-            
+
             {/* Completion Badge - Small check beside circle */}
             {isCompleted && (
-              <Animated.View 
+              <Animated.View
                 style={styles.completionBadge}
                 entering={FadeIn.duration(300)}
                 exiting={FadeOut.duration(200)}
               >
-                <Ionicons 
-                  name="checkmark-circle" 
-                  size={24} 
-                  color={Colors.accent1}
-                />
+                <Ionicons name="checkmark-circle" size={24} color={Colors.accent1} />
               </Animated.View>
             )}
           </View>
 
           {/* Habit Text */}
-          <Text 
-            style={[
-              styles.habitText, 
-              isCompleted && styles.habitTextCompleted
-            ]}
+          <Text
+            style={[styles.habitText, isCompleted && styles.habitTextCompleted]}
             numberOfLines={2}
             ellipsizeMode="tail"
           >
             {getHabitText()}
           </Text>
-          
+
           {/* Streak Display */}
           {streak && streak.currentStreak > 0 && (
             <View style={styles.streakContainer}>
@@ -398,7 +385,7 @@ export default function EnhancedCircularHabitCard({
 
         {/* Timer Controls - Show when timer is enabled and controls are visible */}
         {habit.timer?.enabled && (showTimerControls || isTimerActive) && !isCompleted && (
-          <Animated.View 
+          <Animated.View
             style={styles.timerControlsContainer}
             entering={FadeIn.duration(300)}
             exiting={FadeOut.duration(200)}

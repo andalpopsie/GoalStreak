@@ -26,7 +26,7 @@ Notifications.setNotificationHandler({
 // Inner component to access auth context
 function AppContent() {
   const { user } = useAuth();
-  
+
   // Check for inactivity nudges when app opens
   useEffect(() => {
     if (user?.id) {
@@ -43,7 +43,7 @@ function AppContent() {
       console.error('Error checking inactivity nudge:', error);
     }
   };
-  
+
   return (
     <OnboardingProvider>
       <TimerProvider userId={user?.id}>
@@ -64,7 +64,7 @@ export default function App() {
       try {
         console.log('🚀 Initializing GoalStreak services...');
         const status = await initializeAllServices();
-        
+
         if (status.overall) {
           console.log('✅ All services initialized successfully');
           // Track successful app launch
@@ -74,8 +74,8 @@ export default function App() {
               crashlytics: status.crashlytics,
               analytics: status.analytics,
               monitoring: status.monitoring,
-              app_store_optimization: status.appStoreOptimization
-            }
+              app_store_optimization: status.appStoreOptimization,
+            },
           });
           // Track initial screen view
           trackScreenView('App', { initialization_time: status.startupTime });
@@ -89,8 +89,8 @@ export default function App() {
               crashlytics: status.crashlytics,
               analytics: status.analytics,
               monitoring: status.monitoring,
-              app_store_optimization: status.appStoreOptimization
-            }
+              app_store_optimization: status.appStoreOptimization,
+            },
           });
         }
       } catch (error) {
@@ -100,7 +100,7 @@ export default function App() {
           error_message: error instanceof Error ? error.message : 'Unknown error',
           error_stack: error instanceof Error ? error.stack : undefined,
           platform: Platform.OS,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
       }
     };
@@ -109,9 +109,9 @@ export default function App() {
     initializeApp();
 
     // Setup notification action listeners (industry standard)
-    const subscription = Notifications.addNotificationResponseReceivedListener(response => {
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
       const { actionIdentifier, notification } = response;
-      
+
       if (actionIdentifier) {
         notificationService.handleNotificationAction(actionIdentifier, notification);
       }
@@ -131,9 +131,7 @@ export default function App() {
           </AuthProvider>
         </ErrorBoundary>
       )}
-      {!splashDone && (
-        <AnimatedSplashScreen onComplete={() => setSplashDone(true)} />
-      )}
+      {!splashDone && <AnimatedSplashScreen onComplete={() => setSplashDone(true)} />}
     </View>
   );
 }

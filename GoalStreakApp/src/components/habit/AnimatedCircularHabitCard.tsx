@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withSpring, 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
   withTiming,
   FadeIn,
   FadeOut,
@@ -44,7 +44,7 @@ function useLocalTimer(onComplete: () => void) {
         setLocalTimer(null);
         onCompleteRef.current();
       } else {
-        setLocalTimer(prev => prev ? { ...prev, remainingTime: remaining } : null);
+        setLocalTimer((prev) => (prev ? { ...prev, remainingTime: remaining } : null));
       }
     }, 1000);
 
@@ -64,9 +64,10 @@ function useLocalTimer(onComplete: () => void) {
     setLocalTimer(null);
   }, []);
 
-  const progress = localTimer && localTimer.totalDuration > 0
-    ? (localTimer.totalDuration - localTimer.remainingTime) / localTimer.totalDuration
-    : 0;
+  const progress =
+    localTimer && localTimer.totalDuration > 0
+      ? (localTimer.totalDuration - localTimer.remainingTime) / localTimer.totalDuration
+      : 0;
 
   return { localTimer, start, reset, progress };
 }
@@ -88,7 +89,6 @@ export default function AnimatedCircularHabitCard({
   onToggle,
   onDelete,
 }: AnimatedCircularHabitCardProps) {
-  
   // Timer integration
   const {
     timerState,
@@ -101,14 +101,14 @@ export default function AnimatedCircularHabitCard({
 
   // Local state for timer controls visibility
   const [showTimerControls, setShowTimerControls] = useState(false);
-  
+
   // Local timer hook (extracted — no side effects in setState)
   const {
     localTimer,
     start: startLocalTimer,
     progress: localTimerProgress,
   } = useLocalTimer(onToggle);
-  
+
   // Animation values
   const scale = useSharedValue(1);
   const completionProgress = useSharedValue(isCompleted ? 1 : 0);
@@ -122,7 +122,7 @@ export default function AnimatedCircularHabitCard({
         damping: 15,
         stiffness: 150,
       });
-      
+
       // Animate progress ring with null safety
       const progressPercentage = getProgressPercentage();
       const targetRotation = progressPercentage * 3.6; // Convert percentage to degrees
@@ -140,21 +140,26 @@ export default function AnimatedCircularHabitCard({
       timerProgress.value = withTiming(clampedProgress, {
         duration: 1000, // Smooth 1-second transitions
       });
-      
     } else if (timerState && habit.timer?.enabled) {
       // Context timer progress (fallback)
       const progress = timerState.progress;
-      
+
       const clampedProgress = Math.max(0, Math.min(1, progress));
       timerProgress.value = withTiming(clampedProgress, {
         duration: 1000,
       });
-      
     } else {
       // Reset to full when no timer is active
       timerProgress.value = withTiming(1, { duration: 300 });
     }
-  }, [localTimer?.remainingTime, localTimerProgress, timerState?.remainingTime, habit.timer?.enabled, isTimerActive, localTimer?.isActive]);
+  }, [
+    localTimer?.remainingTime,
+    localTimerProgress,
+    timerState?.remainingTime,
+    habit.timer?.enabled,
+    isTimerActive,
+    localTimer?.isActive,
+  ]);
 
   const triggerHapticFeedback = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -170,7 +175,7 @@ export default function AnimatedCircularHabitCard({
     try {
       animatePressScale();
       triggerHapticFeedback();
-      
+
       if (habit.timer?.enabled && !isCompleted) {
         setShowTimerControls(!showTimerControls);
       } else {
@@ -190,11 +195,11 @@ export default function AnimatedCircularHabitCard({
         `Are you sure you want to delete "${habit.name}"? This action cannot be undone.`,
         [
           { text: 'Cancel', style: 'cancel' },
-          { 
-            text: 'Delete', 
+          {
+            text: 'Delete',
             style: 'destructive',
-            onPress: onDelete
-          }
+            onPress: onDelete,
+          },
         ]
       );
     }
@@ -202,11 +207,11 @@ export default function AnimatedCircularHabitCard({
 
   const handleTimerStart = async () => {
     if (!habit.timer?.enabled) return;
-    
+
     try {
       const duration = habit.timer.durationMinutes || 5;
       const durationMs = duration * 60 * 1000;
-      
+
       startLocalTimer(durationMs);
       setShowTimerControls(false);
     } catch (error) {
@@ -274,7 +279,7 @@ export default function AnimatedCircularHabitCard({
     const totalSeconds = Math.ceil(remainingMs / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-    
+
     if (minutes > 0) {
       return `${minutes}:${seconds.toString().padStart(2, '0')}`;
     }
@@ -321,7 +326,7 @@ export default function AnimatedCircularHabitCard({
 
   return (
     <Animated.View style={[styles.container, animatedContainerStyle]}>
-      <TouchableOpacity 
+      <TouchableOpacity
         onPress={handlePress}
         onLongPress={handleLongPress}
         disabled={isLoading}
@@ -331,7 +336,9 @@ export default function AnimatedCircularHabitCard({
         accessible={true}
         accessibilityRole="button"
         accessibilityLabel={`${habit.name} habit${isCompleted ? ', completed' : ''}${isLoading ? ', loading' : ''}`}
-        accessibilityHint={isCompleted ? 'Double tap to mark as incomplete' : 'Double tap to mark as complete'}
+        accessibilityHint={
+          isCompleted ? 'Double tap to mark as incomplete' : 'Double tap to mark as complete'
+        }
       >
         {/* Progress Ring with Timer Integration */}
         <View style={styles.progressContainer}>
@@ -339,40 +346,57 @@ export default function AnimatedCircularHabitCard({
           {habit.timer?.enabled && (
             <TimerProgressRing
               habit={habit}
-              timerState={localTimer ? {
-                habitId: habit.id,
-                isActive: localTimer.isActive,
-                isPaused: false,
-                startTime: new Date(localTimer.startTime),
-                pausedTime: 0,
-                remainingTime: localTimer.remainingTime,
-                progress: localTimer.totalDuration > 0 ? 
-                  (localTimer.totalDuration - localTimer.remainingTime) / localTimer.totalDuration : 0,
-                lastUpdate: new Date(),
-                originalDuration: localTimer.totalDuration
-              } : (timerState ? {
-                ...timerState,
-                // Calculate progress correctly for the ring (countdown from 1 to 0)
-                progress: timerState.remainingTime && habit.timer.durationMinutes 
-                  ? Math.max(0, Math.min(1, timerState.remainingTime / (habit.timer.durationMinutes * 60 * 1000)))
-                  : 0
-              } : null)}
+              timerState={
+                localTimer
+                  ? {
+                      habitId: habit.id,
+                      isActive: localTimer.isActive,
+                      isPaused: false,
+                      startTime: new Date(localTimer.startTime),
+                      pausedTime: 0,
+                      remainingTime: localTimer.remainingTime,
+                      progress:
+                        localTimer.totalDuration > 0
+                          ? (localTimer.totalDuration - localTimer.remainingTime) /
+                            localTimer.totalDuration
+                          : 0,
+                      lastUpdate: new Date(),
+                      originalDuration: localTimer.totalDuration,
+                    }
+                  : timerState
+                    ? {
+                        ...timerState,
+                        // Calculate progress correctly for the ring (countdown from 1 to 0)
+                        progress:
+                          timerState.remainingTime && habit.timer.durationMinutes
+                            ? Math.max(
+                                0,
+                                Math.min(
+                                  1,
+                                  timerState.remainingTime /
+                                    (habit.timer.durationMinutes * 60 * 1000)
+                                )
+                              )
+                            : 0,
+                      }
+                    : null
+              }
               size={170}
               strokeWidth={6}
             />
           )}
-          
+
           {/* Main Habit Circle */}
           <View style={[styles.progressRing, { borderColor: getCircleColor() }]}>
             {/* Animated Progress Fill */}
-            <Animated.View 
+            <Animated.View
               style={[
                 styles.progressFill,
                 { borderTopColor: getCircleColor(), borderRightColor: getCircleColor() },
-                animatedProgressStyle
-              ]} 
+                animatedProgressStyle,
+              ]}
             />
-            
+
             {/* Animated Inner Circle */}
             <Animated.View style={[styles.innerCircle, animatedInnerCircleStyle]}>
               {isLoading ? (
@@ -393,7 +417,7 @@ export default function AnimatedCircularHabitCard({
               )}
             </Animated.View>
           </View>
-          
+
           {/* Timer Display - Show remaining time when timer is active */}
           {habit.timer?.enabled && (
             <View style={styles.timerDisplay}>
@@ -402,17 +426,17 @@ export default function AnimatedCircularHabitCard({
               </Text>
             </View>
           )}
-          
+
           {/* Completion Badge - Small check beside circle */}
           {isCompleted && (
-            <Animated.View 
+            <Animated.View
               style={styles.completionBadge}
               entering={FadeIn.duration(300)}
               exiting={FadeOut.duration(200)}
             >
-              <Ionicons 
-                name="checkmark-circle" 
-                size={32} 
+              <Ionicons
+                name="checkmark-circle"
+                size={32}
                 color={Colors.accent1} // Orange for visibility
               />
             </Animated.View>
@@ -421,27 +445,29 @@ export default function AnimatedCircularHabitCard({
 
         {/* Habit Text */}
         <Text style={styles.habitText}>{getHabitText()}</Text>
-        
+
         {/* Timer Controls - Show when timer is enabled and controls are visible */}
-        {habit.timer?.enabled && (showTimerControls || isTimerActive || localTimer?.isActive) && !isCompleted && (
-          <Animated.View 
-            style={styles.timerControlsContainer}
-            entering={FadeIn.duration(300)}
-            exiting={FadeOut.duration(200)}
-          >
-            <SimpleTimerControls
-              timerState={timerState}
-              onStart={handleTimerStart}
-              onPause={handleTimerPause}
-              onResume={handleTimerResume}
-              onReset={handleTimerReset}
-              onComplete={handleTimerComplete}
-              compact={true}
-              disabled={isLoading}
-            />
-          </Animated.View>
-        )}
-        
+        {habit.timer?.enabled &&
+          (showTimerControls || isTimerActive || localTimer?.isActive) &&
+          !isCompleted && (
+            <Animated.View
+              style={styles.timerControlsContainer}
+              entering={FadeIn.duration(300)}
+              exiting={FadeOut.duration(200)}
+            >
+              <SimpleTimerControls
+                timerState={timerState}
+                onStart={handleTimerStart}
+                onPause={handleTimerPause}
+                onResume={handleTimerResume}
+                onReset={handleTimerReset}
+                onComplete={handleTimerComplete}
+                compact={true}
+                disabled={isLoading}
+              />
+            </Animated.View>
+          )}
+
         {/* Streak Display */}
         {streak && streak.currentStreak > 0 && (
           <View style={styles.streakContainer}>
@@ -478,7 +504,7 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 70,
-    borderWidth: 12,  // Increased from 8 to 12 for much thicker border
+    borderWidth: 12, // Increased from 8 to 12 for much thicker border
     borderColor: Colors.gray.light,
     alignItems: 'center',
     justifyContent: 'center',
@@ -489,11 +515,11 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 70,
-    borderWidth: 12,  // Increased from 8 to 12 to match progressRing
+    borderWidth: 12, // Increased from 8 to 12 to match progressRing
     borderColor: 'transparent',
   },
   innerCircle: {
-    width: 115,  // Increased from 100 to 115
+    width: 115, // Increased from 100 to 115
     height: 115,
     borderRadius: 57.5,
     alignItems: 'center',

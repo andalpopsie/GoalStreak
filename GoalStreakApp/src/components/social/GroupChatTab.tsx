@@ -175,8 +175,7 @@ export default function GroupChatTab({
   const renderMessage = ({ item, index }: { item: GroupMessage; index: number }) => {
     const isMe = item.userId === currentUserId;
     const showDay = isNewDay(item, filteredMessages[index - 1]);
-    const showName =
-      !isMe && (index === 0 || filteredMessages[index - 1]?.userId !== item.userId);
+    const showName = !isMe && (index === 0 || filteredMessages[index - 1]?.userId !== item.userId);
 
     const bubble = (
       <View style={[styles.bubble, isMe ? styles.bubbleMe : styles.bubbleOther]}>
@@ -194,9 +193,7 @@ export default function GroupChatTab({
         <View style={[styles.messageRow, isMe && styles.messageRowMe]}>
           {!isMe && (
             <View style={styles.avatarSmall}>
-              <Text style={styles.avatarSmallText}>
-                {item.userName.charAt(0).toUpperCase()}
-              </Text>
+              <Text style={styles.avatarSmallText}>{item.userName.charAt(0).toUpperCase()}</Text>
             </View>
           )}
           <View style={styles.messageBubbleWrapper}>
@@ -244,9 +241,7 @@ export default function GroupChatTab({
         <View style={styles.emptyState}>
           <Ionicons name="chatbubbles-outline" size={48} color={Colors.gray.medium} />
           <Text style={styles.emptyTitle}>No messages yet</Text>
-          <Text style={styles.emptyText}>
-            Start the conversation with your group!
-          </Text>
+          <Text style={styles.emptyText}>Start the conversation with your group!</Text>
         </View>
       ) : (
         <FlatList
@@ -305,22 +300,22 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   messageList: {
-    paddingHorizontal: 16,           // 8 × 2 (base)
-    paddingTop: 16,                  // 8 × 2 (base)
-    paddingBottom: 8,                // 8 × 1 (tight)
+    paddingHorizontal: 16, // 8 × 2 (base)
+    paddingTop: 16, // 8 × 2 (base)
+    paddingBottom: 8, // 8 × 1 (tight)
   },
   // Date separator
   dateSeparator: {
     alignItems: 'center',
-    marginVertical: 16,              // 8 × 2 (base)
+    marginVertical: 16, // 8 × 2 (base)
   },
   dateText: {
-    fontSize: 12,                    // small
-    fontWeight: '600',               // semibold
+    fontSize: 12, // small
+    fontWeight: '600', // semibold
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.semibold,
     backgroundColor: Colors.gray.light,
-    paddingHorizontal: 12,           // 8 × 1.5
+    paddingHorizontal: 12, // 8 × 1.5
     paddingVertical: 4,
     borderRadius: 10,
     overflow: 'hidden',
@@ -337,18 +332,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
   },
   avatarSmall: {
-    width: 28,                       // 8 × 3.5
-    height: 28,                      // 8 × 3.5
+    width: 28, // 8 × 3.5
+    height: 28, // 8 × 3.5
     borderRadius: 14,
     backgroundColor: Colors.accent3,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 8,                  // 8 × 1 (tight)
-    marginBottom: 16,                // align with bubble bottom
+    marginRight: 8, // 8 × 1 (tight)
+    marginBottom: 16, // align with bubble bottom
   },
   avatarSmallText: {
-    fontSize: 12,                    // small
-    fontWeight: '600',               // semibold
+    fontSize: 12, // small
+    fontWeight: '600', // semibold
     color: Colors.white,
     fontFamily: Typography.fontFamily.semibold,
   },
@@ -356,15 +351,15 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   senderName: {
-    fontSize: 12,                    // small
-    fontWeight: '600',               // semibold
+    fontSize: 12, // small
+    fontWeight: '600', // semibold
     color: Colors.accent1,
     marginBottom: 2,
     marginLeft: 4,
     fontFamily: Typography.fontFamily.semibold,
   },
   bubble: {
-    paddingHorizontal: 14,          // comfortable
+    paddingHorizontal: 14, // comfortable
     paddingVertical: 10,
     borderRadius: 18,
     maxWidth: '100%',
@@ -383,7 +378,7 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   bubbleText: {
-    fontSize: 16,                    // body
+    fontSize: 16, // body
     color: Colors.primaryText,
     lineHeight: 21,
     fontFamily: Typography.fontFamily.regular,
@@ -392,7 +387,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
   },
   timeText: {
-    fontSize: 12,                    // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
     marginTop: 2,
     marginLeft: 4,
@@ -407,29 +402,29 @@ const styles = StyleSheet.create({
   inputBar: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    paddingHorizontal: 12,           // 8 × 1.5
-    paddingVertical: 8,              // 8 × 1 (tight)
+    paddingHorizontal: 12, // 8 × 1.5
+    paddingVertical: 8, // 8 × 1 (tight)
     backgroundColor: Colors.white,
     borderTopWidth: 1,
     borderTopColor: Colors.gray.light,
-    gap: 8,                          // 8 × 1 (tight)
+    gap: 8, // 8 × 1 (tight)
   },
   textInput: {
     flex: 1,
-    fontSize: 16,                    // body
+    fontSize: 16, // body
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.regular,
     backgroundColor: Colors.background,
     borderRadius: 20,
-    paddingHorizontal: 16,           // 8 × 2 (base)
+    paddingHorizontal: 16, // 8 × 2 (base)
     paddingVertical: 10,
     maxHeight: 100,
-    minHeight: 40,                   // 8 × 5
+    minHeight: 40, // 8 × 5
     lineHeight: 20,
   },
   sendButton: {
-    width: 40,                       // 8 × 5
-    height: 40,                      // 8 × 5
+    width: 40, // 8 × 5
+    height: 40, // 8 × 5
     borderRadius: 20,
     backgroundColor: Colors.accent1,
     alignItems: 'center',
@@ -443,17 +438,17 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 32,           // 8 × 4 (loose)
-    gap: 8,                          // 8 × 1 (tight)
+    paddingHorizontal: 32, // 8 × 4 (loose)
+    gap: 8, // 8 × 1 (tight)
   },
   emptyTitle: {
-    fontSize: 20,                    // subheading
-    fontWeight: '600',               // semibold
+    fontSize: 20, // subheading
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,
   },
   emptyText: {
-    fontSize: 16,                    // body
+    fontSize: 16, // body
     color: Colors.secondaryText,
     textAlign: 'center',
     lineHeight: 22,

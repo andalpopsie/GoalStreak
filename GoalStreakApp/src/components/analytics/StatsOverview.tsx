@@ -13,11 +13,11 @@ interface StatsOverviewProps {
   onPeriodChange: (period: 'week' | 'month' | 'year') => void;
 }
 
-export default function StatsOverview({ 
+export default function StatsOverview({
   analytics,
   previousAnalytics,
-  selectedPeriod, 
-  onPeriodChange 
+  selectedPeriod,
+  onPeriodChange,
 }: StatsOverviewProps) {
   const getPeriodLabel = (period: 'week' | 'month' | 'year') => {
     switch (period) {
@@ -32,16 +32,15 @@ export default function StatsOverview({
 
   const renderPeriodButton = (period: 'week' | 'month' | 'year') => (
     <TouchableOpacity
-      style={[
-        styles.periodButton,
-        selectedPeriod === period && styles.activePeriodButton
-      ]}
+      style={[styles.periodButton, selectedPeriod === period && styles.activePeriodButton]}
       onPress={() => onPeriodChange(period)}
     >
-      <Text style={[
-        styles.periodButtonText,
-        selectedPeriod === period && styles.activePeriodButtonText
-      ]}>
+      <Text
+        style={[
+          styles.periodButtonText,
+          selectedPeriod === period && styles.activePeriodButtonText,
+        ]}
+      >
         {period.charAt(0).toUpperCase() + period.slice(1)}
       </Text>
     </TouchableOpacity>
@@ -93,7 +92,7 @@ export default function StatsOverview({
           analytics.totalCompletions,
           previousAnalytics?.totalCompletions
         )}
-        
+
         {renderStatCard(
           'trending-up',
           `${analytics.completionRate.toFixed(1)}%`,
@@ -102,7 +101,7 @@ export default function StatsOverview({
           analytics.completionRate,
           previousAnalytics?.completionRate
         )}
-        
+
         {renderStatCard(
           'apps',
           analytics.uniqueHabitsCompleted,
@@ -111,13 +110,8 @@ export default function StatsOverview({
           analytics.uniqueHabitsCompleted,
           previousAnalytics?.uniqueHabitsCompleted
         )}
-        
-        {renderStatCard(
-          'calendar',
-          analytics.mostActiveDay,
-          'Best Day',
-          Colors.accent3
-        )}
+
+        {renderStatCard('calendar', analytics.mostActiveDay, 'Best Day', Colors.accent3)}
       </View>
 
       {/* Top Categories */}

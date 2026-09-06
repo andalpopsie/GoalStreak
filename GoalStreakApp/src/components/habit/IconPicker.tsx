@@ -15,57 +15,57 @@ const HABIT_ICONS = [
   { name: 'fitness', category: 'Fitness' },
   { name: 'walk', category: 'Fitness' },
   { name: 'bicycle', category: 'Fitness' },
-  { name: 'body', category: 'Fitness' },        // Yoga
-  { name: 'barbell', category: 'Fitness' },     // Weightlifting
-  { name: 'water', category: 'Fitness' },       // Swimming
+  { name: 'body', category: 'Fitness' }, // Yoga
+  { name: 'barbell', category: 'Fitness' }, // Weightlifting
+  { name: 'water', category: 'Fitness' }, // Swimming
   { name: 'heart', category: 'Health' },
   { name: 'pulse', category: 'Health' },
   { name: 'medical', category: 'Health' },
-  
+
   // Pets & Animals
-  { name: 'paw', category: 'Pets' },            // Pet care
-  
+  { name: 'paw', category: 'Pets' }, // Pet care
+
   // Sleep & Rest
   { name: 'moon', category: 'Sleep' },
   { name: 'bed', category: 'Sleep' },
   { name: 'time', category: 'Sleep' },
-  
+
   // Mindfulness & Wellness
   { name: 'leaf', category: 'Mindfulness' },
   { name: 'flower', category: 'Mindfulness' },
   { name: 'sunny', category: 'Mindfulness' },
-  
+
   // Nutrition & Water
   { name: 'restaurant', category: 'Nutrition' },
   { name: 'water', category: 'Nutrition' },
   { name: 'cafe', category: 'Nutrition' },
-  
+
   // Learning & Productivity
   { name: 'book', category: 'Learning' },
   { name: 'school', category: 'Learning' },
   { name: 'pencil', category: 'Productivity' },
   { name: 'briefcase', category: 'Productivity' },
   { name: 'laptop', category: 'Productivity' },
-  
+
   // Social & Communication
   { name: 'people', category: 'Social' },
   { name: 'happy', category: 'Social' },
   { name: 'chatbubbles', category: 'Social' },
   { name: 'call', category: 'Social' },
   { name: 'home', category: 'Social' },
-  
+
   // Creative & Hobbies
   { name: 'brush', category: 'Creative' },
   { name: 'musical-notes', category: 'Creative' },
   { name: 'camera', category: 'Creative' },
   { name: 'game-controller', category: 'Creative' },
-  
+
   // Self-Care & Daily
   { name: 'car', category: 'Daily' },
   { name: 'calendar', category: 'Daily' },
   { name: 'alarm', category: 'Daily' },
   { name: 'location', category: 'Daily' },
-  
+
   // Goals & Achievement
   { name: 'trophy', category: 'Goals' },
   { name: 'star', category: 'Goals' },
@@ -76,7 +76,7 @@ const HABIT_ICONS = [
 ];
 
 export default function IconPicker({ selectedIcon, onIconSelect, onClose }: IconPickerProps) {
-  const categories = [...new Set(HABIT_ICONS.map(icon => icon.category))];
+  const categories = [...new Set(HABIT_ICONS.map((icon) => icon.category))];
 
   return (
     <View style={styles.overlay}>
@@ -87,30 +87,28 @@ export default function IconPicker({ selectedIcon, onIconSelect, onClose }: Icon
             <Ionicons name="close" size={24} color={Colors.primaryText} />
           </TouchableOpacity>
         </View>
-        
+
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
           {categories.map((category) => (
             <View key={category} style={styles.categorySection}>
               <Text style={styles.categoryTitle}>{category}</Text>
               <View style={styles.iconsGrid}>
-                {HABIT_ICONS
-                  .filter(icon => icon.category === category)
-                  .map((icon) => (
-                    <TouchableOpacity
-                      key={icon.name}
-                      style={[
-                        styles.iconButton,
-                        selectedIcon === icon.name && styles.selectedIconButton
-                      ]}
-                      onPress={() => onIconSelect(icon.name)}
-                    >
-                      <Ionicons
-                        name={icon.name as any}
-                        size={28}
-                        color={selectedIcon === icon.name ? Colors.white : Colors.primaryText}
-                      />
-                    </TouchableOpacity>
-                  ))}
+                {HABIT_ICONS.filter((icon) => icon.category === category).map((icon) => (
+                  <TouchableOpacity
+                    key={icon.name}
+                    style={[
+                      styles.iconButton,
+                      selectedIcon === icon.name && styles.selectedIconButton,
+                    ]}
+                    onPress={() => onIconSelect(icon.name)}
+                  >
+                    <Ionicons
+                      name={icon.name as any}
+                      size={28}
+                      color={selectedIcon === icon.name ? Colors.white : Colors.primaryText}
+                    />
+                  </TouchableOpacity>
+                ))}
               </View>
             </View>
           ))}

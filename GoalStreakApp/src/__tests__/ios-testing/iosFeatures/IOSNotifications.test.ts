@@ -1,6 +1,6 @@
 /**
  * iOS Notifications Tests
- * 
+ *
  * Tests iOS notification system integration and functionality
  * Requirements: 5.4 - Test iOS-specific features (haptic feedback, iOS notifications, etc.)
  */
@@ -210,32 +210,28 @@ class IOSNotificationService {
   static setupNotificationListeners(): () => void {
     if (Platform.OS !== 'ios') return () => {};
 
-    const responseListener = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
-        const { notification } = response;
-        const data = notification.request.content.data;
+    const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
+      const { notification } = response;
+      const data = notification.request.content.data;
 
-        // Handle notification tap based on type
-        switch (data?.type) {
-          case 'habit_reminder':
-            // Navigate to habit completion
-            break;
-          case 'streak_celebration':
-            // Navigate to analytics/celebration screen
-            break;
-          case 'friend_activity':
-            // Navigate to social screen
-            break;
-        }
+      // Handle notification tap based on type
+      switch (data?.type) {
+        case 'habit_reminder':
+          // Navigate to habit completion
+          break;
+        case 'streak_celebration':
+          // Navigate to analytics/celebration screen
+          break;
+        case 'friend_activity':
+          // Navigate to social screen
+          break;
       }
-    );
+    });
 
-    const receivedListener = Notifications.addNotificationReceivedListener(
-      (notification) => {
-        // Handle notification received while app is in foreground
-        console.log('Notification received:', notification);
-      }
-    );
+    const receivedListener = Notifications.addNotificationReceivedListener((notification) => {
+      // Handle notification received while app is in foreground
+      console.log('Notification received:', notification);
+    });
 
     return () => {
       responseListener.remove();
@@ -466,9 +462,7 @@ describe('iOS Notifications', () => {
 
       await IOSNotificationService.cancelNotification(notificationId);
 
-      expect(Notifications.cancelScheduledNotificationAsync).toHaveBeenCalledWith(
-        notificationId
-      );
+      expect(Notifications.cancelScheduledNotificationAsync).toHaveBeenCalledWith(notificationId);
     });
 
     it('should cancel all notifications on iOS', async () => {
@@ -498,9 +492,7 @@ describe('iOS Notifications', () => {
       );
 
       // Should not throw error
-      await expect(
-        IOSNotificationService.cancelNotification('test-id')
-      ).resolves.toBeUndefined();
+      await expect(IOSNotificationService.cancelNotification('test-id')).resolves.toBeUndefined();
     });
   });
 
@@ -524,18 +516,14 @@ describe('iOS Notifications', () => {
     });
 
     it('should handle badge management errors gracefully', async () => {
-      (Notifications.setBadgeCountAsync as jest.Mock).mockRejectedValue(
-        new Error('Badge failed')
-      );
+      (Notifications.setBadgeCountAsync as jest.Mock).mockRejectedValue(new Error('Badge failed'));
 
       // Should not throw error
       await expect(IOSNotificationService.setBadgeCount(1)).resolves.toBeUndefined();
     });
 
     it('should return 0 badge count on error', async () => {
-      (Notifications.getBadgeCountAsync as jest.Mock).mockRejectedValue(
-        new Error('Badge failed')
-      );
+      (Notifications.getBadgeCountAsync as jest.Mock).mockRejectedValue(new Error('Badge failed'));
 
       const badgeCount = await IOSNotificationService.getBadgeCount();
 
@@ -621,11 +609,7 @@ describe('iOS Notifications', () => {
     it('should schedule notifications efficiently', async () => {
       const startTime = Date.now();
 
-      await IOSNotificationService.scheduleHabitReminder(
-        'Test Habit',
-        new Date(),
-        'habit-123'
-      );
+      await IOSNotificationService.scheduleHabitReminder('Test Habit', new Date(), 'habit-123');
 
       const executionTime = Date.now() - startTime;
 
@@ -644,7 +628,7 @@ describe('iOS Notifications', () => {
       const results = await Promise.all(promises);
 
       expect(results).toHaveLength(4);
-      expect(results.every(id => id === 'notification-id')).toBe(true);
+      expect(results.every((id) => id === 'notification-id')).toBe(true);
       expect(Notifications.scheduleNotificationAsync).toHaveBeenCalledTimes(4);
     });
 

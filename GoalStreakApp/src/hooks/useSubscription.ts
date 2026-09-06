@@ -16,11 +16,7 @@
 // - `refresh`   forces a manual re-read of Pro status
 import { useCallback, useEffect, useRef, useState } from 'react';
 import subscriptionService from '../services/subscriptionService';
-import {
-  ProProductId,
-  PurchaseErrorCode,
-  PurchaseResult,
-} from '../types/subscription';
+import { ProProductId, PurchaseErrorCode, PurchaseResult } from '../types/subscription';
 
 interface UseSubscriptionReturn {
   /** True iff RevenueCat reports an active Pro entitlement. */

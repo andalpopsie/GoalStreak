@@ -32,8 +32,8 @@ export default function Input({
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
-      
-      <TouchableOpacity 
+
+      <TouchableOpacity
         style={[
           styles.inputContainer,
           isFocused && styles.focused,
@@ -48,9 +48,9 @@ export default function Input({
         <TextInput
           ref={inputRef}
           style={[
-            styles.input, 
+            styles.input,
             showPasswordToggle && styles.inputWithIcon,
-            multiline && styles.multilineInput
+            multiline && styles.multilineInput,
           ]}
           placeholder={placeholder}
           placeholderTextColor={Colors.gray.medium}
@@ -70,11 +70,11 @@ export default function Input({
           accessible={true}
           accessibilityLabel={label || placeholder}
           accessibilityState={{
-            invalid: !!error
+            invalid: !!error,
           }}
           {...props}
         />
-        
+
         {showPasswordToggle && (
           <TouchableOpacity
             style={styles.passwordToggle}
@@ -92,7 +92,7 @@ export default function Input({
           </TouchableOpacity>
         )}
       </TouchableOpacity>
-      
+
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );

@@ -78,12 +78,7 @@ export default function FeedbackModal({
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent
-      onRequestClose={handleClose}
-    >
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.overlay}
@@ -111,9 +106,7 @@ export default function FeedbackModal({
             /* ── Feedback Form ── */
             <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
               <Text style={styles.title}>How's your experience?</Text>
-              <Text style={styles.subtitle}>
-                We'd love to hear what you think of Goalfer
-              </Text>
+              <Text style={styles.subtitle}>We'd love to hear what you think of Goalfer</Text>
 
               {/* Star Rating */}
               <View style={styles.starsSection}>
@@ -134,9 +127,7 @@ export default function FeedbackModal({
                     </TouchableOpacity>
                   ))}
                 </View>
-                {rating > 0 && (
-                  <Text style={styles.starLabel}>{STAR_LABELS[rating]}</Text>
-                )}
+                {rating > 0 && <Text style={styles.starLabel}>{STAR_LABELS[rating]}</Text>}
               </View>
 
               {/* Text Feedback */}
@@ -189,95 +180,95 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingHorizontal: 24,           // 8 × 3 (comfortable)
-    paddingBottom: 40,               // safe area
+    paddingHorizontal: 24, // 8 × 3 (comfortable)
+    paddingBottom: 40, // safe area
   },
   handleBar: {
-    width: 40,                       // 8 × 5
+    width: 40, // 8 × 5
     height: 4,
     backgroundColor: Colors.gray.light,
     borderRadius: 2,
     alignSelf: 'center',
-    marginTop: 12,                   // 8 × 1.5
-    marginBottom: 24,                // 8 × 3 (comfortable)
+    marginTop: 12, // 8 × 1.5
+    marginBottom: 24, // 8 × 3 (comfortable)
   },
   title: {
     fontFamily: Typography.fontFamily.bold,
-    fontSize: 24,                    // heading
-    fontWeight: '700',               // bold
+    fontSize: 24, // heading
+    fontWeight: '700', // bold
     color: Colors.primaryText,
     textAlign: 'center',
     marginBottom: 4,
   },
   subtitle: {
     fontFamily: Typography.fontFamily.regular,
-    fontSize: 16,                    // body
+    fontSize: 16, // body
     color: Colors.secondaryText,
     textAlign: 'center',
-    marginBottom: 24,                // 8 × 3 (comfortable)
+    marginBottom: 24, // 8 × 3 (comfortable)
   },
   // Stars
   starsSection: {
     alignItems: 'center',
-    marginBottom: 24,                // 8 × 3 (comfortable)
+    marginBottom: 24, // 8 × 3 (comfortable)
   },
   starsRow: {
     flexDirection: 'row',
-    gap: 8,                          // 8 × 1 (tight)
+    gap: 8, // 8 × 1 (tight)
   },
   starButton: {
     padding: 4,
-    minWidth: 48,                    // 8 × 6 (touch target)
-    minHeight: 48,                   // 8 × 6 (touch target)
+    minWidth: 48, // 8 × 6 (touch target)
+    minHeight: 48, // 8 × 6 (touch target)
     alignItems: 'center',
     justifyContent: 'center',
   },
   starLabel: {
     fontFamily: Typography.fontFamily.semibold,
-    fontSize: 14,                    // caption
-    fontWeight: '600',               // semibold
+    fontSize: 14, // caption
+    fontWeight: '600', // semibold
     color: Colors.accent1,
-    marginTop: 8,                    // 8 × 1 (tight)
+    marginTop: 8, // 8 × 1 (tight)
   },
   // Text input
   textInput: {
     fontFamily: Typography.fontFamily.regular,
-    fontSize: 16,                    // body
+    fontSize: 16, // body
     color: Colors.primaryText,
     backgroundColor: Colors.background,
     borderRadius: 12,
-    padding: 16,                     // 8 × 2 (base)
-    minHeight: 100,                  // ~4 lines
+    padding: 16, // 8 × 2 (base)
+    minHeight: 100, // ~4 lines
     maxHeight: 160,
     lineHeight: 22,
     marginBottom: 4,
   },
   charCount: {
     fontFamily: Typography.fontFamily.regular,
-    fontSize: 12,                    // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
     textAlign: 'right',
-    marginBottom: 24,                // 8 × 3 (comfortable)
+    marginBottom: 24, // 8 × 3 (comfortable)
   },
   // Actions
   actions: {
     flexDirection: 'row',
-    gap: 12,                         // 8 × 1.5
-    marginBottom: 8,                 // 8 × 1 (tight)
+    gap: 12, // 8 × 1.5
+    marginBottom: 8, // 8 × 1 (tight)
   },
   cancelButton: {
     paddingVertical: 14,
-    paddingHorizontal: 20,           // 8 × 2.5
-    borderRadius: 24,                // pill
+    paddingHorizontal: 20, // 8 × 2.5
+    borderRadius: 24, // pill
     backgroundColor: Colors.gray.light,
-    minHeight: 48,                   // 8 × 6 (touch target)
+    minHeight: 48, // 8 × 6 (touch target)
     alignItems: 'center',
     justifyContent: 'center',
   },
   cancelText: {
     fontFamily: Typography.fontFamily.medium,
-    fontSize: 16,                    // body
-    fontWeight: '500',               // medium
+    fontSize: 16, // body
+    fontWeight: '500', // medium
     color: Colors.secondaryText,
   },
   submitButton: {
@@ -285,41 +276,41 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,                          // 8 × 1 (tight)
+    gap: 8, // 8 × 1 (tight)
     paddingVertical: 14,
-    borderRadius: 24,                // pill
+    borderRadius: 24, // pill
     backgroundColor: Colors.accent1,
-    minHeight: 48,                   // 8 × 6 (touch target)
+    minHeight: 48, // 8 × 6 (touch target)
   },
   submitButtonDisabled: {
     backgroundColor: Colors.gray.medium,
   },
   submitText: {
     fontFamily: Typography.fontFamily.semibold,
-    fontSize: 16,                    // body
-    fontWeight: '600',               // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     color: Colors.white,
   },
   // Thank you state
   thankYou: {
     alignItems: 'center',
-    paddingVertical: 32,             // 8 × 4 (loose)
+    paddingVertical: 32, // 8 × 4 (loose)
   },
   thankYouIcon: {
-    width: 80,                       // 8 × 10
-    height: 80,                      // 8 × 10
+    width: 80, // 8 × 10
+    height: 80, // 8 × 10
     borderRadius: 40,
     backgroundColor: Colors.accent1 + '15',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,                // 8 × 2 (base)
+    marginBottom: 16, // 8 × 2 (base)
   },
   thankYouTitle: {
     fontFamily: Typography.fontFamily.bold,
     fontSize: 24,
-    fontWeight: '700',               // bold
+    fontWeight: '700', // bold
     color: Colors.primaryText,
-    marginBottom: 8,                 // 8 × 1 (tight)
+    marginBottom: 8, // 8 × 1 (tight)
   },
   thankYouText: {
     fontFamily: Typography.fontFamily.regular,
@@ -327,20 +318,20 @@ const styles = StyleSheet.create({
     color: Colors.secondaryText,
     textAlign: 'center',
     lineHeight: 22,
-    marginBottom: 24,                // 8 × 3 (comfortable)
-    paddingHorizontal: 16,           // 8 × 2 (base)
+    marginBottom: 24, // 8 × 3 (comfortable)
+    paddingHorizontal: 16, // 8 × 2 (base)
   },
   doneButton: {
     paddingVertical: 14,
-    paddingHorizontal: 48,           // 8 × 6
-    borderRadius: 24,                // pill
+    paddingHorizontal: 48, // 8 × 6
+    borderRadius: 24, // pill
     backgroundColor: Colors.accent1,
-    minHeight: 48,                   // 8 × 6 (touch target)
+    minHeight: 48, // 8 × 6 (touch target)
   },
   doneButtonText: {
     fontFamily: Typography.fontFamily.semibold,
-    fontSize: 16,                    // body
-    fontWeight: '600',               // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     color: Colors.white,
   },
 });

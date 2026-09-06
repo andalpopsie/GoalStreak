@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  Modal,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Typography } from '../../constants/theme';
 
@@ -18,11 +10,11 @@ interface AddFriendModalProps {
   isLoading: boolean;
 }
 
-export default function AddFriendModal({ 
-  visible, 
-  onClose, 
-  onSendRequest, 
-  isLoading 
+export default function AddFriendModal({
+  visible,
+  onClose,
+  onSendRequest,
+  isLoading,
 }: AddFriendModalProps) {
   const [friendEmail, setFriendEmail] = useState('');
   const [friendMessage, setFriendMessage] = useState('');
@@ -55,25 +47,20 @@ export default function AddFriendModal({
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      presentationStyle="pageSheet"
-    >
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={handleClose}>
             <Text style={styles.cancelButton}>Cancel</Text>
           </TouchableOpacity>
           <Text style={styles.title}>Add Friend</Text>
-          <TouchableOpacity 
-            onPress={handleSendRequest}
-            disabled={isLoading || !friendEmail.trim()}
-          >
-            <Text style={[
-              styles.sendButton,
-              (isLoading || !friendEmail.trim()) && styles.sendButtonDisabled
-            ]}>
+          <TouchableOpacity onPress={handleSendRequest} disabled={isLoading || !friendEmail.trim()}>
+            <Text
+              style={[
+                styles.sendButton,
+                (isLoading || !friendEmail.trim()) && styles.sendButtonDisabled,
+              ]}
+            >
               {isLoading ? 'Sending...' : 'Send'}
             </Text>
           </TouchableOpacity>

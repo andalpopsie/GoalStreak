@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius } from '../../constants/theme';
 import { TimerConfig } from '../../types/timer';
@@ -44,46 +39,38 @@ export default function TimerToggle({
   };
 
   const isEnabled = timerConfig?.enabled || false;
-  const durationText = timerConfig?.durationMinutes 
+  const durationText = timerConfig?.durationMinutes
     ? formatTimerDuration(timerConfig.durationMinutes)
     : '';
 
   return (
     <>
-      <TouchableOpacity 
-        style={styles.container}
-        onPress={handleToggleTimer}
-      >
+      <TouchableOpacity style={styles.container} onPress={handleToggleTimer}>
         <View style={styles.content}>
           <View style={styles.iconContainer}>
-            <Ionicons 
-              name="timer-outline" 
-              size={24} 
-              color={isEnabled ? Colors.accent1 : Colors.gray.medium} 
+            <Ionicons
+              name="timer-outline"
+              size={24}
+              color={isEnabled ? Colors.accent1 : Colors.gray.medium}
             />
           </View>
-          
+
           <View style={styles.textContainer}>
             <Text style={styles.title}>Timer</Text>
             <Text style={styles.description}>
-              {isEnabled 
+              {isEnabled
                 ? `${durationText} • Auto-complete ${timerConfig?.autoComplete ? 'on' : 'off'}`
-                : 'Add a timer to track time spent'
-              }
+                : 'Add a timer to track time spent'}
             </Text>
           </View>
-          
+
           <View style={styles.actionContainer}>
             {isEnabled && (
               <View style={styles.enabledIndicator}>
                 <Ionicons name="checkmark-circle" size={20} color={Colors.accent3} />
               </View>
             )}
-            <Ionicons 
-              name="chevron-forward" 
-              size={16} 
-              color={Colors.gray.medium} 
-            />
+            <Ionicons name="chevron-forward" size={16} color={Colors.gray.medium} />
           </View>
         </View>
       </TouchableOpacity>

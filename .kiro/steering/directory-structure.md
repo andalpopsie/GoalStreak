@@ -56,7 +56,8 @@ a distinct scope. Put a doc where it belongs and don't let it drift:
 
 - **`docs/` (root)** = **workspace/project-level**: things true of the whole
   repo regardless of sub-project — architecture, contributing/git flow,
-  process, product/MVP specs, cross-cutting analysis.
+  process, product/MVP specs, cross-cutting analysis. ADRs live here at
+  `docs/adr/` (numbered `NNNN-short-title.md`; use `0000-template.md` for new ones).
 - **`GoalStreakApp/docs/`** = **app-level**: how to build, run, test, and ship
   the Goalfer app specifically — build guide, iOS submission, testing,
   Firebase, analytics, design system.

@@ -13,7 +13,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { LineChart } from 'react-native-chart-kit';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Colors, Typography, getCategoryColor, getCategoryBackgroundColor } from '../constants/theme';
+import {
+  Colors,
+  Typography,
+  getCategoryColor,
+  getCategoryBackgroundColor,
+} from '../constants/theme';
 import { useAnalytics } from '../hooks/useAnalytics';
 import { InsightsCard, MilestoneCelebration } from '../components/analytics';
 
@@ -37,10 +42,10 @@ import FeedbackModal from '../components/feedback/FeedbackModal';
 
 // Helper function to get performance color
 const getPerformanceColor = (rate: number) => {
-  if (rate >= 80) return '#B771E5';      // Purple - Excellent
-  if (rate >= 60) return '#8B5BA8';      // Dark gray to purple - Good
-  if (rate >= 40) return '#666666';      // Gray to dark gray - Fair
-  return '#CCCCCC';                      // Light gray - Needs Focus
+  if (rate >= 80) return '#B771E5'; // Purple - Excellent
+  if (rate >= 60) return '#8B5BA8'; // Dark gray to purple - Good
+  if (rate >= 40) return '#666666'; // Gray to dark gray - Fair
+  return '#CCCCCC'; // Light gray - Needs Focus
 };
 
 // Helper function to get performance label
@@ -64,7 +69,7 @@ export default function AnalyticsScreen() {
     selectedPeriod,
     setSelectedPeriod,
     getCurrentPeriodAnalytics,
-    error
+    error,
   } = useAnalytics();
 
   const {
@@ -107,11 +112,10 @@ export default function AnalyticsScreen() {
     if (currentPeriodAnalytics && !isLoadingAnalytics) {
       // Check completion milestones
       checkCompletionMilestone(currentPeriodAnalytics.totalCompletions);
-      
+
       // Check streak milestones (use longest streak from habit analytics)
-      const longestStreak = habitAnalytics.length > 0 
-        ? Math.max(...habitAnalytics.map(h => h.currentStreak))
-        : 0;
+      const longestStreak =
+        habitAnalytics.length > 0 ? Math.max(...habitAnalytics.map((h) => h.currentStreak)) : 0;
       if (longestStreak > 0) {
         checkStreakMilestone(longestStreak);
       }
@@ -122,26 +126,22 @@ export default function AnalyticsScreen() {
   useEffect(() => {
     trackScreen('Analytics', { source: 'AnalyticsScreen' });
     trackFeature('analytics', 'analytics_screen_viewed', 1);
-    
+
     trackEvent('analytics_screen_viewed', {
       selected_period: selectedPeriod,
       total_habits: habitAnalytics.length,
       has_insights: insights.length > 0,
-      user_id: user?.id
+      user_id: user?.id,
     });
   }, [selectedPeriod, habitAnalytics.length, insights.length, user?.id]);
 
   const handleRefresh = async () => {
     trackEvent('analytics_refresh', {
       selected_period: selectedPeriod,
-      user_id: user?.id
+      user_id: user?.id,
     });
-    
-    await Promise.all([
-      refreshAnalytics(),
-      refreshTrends(),
-      refreshInsights()
-    ]);
+
+    await Promise.all([refreshAnalytics(), refreshTrends(), refreshInsights()]);
   };
 
   // ── Overview computations (from the existing 30-day daily trend) ──
@@ -164,8 +164,18 @@ export default function AnalyticsScreen() {
   const monthRate = windowRate(window(30, 0));
 
   const rangeMeta = {
-    today: { label: 'Completion today', rate: todayRate, delta: todayRate - yesterdayRate, compare: 'vs yesterday' },
-    week: { label: 'This week', rate: weekRate, delta: weekRate - prevWeekRate, compare: 'vs last week' },
+    today: {
+      label: 'Completion today',
+      rate: todayRate,
+      delta: todayRate - yesterdayRate,
+      compare: 'vs yesterday',
+    },
+    week: {
+      label: 'This week',
+      rate: weekRate,
+      delta: weekRate - prevWeekRate,
+      compare: 'vs last week',
+    },
     month: { label: 'This month', rate: monthRate, delta: null as number | null, compare: '' },
   }[range];
 
@@ -195,10 +205,9 @@ export default function AnalyticsScreen() {
           <Ionicons name="bar-chart-outline" size={48} color={Colors.gray.medium} />
           <Text style={styles.emptyTitle}>No Analytics Yet</Text>
           <Text style={styles.emptyText}>
-            {isLoadingAnalytics 
-              ? 'Loading your habit analytics...' 
-              : 'Complete some habits to see your analytics!'
-            }
+            {isLoadingAnalytics
+              ? 'Loading your habit analytics...'
+              : 'Complete some habits to see your analytics!'}
           </Text>
         </View>
       );
@@ -219,16 +228,28 @@ export default function AnalyticsScreen() {
               {/* Compact Row — always visible */}
               <View style={styles.habitRowHeader}>
                 <View style={styles.habitRowLeft}>
-                  <Text style={styles.habitRowName} numberOfLines={1}>{habit.habitName}</Text>
+                  <Text style={styles.habitRowName} numberOfLines={1}>
+                    {habit.habitName}
+                  </Text>
                   <View style={styles.habitRowBar}>
-                    <View style={[
-                      styles.habitRowBarFill,
-                      { width: `${habit.completionRate}%`, backgroundColor: getPerformanceColor(habit.completionRate) }
-                    ]} />
+                    <View
+                      style={[
+                        styles.habitRowBarFill,
+                        {
+                          width: `${habit.completionRate}%`,
+                          backgroundColor: getPerformanceColor(habit.completionRate),
+                        },
+                      ]}
+                    />
                   </View>
                 </View>
                 <View style={styles.habitRowRight}>
-                  <Text style={[styles.habitRowRate, { color: getPerformanceColor(habit.completionRate) }]}>
+                  <Text
+                    style={[
+                      styles.habitRowRate,
+                      { color: getPerformanceColor(habit.completionRate) },
+                    ]}
+                  >
                     {habit.completionRate.toFixed(0)}%
                   </Text>
                   <Ionicons
@@ -248,7 +269,9 @@ export default function AnalyticsScreen() {
                       <Text style={styles.habitRowStatLabel}>Completions</Text>
                     </View>
                     <View style={styles.habitRowStat}>
-                      <Text style={[styles.habitRowStatValue, { color: Colors.accent1 }]}>{habit.currentStreak}</Text>
+                      <Text style={[styles.habitRowStatValue, { color: Colors.accent1 }]}>
+                        {habit.currentStreak}
+                      </Text>
                       <Text style={styles.habitRowStatLabel}>Current Streak</Text>
                     </View>
                     <View style={styles.habitRowStat}>
@@ -256,7 +279,12 @@ export default function AnalyticsScreen() {
                       <Text style={styles.habitRowStatLabel}>Best Streak</Text>
                     </View>
                   </View>
-                  <Text style={[styles.habitRowPerformance, { color: getPerformanceColor(habit.completionRate) }]}>
+                  <Text
+                    style={[
+                      styles.habitRowPerformance,
+                      { color: getPerformanceColor(habit.completionRate) },
+                    ]}
+                  >
                     {getPerformanceLabel(habit.completionRate)}
                   </Text>
                 </View>
@@ -271,8 +299,8 @@ export default function AnalyticsScreen() {
   return (
     <>
       <ScrollView
-      style={styles.container}
-      refreshControl={
+        style={styles.container}
+        refreshControl={
           <RefreshControl
             refreshing={isLoadingAnalytics}
             onRefresh={handleRefresh}
@@ -297,7 +325,9 @@ export default function AnalyticsScreen() {
                 accessibilityLabel={label}
                 testID={`analytics-range-${r}`}
               >
-                <Text style={[styles.segmentLabel, active && styles.segmentLabelActive]}>{label}</Text>
+                <Text style={[styles.segmentLabel, active && styles.segmentLabelActive]}>
+                  {label}
+                </Text>
               </TouchableOpacity>
             );
           })}
@@ -355,7 +385,12 @@ export default function AnalyticsScreen() {
                 labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
                 fillShadowGradient: Colors.white,
                 fillShadowGradientOpacity: 0.25,
-                propsForDots: { r: '4', strokeWidth: '2', stroke: Colors.white, fill: Colors.accent1 },
+                propsForDots: {
+                  r: '4',
+                  strokeWidth: '2',
+                  stroke: Colors.white,
+                  fill: Colors.accent1,
+                },
                 propsForBackgroundLines: { stroke: 'transparent' },
               }}
               style={styles.chart}
@@ -447,13 +482,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,          // 8 * 3 (comfortable)
-    paddingTop: 8,                  // 8 * 1 (tight)
-    paddingBottom: 16,              // 8 * 2 (base)
+    paddingHorizontal: 24, // 8 * 3 (comfortable)
+    paddingTop: 8, // 8 * 1 (tight)
+    paddingBottom: 16, // 8 * 2 (base)
   },
   title: {
-    fontSize: 24,                   // heading
-    fontWeight: '700',              // bold
+    fontSize: 24, // heading
+    fontWeight: '700', // bold
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.bold,
   },
@@ -461,25 +496,25 @@ const styles = StyleSheet.create({
   segment: {
     flexDirection: 'row',
     backgroundColor: Colors.gray.light,
-    borderRadius: 16,               // 8 × 2
+    borderRadius: 16, // 8 × 2
     padding: 4,
-    marginHorizontal: 16,           // 8 × 2 (base)
-    marginTop: 16,                  // 8 × 2 (base)
-    marginBottom: 16,               // 8 × 2 (base)
+    marginHorizontal: 16, // 8 × 2 (base)
+    marginTop: 16, // 8 × 2 (base)
+    marginBottom: 16, // 8 × 2 (base)
   },
   segmentItem: {
     flex: 1,
-    paddingVertical: 10,            // comfortable tap within 44px
-    borderRadius: 12,               // 8 × 1.5
+    paddingVertical: 10, // comfortable tap within 44px
+    borderRadius: 12, // 8 × 1.5
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 40,                  // 8 × 5 (touch target)
+    minHeight: 40, // 8 × 5 (touch target)
   },
   segmentItemActive: {
     backgroundColor: Colors.accent1,
   },
   segmentLabel: {
-    fontSize: 14,                   // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.medium,
   },
@@ -489,11 +524,11 @@ const styles = StyleSheet.create({
   },
   // ── Overview card ──
   overviewCard: {
-    marginHorizontal: 16,           // 8 × 2 (base)
-    marginBottom: 16,               // 8 × 2 (base)
-    padding: 16,                    // 8 × 2 (base)
+    marginHorizontal: 16, // 8 × 2 (base)
+    marginBottom: 16, // 8 × 2 (base)
+    padding: 16, // 8 × 2 (base)
     backgroundColor: Colors.white,
-    borderRadius: 16,               // 8 × 2
+    borderRadius: 16, // 8 × 2
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
@@ -501,7 +536,7 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   overviewLabel: {
-    fontSize: 16,                   // body
+    fontSize: 16, // body
     color: 'rgba(255,255,255,0.85)',
     fontFamily: Typography.fontFamily.medium,
     marginBottom: 4,
@@ -509,12 +544,12 @@ const styles = StyleSheet.create({
   headlineRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,                         // 8 × 1 (tight)
-    marginBottom: 8,                // 8 × 1 (tight)
+    gap: 8, // 8 × 1 (tight)
+    marginBottom: 8, // 8 × 1 (tight)
   },
   headlineValue: {
-    fontSize: 24,                   // heading (display metric)
-    fontWeight: '800',              // extra bold
+    fontSize: 24, // heading (display metric)
+    fontWeight: '800', // extra bold
     color: Colors.white,
     fontFamily: Typography.fontFamily.heavy,
   },
@@ -522,81 +557,81 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
-    paddingHorizontal: 8,           // 8 × 1 (tight)
+    paddingHorizontal: 8, // 8 × 1 (tight)
     paddingVertical: 4,
     borderRadius: 12,
-    backgroundColor: Colors.white,  // white chip pops on the gradient
+    backgroundColor: Colors.white, // white chip pops on the gradient
   },
   deltaText: {
-    fontSize: 12,                   // small
+    fontSize: 12, // small
     fontFamily: Typography.fontFamily.semibold,
   },
   compareText: {
-    fontSize: 12,                   // small
+    fontSize: 12, // small
     color: 'rgba(255,255,255,0.85)',
     fontFamily: Typography.fontFamily.regular,
   },
   chart: {
-    marginTop: 8,                   // 8 × 1 (tight)
-    marginLeft: -8,                 // pull chart-kit's internal left pad
+    marginTop: 8, // 8 × 1 (tight)
+    marginLeft: -8, // pull chart-kit's internal left pad
     borderRadius: 12,
   },
   // ── Category grid (2×2) ──
   categoryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 16,          // 8 × 2 (base)
-    gap: 8,                         // 8 × 1 (tight)
-    marginBottom: 16,               // 8 × 2 (base)
+    paddingHorizontal: 16, // 8 × 2 (base)
+    gap: 8, // 8 × 1 (tight)
+    marginBottom: 16, // 8 × 2 (base)
   },
   categoryCard: {
-    width: '48.5%',                 // two per row with the 8px gap
+    width: '48.5%', // two per row with the 8px gap
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 16,               // 8 × 2
-    padding: 12,                    // 8 × 1.5
+    borderRadius: 16, // 8 × 2
+    padding: 12, // 8 × 1.5
     // backgroundColor set inline per-category (lightened category tint)
   },
   categoryIconChip: {
-    width: 36,                      // 8 × 4.5
-    height: 36,                     // 8 × 4.5
+    width: 36, // 8 × 4.5
+    height: 36, // 8 × 4.5
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 8,                 // 8 × 1 (tight)
+    marginRight: 8, // 8 × 1 (tight)
   },
   categoryInfo: {
     flex: 1,
   },
   categoryName: {
-    fontSize: 14,                   // caption
+    fontSize: 14, // caption
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,
     textTransform: 'capitalize',
   },
   categoryCount: {
-    fontSize: 12,                   // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.regular,
     marginTop: 2,
   },
   section: {
-    marginVertical: 8,              // 8 * 1 (tight)
+    marginVertical: 8, // 8 * 1 (tight)
   },
   sectionTitle: {
-    fontSize: 20,                   // subheading
-    fontWeight: '600',              // semibold
+    fontSize: 20, // subheading
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
-    marginHorizontal: 16,           // 8 * 2 (base)
-    marginBottom: 12,               // 8 * 1.5
+    marginHorizontal: 16, // 8 * 2 (base)
+    marginBottom: 12, // 8 * 1.5
   },
   // ── Expandable Habit Rows ──
   habitRow: {
     backgroundColor: Colors.white,
     borderRadius: 12,
-    marginHorizontal: 16,           // 8 * 2 (base)
-    marginBottom: 8,                // 8 * 1 (tight)
+    marginHorizontal: 16, // 8 * 2 (base)
+    marginBottom: 8, // 8 * 1 (tight)
     padding: 14,
     shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 1 },
@@ -610,11 +645,11 @@ const styles = StyleSheet.create({
   },
   habitRowLeft: {
     flex: 1,
-    marginRight: 12,               // 8 * 1.5
+    marginRight: 12, // 8 * 1.5
   },
   habitRowName: {
-    fontSize: 16,                   // body
-    fontWeight: '600',              // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
     marginBottom: 6,
@@ -635,94 +670,94 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   habitRowRate: {
-    fontSize: 16,                   // body
-    fontWeight: '700',              // bold
+    fontSize: 16, // body
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
   },
   habitRowExpanded: {
-    marginTop: 12,                  // 8 * 1.5
-    paddingTop: 12,                 // 8 * 1.5
+    marginTop: 12, // 8 * 1.5
+    paddingTop: 12, // 8 * 1.5
     borderTopWidth: 1,
     borderTopColor: Colors.gray.light,
   },
   habitRowStats: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 8,                // 8 * 1 (tight)
+    marginBottom: 8, // 8 * 1 (tight)
   },
   habitRowStat: {
     alignItems: 'center',
   },
   habitRowStatValue: {
-    fontSize: 16,                   // body
-    fontWeight: '700',              // bold
+    fontSize: 16, // body
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
   },
   habitRowStatLabel: {
-    fontSize: 12,                   // small
+    fontSize: 12, // small
     fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
     marginTop: 2,
   },
   habitRowPerformance: {
-    fontSize: 14,                   // caption
-    fontWeight: '600',              // semibold
+    fontSize: 14, // caption
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
     textAlign: 'center',
   },
   emptySection: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 48,            // 8 * 6 (spacious)
-    paddingHorizontal: 24,          // 8 * 3 (comfortable)
+    paddingVertical: 48, // 8 * 6 (spacious)
+    paddingHorizontal: 24, // 8 * 3 (comfortable)
   },
   emptyTitle: {
-    fontSize: 20,                   // subheading
-    fontWeight: '600',              // semibold
+    fontSize: 20, // subheading
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,
-    marginTop: 16,                  // 8 * 2 (base)
-    marginBottom: 8,                // 8 * 1 (tight)
+    marginTop: 16, // 8 * 2 (base)
+    marginBottom: 8, // 8 * 1 (tight)
   },
   emptyText: {
-    fontSize: 16,                   // body
+    fontSize: 16, // body
     fontFamily: Typography.fontFamily.regular,
     color: Colors.gray.dark,
     textAlign: 'center',
-    lineHeight: 24,                 // 1.5 line height
-    marginBottom: 24,               // 8 * 3 (comfortable)
+    lineHeight: 24, // 1.5 line height
+    marginBottom: 24, // 8 * 3 (comfortable)
   },
   errorContainer: {
     alignItems: 'center',
-    padding: 24,                    // 8 * 3 (comfortable)
-    margin: 16,                     // 8 * 2 (base)
+    padding: 24, // 8 * 3 (comfortable)
+    margin: 16, // 8 * 2 (base)
     backgroundColor: Colors.white,
-    borderRadius: 16,               // 8 * 2
+    borderRadius: 16, // 8 * 2
     borderWidth: 1,
     borderColor: Colors.error + '30',
   },
   errorText: {
-    fontSize: 16,                   // body
+    fontSize: 16, // body
     color: Colors.error,
     fontFamily: Typography.fontFamily.regular,
     textAlign: 'center',
-    marginVertical: 12,             // 8 * 1.5
+    marginVertical: 12, // 8 * 1.5
   },
   retryButton: {
     backgroundColor: Colors.error,
-    paddingHorizontal: 24,          // 8 * 3 (comfortable)
-    paddingVertical: 12,            // 8 * 1.5
-    borderRadius: 32,               // Pill-shaped
-    minHeight: 48,                  // 8 * 6 (touch target)
+    paddingHorizontal: 24, // 8 * 3 (comfortable)
+    paddingVertical: 12, // 8 * 1.5
+    borderRadius: 32, // Pill-shaped
+    minHeight: 48, // 8 * 6 (touch target)
   },
   retryButtonText: {
-    fontSize: 14,                   // caption
-    fontWeight: '600',              // semibold
+    fontSize: 14, // caption
+    fontWeight: '600', // semibold
     color: Colors.white,
     fontFamily: Typography.fontFamily.semibold,
   },
   bottomSpacing: {
-    height: 32,                     // 8 * 4 (loose)
+    height: 32, // 8 * 4 (loose)
   },
 });

@@ -260,7 +260,10 @@ export default function GroupDetailScreen() {
         </View>
         <View style={styles.membersInfo}>
           <Text style={styles.membersNames} numberOfLines={1}>
-            {group.members.slice(0, 3).map(m => m.userName.split(' ')[0]).join(', ')}
+            {group.members
+              .slice(0, 3)
+              .map((m) => m.userName.split(' ')[0])
+              .join(', ')}
             {group.members.length > 3 ? ` +${group.members.length - 3} more` : ''}
           </Text>
         </View>
@@ -324,9 +327,7 @@ export default function GroupDetailScreen() {
             size={18}
             color={activeTab === 'feed' ? Colors.primary : Colors.secondaryText}
           />
-          <Text
-            style={[styles.tabButtonText, activeTab === 'feed' && styles.activeTabButtonText]}
-          >
+          <Text style={[styles.tabButtonText, activeTab === 'feed' && styles.activeTabButtonText]}>
             Feed
           </Text>
         </TouchableOpacity>
@@ -342,9 +343,7 @@ export default function GroupDetailScreen() {
             size={18}
             color={activeTab === 'chat' ? Colors.primary : Colors.secondaryText}
           />
-          <Text
-            style={[styles.tabButtonText, activeTab === 'chat' && styles.activeTabButtonText]}
-          >
+          <Text style={[styles.tabButtonText, activeTab === 'chat' && styles.activeTabButtonText]}>
             Chat
           </Text>
         </TouchableOpacity>
@@ -359,10 +358,7 @@ export default function GroupDetailScreen() {
         >
           {progress.length > 0 ? (
             progress.map((memberProgress) => (
-              <GroupProgressCard
-                key={memberProgress.userId}
-                memberProgress={memberProgress}
-              />
+              <GroupProgressCard key={memberProgress.userId} memberProgress={memberProgress} />
             ))
           ) : (
             <View style={styles.emptyTab}>
@@ -451,9 +447,7 @@ export default function GroupDetailScreen() {
         visible={reportTarget !== null}
         onClose={() => setReportTarget(null)}
         onSubmit={handleSubmitReport}
-        subjectLabel={
-          reportTarget ? `${reportTarget.userName}'s activity` : undefined
-        }
+        subjectLabel={reportTarget ? `${reportTarget.userName}'s activity` : undefined}
       />
 
       {/* Member List Modal */}
@@ -479,19 +473,19 @@ export default function GroupDetailScreen() {
             <ScrollView style={styles.memberModalList} showsVerticalScrollIndicator={false}>
               {group?.members.map((member) => (
                 <View key={member.userId} style={styles.memberRow}>
-                  <View style={[
-                    styles.memberAvatar,
-                    member.role === 'admin' && styles.memberAvatarAdmin,
-                  ]}>
+                  <View
+                    style={[
+                      styles.memberAvatar,
+                      member.role === 'admin' && styles.memberAvatarAdmin,
+                    ]}
+                  >
                     <Text style={styles.memberAvatarText}>
                       {member.userName.charAt(0).toUpperCase()}
                     </Text>
                   </View>
                   <View style={styles.memberDetails}>
                     <Text style={styles.memberName}>{member.userName}</Text>
-                    {member.role === 'admin' && (
-                      <Text style={styles.memberRole}>Admin</Text>
-                    )}
+                    {member.role === 'admin' && <Text style={styles.memberRole}>Admin</Text>}
                   </View>
                   {member.userId === user?.id ? (
                     // Self-exclusion (R1.2 / Property 11): the current user never
@@ -505,11 +499,7 @@ export default function GroupDetailScreen() {
                       accessibilityRole="button"
                       hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
                     >
-                      <Ionicons
-                        name="ellipsis-horizontal"
-                        size={20}
-                        color={Colors.secondaryText}
-                      />
+                      <Ionicons name="ellipsis-horizontal" size={20} color={Colors.secondaryText} />
                     </TouchableOpacity>
                   )}
                 </View>
@@ -532,10 +522,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: Colors.background,
-    gap: 16,                            // 8 × 2 (base)
+    gap: 16, // 8 × 2 (base)
   },
   loadingText: {
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
   },
@@ -544,44 +534,44 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: Colors.background,
-    gap: 16,                            // 8 × 2 (base)
-    padding: 32,                        // 8 × 4 (loose)
+    gap: 16, // 8 × 2 (base)
+    padding: 32, // 8 × 4 (loose)
   },
   errorText: {
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     fontFamily: Typography.fontFamily.regular,
     color: Colors.error,
     textAlign: 'center',
   },
   backButton: {
     backgroundColor: Colors.accent1,
-    paddingHorizontal: 24,             // 8 × 3 (comfortable)
+    paddingHorizontal: 24, // 8 × 3 (comfortable)
     paddingVertical: 12,
     borderRadius: 12,
-    minHeight: 48,                      // 8 × 6 (touch target)
+    minHeight: 48, // 8 × 6 (touch target)
     alignItems: 'center',
     justifyContent: 'center',
   },
   backButtonText: {
     color: Colors.white,
-    fontSize: 16,                       // body
-    fontWeight: '600',                  // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
   headerButton: {
-    width: 48,                          // 8 × 6 (touch target)
-    height: 48,                         // 8 × 6 (touch target)
+    width: 48, // 8 × 6 (touch target)
+    height: 48, // 8 × 6 (touch target)
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 8,                     // 8 × 1 (tight)
+    marginRight: 8, // 8 × 1 (tight)
   },
   summaryBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
     backgroundColor: Colors.white,
-    paddingVertical: 16,               // 8 × 2 (base)
-    paddingHorizontal: 16,             // 8 × 2 (base)
+    paddingVertical: 16, // 8 × 2 (base)
+    paddingHorizontal: 16, // 8 × 2 (base)
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
   },
@@ -590,40 +580,40 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   summaryValue: {
-    fontSize: 24,                       // heading
-    fontWeight: '700',                  // bold
+    fontSize: 24, // heading
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
   },
   summaryLabel: {
-    fontSize: 12,                       // small
+    fontSize: 12, // small
     fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
     marginTop: 4,
   },
   summaryDivider: {
     width: 1,
-    height: 32,                         // 8 × 4
+    height: 32, // 8 × 4
     backgroundColor: Colors.gray.light,
   },
   // ── Member Avatars Row ──
   membersRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,             // 8 × 2 (base)
-    paddingVertical: 12,               // 8 × 1.5
+    paddingHorizontal: 16, // 8 × 2 (base)
+    paddingVertical: 12, // 8 × 1.5
     backgroundColor: Colors.white,
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
-    gap: 12,                           // 8 × 1.5
+    gap: 12, // 8 × 1.5
   },
   avatarStack: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   stackedAvatar: {
-    width: 36,                         // 8 × 4.5
-    height: 36,                        // 8 × 4.5
+    width: 36, // 8 × 4.5
+    height: 36, // 8 × 4.5
     borderRadius: 18,
     backgroundColor: Colors.accent1,
     alignItems: 'center',
@@ -632,8 +622,8 @@ const styles = StyleSheet.create({
     borderColor: Colors.white,
   },
   stackedAvatarText: {
-    fontSize: 14,                      // caption
-    fontWeight: '600',                 // semibold
+    fontSize: 14, // caption
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.white,
   },
@@ -641,8 +631,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.gray.medium,
   },
   stackedAvatarMoreText: {
-    fontSize: 12,                      // small
-    fontWeight: '700',                 // bold
+    fontSize: 12, // small
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
     color: Colors.white,
   },
@@ -650,7 +640,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   membersNames: {
-    fontSize: 14,                      // caption
+    fontSize: 14, // caption
     fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
   },
@@ -665,56 +655,56 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '60%',
-    paddingBottom: 40,                 // safe area
+    paddingBottom: 40, // safe area
   },
   memberModalHandle: {
-    width: 40,                         // 8 × 5
+    width: 40, // 8 × 5
     height: 4,
     backgroundColor: Colors.gray.light,
     borderRadius: 2,
     alignSelf: 'center',
-    marginTop: 12,                     // 8 × 1.5
+    marginTop: 12, // 8 × 1.5
   },
   memberModalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,             // 8 × 2 (base)
-    paddingVertical: 16,               // 8 × 2 (base)
+    paddingHorizontal: 16, // 8 × 2 (base)
+    paddingVertical: 16, // 8 × 2 (base)
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
   },
   memberModalTitle: {
-    fontSize: 20,                      // subheading
-    fontWeight: '600',                 // semibold
+    fontSize: 20, // subheading
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
   },
   memberModalList: {
-    paddingHorizontal: 16,             // 8 × 2 (base)
+    paddingHorizontal: 16, // 8 × 2 (base)
   },
   memberRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,               // 8 × 1.5
+    paddingVertical: 12, // 8 × 1.5
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
   },
   memberAvatar: {
-    width: 44,                         // 8 × 5.5
-    height: 44,                        // 8 × 5.5
+    width: 44, // 8 × 5.5
+    height: 44, // 8 × 5.5
     borderRadius: 22,
     backgroundColor: Colors.accent3,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,                   // 8 × 1.5
+    marginRight: 12, // 8 × 1.5
   },
   memberAvatarAdmin: {
     backgroundColor: Colors.accent1,
   },
   memberAvatarText: {
-    fontSize: 16,                      // body
-    fontWeight: '600',                 // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.white,
   },
@@ -722,39 +712,39 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   memberName: {
-    fontSize: 16,                      // body
-    fontWeight: '500',                 // medium
+    fontSize: 16, // body
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
     color: Colors.primaryText,
   },
   memberRole: {
-    fontSize: 12,                      // small
+    fontSize: 12, // small
     color: Colors.accent1,
-    fontWeight: '600',                 // semibold
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
     marginTop: 2,
   },
   memberYou: {
-    fontSize: 12,                      // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
-    fontWeight: '500',                 // medium
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
     backgroundColor: Colors.gray.light,
-    paddingHorizontal: 8,              // 8 × 1 (tight)
+    paddingHorizontal: 8, // 8 × 1 (tight)
     paddingVertical: 2,
     borderRadius: 8,
   },
   memberBlockButton: {
-    width: 48,                         // 8 × 6 (touch target)
-    height: 48,                        // 8 × 6 (touch target)
+    width: 48, // 8 × 6 (touch target)
+    height: 48, // 8 × 6 (touch target)
     alignItems: 'center',
     justifyContent: 'center',
   },
   actionsRow: {
     flexDirection: 'row',
-    gap: 8,                             // 8 × 1 (tight)
-    paddingHorizontal: 16,             // 8 × 2 (base)
-    paddingVertical: 16,               // 8 × 2 (base)
+    gap: 8, // 8 × 1 (tight)
+    paddingHorizontal: 16, // 8 × 2 (base)
+    paddingVertical: 16, // 8 × 2 (base)
     backgroundColor: Colors.white,
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
@@ -762,17 +752,17 @@ const styles = StyleSheet.create({
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,                             // 8 × 1 (tight)
-    paddingHorizontal: 16,             // 8 × 2 (base)
+    gap: 8, // 8 × 1 (tight)
+    paddingHorizontal: 16, // 8 × 2 (base)
     paddingVertical: 10,
-    borderRadius: 24,                   // Pill
+    borderRadius: 24, // Pill
     borderWidth: 1,
     borderColor: Colors.accent1,
-    minHeight: 40,                      // 8 × 5
+    minHeight: 40, // 8 × 5
   },
   actionButtonText: {
-    fontSize: 14,                       // caption
-    fontWeight: '600',                  // semibold
+    fontSize: 14, // caption
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.accent1,
   },
@@ -787,43 +777,43 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,               // 8 × 2 (base)
-    gap: 8,                             // 8 × 1 (tight)
-    minHeight: 48,                      // 8 × 6 (touch target)
+    paddingVertical: 16, // 8 × 2 (base)
+    gap: 8, // 8 × 1 (tight)
+    minHeight: 48, // 8 × 6 (touch target)
   },
   activeTabButton: {
     borderBottomWidth: 2,
     borderBottomColor: Colors.primary,
   },
   tabButtonText: {
-    fontSize: 16,                       // body
-    fontWeight: '500',                  // medium
+    fontSize: 16, // body
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
     color: Colors.secondaryText,
   },
   activeTabButtonText: {
     color: Colors.primary,
-    fontWeight: '600',                  // semibold
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
   tabContent: {
     flex: 1,
   },
   tabContentContainer: {
-    padding: 16,                        // 8 × 2 (base)
-    paddingBottom: 32,                  // 8 × 4 (loose)
+    padding: 16, // 8 × 2 (base)
+    paddingBottom: 32, // 8 × 4 (loose)
   },
   emptyTab: {
     alignItems: 'center',
-    paddingVertical: 48,               // 8 × 6 (spacious)
-    gap: 16,                            // 8 × 2 (base)
+    paddingVertical: 48, // 8 × 6 (spacious)
+    gap: 16, // 8 × 2 (base)
   },
   emptyTabText: {
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
     textAlign: 'center',
-    lineHeight: 24,                     // 1.5 line height
-    paddingHorizontal: 24,             // 8 × 3 (comfortable)
+    lineHeight: 24, // 1.5 line height
+    paddingHorizontal: 24, // 8 × 3 (comfortable)
   },
 });

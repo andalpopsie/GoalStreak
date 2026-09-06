@@ -1,6 +1,6 @@
 /**
  * iOS Haptic Feedback Tests
- * 
+ *
  * Tests iOS haptic feedback integration and functionality
  * Requirements: 5.4 - Test iOS-specific features (haptic feedback, iOS notifications, etc.)
  */
@@ -112,25 +112,19 @@ describe('iOS Haptic Feedback', () => {
     it('should trigger light impact haptic on iOS', async () => {
       await HapticFeedbackService.lightImpact();
 
-      expect(Haptics.impactAsync).toHaveBeenCalledWith(
-        Haptics.ImpactFeedbackStyle.Light
-      );
+      expect(Haptics.impactAsync).toHaveBeenCalledWith(Haptics.ImpactFeedbackStyle.Light);
     });
 
     it('should trigger medium impact haptic on iOS', async () => {
       await HapticFeedbackService.mediumImpact();
 
-      expect(Haptics.impactAsync).toHaveBeenCalledWith(
-        Haptics.ImpactFeedbackStyle.Medium
-      );
+      expect(Haptics.impactAsync).toHaveBeenCalledWith(Haptics.ImpactFeedbackStyle.Medium);
     });
 
     it('should trigger heavy impact haptic on iOS', async () => {
       await HapticFeedbackService.heavyImpact();
 
-      expect(Haptics.impactAsync).toHaveBeenCalledWith(
-        Haptics.ImpactFeedbackStyle.Heavy
-      );
+      expect(Haptics.impactAsync).toHaveBeenCalledWith(Haptics.ImpactFeedbackStyle.Heavy);
     });
 
     it('should trigger success notification haptic on iOS', async () => {
@@ -188,41 +182,31 @@ describe('iOS Haptic Feedback', () => {
     it('should provide haptic feedback for habit creation', async () => {
       await HapticFeedbackService.habitCreated();
 
-      expect(Haptics.impactAsync).toHaveBeenCalledWith(
-        Haptics.ImpactFeedbackStyle.Medium
-      );
+      expect(Haptics.impactAsync).toHaveBeenCalledWith(Haptics.ImpactFeedbackStyle.Medium);
     });
 
     it('should provide haptic feedback for button presses', async () => {
       await HapticFeedbackService.buttonPress();
 
-      expect(Haptics.impactAsync).toHaveBeenCalledWith(
-        Haptics.ImpactFeedbackStyle.Light
-      );
+      expect(Haptics.impactAsync).toHaveBeenCalledWith(Haptics.ImpactFeedbackStyle.Light);
     });
 
     it('should provide haptic feedback for friend request sent', async () => {
       await HapticFeedbackService.friendRequestSent();
 
-      expect(Haptics.impactAsync).toHaveBeenCalledWith(
-        Haptics.ImpactFeedbackStyle.Medium
-      );
+      expect(Haptics.impactAsync).toHaveBeenCalledWith(Haptics.ImpactFeedbackStyle.Medium);
     });
 
     it('should provide haptic feedback for reaction added', async () => {
       await HapticFeedbackService.reactionAdded();
 
-      expect(Haptics.impactAsync).toHaveBeenCalledWith(
-        Haptics.ImpactFeedbackStyle.Light
-      );
+      expect(Haptics.impactAsync).toHaveBeenCalledWith(Haptics.ImpactFeedbackStyle.Light);
     });
 
     it('should provide haptic feedback for streak milestones', async () => {
       await HapticFeedbackService.streakMilestone();
 
-      expect(Haptics.impactAsync).toHaveBeenCalledWith(
-        Haptics.ImpactFeedbackStyle.Heavy
-      );
+      expect(Haptics.impactAsync).toHaveBeenCalledWith(Haptics.ImpactFeedbackStyle.Heavy);
     });
 
     it('should provide haptic feedback for errors', async () => {
@@ -271,11 +255,11 @@ describe('iOS Haptic Feedback', () => {
   describe('Haptic Feedback Performance', () => {
     it('should execute haptic feedback quickly', async () => {
       const startTime = Date.now();
-      
+
       await HapticFeedbackService.lightImpact();
-      
+
       const executionTime = Date.now() - startTime;
-      
+
       // Should execute within 10ms
       expect(executionTime).toBeLessThan(10);
     });
@@ -298,17 +282,17 @@ describe('iOS Haptic Feedback', () => {
 
     it('should not block UI thread during haptic feedback', async () => {
       const startTime = Date.now();
-      
+
       // Start haptic feedback (should be async)
       const hapticPromise = HapticFeedbackService.lightImpact();
-      
+
       // Simulate UI work
-      const uiWork = new Promise(resolve => setTimeout(resolve, 1));
-      
+      const uiWork = new Promise((resolve) => setTimeout(resolve, 1));
+
       await Promise.all([hapticPromise, uiWork]);
-      
+
       const totalTime = Date.now() - startTime;
-      
+
       // Should not significantly delay UI work
       expect(totalTime).toBeLessThan(50);
     });
@@ -318,18 +302,18 @@ describe('iOS Haptic Feedback', () => {
     it('should work on iPhone devices with haptic engine', async () => {
       // Mock iPhone device
       jest.spyOn(Platform, 'isPad', 'get').mockReturnValue(false);
-      
+
       await HapticFeedbackService.lightImpact();
-      
+
       expect(Haptics.impactAsync).toHaveBeenCalled();
     });
 
     it('should work on iPad devices with haptic support', async () => {
       // Mock iPad device
       jest.spyOn(Platform, 'isPad', 'get').mockReturnValue(true);
-      
+
       await HapticFeedbackService.lightImpact();
-      
+
       expect(Haptics.impactAsync).toHaveBeenCalled();
     });
 
@@ -338,7 +322,7 @@ describe('iOS Haptic Feedback', () => {
       (Haptics.impactAsync as jest.Mock).mockRejectedValue(
         new Error('Haptic engine not available')
       );
-      
+
       // Should not throw error
       await expect(HapticFeedbackService.lightImpact()).resolves.toBeUndefined();
     });
@@ -348,27 +332,27 @@ describe('iOS Haptic Feedback', () => {
     it('should work on iOS 15.0+', async () => {
       // Mock iOS 15
       Platform.Version = '15.0';
-      
+
       await HapticFeedbackService.lightImpact();
-      
+
       expect(Haptics.impactAsync).toHaveBeenCalled();
     });
 
     it('should work on iOS 16.0+', async () => {
       // Mock iOS 16
       Platform.Version = '16.0';
-      
+
       await HapticFeedbackService.lightImpact();
-      
+
       expect(Haptics.impactAsync).toHaveBeenCalled();
     });
 
     it('should work on iOS 17.0+', async () => {
       // Mock iOS 17
       Platform.Version = '17.0';
-      
+
       await HapticFeedbackService.lightImpact();
-      
+
       expect(Haptics.impactAsync).toHaveBeenCalled();
     });
   });
@@ -379,7 +363,7 @@ describe('iOS Haptic Feedback', () => {
       (Haptics.impactAsync as jest.Mock).mockRejectedValue(
         new Error('Haptic feedback disabled by user')
       );
-      
+
       // Should handle gracefully
       await expect(HapticFeedbackService.lightImpact()).resolves.toBeUndefined();
     });
@@ -389,7 +373,7 @@ describe('iOS Haptic Feedback', () => {
       (Haptics.impactAsync as jest.Mock).mockRejectedValue(
         new Error('Haptic feedback not available')
       );
-      
+
       // Should still complete without error
       await expect(HapticFeedbackService.buttonPress()).resolves.toBeUndefined();
     });

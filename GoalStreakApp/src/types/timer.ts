@@ -201,8 +201,6 @@ export interface TimerContextActions {
   clearError: () => void;
 }
 
-
-
 // Timer Utility Types
 export type TimerStatus = 'idle' | 'active' | 'paused' | 'completed';
 

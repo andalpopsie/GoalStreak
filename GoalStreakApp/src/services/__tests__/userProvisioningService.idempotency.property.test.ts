@@ -56,7 +56,9 @@ jest.mock('../friendService', () => ({
 const mockedGetDoc = getDoc as jest.MockedFunction<typeof getDoc>;
 const mockedSetDoc = setDoc as jest.MockedFunction<typeof setDoc>;
 const mockedGenerateUsername = generateUsername as jest.MockedFunction<typeof generateUsername>;
-const mockedIsUsernameAvailable = isUsernameAvailable as jest.MockedFunction<typeof isUsernameAvailable>;
+const mockedIsUsernameAvailable = isUsernameAvailable as jest.MockedFunction<
+  typeof isUsernameAvailable
+>;
 const mockedReserveUsername = reserveUsername as jest.MockedFunction<typeof reserveUsername>;
 const mockedCreateUserProfile = friendService.createUserProfile as jest.MockedFunction<
   typeof friendService.createUserProfile
@@ -82,41 +84,45 @@ const inputArb = fc.record({
 describe('userProvisioningService.provisionNewUser — Property 5: idempotent and retry-safe', () => {
   it('an already-provisioned user is a no-op: created === false, no writes', async () => {
     await fc.assert(
-      fc.asyncProperty(inputArb, fc.string({ minLength: 1, maxLength: 20 }), async (u, existingUsername) => {
-        mockedGetDoc.mockReset();
-        mockedSetDoc.mockReset();
-        mockedGenerateUsername.mockReset();
-        mockedIsUsernameAvailable.mockReset();
-        mockedReserveUsername.mockReset();
-        mockedCreateUserProfile.mockReset();
+      fc.asyncProperty(
+        inputArb,
+        fc.string({ minLength: 1, maxLength: 20 }),
+        async (u, existingUsername) => {
+          mockedGetDoc.mockReset();
+          mockedSetDoc.mockReset();
+          mockedGenerateUsername.mockReset();
+          mockedIsUsernameAvailable.mockReset();
+          mockedReserveUsername.mockReset();
+          mockedCreateUserProfile.mockReset();
 
-        // User already exists → provisioning must write nothing.
-        mockedGetDoc.mockResolvedValue(snapshot(true, existingUsername));
+          // User already exists → provisioning must write nothing.
+          mockedGetDoc.mockResolvedValue(snapshot(true, existingUsername));
 
-        const firebaseUser = {
-          uid: u.uid,
-          email: u.email,
-          displayName: u.displayName ?? null,
-        } as unknown as User;
+          const firebaseUser = {
+            uid: u.uid,
+            email: u.email,
+            displayName: u.displayName ?? null,
+          } as unknown as User;
 
-        const result = await provisionNewUser({
-          firebaseUser,
-          displayName: u.displayName,
-          photoURL: u.photoURL,
-          eulaVersion: '1.0',
-        });
+          const result = await provisionNewUser({
+            firebaseUser,
+            displayName: u.displayName,
+            photoURL: u.photoURL,
+            eulaVersion: '1.0',
+          });
 
-        // Reports the existing user, no creation.
-        expect(result.created).toBe(false);
-        expect(result.username).toBe(existingUsername);
+          // Reports the existing user, no creation.
+          expect(result.created).toBe(false);
+          expect(result.username).toBe(existingUsername);
 
-        // No additional writes of any kind (R5.12).
-        expect(mockedSetDoc).not.toHaveBeenCalled();
-        expect(mockedReserveUsername).not.toHaveBeenCalled();
-        expect(mockedCreateUserProfile).not.toHaveBeenCalled();
-        expect(mockedGenerateUsername).not.toHaveBeenCalled();
-      }),
-      { numRuns: 100 },
+          // No additional writes of any kind (R5.12).
+          expect(mockedSetDoc).not.toHaveBeenCalled();
+          expect(mockedReserveUsername).not.toHaveBeenCalled();
+          expect(mockedCreateUserProfile).not.toHaveBeenCalled();
+          expect(mockedGenerateUsername).not.toHaveBeenCalled();
+        }
+      ),
+      { numRuns: 100 }
     );
   });
 
@@ -172,7 +178,7 @@ describe('userProvisioningService.provisionNewUser — Property 5: idempotent an
         expect(mockedReserveUsername).toHaveBeenCalledWith(generatedUsername, u.uid);
         expect(mockedCreateUserProfile).toHaveBeenCalledTimes(1);
       }),
-      { numRuns: 100 },
+      { numRuns: 100 }
     );
   });
 });

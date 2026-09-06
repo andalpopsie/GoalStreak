@@ -1,6 +1,6 @@
 /**
  * Crashlytics Service
- * 
+ *
  * Provides crash reporting and error tracking for iOS launch.
  * Implements Task 7.1: Configure Firebase Crashlytics for iOS production crash reporting
  */
@@ -36,7 +36,6 @@ class CrashlyticsService {
       // For now, we'll use smart logging as a placeholder
       this.isInitialized = true;
       logInfo('system', 'Crashlytics: Initialized successfully');
-
     } catch (error) {
       logWarn('system', 'Crashlytics: Failed to initialize', { error: error.message });
     }
@@ -49,7 +48,7 @@ class CrashlyticsService {
     if (!this.isInitialized) return;
 
     this.userContext = { ...this.userContext, ...context };
-    
+
     // In a real implementation, this would set user context in Firebase Crashlytics
     console.log('📊 Crashlytics: User context set:', this.userContext);
   }
@@ -70,7 +69,11 @@ class CrashlyticsService {
   /**
    * Record error with additional context
    */
-  recordError(error: Error, context?: string, severity: 'low' | 'medium' | 'high' = 'medium'): void {
+  recordError(
+    error: Error,
+    context?: string,
+    severity: 'low' | 'medium' | 'high' = 'medium'
+  ): void {
     if (!this.isInitialized) {
       console.error('Error:', error, 'Context:', context, 'Severity:', severity);
       return;
@@ -81,7 +84,7 @@ class CrashlyticsService {
       error: error.message,
       context,
       severity,
-      userContext: this.userContext
+      userContext: this.userContext,
     });
   }
 
@@ -126,7 +129,7 @@ export const logAnalyticsEvent = (eventName: string, parameters?: Record<string,
 
   // Use smart logging instead of direct console logging
   logAnalytics(`Analytics Event: ${eventName}`, parameters);
-  
+
   // In production, this would send to Firebase Analytics
   // Only log to Firebase in production to reduce costs
   if (config.environment === 'production') {
@@ -134,7 +137,11 @@ export const logAnalyticsEvent = (eventName: string, parameters?: Record<string,
   }
 };
 
-export const recordPerformance = (metricName: string, value: number, attributes?: Record<string, string>) => {
+export const recordPerformance = (
+  metricName: string,
+  value: number,
+  attributes?: Record<string, string>
+) => {
   if (!crashlyticsService.isAvailable()) {
     logPerformance(`Performance: ${metricName}`, { value, ...attributes });
     return;
@@ -142,7 +149,7 @@ export const recordPerformance = (metricName: string, value: number, attributes?
 
   // Use smart logging with sampling
   logPerformance(`Performance Metric: ${metricName}`, { value, attributes });
-  
+
   // In production, this would send to Firebase Performance
   if (config.environment === 'production') {
     // Firebase Performance call would go here

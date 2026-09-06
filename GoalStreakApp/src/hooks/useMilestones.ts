@@ -48,69 +48,77 @@ export const useMilestones = () => {
     }
   }, []);
 
-  const checkCompletionMilestone = useCallback((totalCompletions: number) => {
-    // Find the highest milestone reached that hasn't been seen
-    const reachedMilestones = COMPLETION_MILESTONES.filter(m => totalCompletions >= m);
-    const unseenMilestones = reachedMilestones.filter(m => !seenMilestones.completions.includes(m));
-    
-    if (unseenMilestones.length > 0) {
-      const milestone = unseenMilestones[unseenMilestones.length - 1]; // Get highest unseen
-      
-      const milestoneData: Milestone = {
-        type: 'completion',
-        value: milestone,
-        title: getMilestoneTitle(milestone, 'completion'),
-        message: getMilestoneMessage(milestone, 'completion'),
-        icon: getMilestoneIcon(milestone, 'completion'),
-        color: Colors.accent1,
-      };
-      
-      setCurrentMilestone(milestoneData);
-      setShowCelebration(true);
-      
-      // Mark as seen
-      saveSeenMilestones({
-        ...seenMilestones,
-        completions: [...seenMilestones.completions, milestone],
-      });
-      
-      return true;
-    }
-    
-    return false;
-  }, [seenMilestones, saveSeenMilestones]);
+  const checkCompletionMilestone = useCallback(
+    (totalCompletions: number) => {
+      // Find the highest milestone reached that hasn't been seen
+      const reachedMilestones = COMPLETION_MILESTONES.filter((m) => totalCompletions >= m);
+      const unseenMilestones = reachedMilestones.filter(
+        (m) => !seenMilestones.completions.includes(m)
+      );
 
-  const checkStreakMilestone = useCallback((currentStreak: number) => {
-    // Find the highest milestone reached that hasn't been seen
-    const reachedMilestones = STREAK_MILESTONES.filter(m => currentStreak >= m);
-    const unseenMilestones = reachedMilestones.filter(m => !seenMilestones.streaks.includes(m));
-    
-    if (unseenMilestones.length > 0) {
-      const milestone = unseenMilestones[unseenMilestones.length - 1]; // Get highest unseen
-      
-      const milestoneData: Milestone = {
-        type: 'streak',
-        value: milestone,
-        title: getMilestoneTitle(milestone, 'streak'),
-        message: getMilestoneMessage(milestone, 'streak'),
-        icon: getMilestoneIcon(milestone, 'streak'),
-        color: Colors.accent1,
-      };
-      
-      setCurrentMilestone(milestoneData);
-      setShowCelebration(true);
-      
-      // Mark as seen
-      saveSeenMilestones({
-        ...seenMilestones,
-        streaks: [...seenMilestones.streaks, milestone],
-      });
-      
-      return true;
-    }
-    
-    return false;
-  }, [seenMilestones, saveSeenMilestones]);
+      if (unseenMilestones.length > 0) {
+        const milestone = unseenMilestones[unseenMilestones.length - 1]; // Get highest unseen
+
+        const milestoneData: Milestone = {
+          type: 'completion',
+          value: milestone,
+          title: getMilestoneTitle(milestone, 'completion'),
+          message: getMilestoneMessage(milestone, 'completion'),
+          icon: getMilestoneIcon(milestone, 'completion'),
+          color: Colors.accent1,
+        };
+
+        setCurrentMilestone(milestoneData);
+        setShowCelebration(true);
+
+        // Mark as seen
+        saveSeenMilestones({
+          ...seenMilestones,
+          completions: [...seenMilestones.completions, milestone],
+        });
+
+        return true;
+      }
+
+      return false;
+    },
+    [seenMilestones, saveSeenMilestones]
+  );
+
+  const checkStreakMilestone = useCallback(
+    (currentStreak: number) => {
+      // Find the highest milestone reached that hasn't been seen
+      const reachedMilestones = STREAK_MILESTONES.filter((m) => currentStreak >= m);
+      const unseenMilestones = reachedMilestones.filter((m) => !seenMilestones.streaks.includes(m));
+
+      if (unseenMilestones.length > 0) {
+        const milestone = unseenMilestones[unseenMilestones.length - 1]; // Get highest unseen
+
+        const milestoneData: Milestone = {
+          type: 'streak',
+          value: milestone,
+          title: getMilestoneTitle(milestone, 'streak'),
+          message: getMilestoneMessage(milestone, 'streak'),
+          icon: getMilestoneIcon(milestone, 'streak'),
+          color: Colors.accent1,
+        };
+
+        setCurrentMilestone(milestoneData);
+        setShowCelebration(true);
+
+        // Mark as seen
+        saveSeenMilestones({
+          ...seenMilestones,
+          streaks: [...seenMilestones.streaks, milestone],
+        });
+
+        return true;
+      }
+
+      return false;
+    },
+    [seenMilestones, saveSeenMilestones]
+  );
 
   const closeCelebration = useCallback(() => {
     setShowCelebration(false);
@@ -156,19 +164,19 @@ function getMilestoneTitle(value: number, type: 'completion' | 'streak'): string
 function getMilestoneMessage(value: number, type: 'completion' | 'streak'): string {
   if (type === 'completion') {
     if (value === 1) return 'Every journey begins with a single step. Great start!';
-    if (value === 10) return 'You\'re building momentum! Keep it up!';
-    if (value === 50) return 'Halfway to 100! You\'re doing amazing!';
-    if (value === 100) return 'Incredible dedication! You\'re a habit master!';
-    if (value === 500) return 'Phenomenal achievement! You\'re unstoppable!';
-    if (value === 1000) return 'Legendary status achieved! You\'re an inspiration!';
+    if (value === 10) return "You're building momentum! Keep it up!";
+    if (value === 50) return "Halfway to 100! You're doing amazing!";
+    if (value === 100) return "Incredible dedication! You're a habit master!";
+    if (value === 500) return "Phenomenal achievement! You're unstoppable!";
+    if (value === 1000) return "Legendary status achieved! You're an inspiration!";
     return `Amazing progress! ${value} completions and counting!`;
   } else {
-    if (value === 3) return 'Three days in a row! You\'re building a habit!';
+    if (value === 3) return "Three days in a row! You're building a habit!";
     if (value === 7) return 'A full week! Consistency is your superpower!';
-    if (value === 14) return 'Two weeks strong! You\'re on fire!';
+    if (value === 14) return "Two weeks strong! You're on fire!";
     if (value === 30) return 'A full month! This is now part of who you are!';
-    if (value === 100) return 'One hundred days! You\'re a true champion!';
-    if (value === 365) return 'A full year! You\'ve transformed your life!';
+    if (value === 100) return "One hundred days! You're a true champion!";
+    if (value === 365) return "A full year! You've transformed your life!";
     return `${value} days of consistency! You\'re incredible!`;
   }
 }

@@ -77,8 +77,8 @@ export const validateEnvironmentConfig = (): boolean => {
     'EXPO_PUBLIC_FIREBASE_APP_ID',
   ];
 
-  const missingKeys = requiredKeys.filter(key => !process.env[key] || process.env[key] === '');
-  
+  const missingKeys = requiredKeys.filter((key) => !process.env[key] || process.env[key] === '');
+
   // Additional validation for key formats
   const validateKeyFormat = (key: string, value: string): boolean => {
     switch (key) {
@@ -96,7 +96,7 @@ export const validateEnvironmentConfig = (): boolean => {
         return true;
     }
   };
-  
+
   if (missingKeys.length > 0) {
     if (config.environment === 'development') {
       console.warn('⚠️ Missing Firebase environment variables in development mode:', missingKeys);
@@ -104,28 +104,43 @@ export const validateEnvironmentConfig = (): boolean => {
       return true; // Allow development mode to continue
     } else {
       // In production, check if the config object has the values (they might be loaded differently)
-      const hasConfigValues = config.firebase.apiKey && 
-                             config.firebase.authDomain && 
-                             config.firebase.projectId && 
-                             config.firebase.storageBucket && 
-                             config.firebase.messagingSenderId && 
-                             config.firebase.appId;
-      
+      const hasConfigValues =
+        config.firebase.apiKey &&
+        config.firebase.authDomain &&
+        config.firebase.projectId &&
+        config.firebase.storageBucket &&
+        config.firebase.messagingSenderId &&
+        config.firebase.appId;
+
       if (!hasConfigValues) {
         console.error('❌ Missing required environment variables in production:', missingKeys);
         return false;
       } else {
         // Validate format of existing config values
-        const invalidFormats = requiredKeys.filter(key => {
+        const invalidFormats = requiredKeys.filter((key) => {
           const configKey = key.replace('EXPO_PUBLIC_FIREBASE_', '').toLowerCase();
-          const value = (config.firebase as any)[configKey === 'messaging_sender_id' ? 'messagingSenderId' : configKey === 'app_id' ? 'appId' : configKey === 'auth_domain' ? 'authDomain' : configKey === 'project_id' ? 'projectId' : configKey === 'storage_bucket' ? 'storageBucket' : configKey === 'api_key' ? 'apiKey' : configKey];
+          const value = (config.firebase as any)[
+            configKey === 'messaging_sender_id'
+              ? 'messagingSenderId'
+              : configKey === 'app_id'
+                ? 'appId'
+                : configKey === 'auth_domain'
+                  ? 'authDomain'
+                  : configKey === 'project_id'
+                    ? 'projectId'
+                    : configKey === 'storage_bucket'
+                      ? 'storageBucket'
+                      : configKey === 'api_key'
+                        ? 'apiKey'
+                        : configKey
+          ];
           return value && !validateKeyFormat(key, value);
         });
-        
+
         if (invalidFormats.length > 0) {
           console.warn('⚠️ Invalid format for Firebase config keys:', invalidFormats);
         }
-        
+
         console.log('✅ Firebase configuration loaded successfully');
         return true;
       }
@@ -156,8 +171,8 @@ export const logConfig = () => {
         projectId: config.firebase.projectId,
         // Don't log sensitive keys
         hasApiKey: !!config.firebase.apiKey,
-        hasAppId: !!config.firebase.appId
-      }
+        hasAppId: !!config.firebase.appId,
+      },
     });
   }
 };

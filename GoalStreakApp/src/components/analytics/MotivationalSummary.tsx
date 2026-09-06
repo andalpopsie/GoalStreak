@@ -18,10 +18,14 @@ function getGreeting(): string {
   return 'Good evening';
 }
 
-function getMessage(rate: number, streak: number, completions: number): { text: string; emoji: string; color: string } {
+function getMessage(
+  rate: number,
+  streak: number,
+  completions: number
+): { text: string; emoji: string; color: string } {
   if (completions === 0) {
     return {
-      text: "Start your first habit today and watch your progress grow!",
+      text: 'Start your first habit today and watch your progress grow!',
       emoji: '🌱',
       color: Colors.accent3,
     };
@@ -55,7 +59,7 @@ function getMessage(rate: number, streak: number, completions: number): { text: 
     };
   }
   return {
-    text: "Every journey starts with a single step. Complete a habit today!",
+    text: 'Every journey starts with a single step. Complete a habit today!',
     emoji: '🎯',
     color: Colors.primaryText,
   };
@@ -89,12 +93,12 @@ export default function MotivationalSummary({
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: Spacing.base,       // 16 (8 × 2)
-    marginTop: Spacing.base,              // 16 (8 × 2)
-    marginBottom: Spacing.tight,          // 8  (8 × 1)
+    marginHorizontal: Spacing.base, // 16 (8 × 2)
+    marginTop: Spacing.base, // 16 (8 × 2)
+    marginBottom: Spacing.tight, // 8  (8 × 1)
     backgroundColor: Colors.white,
-    borderRadius: 16,                     // 8 × 2
-    padding: Spacing.base,               // 16 (8 × 2)
+    borderRadius: 16, // 8 × 2
+    padding: Spacing.base, // 16 (8 × 2)
     borderLeftWidth: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -104,13 +108,13 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: Typography.fontSize.subheading, // 20
-    fontWeight: Typography.fontWeight.bold,   // '700'
+    fontWeight: Typography.fontWeight.bold, // '700'
     fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
-    marginBottom: Spacing.tight,              // 8 (8 × 1)
+    marginBottom: Spacing.tight, // 8 (8 × 1)
   },
   message: {
-    fontSize: Typography.fontSize.body,       // 16
+    fontSize: Typography.fontSize.body, // 16
     fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
     lineHeight: Typography.fontSize.body * Typography.lineHeight.normal, // 24

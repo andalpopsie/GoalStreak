@@ -79,10 +79,7 @@ class SubscriptionService {
         this.currentUserId = userId;
       }
     } catch (error) {
-      console.error(
-        '[subscriptionService] Failed to initialize RevenueCat:',
-        error
-      );
+      console.error('[subscriptionService] Failed to initialize RevenueCat:', error);
       // Keep `initialized = false` so subsequent calls fall back to Free.
       this.initialized = false;
     }
@@ -120,20 +117,17 @@ class SubscriptionService {
 
     try {
       const offerings = await Purchases.getOfferings();
-      const offering =
-        offerings.all[DEFAULT_OFFERING_ID] ?? offerings.current ?? null;
+      const offering = offerings.all[DEFAULT_OFFERING_ID] ?? offerings.current ?? null;
       if (!offering) {
         return { monthly: null, annual: null };
       }
 
       const monthly =
-        offering.availablePackages.find(
-          (p) => p.product.identifier === PRO_PRODUCT_IDS.monthly
-        ) ?? null;
+        offering.availablePackages.find((p) => p.product.identifier === PRO_PRODUCT_IDS.monthly) ??
+        null;
       const annual =
-        offering.availablePackages.find(
-          (p) => p.product.identifier === PRO_PRODUCT_IDS.annual
-        ) ?? null;
+        offering.availablePackages.find((p) => p.product.identifier === PRO_PRODUCT_IDS.annual) ??
+        null;
 
       return { monthly, annual };
     } catch (error) {
@@ -203,8 +197,7 @@ class SubscriptionService {
       };
     } catch (error) {
       const code = this.mapPurchaseError(error);
-      const message =
-        (error as { message?: string })?.message ?? 'Purchase failed.';
+      const message = (error as { message?: string })?.message ?? 'Purchase failed.';
       return { success: false, error: code, message };
     }
   }
@@ -232,9 +225,9 @@ class SubscriptionService {
       // Surface network failures to the caller; for everything else, treat
       // restore as a "no purchases found" result.
       if (code === 'NO_NETWORK') {
-        const networkError = new Error(
-          'No internet connection. Please try again.'
-        ) as Error & { code: PurchaseErrorCode };
+        const networkError = new Error('No internet connection. Please try again.') as Error & {
+          code: PurchaseErrorCode;
+        };
         networkError.code = 'NO_NETWORK';
         throw networkError;
       }
@@ -249,9 +242,7 @@ class SubscriptionService {
 
   /** True only on iOS with the RevenueCat API key configured. */
   private isPlatformSupported(): boolean {
-    return (
-      Platform.OS === 'ios' && !!process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY
-    );
+    return Platform.OS === 'ios' && !!process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY;
   }
 
   /**
@@ -301,10 +292,7 @@ class SubscriptionService {
     try {
       return await Purchases.getCustomerInfo();
     } catch (error) {
-      console.error(
-        '[subscriptionService] Failed to fetch customer info:',
-        error
-      );
+      console.error('[subscriptionService] Failed to fetch customer info:', error);
       return null;
     }
   }
@@ -337,17 +325,10 @@ class SubscriptionService {
       if (hasExistingProSince) {
         await setDoc(userRef, { isPro: true }, { merge: true });
       } else {
-        await setDoc(
-          userRef,
-          { isPro: true, proSince: serverTimestamp() },
-          { merge: true }
-        );
+        await setDoc(userRef, { isPro: true, proSince: serverTimestamp() }, { merge: true });
       }
     } catch (error) {
-      console.error(
-        '[subscriptionService] Failed to mirror Pro status to Firestore:',
-        error
-      );
+      console.error('[subscriptionService] Failed to mirror Pro status to Firestore:', error);
       // Intentionally swallow — RevenueCat is the source of truth.
     }
   }

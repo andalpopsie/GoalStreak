@@ -65,7 +65,9 @@ const mockedGetDoc = getDoc as jest.MockedFunction<typeof getDoc>;
 const mockedSetDoc = setDoc as jest.MockedFunction<typeof setDoc>;
 const mockedServerTimestamp = serverTimestamp as jest.MockedFunction<typeof serverTimestamp>;
 const mockedGenerateUsername = generateUsername as jest.MockedFunction<typeof generateUsername>;
-const mockedIsUsernameAvailable = isUsernameAvailable as jest.MockedFunction<typeof isUsernameAvailable>;
+const mockedIsUsernameAvailable = isUsernameAvailable as jest.MockedFunction<
+  typeof isUsernameAvailable
+>;
 const mockedReserveUsername = reserveUsername as jest.MockedFunction<typeof reserveUsername>;
 const mockedCreateUserProfile = friendService.createUserProfile as jest.MockedFunction<
   typeof friendService.createUserProfile
@@ -75,10 +77,7 @@ const mockedCreateUserProfile = friendService.createUserProfile as jest.MockedFu
 const GENERATED_USERNAME = 'generated_user_123';
 
 // Optional-string arbitrary: a present non-empty string or undefined.
-const optionalStringArb = fc.option(
-  fc.string({ minLength: 1, maxLength: 40 }),
-  { nil: undefined },
-);
+const optionalStringArb = fc.option(fc.string({ minLength: 1, maxLength: 40 }), { nil: undefined });
 
 describe('userProvisioningService.provisionNewUser — Property 3: complete, well-formed record set', () => {
   it('writes a complete users/{uid} record, reserves the username, and creates the profile', async () => {
@@ -130,10 +129,7 @@ describe('userProvisioningService.provisionNewUser — Property 3: complete, wel
 
           // The same username is reserved in the usernames collection (R5.6).
           expect(mockedReserveUsername).toHaveBeenCalledTimes(1);
-          expect(mockedReserveUsername).toHaveBeenCalledWith(
-            GENERATED_USERNAME,
-            firebaseUser.uid,
-          );
+          expect(mockedReserveUsername).toHaveBeenCalledWith(GENERATED_USERNAME, firebaseUser.uid);
 
           // A userProfiles/{uid} document is created via the friend service (R5.7).
           expect(mockedCreateUserProfile).toHaveBeenCalledTimes(1);
@@ -169,9 +165,9 @@ describe('userProvisioningService.provisionNewUser — Property 3: complete, wel
           } else {
             expect('profilePicture' in writtenData).toBe(false);
           }
-        },
+        }
       ),
-      { numRuns: 100 },
+      { numRuns: 100 }
     );
   });
 });

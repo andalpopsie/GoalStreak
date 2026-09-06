@@ -95,7 +95,6 @@ class GroupService {
     return Math.round((totalCompleted / totalTracked) * 100);
   }
 
-
   // ── Group CRUD ──
 
   async createGroup(userId: string, form: CreateGroupForm): Promise<string> {
@@ -176,7 +175,10 @@ class GroupService {
     }
   }
 
-  async updateGroup(groupId: string, updates: Partial<Pick<Group, 'name' | 'description' | 'endDate'>>): Promise<void> {
+  async updateGroup(
+    groupId: string,
+    updates: Partial<Pick<Group, 'name' | 'description' | 'endDate'>>
+  ): Promise<void> {
     try {
       if (updates.name !== undefined) {
         const nameValidation = this.validateGroupName(updates.name);
@@ -238,7 +240,7 @@ class GroupService {
         where('status', '==', 'active')
       );
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => this.mapGroupDoc(doc));
+      return snapshot.docs.map((doc) => this.mapGroupDoc(doc));
     } catch (error) {
       console.error('Error getting user groups:', error);
       throw error;
@@ -302,10 +304,10 @@ class GroupService {
         where('status', '==', 'ended')
       );
       const snapshot = await getDocs(q);
-      const endedGroups = snapshot.docs.map(doc => this.mapGroupDoc(doc));
+      const endedGroups = snapshot.docs.map((doc) => this.mapGroupDoc(doc));
 
       // Filter client-side: only include groups ended within the last 30 days
-      return endedGroups.filter(group => {
+      return endedGroups.filter((group) => {
         if (!group.endedAt) return false;
         return group.endedAt.getTime() >= thirtyDaysAgo.getTime();
       });
@@ -314,7 +316,6 @@ class GroupService {
       throw error;
     }
   }
-
 
   // ── Invitations ──
 
@@ -357,7 +358,7 @@ class GroupService {
       const invitationRef = doc(this.groupInvitationsCollection, invitationId);
 
       // Get admin name
-      const adminMember = group.members.find(m => m.userId === adminId);
+      const adminMember = group.members.find((m) => m.userId === adminId);
       const adminName = adminMember?.userName || 'Unknown';
 
       const invitationData = {
@@ -501,7 +502,7 @@ class GroupService {
         where('status', '==', 'pending')
       );
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
         createdAt: doc.data().createdAt?.toDate?.() || new Date(),
@@ -527,15 +528,12 @@ class GroupService {
       const friendsData = await friendService.getFriends(userId);
 
       // Filter out users already in the group
-      return friendsData.friends.filter(
-        friend => !existingMemberIds.has(friend.friendId)
-      );
+      return friendsData.friends.filter((friend) => !existingMemberIds.has(friend.friendId));
     } catch (error) {
       console.error('Error getting invitable friends:', error);
       throw error;
     }
   }
-
 
   // ── Members ──
 
@@ -550,8 +548,8 @@ class GroupService {
       const batch = writeBatch(db);
 
       // Remove member from group
-      const updatedMembers = group.members.filter(m => m.userId !== memberId);
-      const updatedMemberIds = group.memberIds.filter(id => id !== memberId);
+      const updatedMembers = group.members.filter((m) => m.userId !== memberId);
+      const updatedMemberIds = group.memberIds.filter((id) => id !== memberId);
 
       batch.update(doc(this.groupsCollection, groupId), {
         members: updatedMembers,
@@ -566,12 +564,12 @@ class GroupService {
         where('userId', '==', memberId)
       );
       const trackedHabitsSnapshot = await getDocs(trackedHabitsQuery);
-      trackedHabitsSnapshot.docs.forEach(thDoc => {
+      trackedHabitsSnapshot.docs.forEach((thDoc) => {
         batch.delete(thDoc.ref);
       });
 
       // Get removed member's name for the activity
-      const removedMember = group.members.find(m => m.userId === memberId);
+      const removedMember = group.members.find((m) => m.userId === memberId);
       const removedName = removedMember?.userName || 'Unknown User';
 
       // Post system event to group activities
@@ -615,12 +613,12 @@ class GroupService {
         );
         const trackedHabitsSnapshot = await getDocs(trackedHabitsQuery);
         const batch = writeBatch(db);
-        trackedHabitsSnapshot.docs.forEach(thDoc => {
+        trackedHabitsSnapshot.docs.forEach((thDoc) => {
           batch.delete(thDoc.ref);
         });
 
         // Post member_left activity
-        const leavingMember = group.members.find(m => m.userId === userId);
+        const leavingMember = group.members.find((m) => m.userId === userId);
         const activityRef = doc(this.groupActivitiesCollection);
         batch.set(activityRef, {
           groupId,
@@ -641,7 +639,6 @@ class GroupService {
       throw error;
     }
   }
-
 
   // ── Tracked Habits ──
 
@@ -726,12 +723,9 @@ class GroupService {
 
   async getTrackedHabits(groupId: string): Promise<TrackedHabit[]> {
     try {
-      const q = query(
-        this.trackedHabitsCollection,
-        where('groupId', '==', groupId)
-      );
+      const q = query(this.trackedHabitsCollection, where('groupId', '==', groupId));
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
         linkedAt: doc.data().linkedAt?.toDate?.() || new Date(),
@@ -750,7 +744,7 @@ class GroupService {
         where('userId', '==', userId)
       );
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
         linkedAt: doc.data().linkedAt?.toDate?.() || new Date(),
@@ -761,7 +755,6 @@ class GroupService {
     }
   }
 
-
   async getTrackedHabitsByHabitId(habitId: string, userId: string): Promise<TrackedHabit[]> {
     try {
       const q = query(
@@ -770,7 +763,7 @@ class GroupService {
         where('userId', '==', userId)
       );
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
         linkedAt: doc.data().linkedAt?.toDate?.() || new Date(),
@@ -780,7 +773,6 @@ class GroupService {
       throw error;
     }
   }
-
 
   // ── Group Feed & Progress ──
 
@@ -805,10 +797,11 @@ class GroupService {
       // Resolve the name fresh rather than trusting the (possibly stale)
       // denormalized member record, so feed entries never show 'Unknown User'
       // when the real name is available.
-      const member = group.members.find(m => m.userId === userId);
-      const userName = member?.userName && member.userName !== 'Unknown User'
-        ? member.userName
-        : await resolveUserDisplayName(userId);
+      const member = group.members.find((m) => m.userId === userId);
+      const userName =
+        member?.userName && member.userName !== 'Unknown User'
+          ? member.userName
+          : await resolveUserDisplayName(userId);
 
       const activityData: Record<string, any> = {
         groupId,
@@ -842,7 +835,7 @@ class GroupService {
         limit(limitCount)
       );
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
         timestamp: doc.data().timestamp?.toDate?.() || new Date(),
@@ -987,13 +980,9 @@ class GroupService {
     }
   }
 
-
   // ── Real-time Subscriptions ──
 
-  subscribeToUserGroups(
-    userId: string,
-    callback: (groups: Group[]) => void
-  ): () => void {
+  subscribeToUserGroups(userId: string, callback: (groups: Group[]) => void): () => void {
     const q = query(
       this.groupsCollection,
       where('memberIds', 'array-contains', userId),
@@ -1004,7 +993,7 @@ class GroupService {
       q,
       (snapshot) => {
         try {
-          const groups = snapshot.docs.map(doc => this.mapGroupDoc(doc));
+          const groups = snapshot.docs.map((doc) => this.mapGroupDoc(doc));
           callback(groups);
         } catch (error) {
           console.error('Error in user groups subscription:', error);
@@ -1030,7 +1019,7 @@ class GroupService {
       q,
       (snapshot) => {
         try {
-          const invitations = snapshot.docs.map(doc => ({
+          const invitations = snapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
             createdAt: doc.data().createdAt?.toDate?.() || new Date(),
@@ -1062,7 +1051,7 @@ class GroupService {
       q,
       (snapshot) => {
         try {
-          const activities = snapshot.docs.map(doc => ({
+          const activities = snapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
             timestamp: doc.data().timestamp?.toDate?.() || new Date(),
@@ -1083,10 +1072,7 @@ class GroupService {
     callback: (progress: GroupProgress[]) => void
   ): () => void {
     // Listen to tracked habits changes for this group
-    const q = query(
-      this.trackedHabitsCollection,
-      where('groupId', '==', groupId)
-    );
+    const q = query(this.trackedHabitsCollection, where('groupId', '==', groupId));
 
     return onSnapshot(
       q,
@@ -1103,7 +1089,6 @@ class GroupService {
       }
     );
   }
-
 
   // ── Group Notifications ──
 
@@ -1170,9 +1155,8 @@ class GroupService {
       if (!enabled) return;
 
       const habitList = incompleteHabitNames.slice(0, 3).join(', ');
-      const suffix = incompleteHabitNames.length > 3
-        ? ` and ${incompleteHabitNames.length - 3} more`
-        : '';
+      const suffix =
+        incompleteHabitNames.length > 3 ? ` and ${incompleteHabitNames.length - 3} more` : '';
 
       await notificationService.scheduleHabitReminder({
         id: `group-reminder-${groupId}-${userId}-${this.getTodayString()}`,
@@ -1265,7 +1249,12 @@ class GroupService {
   /**
    * Send a message to a group chat.
    */
-  async sendMessage(groupId: string, userId: string, userName: string, text: string): Promise<string> {
+  async sendMessage(
+    groupId: string,
+    userId: string,
+    userName: string,
+    text: string
+  ): Promise<string> {
     if (!text.trim()) throw new Error('Message cannot be empty');
     if (text.length > 500) throw new Error('Message too long (max 500 characters)');
 
@@ -1293,16 +1282,20 @@ class GroupService {
     const messagesRef = collection(db, 'groups', groupId, 'messages');
     const q = query(messagesRef, orderBy('createdAt', 'asc'), limit(messageLimit));
 
-    return onSnapshot(q, (snapshot) => {
-      const messages = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate?.() || new Date(),
-      }));
-      callback(messages);
-    }, (error) => {
-      console.error('Error in group chat subscription:', error);
-    });
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const messages = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: doc.data().createdAt?.toDate?.() || new Date(),
+        }));
+        callback(messages);
+      },
+      (error) => {
+        console.error('Error in group chat subscription:', error);
+      }
+    );
   }
 }
 

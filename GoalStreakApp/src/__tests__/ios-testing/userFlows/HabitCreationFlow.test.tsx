@@ -1,6 +1,6 @@
 /**
  * iOS Habit Creation Flow Tests
- * 
+ *
  * Tests habit creation and management functionality on iOS devices
  * Requirements: 5.3 - Verify core user flows work flawlessly on iOS
  */
@@ -43,9 +43,7 @@ jest.mock('../../../services/habitService', () => ({
 // Test wrapper component
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <NavigationContainer>
-    <AuthProvider>
-      {children}
-    </AuthProvider>
+    <AuthProvider>{children}</AuthProvider>
   </NavigationContainer>
 );
 
@@ -53,7 +51,7 @@ describe('iOS Habit Creation Flow', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     Platform.OS = 'ios';
-    
+
     // Mock authenticated user
     jest.spyOn(require('../../../hooks/useAuth'), 'useAuth').mockReturnValue({
       user: { id: 'test-user-id', email: 'test@example.com' },
@@ -219,9 +217,7 @@ describe('iOS Habit Creation Flow', () => {
       fireEvent.press(categoryButton);
 
       await waitFor(() => {
-        expect(mockHaptics.impactAsync).toHaveBeenCalledWith(
-          mockHaptics.ImpactFeedbackStyle.Light
-        );
+        expect(mockHaptics.impactAsync).toHaveBeenCalledWith(mockHaptics.ImpactFeedbackStyle.Light);
       });
     });
 
@@ -365,7 +361,7 @@ describe('iOS Habit Creation Flow', () => {
       );
 
       const scrollView = screen.getByTestId('habits-scroll-view');
-      
+
       // Test iOS-specific scroll props
       expect(scrollView.props.bounces).toBe(true);
       expect(scrollView.props.showsVerticalScrollIndicator).toBe(false);
@@ -379,7 +375,7 @@ describe('iOS Habit Creation Flow', () => {
       );
 
       const scrollView = screen.getByTestId('habits-scroll-view');
-      
+
       // Simulate pull-to-refresh
       fireEvent(scrollView, 'refresh');
 
@@ -397,7 +393,7 @@ describe('iOS Habit Creation Flow', () => {
 
       await waitFor(() => {
         const habitCard = screen.getByTestId('habit-card-1');
-        
+
         // Simulate swipe gesture
         fireEvent(habitCard, 'swipeLeft');
       });
@@ -438,7 +434,7 @@ describe('iOS Habit Creation Flow', () => {
       );
 
       const title = screen.getByText('Create New Habit');
-      
+
       // Text should scale appropriately
       expect(title.props.style).toMatchObject({
         fontSize: expect.any(Number),
@@ -492,7 +488,7 @@ describe('iOS Habit Creation Flow', () => {
       fireEvent.changeText(nameInput, 'Test Habit');
 
       const createButton = screen.getByText('Create Habit');
-      
+
       // Rapid button presses
       fireEvent.press(createButton);
       fireEvent.press(createButton);

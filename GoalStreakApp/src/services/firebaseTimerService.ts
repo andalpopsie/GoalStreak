@@ -3,13 +3,7 @@
 
 import { TimerService, timerService } from './timerService';
 import { firebaseTimerSessionService, firebaseTimerStateService } from './habitService';
-import { 
-  TimerState, 
-  TimerSession, 
-  TimerError,
-  TimerEvent,
-  TimerEventType
-} from '../types/timer';
+import { TimerState, TimerSession, TimerError, TimerEvent, TimerEventType } from '../types/timer';
 import { TIMER_CONSTANTS } from '../constants/timer';
 import * as Network from 'expo-network';
 
@@ -42,7 +36,7 @@ export class FirebaseTimerService extends TimerService {
   async startTimer(habitId: string, durationMinutes: number, userId: string): Promise<TimerState> {
     // Start timer locally first (offline-first approach)
     const timerState = await super.startTimer(habitId, durationMinutes, userId);
-    
+
     // Sync to Firebase if online
     if (this.isOnline && this.userId) {
       try {
@@ -65,7 +59,7 @@ export class FirebaseTimerService extends TimerService {
    */
   async pauseTimer(habitId: string, userId: string): Promise<TimerState> {
     const timerState = await super.pauseTimer(habitId, userId);
-    
+
     // Sync to Firebase if online
     if (this.isOnline && this.userId) {
       try {
@@ -86,7 +80,7 @@ export class FirebaseTimerService extends TimerService {
    */
   async resumeTimer(habitId: string, userId: string): Promise<TimerState> {
     const timerState = await super.resumeTimer(habitId, userId);
-    
+
     // Sync to Firebase if online
     if (this.isOnline && this.userId) {
       try {
@@ -107,7 +101,7 @@ export class FirebaseTimerService extends TimerService {
    */
   async resetTimer(habitId: string, userId: string): Promise<void> {
     await super.resetTimer(habitId, userId);
-    
+
     // Remove from Firebase if online
     if (this.isOnline && this.userId) {
       try {
@@ -126,7 +120,7 @@ export class FirebaseTimerService extends TimerService {
    */
   async completeTimer(habitId: string, userId: string): Promise<TimerSession> {
     const session = await super.completeTimer(habitId, userId);
-    
+
     // Save session to Firebase if online
     if (this.isOnline && this.userId) {
       try {
@@ -140,12 +134,12 @@ export class FirebaseTimerService extends TimerService {
           pausedDuration: session.pausedDuration,
           completed: session.completed,
           completionMethod: session.completionMethod,
-          createdAt: session.createdAt
+          createdAt: session.createdAt,
         });
-        
+
         // Update local session with Firebase ID
         session.id = sessionId;
-        
+
         // Remove timer state from Firebase
         await firebaseTimerStateService.deleteTimerState(this.userId, habitId);
       } catch (error) {
@@ -171,11 +165,11 @@ export class FirebaseTimerService extends TimerService {
 
     try {
       const firebaseStates = await firebaseTimerStateService.getUserActiveTimerStates(userId);
-      
+
       for (const firebaseState of firebaseStates) {
         // Check if we have a more recent local state
         const localState = this.getTimerState(firebaseState.habitId);
-        
+
         if (!localState || firebaseState.lastUpdate > localState.lastUpdate) {
           // Firebase state is newer or we don't have local state
           // Restore the timer state locally
@@ -204,7 +198,7 @@ export class FirebaseTimerService extends TimerService {
       }
 
       const localState = this.getTimerState(habitId);
-      
+
       // Only update if Firebase state is newer
       if (!localState || firebaseState.lastUpdate > localState.lastUpdate) {
         this.restoreTimerFromFirebase(firebaseState, userId);
@@ -251,7 +245,7 @@ export class FirebaseTimerService extends TimerService {
     }
 
     // Fallback to local sessions
-    return await super.constructor.prototype.getHabitTimerSessions?.call(this, habitId) || [];
+    return (await super.constructor.prototype.getHabitTimerSessions?.call(this, habitId)) || [];
   }
 
   /**
@@ -260,7 +254,7 @@ export class FirebaseTimerService extends TimerService {
   async handleAppForeground(): Promise<void> {
     // Call parent class method
     await super.handleAppForeground();
-    
+
     // Sync any pending operations that might have been queued
     await this.syncPendingOperations();
   }
@@ -313,7 +307,7 @@ export class FirebaseTimerService extends TimerService {
 
   private queueSync(action: string, data: any): void {
     this.syncQueue.push({ action, data });
-    
+
     // Limit queue size to prevent memory issues
     if (this.syncQueue.length > 100) {
       this.syncQueue = this.syncQueue.slice(-50); // Keep last 50 operations
@@ -327,11 +321,11 @@ export class FirebaseTimerService extends TimerService {
       case 'saveTimerState':
         await firebaseTimerStateService.saveTimerState(data.userId, data.habitId, data.timerState);
         break;
-      
+
       case 'deleteTimerState':
         await firebaseTimerStateService.deleteTimerState(data.userId, data.habitId);
         break;
-      
+
       case 'createTimerSession':
         await firebaseTimerSessionService.createTimerSession({
           habitId: data.session.habitId,
@@ -343,10 +337,10 @@ export class FirebaseTimerService extends TimerService {
           pausedDuration: data.session.pausedDuration,
           completed: data.session.completed,
           completionMethod: data.session.completionMethod,
-          createdAt: data.session.createdAt
+          createdAt: data.session.createdAt,
         });
         break;
-      
+
       default:
         console.warn('Unknown sync operation:', action);
     }
@@ -361,18 +355,18 @@ export class FirebaseTimerService extends TimerService {
       if (firebaseState.isActive && !firebaseState.isPaused) {
         // Timer was running - update remaining time
         const newRemainingTime = Math.max(0, firebaseState.remainingTime - timeSinceLastUpdate);
-        
+
         if (newRemainingTime > 0) {
           // Timer is still running - restore it
           const targetDuration = firebaseState.remainingTime / (1 - firebaseState.progress);
           const elapsedTime = targetDuration - newRemainingTime;
-          
+
           const restoredState: TimerState = {
             ...firebaseState,
             startTime: new Date(now.getTime() - elapsedTime),
             remainingTime: newRemainingTime,
             progress: targetDuration > 0 ? elapsedTime / targetDuration : 0,
-            lastUpdate: now
+            lastUpdate: now,
           };
 
           // Restore timer locally
@@ -386,7 +380,7 @@ export class FirebaseTimerService extends TimerService {
         // Timer was paused - restore as-is
         (this as any).activeTimers.set(firebaseState.habitId, {
           ...firebaseState,
-          lastUpdate: now
+          lastUpdate: now,
         });
       }
     } catch (error) {
@@ -407,32 +401,30 @@ export const enhancedTimerService = {
   },
 
   // Start timer with Firebase sync
-  startTimer: (habitId: string, durationMinutes: number, userId: string) => 
+  startTimer: (habitId: string, durationMinutes: number, userId: string) =>
     firebaseTimerService.startTimer(habitId, durationMinutes, userId),
 
   // Pause timer with Firebase sync
-  pauseTimer: (habitId: string, userId: string) => 
-    firebaseTimerService.pauseTimer(habitId, userId),
+  pauseTimer: (habitId: string, userId: string) => firebaseTimerService.pauseTimer(habitId, userId),
 
   // Resume timer with Firebase sync
-  resumeTimer: (habitId: string, userId: string) => 
+  resumeTimer: (habitId: string, userId: string) =>
     firebaseTimerService.resumeTimer(habitId, userId),
 
   // Reset timer with Firebase sync
-  resetTimer: (habitId: string, userId: string) => 
-    firebaseTimerService.resetTimer(habitId, userId),
+  resetTimer: (habitId: string, userId: string) => firebaseTimerService.resetTimer(habitId, userId),
 
   // Complete timer with Firebase session tracking
-  completeTimer: (habitId: string, userId: string) => 
+  completeTimer: (habitId: string, userId: string) =>
     firebaseTimerService.completeTimer(habitId, userId),
 
   // Complete timer and mark habit as completed
   completeTimerAndHabit: async (habitId: string, userId: string) => {
     const session = await firebaseTimerService.completeTimer(habitId, userId);
-    
+
     // Import completion service dynamically to avoid circular dependency
     const { completionService } = await import('./habitService');
-    
+
     try {
       // Check if habit is already completed today to avoid duplicate completions
       const existingCompletion = await completionService.getTodayCompletion(habitId, userId);
@@ -442,61 +434,55 @@ export const enhancedTimerService = {
 
       // Complete the habit with timer session reference and appropriate notes
       await completionService.completeHabit(
-        habitId, 
-        userId, 
+        habitId,
+        userId,
         undefined, // value
         'Completed via timer', // notes
         session.id // timer session ID
       );
-      
     } catch (error) {
       console.error('Error completing habit after timer completion:', error);
       // Timer completion succeeded, but habit completion failed
       // This is not critical - the timer session is still recorded
-      
+
       // Re-throw specific errors that should be handled by the caller
       if (error.message?.includes('already completed')) {
       } else {
         console.warn('Habit completion failed after timer completion, but timer session was saved');
       }
     }
-    
+
     return session;
   },
 
   // Get timer state (local)
-  getTimerState: (habitId: string) => 
-    firebaseTimerService.getTimerState(habitId),
+  getTimerState: (habitId: string) => firebaseTimerService.getTimerState(habitId),
 
   // Get all active timers
-  getAllActiveTimers: () => 
-    firebaseTimerService.getAllActiveTimers(),
+  getAllActiveTimers: () => firebaseTimerService.getAllActiveTimers(),
 
   // Check if habit has active timer
-  hasActiveTimer: (habitId: string) => 
-    firebaseTimerService.hasActiveTimer(habitId),
+  hasActiveTimer: (habitId: string) => firebaseTimerService.hasActiveTimer(habitId),
 
   // Subscribe to real-time sync
-  subscribeToSync: (habitId: string, userId: string) => 
+  subscribeToSync: (habitId: string, userId: string) =>
     firebaseTimerService.subscribeToTimerStateSync(habitId, userId),
 
   // Get timer sessions with Firebase fallback
-  getTimerSessions: (habitId: string, limit?: number) => 
+  getTimerSessions: (habitId: string, limit?: number) =>
     firebaseTimerService.getTimerSessions(habitId, limit),
 
   // Handle app foreground
-  handleAppForeground: () => 
-    firebaseTimerService.handleAppForeground(),
+  handleAppForeground: () => firebaseTimerService.handleAppForeground(),
 
   // Cleanup
-  cleanup: () => 
-    firebaseTimerService.cleanup(),
+  cleanup: () => firebaseTimerService.cleanup(),
 
   // Add event listener
-  addEventListener: (eventType: TimerEventType, listener: (event: TimerEvent) => void) => 
+  addEventListener: (eventType: TimerEventType, listener: (event: TimerEvent) => void) =>
     firebaseTimerService.addEventListener(eventType, listener),
 
   // Remove event listener
-  removeEventListener: (eventType: TimerEventType, listener: (event: TimerEvent) => void) => 
-    firebaseTimerService.removeEventListener(eventType, listener)
+  removeEventListener: (eventType: TimerEventType, listener: (event: TimerEvent) => void) =>
+    firebaseTimerService.removeEventListener(eventType, listener),
 };

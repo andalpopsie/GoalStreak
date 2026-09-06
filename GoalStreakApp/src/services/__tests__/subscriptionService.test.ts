@@ -70,17 +70,9 @@ jest.mock('../firebase', () => ({
 
 import { Platform } from 'react-native';
 import Purchases from 'react-native-purchases';
-import {
-  doc,
-  getDoc,
-  setDoc,
-  serverTimestamp,
-} from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { subscriptionService } from '../subscriptionService';
-import {
-  PRO_ENTITLEMENT_ID,
-  PRO_PRODUCT_IDS,
-} from '../../types/subscription';
+import { PRO_ENTITLEMENT_ID, PRO_PRODUCT_IDS } from '../../types/subscription';
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -186,9 +178,7 @@ describe('subscriptionService.getProStatus', () => {
   });
 
   it('returns true when initialized on iOS and customer info contains an active Pro entitlement', async () => {
-    (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(
-      makeCustomerInfo(true)
-    );
+    (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(makeCustomerInfo(true));
 
     await subscriptionService.initialize(TEST_USER_ID);
     const isPro = await subscriptionService.getProStatus();
@@ -203,9 +193,7 @@ describe('subscriptionService.getProStatus', () => {
 describe('subscriptionService.purchasePro — already Pro', () => {
   it('returns { success: true } without calling purchasePackage when user already has Pro', async () => {
     // Customer already holds the Pro entitlement.
-    (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(
-      makeCustomerInfo(true)
-    );
+    (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(makeCustomerInfo(true));
     // proSince is already set on the user document, so the Firestore mirror
     // will write only `{ isPro: true }` and won't depend on serverTimestamp.
     (getDoc as jest.Mock).mockResolvedValue(
@@ -213,9 +201,7 @@ describe('subscriptionService.purchasePro — already Pro', () => {
     );
 
     await subscriptionService.initialize(TEST_USER_ID);
-    const result = await subscriptionService.purchasePro(
-      PRO_PRODUCT_IDS.monthly
-    );
+    const result = await subscriptionService.purchasePro(PRO_PRODUCT_IDS.monthly);
 
     expect(result).toEqual({ success: true });
     expect(Purchases.purchasePackage).not.toHaveBeenCalled();
@@ -231,9 +217,7 @@ describe('subscriptionService.purchasePro — error mapping', () => {
   it('maps a userCancelled error to PURCHASE_CANCELLED', async () => {
     // Not currently Pro — the purchase flow should proceed to the StoreKit
     // sheet (mocked) and surface the cancel.
-    (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(
-      makeCustomerInfo(false)
-    );
+    (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(makeCustomerInfo(false));
 
     // Build a minimal package shape that matches what `getOfferings` returns
     // on the production code path.
@@ -257,9 +241,7 @@ describe('subscriptionService.purchasePro — error mapping', () => {
     (Purchases.purchasePackage as jest.Mock).mockRejectedValue(cancelError);
 
     await subscriptionService.initialize(TEST_USER_ID);
-    const result = await subscriptionService.purchasePro(
-      PRO_PRODUCT_IDS.monthly
-    );
+    const result = await subscriptionService.purchasePro(PRO_PRODUCT_IDS.monthly);
 
     expect(result).toMatchObject({
       success: false,
@@ -278,9 +260,7 @@ describe('subscriptionService.mirrorProToFirestore (via purchasePro)', () => {
     // Triggering `mirrorProToFirestore` through the already-Pro short-circuit
     // is the most natural public entry point and avoids needing to mock the
     // entire offerings + purchase flow.
-    (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(
-      makeCustomerInfo(true)
-    );
+    (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(makeCustomerInfo(true));
 
     const existingProSince = { seconds: 1700000000, nanoseconds: 0 };
     (getDoc as jest.Mock).mockResolvedValue(
@@ -288,9 +268,7 @@ describe('subscriptionService.mirrorProToFirestore (via purchasePro)', () => {
     );
 
     await subscriptionService.initialize(TEST_USER_ID);
-    const result = await subscriptionService.purchasePro(
-      PRO_PRODUCT_IDS.annual
-    );
+    const result = await subscriptionService.purchasePro(PRO_PRODUCT_IDS.annual);
 
     expect(result).toEqual({ success: true });
 
@@ -307,18 +285,12 @@ describe('subscriptionService.mirrorProToFirestore (via purchasePro)', () => {
   });
 
   it('writes proSince when the user document has no existing value', async () => {
-    (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(
-      makeCustomerInfo(true)
-    );
+    (Purchases.getCustomerInfo as jest.Mock).mockResolvedValue(makeCustomerInfo(true));
     // Document exists but has no proSince yet (e.g. brand-new Pro user).
-    (getDoc as jest.Mock).mockResolvedValue(
-      makeSnapshot({ displayName: 'Test User' })
-    );
+    (getDoc as jest.Mock).mockResolvedValue(makeSnapshot({ displayName: 'Test User' }));
 
     await subscriptionService.initialize(TEST_USER_ID);
-    const result = await subscriptionService.purchasePro(
-      PRO_PRODUCT_IDS.annual
-    );
+    const result = await subscriptionService.purchasePro(PRO_PRODUCT_IDS.annual);
 
     expect(result).toEqual({ success: true });
     expect(setDoc).toHaveBeenCalledTimes(1);

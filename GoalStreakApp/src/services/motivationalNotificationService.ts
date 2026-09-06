@@ -18,7 +18,7 @@ const MOTIVATIONAL_MESSAGES = [
     body: 'Your future self will thank you for the habits you build today. Start now!',
   },
   {
-    title: '💪 You\'re Unstoppable!',
+    title: "💪 You're Unstoppable!",
     body: 'Every small action compounds into extraordinary results. Take the first step!',
   },
   {
@@ -31,15 +31,15 @@ const MOTIVATIONAL_MESSAGES = [
   },
   {
     title: '🎯 Hit Your Targets!',
-    body: 'Success is the sum of small efforts repeated daily. You\'ve got this!',
+    body: "Success is the sum of small efforts repeated daily. You've got this!",
   },
   {
     title: '🚀 Launch Into Action!',
-    body: 'Don\'t wait for motivation—create momentum with one habit at a time!',
+    body: "Don't wait for motivation—create momentum with one habit at a time!",
   },
   {
     title: '💎 Build Your Best Self!',
-    body: 'Your habits are sculpting your future. Make today\'s choices count!',
+    body: "Your habits are sculpting your future. Make today's choices count!",
   },
   {
     title: '🌟 Shine Bright Today!',
@@ -55,7 +55,7 @@ const MOTIVATIONAL_MESSAGES = [
   },
   {
     title: '🏆 Chase Excellence!',
-    body: 'Winners don\'t wait—they act. Complete your habits and claim your day!',
+    body: "Winners don't wait—they act. Complete your habits and claim your day!",
   },
   {
     title: '🌈 Create Your Rainbow!',
@@ -63,7 +63,7 @@ const MOTIVATIONAL_MESSAGES = [
   },
   {
     title: '💫 Spark Your Potential!',
-    body: 'You\'re one habit away from a breakthrough. Take action now!',
+    body: "You're one habit away from a breakthrough. Take action now!",
   },
   {
     title: '🔆 Radiate Positivity!',
@@ -71,7 +71,7 @@ const MOTIVATIONAL_MESSAGES = [
   },
   {
     title: '🎪 Perform at Your Peak!',
-    body: 'Excellence is a habit, not an act. Show the world what you\'re made of!',
+    body: "Excellence is a habit, not an act. Show the world what you're made of!",
   },
   {
     title: '🌺 Bloom Where You Are!',
@@ -91,11 +91,11 @@ const MOTIVATIONAL_MESSAGES = [
   },
   {
     title: '🎭 Be Your Best Character!',
-    body: 'You\'re the author of your story. Write today\'s chapter with powerful habits!',
+    body: "You're the author of your story. Write today's chapter with powerful habits!",
   },
   {
     title: '🦅 Soar Higher Today!',
-    body: 'Eagles don\'t fly with sparrows. Elevate your game with your habits!',
+    body: "Eagles don't fly with sparrows. Elevate your game with your habits!",
   },
   {
     title: '🌙 Dream Big, Act Now!',
@@ -123,7 +123,7 @@ const MOTIVATIONAL_MESSAGES = [
   },
   {
     title: '🌠 Reach for the Stars!',
-    body: 'Your potential is limitless. Start with today\'s habits and aim higher!',
+    body: "Your potential is limitless. Start with today's habits and aim higher!",
   },
   {
     title: '🏅 Earn Your Victory!',
@@ -143,7 +143,7 @@ const MOTIVATIONAL_MESSAGES = [
   },
   {
     title: '🔮 Shape Your Future!',
-    body: 'Today\'s habits are tomorrow\'s reality. Create the future you want right now!',
+    body: "Today's habits are tomorrow's reality. Create the future you want right now!",
   },
   {
     title: '🎸 Rock Your Routine!',
@@ -159,7 +159,7 @@ const MOTIVATIONAL_MESSAGES = [
   },
   {
     title: '🏔️ Climb Your Mountain!',
-    body: 'Every peak is reached one step at a time. Take today\'s step with your habits!',
+    body: "Every peak is reached one step at a time. Take today's step with your habits!",
   },
   {
     title: '🎤 Speak Your Success!',
@@ -171,7 +171,7 @@ const MOTIVATIONAL_MESSAGES = [
   },
   {
     title: '🎮 Level Up Your Life!',
-    body: 'You\'re the player, life is the game. Complete your habits and unlock new levels!',
+    body: "You're the player, life is the game. Complete your habits and unlock new levels!",
   },
   {
     title: '🔬 Experiment With Excellence!',
@@ -183,7 +183,7 @@ const MOTIVATIONAL_MESSAGES = [
   },
   {
     title: '🌿 Cultivate Greatness!',
-    body: 'You\'re the gardener of your life. Plant habits today, harvest success tomorrow!',
+    body: "You're the gardener of your life. Plant habits today, harvest success tomorrow!",
   },
   {
     title: '🎯 Bullseye Your Goals!',
@@ -220,7 +220,7 @@ const MOTIVATIONAL_MESSAGES = [
  */
 function getMessageForToday(): { title: string; body: string } {
   const dayOfYear = Math.floor(
-    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000,
+    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
   );
   return MOTIVATIONAL_MESSAGES[dayOfYear % MOTIVATIONAL_MESSAGES.length];
 }
@@ -307,7 +307,9 @@ export const motivationalNotificationService = {
       };
       await AsyncStorage.setItem(NOTIFICATION_SETTINGS_KEY, JSON.stringify(settings));
 
-      console.log(`✅ Daily motivational notification scheduled for ${hour}:${minute.toString().padStart(2, '0')}`);
+      console.log(
+        `✅ Daily motivational notification scheduled for ${hour}:${minute.toString().padStart(2, '0')}`
+      );
       console.log(`📱 Notification ID: ${notificationId}`);
     } catch (error) {
       console.error('Error scheduling daily notification:', error);

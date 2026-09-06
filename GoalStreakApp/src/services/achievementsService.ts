@@ -22,7 +22,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
     title: 'First Flame',
     description: 'Complete a habit 3 days in a row',
     icon: 'flame',
-    color: '#FF9013',           // Other/Orange from palette
+    color: '#FF9013', // Other/Orange from palette
     category: 'streak',
   },
   {
@@ -30,7 +30,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
     title: 'Week Warrior',
     description: 'Maintain a 7-day streak',
     icon: 'star',
-    color: '#B771E5',           // Purple accent from palette
+    color: '#B771E5', // Purple accent from palette
     category: 'streak',
   },
   {
@@ -38,7 +38,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
     title: 'Month Master',
     description: 'Achieve a 30-day streak',
     icon: 'medal',
-    color: '#4A90A4',           // Teal accent from palette
+    color: '#4A90A4', // Teal accent from palette
     category: 'streak',
   },
   {
@@ -46,17 +46,17 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
     title: 'Century Club',
     description: 'Reach a 100-day streak',
     icon: 'trophy',
-    color: '#003161',           // Navy from palette
+    color: '#003161', // Navy from palette
     category: 'streak',
   },
-  
+
   // Completion Achievements
   {
     id: 'first_step',
     title: 'First Step',
     description: 'Complete your first habit',
     icon: 'footsteps',
-    color: '#48B3AF',           // Wellness teal from palette
+    color: '#48B3AF', // Wellness teal from palette
     category: 'completion',
   },
   {
@@ -64,7 +64,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
     title: 'Perfect Week',
     description: 'Complete all habits for 7 days straight',
     icon: 'sparkles',
-    color: '#B771E5',           // Purple accent from palette
+    color: '#B771E5', // Purple accent from palette
     category: 'completion',
   },
   {
@@ -72,17 +72,17 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
     title: 'Habit Collector',
     description: 'Create 5 different habits',
     icon: 'albums',
-    color: '#4A90A4',           // Teal accent from palette
+    color: '#4A90A4', // Teal accent from palette
     category: 'completion',
   },
-  
+
   // Social Achievements
   {
     id: 'social_butterfly',
     title: 'Social Butterfly',
     description: 'Add your first friend',
     icon: 'people',
-    color: '#B771E5',           // Purple accent from palette
+    color: '#B771E5', // Purple accent from palette
     category: 'social',
   },
   {
@@ -90,7 +90,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
     title: 'Cheerleader',
     description: 'React to 10 friend activities',
     icon: 'heart',
-    color: '#FF9013',           // Other/Orange from palette
+    color: '#FF9013', // Other/Orange from palette
     category: 'social',
   },
   {
@@ -98,17 +98,17 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
     title: 'Conversation Starter',
     description: 'Leave 5 comments',
     icon: 'chatbubbles',
-    color: '#48B3AF',           // Wellness teal from palette
+    color: '#48B3AF', // Wellness teal from palette
     category: 'social',
   },
-  
+
   // Special Achievements
   {
     id: 'early_bird',
     title: 'Early Bird',
     description: 'Complete a habit before 8 AM',
     icon: 'sunny',
-    color: '#FF9013',           // Other/Orange from palette
+    color: '#FF9013', // Other/Orange from palette
     category: 'special',
   },
   {
@@ -116,7 +116,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
     title: 'Night Owl',
     description: 'Complete a habit after 10 PM',
     icon: 'moon',
-    color: '#003161',           // Navy from palette
+    color: '#003161', // Navy from palette
     category: 'special',
   },
   {
@@ -124,7 +124,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
     title: 'Comeback Kid',
     description: 'Restart a habit after breaking a streak',
     icon: 'refresh',
-    color: '#4A90A4',           // Teal accent from palette
+    color: '#4A90A4', // Teal accent from palette
     category: 'special',
   },
   {
@@ -132,7 +132,7 @@ export const ALL_ACHIEVEMENTS: Omit<Achievement, 'unlockedAt' | 'isUnlocked'>[] 
     title: 'Weekend Warrior',
     description: 'Complete habits on Saturday and Sunday',
     icon: 'calendar',
-    color: '#A7E399',           // Nutrition green from palette
+    color: '#A7E399', // Nutrition green from palette
     category: 'special',
   },
 ];
@@ -146,14 +146,14 @@ export const achievementsService = {
       const stored = await AsyncStorage.getItem(ACHIEVEMENTS_KEY);
       const unlockedIds = stored ? JSON.parse(stored) : {};
 
-      return ALL_ACHIEVEMENTS.map(achievement => ({
+      return ALL_ACHIEVEMENTS.map((achievement) => ({
         ...achievement,
         isUnlocked: !!unlockedIds[achievement.id],
         unlockedAt: unlockedIds[achievement.id] ? new Date(unlockedIds[achievement.id]) : undefined,
       }));
     } catch (error) {
       console.error('Error getting achievements:', error);
-      return ALL_ACHIEVEMENTS.map(a => ({ ...a, isUnlocked: false }));
+      return ALL_ACHIEVEMENTS.map((a) => ({ ...a, isUnlocked: false }));
     }
   },
 
@@ -173,7 +173,7 @@ export const achievementsService = {
       // Unlock it
       unlockedIds[achievementId] = new Date().toISOString();
       await AsyncStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(unlockedIds));
-      
+
       console.log('🏆 Achievement unlocked:', achievementId);
       return true; // Newly unlocked
     } catch (error) {
@@ -217,12 +217,12 @@ export const achievementsService = {
     try {
       const achievements = await this.getAchievements();
       const unlocked = achievements
-        .filter(a => a.isUnlocked)
+        .filter((a) => a.isUnlocked)
         .sort((a, b) => {
           if (!a.unlockedAt || !b.unlockedAt) return 0;
           return b.unlockedAt.getTime() - a.unlockedAt.getTime();
         });
-      
+
       return unlocked.slice(0, 3);
     } catch (error) {
       console.error('Error getting top achievements:', error);

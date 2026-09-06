@@ -13,14 +13,7 @@
 // - All design tokens come from `theme.ts`; no hardcoded design values
 
 import React, { useCallback, useState } from 'react';
-import {
-  Modal,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -38,11 +31,7 @@ import {
 // here. (`Colors.accent1 === Colors.fitnessOrange`.)
 const SELECTED_PLAN_TINT = getCategoryBackgroundColor('fitness');
 import { useSubscription } from '../../hooks/useSubscription';
-import {
-  PRO_PRODUCT_IDS,
-  ProProductId,
-  PurchaseResult,
-} from '../../types/subscription';
+import { PRO_PRODUCT_IDS, ProProductId, PurchaseResult } from '../../types/subscription';
 
 /**
  * Failure variant of `PurchaseResult`. Extracted as a named type so we can
@@ -95,9 +84,7 @@ const PLANS: Record<PlanKey, PlanDescriptor> = {
 // list what a subscriber gets right now. Aspirational features go in
 // COMING_SOON below (clearly labelled) to avoid App Store Guideline 2.3.1 /
 // 3.1.2 issues around advertising unbuilt functionality.
-const BENEFITS: ReadonlyArray<string> = [
-  'Track up to 15 habits (6 on Free)',
-];
+const BENEFITS: ReadonlyArray<string> = ['Track up to 15 habits (6 on Free)'];
 
 // Roadmap features — shown as "coming soon", not as included benefits.
 const COMING_SOON: ReadonlyArray<string> = [
@@ -284,12 +271,7 @@ export default function ProPaywallModal({
             accessibilityRole="button"
             accessibilityLabel="Restore purchases"
           >
-            <Text
-              style={[
-                styles.restoreText,
-                isLoading && styles.restoreTextDisabled,
-              ]}
-            >
+            <Text style={[styles.restoreText, isLoading && styles.restoreTextDisabled]}>
               Restore purchases
             </Text>
           </TouchableOpacity>
@@ -326,9 +308,7 @@ function PlanCard({ plan, selected, disabled, onPress }: PlanCardProps): React.J
           <Text style={styles.planBadgeText}>{plan.badge}</Text>
         </View>
       )}
-      <Text style={styles.planLabel}>
-        {plan.key === 'annual' ? 'Annual' : 'Monthly'}
-      </Text>
+      <Text style={styles.planLabel}>{plan.key === 'annual' ? 'Annual' : 'Monthly'}</Text>
       <Text style={styles.planPrice}>{plan.priceLabel}</Text>
     </TouchableOpacity>
   );
@@ -342,49 +322,49 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    paddingHorizontal: Spacing.base,    // 16
-    paddingTop: Spacing.tight,           // 8
+    paddingHorizontal: Spacing.base, // 16
+    paddingTop: Spacing.tight, // 8
   },
   closeButton: {
-    width: 48,                           // touch target ≥ 48px
+    width: 48, // touch target ≥ 48px
     height: 48,
     alignItems: 'center',
     justifyContent: 'center',
   },
   scrollContent: {
     paddingHorizontal: Spacing.comfortable, // 24
-    paddingBottom: Spacing.loose,           // 32
+    paddingBottom: Spacing.loose, // 32
   },
   title: {
     fontSize: Typography.fontSize.heading, // 24
     fontWeight: Typography.fontWeight.bold, // '700'
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.bold,
-    marginTop: Spacing.tight,              // 8
+    marginTop: Spacing.tight, // 8
   },
   subtitle: {
-    fontSize: Typography.fontSize.body,    // 16
+    fontSize: Typography.fontSize.body, // 16
     fontWeight: Typography.fontWeight.regular, // '400'
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.regular,
-    marginTop: Spacing.tight,              // 8
-    marginBottom: Spacing.loose,           // 32
+    marginTop: Spacing.tight, // 8
+    marginBottom: Spacing.loose, // 32
   },
   benefitsList: {
-    marginBottom: Spacing.loose,           // 32
+    marginBottom: Spacing.loose, // 32
   },
   benefitRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: Spacing.tight,           // 8
-    minHeight: Spacing.comfortable,        // 24 — keeps icon + text vertically centred
+    marginBottom: Spacing.tight, // 8
+    minHeight: Spacing.comfortable, // 24 — keeps icon + text vertically centred
   },
   benefitIcon: {
-    marginRight: Spacing.base,             // 16
+    marginRight: Spacing.base, // 16
   },
   benefitText: {
     flex: 1,
-    fontSize: Typography.fontSize.body,    // 16
+    fontSize: Typography.fontSize.body, // 16
     fontWeight: Typography.fontWeight.regular, // '400'
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.regular,
@@ -396,53 +376,53 @@ const styles = StyleSheet.create({
     fontFamily: Typography.fontFamily.semibold,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-    marginBottom: Spacing.tight,           // 8
+    marginBottom: Spacing.tight, // 8
   },
   comingSoonList: {
-    marginBottom: Spacing.loose,           // 32
+    marginBottom: Spacing.loose, // 32
     opacity: 0.85,
   },
   comingSoonText: {
     flex: 1,
-    fontSize: Typography.fontSize.body,    // 16
+    fontSize: Typography.fontSize.body, // 16
     fontWeight: Typography.fontWeight.regular, // '400'
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.regular,
   },
   plansRow: {
     flexDirection: 'row',
-    gap: Spacing.base,                     // 16
+    gap: Spacing.base, // 16
   },
   planCard: {
     flex: 1,
     borderRadius: 16,
-    padding: Spacing.base,                 // 16
+    padding: Spacing.base, // 16
     backgroundColor: Colors.white,
     borderWidth: 2,
-    minHeight: 96,                         // 8 × 12 — keeps layout consistent across cards
+    minHeight: 96, // 8 × 12 — keeps layout consistent across cards
     ...Shadows.sm,
   },
   planCardUnselected: {
     borderColor: Colors.gray.light,
   },
   planCardSelected: {
-    borderColor: Colors.accent1,           // #B771E5
-    backgroundColor: SELECTED_PLAN_TINT,   // Derived from theme (accent1 tint)
+    borderColor: Colors.accent1, // #B771E5
+    backgroundColor: SELECTED_PLAN_TINT, // Derived from theme (accent1 tint)
   },
   planCardDisabled: {
     opacity: 0.6,
   },
   planBadge: {
     position: 'absolute',
-    top: Spacing.tight,                    // 8
-    right: Spacing.tight,                  // 8
+    top: Spacing.tight, // 8
+    right: Spacing.tight, // 8
     backgroundColor: Colors.accent1,
-    paddingHorizontal: Spacing.tight,      // 8
+    paddingHorizontal: Spacing.tight, // 8
     paddingVertical: 4,
     borderRadius: 8,
   },
   planBadgeText: {
-    fontSize: Typography.fontSize.small,   // 12
+    fontSize: Typography.fontSize.small, // 12
     fontWeight: Typography.fontWeight.semibold, // '600'
     color: Colors.white,
     fontFamily: Typography.fontFamily.semibold,
@@ -452,24 +432,24 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.semibold, // '600'
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.semibold,
-    marginBottom: Spacing.tight,           // 8
+    marginBottom: Spacing.tight, // 8
   },
   planPrice: {
-    fontSize: Typography.fontSize.body,    // 16
+    fontSize: Typography.fontSize.body, // 16
     fontWeight: Typography.fontWeight.bold, // '700'
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.bold,
   },
   footer: {
     paddingHorizontal: Spacing.comfortable, // 24
-    paddingTop: Spacing.base,               // 16
-    paddingBottom: Spacing.base,            // 16
+    paddingTop: Spacing.base, // 16
+    paddingBottom: Spacing.base, // 16
     borderTopWidth: 1,
     borderTopColor: Colors.gray.light,
     backgroundColor: Colors.background,
   },
   continueButton: {
-    minHeight: 56,                          // 8 × 7 (primary CTA)
+    minHeight: 56, // 8 × 7 (primary CTA)
     borderRadius: 12,
     backgroundColor: Colors.accent1,
     alignItems: 'center',
@@ -480,27 +460,27 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   continueButtonText: {
-    fontSize: Typography.fontSize.body,     // 16
+    fontSize: Typography.fontSize.body, // 16
     fontWeight: Typography.fontWeight.bold, // '700'
     color: Colors.white,
     fontFamily: Typography.fontFamily.bold,
   },
   inlineError: {
-    marginTop: Spacing.base,                // 16
-    fontSize: Typography.fontSize.caption,  // 14
+    marginTop: Spacing.base, // 16
+    fontSize: Typography.fontSize.caption, // 14
     fontWeight: Typography.fontWeight.regular, // '400'
     color: Colors.error,
     fontFamily: Typography.fontFamily.regular,
     textAlign: 'center',
   },
   restoreButton: {
-    minHeight: 48,                          // touch target ≥ 48px
+    minHeight: 48, // touch target ≥ 48px
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: Spacing.tight,               // 8
+    marginTop: Spacing.tight, // 8
   },
   restoreText: {
-    fontSize: Typography.fontSize.caption,  // 14
+    fontSize: Typography.fontSize.caption, // 14
     fontWeight: Typography.fontWeight.semibold, // '600'
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,

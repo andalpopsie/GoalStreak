@@ -18,13 +18,7 @@ import {
   assertFails,
   RulesTestEnvironment,
 } from '@firebase/rules-unit-testing';
-import {
-  doc,
-  setDoc,
-  getDoc,
-  deleteDoc,
-  updateDoc,
-} from 'firebase/firestore';
+import { doc, setDoc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 
 const PROJECT_ID = 'goalstreak-rules-test';
 const RULES_PATH = resolve(__dirname, '../../../firebase/firestore.rules');

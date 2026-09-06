@@ -28,11 +28,7 @@ import {
  *  - `authorId` is in the bidirectional block set (blockedUserIds), or
  *  - `contentId` is provided AND is in the reporter's reportedContentIds set.
  */
-export function isHidden(
-  state: ModerationState,
-  authorId: string,
-  contentId?: string
-): boolean {
+export function isHidden(state: ModerationState, authorId: string, contentId?: string): boolean {
   if (state.blockedUserIds.has(authorId)) {
     return true;
   }
@@ -66,10 +62,7 @@ export function filterGroupActivities(
 /**
  * Filter group chat messages. Author is `userId`; content id is `id`.
  */
-export function filterMessages(
-  state: ModerationState,
-  messages: GroupMessage[]
-): GroupMessage[] {
+export function filterMessages(state: ModerationState, messages: GroupMessage[]): GroupMessage[] {
   return messages.filter((message) => !isHidden(state, message.userId, message.id));
 }
 
@@ -98,10 +91,7 @@ export function filterFriendRequests(
 /**
  * Filter group members. The "author" is the member (`userId`). No content id.
  */
-export function filterMembers(
-  state: ModerationState,
-  members: GroupMember[]
-): GroupMember[] {
+export function filterMembers(state: ModerationState, members: GroupMember[]): GroupMember[] {
   return members.filter((member) => !isHidden(state, member.userId));
 }
 
@@ -110,10 +100,7 @@ export function filterMembers(
  * The input map is never mutated. Downstream `getReactionCounts` run over the
  * result yields blocked-free counts (Requirement 2.6).
  */
-export function filterReactions(
-  state: ModerationState,
-  reactions?: Reactions
-): Reactions {
+export function filterReactions(state: ModerationState, reactions?: Reactions): Reactions {
   const filtered: Reactions = {};
 
   if (!reactions) {

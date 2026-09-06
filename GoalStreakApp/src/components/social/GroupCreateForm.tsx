@@ -53,7 +53,8 @@ export default function GroupCreateForm({
 
   // Validation state
   const nameValidation = name.length > 0 ? groupService.validateGroupName(name) : null;
-  const descValidation = description.length > 0 ? groupService.validateGroupDescription(description) : null;
+  const descValidation =
+    description.length > 0 ? groupService.validateGroupDescription(description) : null;
   const endDateValidation = hasEndDate ? groupService.validateEndDate(endDate) : null;
 
   const isFormValid =
@@ -238,9 +239,7 @@ export default function GroupCreateForm({
               </TouchableOpacity>
             </View>
             <Text style={styles.helperText}>
-              {hasEndDate
-                ? 'Group will end on the selected date'
-                : 'Group will run indefinitely'}
+              {hasEndDate ? 'Group will end on the selected date' : 'Group will run indefinitely'}
             </Text>
 
             {hasEndDate && (
@@ -360,68 +359,68 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,             // 8 × 2 (base)
-    paddingVertical: 16,               // 8 × 2 (base)
+    paddingHorizontal: 16, // 8 × 2 (base)
+    paddingVertical: 16, // 8 × 2 (base)
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
     backgroundColor: Colors.white,
   },
   closeButton: {
-    width: 48,                          // 8 × 6 (touch target)
-    height: 48,                         // 8 × 6 (touch target)
+    width: 48, // 8 × 6 (touch target)
+    height: 48, // 8 × 6 (touch target)
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 20,                       // subheading
-    fontWeight: '600',                  // semibold
+    fontSize: 20, // subheading
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,
   },
   headerSpacer: {
-    width: 48,                          // Balance the close button
+    width: 48, // Balance the close button
   },
   scrollContent: {
     flex: 1,
   },
   scrollContentContainer: {
-    padding: 16,                        // 8 × 2 (base)
-    paddingBottom: 32,                  // 8 × 4 (loose)
+    padding: 16, // 8 × 2 (base)
+    paddingBottom: 32, // 8 × 4 (loose)
   },
   fieldContainer: {
-    marginBottom: 24,                   // 8 × 3 (comfortable)
+    marginBottom: 24, // 8 × 3 (comfortable)
   },
   label: {
-    fontSize: 14,                       // caption
-    fontWeight: '600',                  // semibold
+    fontSize: 14, // caption
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
-    marginBottom: 8,                    // 8 × 1 (tight)
+    marginBottom: 8, // 8 × 1 (tight)
     fontFamily: Typography.fontFamily.semibold,
   },
   required: {
-    color: Colors.error,               // Red (#FF4444)
+    color: Colors.error, // Red (#FF4444)
   },
   input: {
     backgroundColor: Colors.white,
     borderWidth: 1,
     borderColor: Colors.gray.light,
     borderRadius: 12,
-    paddingHorizontal: 16,             // 8 × 2 (base)
+    paddingHorizontal: 16, // 8 × 2 (base)
     paddingVertical: 12,
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     color: Colors.primaryText,
-    minHeight: 48,                      // 8 × 6 (touch target)
+    minHeight: 48, // 8 × 6 (touch target)
     fontFamily: Typography.fontFamily.regular,
   },
   textArea: {
-    minHeight: 80,                      // 8 × 10
+    minHeight: 80, // 8 × 10
     paddingTop: 12,
   },
   inputError: {
-    borderColor: Colors.error,         // Red (#FF4444)
+    borderColor: Colors.error, // Red (#FF4444)
   },
   inputSuccess: {
-    borderColor: Colors.accent3,       // Teal (#4A90A4)
+    borderColor: Colors.accent3, // Teal (#4A90A4)
   },
   validationRow: {
     flexDirection: 'row',
@@ -430,42 +429,42 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   errorText: {
-    fontSize: 12,                       // small
-    color: Colors.error,               // Red (#FF4444)
+    fontSize: 12, // small
+    color: Colors.error, // Red (#FF4444)
     flex: 1,
     fontFamily: Typography.fontFamily.regular,
   },
   successText: {
-    fontSize: 12,                       // small
-    color: Colors.accent3,             // Teal (#4A90A4)
+    fontSize: 12, // small
+    color: Colors.accent3, // Teal (#4A90A4)
     flex: 1,
     fontFamily: Typography.fontFamily.regular,
   },
   charCount: {
-    fontSize: 12,                       // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.regular,
   },
   categoryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,                             // 8 × 1 (tight)
+    gap: 8, // 8 × 1 (tight)
   },
   categoryChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,                             // 8 × 1 (tight)
-    paddingHorizontal: 16,             // 8 × 2 (base)
+    gap: 8, // 8 × 1 (tight)
+    paddingHorizontal: 16, // 8 × 2 (base)
     paddingVertical: 10,
-    borderRadius: 24,                   // Pill
+    borderRadius: 24, // Pill
     borderWidth: 1,
     borderColor: Colors.gray.light,
     backgroundColor: Colors.white,
-    minHeight: 40,                      // 8 × 5
+    minHeight: 40, // 8 × 5
   },
   categoryChipText: {
-    fontSize: 14,                       // caption
-    fontWeight: '500',                  // medium
+    fontSize: 14, // caption
+    fontWeight: '500', // medium
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.medium,
   },
@@ -479,7 +478,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   toggle: {
-    width: 48,                          // 8 × 6
+    width: 48, // 8 × 6
     height: 28,
     borderRadius: 14,
     backgroundColor: Colors.gray.light,
@@ -487,11 +486,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   toggleActive: {
-    backgroundColor: Colors.accent3,   // Teal
+    backgroundColor: Colors.accent3, // Teal
   },
   toggleThumb: {
-    width: 24,                          // 8 × 3
-    height: 24,                         // 8 × 3
+    width: 24, // 8 × 3
+    height: 24, // 8 × 3
     borderRadius: 12,
     backgroundColor: Colors.white,
   },
@@ -499,53 +498,53 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   helperText: {
-    fontSize: 12,                       // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
     marginTop: 4,
     fontFamily: Typography.fontFamily.regular,
   },
   datePickerContainer: {
-    marginTop: 16,                      // 8 × 2 (base)
+    marginTop: 16, // 8 × 2 (base)
   },
   dateButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,                             // 8 × 1 (tight)
+    gap: 8, // 8 × 1 (tight)
     backgroundColor: Colors.white,
     borderWidth: 1,
     borderColor: Colors.gray.light,
     borderRadius: 12,
-    paddingHorizontal: 16,             // 8 × 2 (base)
+    paddingHorizontal: 16, // 8 × 2 (base)
     paddingVertical: 12,
-    minHeight: 48,                      // 8 × 6 (touch target)
+    minHeight: 48, // 8 × 6 (touch target)
   },
   dateButtonText: {
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.regular,
   },
   dateAdjustRow: {
     flexDirection: 'row',
-    gap: 8,                             // 8 × 1 (tight)
-    marginTop: 8,                       // 8 × 1 (tight)
+    gap: 8, // 8 × 1 (tight)
+    marginTop: 8, // 8 × 1 (tight)
   },
   dateAdjustButton: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 8,                // 8 × 1 (tight)
+    paddingVertical: 8, // 8 × 1 (tight)
     borderRadius: 8,
     backgroundColor: Colors.gray.light,
     minHeight: 36,
   },
   dateAdjustText: {
-    fontSize: 12,                       // small
-    fontWeight: '500',                  // medium
+    fontSize: 12, // small
+    fontWeight: '500', // medium
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.medium,
   },
   footer: {
-    padding: 16,                        // 8 × 2 (base)
+    padding: 16, // 8 × 2 (base)
     borderTopWidth: 1,
     borderTopColor: Colors.gray.light,
     backgroundColor: Colors.white,
@@ -554,19 +553,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,                             // 8 × 1 (tight)
-    backgroundColor: Colors.accent1,   // Purple CTA (#B771E5)
+    gap: 8, // 8 × 1 (tight)
+    backgroundColor: Colors.accent1, // Purple CTA (#B771E5)
     borderRadius: 16,
-    minHeight: 56,                      // 8 × 7 (primary button)
-    paddingVertical: 16,               // 8 × 2 (base)
+    minHeight: 56, // 8 × 7 (primary button)
+    paddingVertical: 16, // 8 × 2 (base)
   },
   submitButtonDisabled: {
     opacity: 0.5,
   },
   submitButtonText: {
     color: Colors.white,
-    fontSize: 16,                       // body
-    fontWeight: '700',                  // bold
+    fontSize: 16, // body
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
   },
 });

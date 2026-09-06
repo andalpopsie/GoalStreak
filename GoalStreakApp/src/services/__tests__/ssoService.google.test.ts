@@ -72,9 +72,8 @@ import * as firebaseAuth from 'firebase/auth';
 import { getGoogleCredential } from '../ssoService';
 
 // The recorded GoogleAuthProvider.credential(...) calls.
-const googleCredentialSpy = (
-  firebaseAuth as unknown as { __googleCredentialSpy: jest.Mock }
-).__googleCredentialSpy;
+const googleCredentialSpy = (firebaseAuth as unknown as { __googleCredentialSpy: jest.Mock })
+  .__googleCredentialSpy;
 
 beforeEach(() => {
   jest.clearAllMocks();

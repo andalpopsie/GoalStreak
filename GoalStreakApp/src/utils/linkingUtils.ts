@@ -8,15 +8,13 @@ import { Linking, Alert } from 'react-native';
 export const openURL = async (url: string, fallbackMessage?: string): Promise<void> => {
   try {
     const supported = await Linking.canOpenURL(url);
-    
+
     if (supported) {
       await Linking.openURL(url);
     } else {
-      Alert.alert(
-        'Unable to Open Link',
-        fallbackMessage || `Cannot open this link: ${url}`,
-        [{ text: 'OK' }]
-      );
+      Alert.alert('Unable to Open Link', fallbackMessage || `Cannot open this link: ${url}`, [
+        { text: 'OK' },
+      ]);
     }
   } catch (error) {
     console.error('Error opening URL:', error);

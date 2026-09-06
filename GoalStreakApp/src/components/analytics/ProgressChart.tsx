@@ -11,26 +11,30 @@ interface ProgressChartProps {
   height?: number;
 }
 
-export default function ProgressChart({ 
-  data, 
+export default function ProgressChart({
+  data,
   title = 'Completion Trends',
-  height = 220 
+  height = 220,
 }: ProgressChartProps) {
   const screenWidth = Dimensions.get('window').width;
-  
+
   // Prepare chart data
   const chartData = {
-    labels: data.slice(-7).map(item => {
+    labels: data.slice(-7).map((item) => {
       const date = new Date(item.date);
       return date.toLocaleDateString('en-US', { weekday: 'short' });
     }),
     datasets: [
       {
-        data: data.slice(-7).map(item => item.completions),
-        color: (opacity = 1) => Colors.accent1 + Math.round(opacity * 255).toString(16).padStart(2, '0'),
+        data: data.slice(-7).map((item) => item.completions),
+        color: (opacity = 1) =>
+          Colors.accent1 +
+          Math.round(opacity * 255)
+            .toString(16)
+            .padStart(2, '0'),
         strokeWidth: 3,
-      }
-    ]
+      },
+    ],
   };
 
   const chartConfig = {
@@ -38,8 +42,16 @@ export default function ProgressChart({
     backgroundGradientFrom: Colors.white,
     backgroundGradientTo: Colors.white,
     decimalPlaces: 0,
-    color: (opacity = 1) => Colors.primaryText + Math.round(opacity * 255).toString(16).padStart(2, '0'),
-    labelColor: (opacity = 1) => Colors.gray.dark + Math.round(opacity * 255).toString(16).padStart(2, '0'),
+    color: (opacity = 1) =>
+      Colors.primaryText +
+      Math.round(opacity * 255)
+        .toString(16)
+        .padStart(2, '0'),
+    labelColor: (opacity = 1) =>
+      Colors.gray.dark +
+      Math.round(opacity * 255)
+        .toString(16)
+        .padStart(2, '0'),
     style: {
       borderRadius: 16,
     },
@@ -75,7 +87,7 @@ export default function ProgressChart({
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
-      
+
       <View style={styles.chartContainer}>
         <LineChart
           data={chartData}
@@ -98,18 +110,20 @@ export default function ProgressChart({
       <View style={styles.summary}>
         <View style={styles.summaryItem}>
           <Text style={styles.summaryValue}>
-            {Math.round(data.slice(-7).reduce((sum, item) => sum + item.completions, 0) / 7 * 10) / 10}
+            {Math.round(
+              (data.slice(-7).reduce((sum, item) => sum + item.completions, 0) / 7) * 10
+            ) / 10}
           </Text>
           <Text style={styles.summaryLabel}>Daily Avg</Text>
         </View>
-        
+
         <View style={styles.summaryItem}>
           <Text style={styles.summaryValue}>
-            {Math.max(...data.slice(-7).map(item => item.completions))}
+            {Math.max(...data.slice(-7).map((item) => item.completions))}
           </Text>
           <Text style={styles.summaryLabel}>Best Day</Text>
         </View>
-        
+
         <View style={styles.summaryItem}>
           <Text style={styles.summaryValue}>
             {data.slice(-7).reduce((sum, item) => sum + item.completions, 0)}

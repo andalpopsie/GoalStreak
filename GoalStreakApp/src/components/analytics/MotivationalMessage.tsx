@@ -18,13 +18,12 @@ export default function MotivationalMessage({
   totalCompletions,
   isImproving,
 }: MotivationalMessageProps) {
-  
   const message = useMemo(() => {
     // Streak-based messages (highest priority)
     if (currentStreak >= 100) {
       return {
         emoji: '🏆',
-        text: 'Legendary! 100+ day streak - you\'re unstoppable!',
+        text: "Legendary! 100+ day streak - you're unstoppable!",
         color: Colors.accent1,
         icon: 'trophy' as const,
       };
@@ -84,7 +83,7 @@ export default function MotivationalMessage({
     if (isImproving) {
       return {
         emoji: '📈',
-        text: 'You\'re improving! Keep up the great work!',
+        text: "You're improving! Keep up the great work!",
         color: Colors.accent3,
         icon: 'trending-up' as const,
       };
@@ -119,21 +118,21 @@ export default function MotivationalMessage({
     // Encouraging message for beginners
     return {
       emoji: '🌱',
-      text: 'Every journey starts with a single step. You\'ve got this!',
+      text: "Every journey starts with a single step. You've got this!",
       color: Colors.accent3,
       icon: 'leaf' as const,
     };
   }, [completionRate, currentStreak, totalCompletions, isImproving]);
 
   return (
-    <Animated.View 
+    <Animated.View
       entering={FadeInDown.delay(200).duration(600)}
       style={[styles.container, { borderLeftColor: message.color }]}
     >
       <View style={[styles.iconContainer, { backgroundColor: message.color + '20' }]}>
         <Ionicons name={message.icon} size={24} color={message.color} />
       </View>
-      
+
       <View style={styles.content}>
         <Text style={styles.emoji}>{message.emoji}</Text>
         <Text style={styles.message}>{message.text}</Text>

@@ -5,6 +5,8 @@ const js = require('@eslint/js');
 const tseslint = require('typescript-eslint');
 const reactPlugin = require('eslint-plugin-react');
 const reactNativePlugin = require('eslint-plugin-react-native');
+const prettierConfig = require('eslint-config-prettier');
+const prettierPlugin = require('eslint-plugin-prettier');
 
 module.exports = [
   // Ignore patterns
@@ -74,6 +76,7 @@ module.exports = [
     plugins: {
       react: reactPlugin,
       'react-native': reactNativePlugin,
+      prettier: prettierPlugin,
     },
     settings: {
       react: { version: 'detect' },
@@ -104,8 +107,14 @@ module.exports = [
       // Stylistic — warn rather than error so they don't block CI
       'no-useless-escape': 'warn',
       'no-case-declarations': 'warn',
+
+      // Prettier — formatting errors show as ESLint warnings
+      'prettier/prettier': 'warn',
     },
   },
+
+  // Prettier config last — disables ESLint rules that conflict with Prettier
+  prettierConfig,
 
   // Test file overrides
   {

@@ -67,9 +67,17 @@ export default function FriendsTab({
   ];
 
   const activeTitle =
-    segment === 'friends' ? 'Your Friends' : segment === 'requests' ? 'Friend Requests' : 'Suggestions';
+    segment === 'friends'
+      ? 'Your Friends'
+      : segment === 'requests'
+        ? 'Friend Requests'
+        : 'Suggestions';
   const activeCount =
-    segment === 'friends' ? friends.length : segment === 'requests' ? visibleRequests.length : suggestedFriends.length;
+    segment === 'friends'
+      ? friends.length
+      : segment === 'requests'
+        ? visibleRequests.length
+        : suggestedFriends.length;
 
   return (
     <>
@@ -120,7 +128,9 @@ export default function FriendsTab({
         ) : (
           <View style={styles.empty}>
             <Ionicons name="people-outline" size={40} color={Colors.gray.medium} />
-            <Text style={styles.emptyText}>No friends yet. Check Suggestions to find people you know!</Text>
+            <Text style={styles.emptyText}>
+              No friends yet. Check Suggestions to find people you know!
+            </Text>
           </View>
         ))}
 
@@ -133,12 +143,16 @@ export default function FriendsTab({
                 <Text style={styles.avatarText}>{initial(request.fromUserName)}</Text>
               </View>
               <View style={styles.requestBody}>
-                <Text style={styles.name} numberOfLines={1}>{request.fromUserName}</Text>
+                <Text style={styles.name} numberOfLines={1}>
+                  {request.fromUserName}
+                </Text>
                 <Text style={styles.subtext} numberOfLines={1}>
                   {[timeAgo(request.createdAt), request.fromUserEmail].filter(Boolean).join(' · ')}
                 </Text>
                 {request.message ? (
-                  <Text style={styles.message} numberOfLines={2}>"{request.message}"</Text>
+                  <Text style={styles.message} numberOfLines={2}>
+                    "{request.message}"
+                  </Text>
                 ) : null}
                 <View style={styles.requestButtons}>
                   <TouchableOpacity
@@ -181,8 +195,12 @@ export default function FriendsTab({
                 )}
               </View>
               <View style={styles.suggestBody}>
-                <Text style={styles.name} numberOfLines={1}>{suggestion.name}</Text>
-                <Text style={styles.subtext} numberOfLines={2}>{suggestion.matchReason}</Text>
+                <Text style={styles.name} numberOfLines={1}>
+                  {suggestion.name}
+                </Text>
+                <Text style={styles.subtext} numberOfLines={2}>
+                  {suggestion.matchReason}
+                </Text>
               </View>
               <TouchableOpacity
                 style={styles.addButton}
@@ -209,18 +227,18 @@ const styles = StyleSheet.create({
   // ── Segmented switcher ──
   segmentBar: {
     flexDirection: 'row',
-    gap: 8,                            // 8 × 1 (tight)
-    paddingVertical: 12,               // comfortable
-    paddingRight: 16,                  // trailing space when scrolled
+    gap: 8, // 8 × 1 (tight)
+    paddingVertical: 12, // comfortable
+    paddingRight: 16, // trailing space when scrolled
   },
   segmentPill: {
-    paddingHorizontal: 16,             // 8 × 2 (base)
-    paddingVertical: 8,                // 8 × 1 (tight)
-    borderRadius: 20,                  // pill
+    paddingHorizontal: 16, // 8 × 2 (base)
+    paddingVertical: 8, // 8 × 1 (tight)
+    borderRadius: 20, // pill
     borderWidth: 1,
     borderColor: Colors.gray.light,
     backgroundColor: Colors.white,
-    minHeight: 40,                     // 8 × 5 (touch target)
+    minHeight: 40, // 8 × 5 (touch target)
     justifyContent: 'center',
   },
   segmentPillActive: {
@@ -228,7 +246,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.accent1,
   },
   segmentText: {
-    fontSize: 14,                      // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.medium,
   },
@@ -242,25 +260,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 8,                // 8 × 1 (tight)
+    paddingVertical: 8, // 8 × 1 (tight)
   },
   sectionTitle: {
-    fontSize: 20,                      // subheading
-    fontWeight: '600',                 // semibold
+    fontSize: 20, // subheading
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,
   },
   sectionCount: {
-    fontSize: 16,                      // body
-    fontWeight: '600',                 // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.semibold,
   },
 
   // ── Shared avatar ──
   avatar: {
-    width: 56,                         // 8 × 7
-    height: 56,                        // 8 × 7
+    width: 56, // 8 × 7
+    height: 56, // 8 × 7
     borderRadius: 28,
     backgroundColor: Colors.accent1,
     alignItems: 'center',
@@ -268,32 +286,32 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   avatarImage: {
-    width: 56,                         // 8 × 7
-    height: 56,                        // 8 × 7
+    width: 56, // 8 × 7
+    height: 56, // 8 × 7
     borderRadius: 28,
   },
   avatarText: {
     color: Colors.white,
-    fontSize: 20,                      // subheading
-    fontWeight: '700',                 // bold
+    fontSize: 20, // subheading
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
   },
 
   // ── Shared text ──
   name: {
-    fontSize: 16,                      // body
-    fontWeight: '600',                 // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,
   },
   subtext: {
-    fontSize: 14,                      // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
     marginTop: 2,
     fontFamily: Typography.fontFamily.regular,
   },
   message: {
-    fontSize: 14,                      // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
     fontStyle: 'italic',
     marginTop: 4,
@@ -307,8 +325,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     backgroundColor: Colors.white,
     borderRadius: 16,
-    padding: 16,                       // 8 × 2 (base)
-    marginBottom: 8,                   // 8 × 1 (tight)
+    padding: 16, // 8 × 2 (base)
+    marginBottom: 8, // 8 × 1 (tight)
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
@@ -317,17 +335,17 @@ const styles = StyleSheet.create({
   },
   requestBody: {
     flex: 1,
-    marginLeft: 16,                    // 8 × 2 (base)
+    marginLeft: 16, // 8 × 2 (base)
   },
   requestButtons: {
     flexDirection: 'row',
-    gap: 12,                           // 8 × 1.5
-    marginTop: 12,                     // 8 × 1.5
+    gap: 12, // 8 × 1.5
+    marginTop: 12, // 8 × 1.5
   },
   deleteButton: {
     flex: 1,
-    minHeight: 40,                     // 8 × 5 (touch target)
-    borderRadius: 20,                  // pill
+    minHeight: 40, // 8 × 5 (touch target)
+    borderRadius: 20, // pill
     borderWidth: 1,
     borderColor: Colors.gray.medium,
     backgroundColor: Colors.white,
@@ -335,20 +353,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   deleteButtonText: {
-    fontSize: 14,                      // caption
+    fontSize: 14, // caption
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,
   },
   confirmButton: {
     flex: 1,
-    minHeight: 40,                     // 8 × 5 (touch target)
-    borderRadius: 20,                  // pill
+    minHeight: 40, // 8 × 5 (touch target)
+    borderRadius: 20, // pill
     backgroundColor: Colors.accent1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   confirmButtonText: {
-    fontSize: 14,                      // caption
+    fontSize: 14, // caption
     color: Colors.white,
     fontFamily: Typography.fontFamily.semibold,
   },
@@ -359,8 +377,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.white,
     borderRadius: 16,
-    padding: 16,                       // 8 × 2 (base)
-    marginBottom: 8,                   // 8 × 1 (tight)
+    padding: 16, // 8 × 2 (base)
+    marginBottom: 8, // 8 × 1 (tight)
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
@@ -369,8 +387,8 @@ const styles = StyleSheet.create({
   },
   suggestBody: {
     flex: 1,
-    marginLeft: 16,                    // 8 × 2 (base)
-    marginRight: 12,                   // 8 × 1.5
+    marginLeft: 16, // 8 × 2 (base)
+    marginRight: 12, // 8 × 1.5
   },
   addButton: {
     flexDirection: 'row',
@@ -378,30 +396,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 4,
     backgroundColor: Colors.accent1,
-    paddingHorizontal: 16,             // 8 × 2 (base)
-    minHeight: 40,                     // 8 × 5 (touch target)
-    borderRadius: 20,                  // pill
+    paddingHorizontal: 16, // 8 × 2 (base)
+    minHeight: 40, // 8 × 5 (touch target)
+    borderRadius: 20, // pill
   },
   addButtonText: {
     color: Colors.white,
-    fontSize: 14,                      // caption
+    fontSize: 14, // caption
     fontFamily: Typography.fontFamily.semibold,
   },
 
   // ── Empty state ──
   empty: {
     alignItems: 'center',
-    paddingVertical: 32,               // 8 × 4 (loose)
-    paddingHorizontal: 24,             // 8 × 3 (comfortable)
+    paddingVertical: 32, // 8 × 4 (loose)
+    paddingHorizontal: 24, // 8 × 3 (comfortable)
     backgroundColor: Colors.white,
     borderRadius: 16,
-    gap: 8,                            // 8 × 1 (tight)
+    gap: 8, // 8 × 1 (tight)
   },
   emptyText: {
-    fontSize: 16,                      // body
+    fontSize: 16, // body
     color: Colors.secondaryText,
     textAlign: 'center',
-    lineHeight: 24,                    // 1.5 line height
+    lineHeight: 24, // 1.5 line height
     fontFamily: Typography.fontFamily.regular,
   },
 });

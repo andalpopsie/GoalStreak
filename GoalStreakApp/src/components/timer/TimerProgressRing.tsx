@@ -39,11 +39,14 @@ export default React.memo(function TimerProgressRing({
   const opacity = useSharedValue(0);
 
   // Calculate dimensions (memoized for performance)
-  const { radius, circumference, center } = useMemo(() => ({
-    radius: (size - strokeWidth) / 2,
-    circumference: 2 * Math.PI * ((size - strokeWidth) / 2),
-    center: size / 2
-  }), [size, strokeWidth]);
+  const { radius, circumference, center } = useMemo(
+    () => ({
+      radius: (size - strokeWidth) / 2,
+      circumference: 2 * Math.PI * ((size - strokeWidth) / 2),
+      center: size / 2,
+    }),
+    [size, strokeWidth]
+  );
 
   // Update progress animation when timer state changes
   useEffect(() => {
@@ -80,11 +83,7 @@ export default React.memo(function TimerProgressRing({
 
   // Animated props for the progress circle
   const animatedProps = useAnimatedProps(() => {
-    const strokeDashoffset = interpolate(
-      progress.value,
-      [0, 1],
-      [circumference, 0]
-    );
+    const strokeDashoffset = interpolate(progress.value, [0, 1], [circumference, 0]);
 
     return {
       strokeDashoffset,
@@ -131,7 +130,7 @@ export default React.memo(function TimerProgressRing({
         {
           width: size,
           height: size,
-        }
+        },
       ]}
       testID="timer-progress-ring"
     >

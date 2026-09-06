@@ -13,13 +13,20 @@ interface StreakHeroProps {
 function getStreakTier(streak: number): { label: string; color: string; bgColor: string } {
   if (streak >= 100) return { label: 'Legendary', color: '#FFD700', bgColor: '#FFD700' + '15' };
   if (streak >= 30) return { label: 'On Fire', color: '#FF6B35', bgColor: '#FF6B35' + '15' };
-  if (streak >= 14) return { label: 'Committed', color: Colors.accent1, bgColor: Colors.accent1 + '15' };
-  if (streak >= 7) return { label: 'Building', color: Colors.accent3, bgColor: Colors.accent3 + '15' };
-  if (streak >= 1) return { label: 'Starting', color: Colors.primaryText, bgColor: Colors.primaryText + '10' };
+  if (streak >= 14)
+    return { label: 'Committed', color: Colors.accent1, bgColor: Colors.accent1 + '15' };
+  if (streak >= 7)
+    return { label: 'Building', color: Colors.accent3, bgColor: Colors.accent3 + '15' };
+  if (streak >= 1)
+    return { label: 'Starting', color: Colors.primaryText, bgColor: Colors.primaryText + '10' };
   return { label: 'Begin Today', color: Colors.secondaryText, bgColor: Colors.gray.light };
 }
 
-export default function StreakHero({ currentStreak, longestStreak, completionRate }: StreakHeroProps) {
+export default function StreakHero({
+  currentStreak,
+  longestStreak,
+  completionRate,
+}: StreakHeroProps) {
   const tier = getStreakTier(currentStreak);
 
   return (
@@ -27,14 +34,8 @@ export default function StreakHero({ currentStreak, longestStreak, completionRat
       {/* Streak Number — Hero Element */}
       <View style={styles.streakCenter}>
         <View style={[styles.streakCircle, { backgroundColor: tier.bgColor }]}>
-          <Ionicons
-            name="flame"
-            size={32}
-            color={tier.color}
-          />
-          <Text style={[styles.streakNumber, { color: tier.color }]}>
-            {currentStreak}
-          </Text>
+          <Ionicons name="flame" size={32} color={tier.color} />
+          <Text style={[styles.streakNumber, { color: tier.color }]}>{currentStreak}</Text>
           <Text style={styles.streakUnit}>day streak</Text>
         </View>
         <View style={[styles.tierBadge, { backgroundColor: tier.color }]}>
@@ -62,11 +63,11 @@ export default function StreakHero({ currentStreak, longestStreak, completionRat
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 16,             // 8 × 2 (base)
-    marginVertical: 8,                // 8 × 1 (tight)
+    marginHorizontal: 16, // 8 × 2 (base)
+    marginVertical: 8, // 8 × 1 (tight)
     backgroundColor: Colors.white,
     borderRadius: 16,
-    padding: 24,                      // 8 × 3 (comfortable)
+    padding: 24, // 8 × 3 (comfortable)
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -76,37 +77,37 @@ const styles = StyleSheet.create({
   },
   streakCenter: {
     alignItems: 'center',
-    marginBottom: 20,                 // 8 × 2.5
+    marginBottom: 20, // 8 × 2.5
   },
   streakCircle: {
-    width: 120,                       // 8 × 15
-    height: 120,                      // 8 × 15
+    width: 120, // 8 × 15
+    height: 120, // 8 × 15
     borderRadius: 60,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,                 // 8 × 1.5
+    marginBottom: 12, // 8 × 1.5
   },
   streakNumber: {
-    fontSize: 36,                     // hero number
-    fontWeight: '800',                // extra bold
+    fontSize: 36, // hero number
+    fontWeight: '800', // extra bold
     fontFamily: Typography.fontFamily.heavy,
     marginTop: -2,
   },
   streakUnit: {
-    fontSize: 12,                     // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
-    fontWeight: '500',                // medium
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
     marginTop: -2,
   },
   tierBadge: {
-    paddingHorizontal: 16,            // 8 × 2 (base)
+    paddingHorizontal: 16, // 8 × 2 (base)
     paddingVertical: 4,
-    borderRadius: 12,                 // pill
+    borderRadius: 12, // pill
   },
   tierText: {
-    fontSize: 12,                     // small
-    fontWeight: '700',                // bold
+    fontSize: 12, // small
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
     color: Colors.white,
     textTransform: 'uppercase',
@@ -117,7 +118,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-    paddingTop: 16,                   // 8 × 2 (base)
+    paddingTop: 16, // 8 × 2 (base)
     borderTopWidth: 1,
     borderTopColor: Colors.gray.light,
   },
@@ -127,20 +128,20 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   statValue: {
-    fontSize: 20,                     // subheading
-    fontWeight: '700',                // bold
+    fontSize: 20, // subheading
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
   },
   statLabel: {
-    fontSize: 12,                     // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
-    fontWeight: '500',                // medium
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
   },
   statDivider: {
     width: 1,
-    height: 40,                       // 8 × 5
+    height: 40, // 8 × 5
     backgroundColor: Colors.gray.light,
   },
 });

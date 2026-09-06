@@ -135,11 +135,15 @@ import { auth } from '../../services/firebase';
 import { getAppleCredential, SsoError } from '../../services/ssoService';
 import { AuthProvider, useAuth } from '../useAuth';
 
-const mockedLinkWithCredential = linkWithCredential as jest.MockedFunction<typeof linkWithCredential>;
+const mockedLinkWithCredential = linkWithCredential as jest.MockedFunction<
+  typeof linkWithCredential
+>;
 const mockedReauthWithCredential = reauthenticateWithCredential as jest.MockedFunction<
   typeof reauthenticateWithCredential
 >;
-const mockedGetAppleCredential = getAppleCredential as jest.MockedFunction<typeof getAppleCredential>;
+const mockedGetAppleCredential = getAppleCredential as jest.MockedFunction<
+  typeof getAppleCredential
+>;
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <AuthProvider>{children}</AuthProvider>
@@ -160,9 +164,7 @@ function installCurrentUser(options: {
   providerData: Array<{ providerId: string }>;
   staleMinutes: number;
 }) {
-  const lastSignInTime = new Date(
-    Date.now() - options.staleMinutes * 60 * 1000,
-  ).toISOString();
+  const lastSignInTime = new Date(Date.now() - options.staleMinutes * 60 * 1000).toISOString();
   const currentUser = {
     uid: 'uid-123',
     email: 'person@example.com',
@@ -210,7 +212,7 @@ describe('useAuth account linking — example flows (R8.1, R8.2, R8.5)', () => {
     expect(mockedLinkWithCredential).toHaveBeenCalledTimes(1);
     expect(mockedLinkWithCredential).toHaveBeenCalledWith(
       currentUser,
-      appleCredentialResult.credential,
+      appleCredentialResult.credential
     );
 
     // A fresh session means no re-authentication happened first (R8.2 negative).

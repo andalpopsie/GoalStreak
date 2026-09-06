@@ -19,7 +19,7 @@ const PROJECT_ID = 'goalstreak-group-join';
 const RULES_PATH = resolve(__dirname, '../../../firebase/firestore.rules');
 
 const ALICE = 'alice-uid'; // admin
-const BOB = 'bob-uid';     // invited
+const BOB = 'bob-uid'; // invited
 const CAROL = 'carol-uid'; // uninvited third party
 
 let testEnv: RulesTestEnvironment;
@@ -32,8 +32,12 @@ beforeAll(async () => {
     firestore: { rules: readFileSync(RULES_PATH, 'utf8'), host, port },
   });
 });
-afterAll(async () => { if (testEnv) await testEnv.cleanup(); });
-beforeEach(async () => { await testEnv.clearFirestore(); });
+afterAll(async () => {
+  if (testEnv) await testEnv.cleanup();
+});
+beforeEach(async () => {
+  await testEnv.clearFirestore();
+});
 
 async function seed(path: string, data: Record<string, unknown>) {
   await testEnv.withSecurityRulesDisabled(async (ctx) => {
@@ -111,10 +115,12 @@ describe('groups self-join (accept invitation)', () => {
     await seedGroup();
     await seedPendingInvite(BOB);
     const db = testEnv.authenticatedContext(BOB).firestore();
-    await assertFails(updateDoc(doc(db, 'groups/g1'), {
-      ...joinUpdate(BOB, 'Bob'),
-      adminId: BOB, // attempt to seize admin
-    }));
+    await assertFails(
+      updateDoc(doc(db, 'groups/g1'), {
+        ...joinUpdate(BOB, 'Bob'),
+        adminId: BOB, // attempt to seize admin
+      })
+    );
   });
 
   it('denies removing an existing member under the guise of joining', async () => {
@@ -122,11 +128,13 @@ describe('groups self-join (accept invitation)', () => {
     await seedPendingInvite(BOB);
     const db = testEnv.authenticatedContext(BOB).firestore();
     // Replaces ALICE with BOB (removal) — hasAll(old) fails.
-    await assertFails(updateDoc(doc(db, 'groups/g1'), {
-      memberIds: [BOB],
-      members: [{ userId: BOB, userName: 'Bob', role: 'member' }],
-      updatedAt: new Date(),
-    }));
+    await assertFails(
+      updateDoc(doc(db, 'groups/g1'), {
+        memberIds: [BOB],
+        members: [{ userId: BOB, userName: 'Bob', role: 'member' }],
+        updatedAt: new Date(),
+      })
+    );
   });
 });
 
@@ -134,7 +142,9 @@ describe('groups admin update still works', () => {
   it('allows the admin to update the group', async () => {
     await seedGroup();
     const db = testEnv.authenticatedContext(ALICE).firestore();
-    await assertSucceeds(updateDoc(doc(db, 'groups/g1'), { name: 'Evening Runners', updatedAt: new Date() }));
+    await assertSucceeds(
+      updateDoc(doc(db, 'groups/g1'), { name: 'Evening Runners', updatedAt: new Date() })
+    );
   });
 
   it('denies a non-admin, non-invited user from updating', async () => {
@@ -163,21 +173,36 @@ async function seedTwoMemberGroup() {
 describe('admin removing a member', () => {
   it("lets the admin delete a member's tracked habits", async () => {
     await seedTwoMemberGroup();
-    await seed('trackedHabits/th1', { groupId: 'g1', userId: BOB, habitId: 'h1', habitName: 'Run' });
+    await seed('trackedHabits/th1', {
+      groupId: 'g1',
+      userId: BOB,
+      habitId: 'h1',
+      habitName: 'Run',
+    });
     const db = testEnv.authenticatedContext(ALICE).firestore();
     await assertSucceeds(deleteDoc(doc(db, 'trackedHabits/th1')));
   });
 
   it("denies a non-admin deleting someone else's tracked habits", async () => {
     await seedTwoMemberGroup();
-    await seed('trackedHabits/th1', { groupId: 'g1', userId: BOB, habitId: 'h1', habitName: 'Run' });
+    await seed('trackedHabits/th1', {
+      groupId: 'g1',
+      userId: BOB,
+      habitId: 'h1',
+      habitName: 'Run',
+    });
     const db = testEnv.authenticatedContext(CAROL).firestore();
     await assertFails(deleteDoc(doc(db, 'trackedHabits/th1')));
   });
 
   it('lets the owner delete their own tracked habit', async () => {
     await seedTwoMemberGroup();
-    await seed('trackedHabits/th1', { groupId: 'g1', userId: BOB, habitId: 'h1', habitName: 'Run' });
+    await seed('trackedHabits/th1', {
+      groupId: 'g1',
+      userId: BOB,
+      habitId: 'h1',
+      habitName: 'Run',
+    });
     const db = testEnv.authenticatedContext(BOB).firestore();
     await assertSucceeds(deleteDoc(doc(db, 'trackedHabits/th1')));
   });
@@ -185,27 +210,41 @@ describe('admin removing a member', () => {
   it('lets the admin post a member_left activity about a member', async () => {
     await seedTwoMemberGroup();
     const db = testEnv.authenticatedContext(ALICE).firestore();
-    await assertSucceeds(setDoc(doc(db, 'groupActivities/a1'), {
-      groupId: 'g1', userId: BOB, userName: 'Bob', type: 'member_left', timestamp: new Date(),
-    }));
+    await assertSucceeds(
+      setDoc(doc(db, 'groupActivities/a1'), {
+        groupId: 'g1',
+        userId: BOB,
+        userName: 'Bob',
+        type: 'member_left',
+        timestamp: new Date(),
+      })
+    );
   });
 
   it('denies a non-admin posting an activity attributed to someone else', async () => {
     await seedTwoMemberGroup();
     const db = testEnv.authenticatedContext(CAROL).firestore();
-    await assertFails(setDoc(doc(db, 'groupActivities/a1'), {
-      groupId: 'g1', userId: BOB, userName: 'Bob', type: 'member_left', timestamp: new Date(),
-    }));
+    await assertFails(
+      setDoc(doc(db, 'groupActivities/a1'), {
+        groupId: 'g1',
+        userId: BOB,
+        userName: 'Bob',
+        type: 'member_left',
+        timestamp: new Date(),
+      })
+    );
   });
 
   it('lets the admin remove a member from the group doc', async () => {
     await seedTwoMemberGroup();
     const db = testEnv.authenticatedContext(ALICE).firestore();
-    await assertSucceeds(updateDoc(doc(db, 'groups/g1'), {
-      memberIds: [ALICE],
-      members: [{ userId: ALICE, userName: 'Alice', role: 'admin' }],
-      updatedAt: new Date(),
-    }));
+    await assertSucceeds(
+      updateDoc(doc(db, 'groups/g1'), {
+        memberIds: [ALICE],
+        members: [{ userId: ALICE, userName: 'Alice', role: 'admin' }],
+        updatedAt: new Date(),
+      })
+    );
   });
 });
 
@@ -213,62 +252,83 @@ describe('member self-leave', () => {
   it('lets a member remove only themselves', async () => {
     await seedTwoMemberGroup();
     const db = testEnv.authenticatedContext(BOB).firestore();
-    await assertSucceeds(updateDoc(doc(db, 'groups/g1'), {
-      memberIds: [ALICE],
-      members: [{ userId: ALICE, userName: 'Alice', role: 'admin' }],
-      updatedAt: new Date(),
-    }));
+    await assertSucceeds(
+      updateDoc(doc(db, 'groups/g1'), {
+        memberIds: [ALICE],
+        members: [{ userId: ALICE, userName: 'Alice', role: 'admin' }],
+        updatedAt: new Date(),
+      })
+    );
   });
 
   it('denies a member removing someone else', async () => {
     await seedTwoMemberGroup();
     const db = testEnv.authenticatedContext(BOB).firestore();
     // Bob tries to remove Alice (keeping himself) — not a self-leave.
-    await assertFails(updateDoc(doc(db, 'groups/g1'), {
-      memberIds: [BOB],
-      members: [{ userId: BOB, userName: 'Bob', role: 'member' }],
-      updatedAt: new Date(),
-    }));
+    await assertFails(
+      updateDoc(doc(db, 'groups/g1'), {
+        memberIds: [BOB],
+        members: [{ userId: BOB, userName: 'Bob', role: 'member' }],
+        updatedAt: new Date(),
+      })
+    );
   });
 
   it('denies a non-member touching the group', async () => {
     await seedTwoMemberGroup();
     const db = testEnv.authenticatedContext(CAROL).firestore();
-    await assertFails(updateDoc(doc(db, 'groups/g1'), {
-      memberIds: [ALICE],
-      members: [{ userId: ALICE, userName: 'Alice', role: 'admin' }],
-      updatedAt: new Date(),
-    }));
+    await assertFails(
+      updateDoc(doc(db, 'groups/g1'), {
+        memberIds: [ALICE],
+        members: [{ userId: ALICE, userName: 'Alice', role: 'admin' }],
+        updatedAt: new Date(),
+      })
+    );
   });
 });
 
 describe('group activity reactions (update hardening)', () => {
-  const activity = { groupId: 'g1', userId: ALICE, userName: 'Alice', type: 'habit_completed', reactions: {} };
+  const activity = {
+    groupId: 'g1',
+    userId: ALICE,
+    userName: 'Alice',
+    type: 'habit_completed',
+    reactions: {},
+  };
 
   it('lets a group member add a reaction (reactions field only)', async () => {
     await seedTwoMemberGroup();
     await seed('groupActivities/a1', activity);
     const db = testEnv.authenticatedContext(BOB).firestore();
-    await assertSucceeds(updateDoc(doc(db, 'groupActivities/a1'), {
-      reactions: { [BOB]: ['fire'] }, updatedAt: new Date(),
-    }));
+    await assertSucceeds(
+      updateDoc(doc(db, 'groupActivities/a1'), {
+        reactions: { [BOB]: ['fire'] },
+        updatedAt: new Date(),
+      })
+    );
   });
 
   it('denies a non-member from reacting', async () => {
     await seedTwoMemberGroup();
     await seed('groupActivities/a1', activity);
     const db = testEnv.authenticatedContext(CAROL).firestore();
-    await assertFails(updateDoc(doc(db, 'groupActivities/a1'), {
-      reactions: { [CAROL]: ['fire'] }, updatedAt: new Date(),
-    }));
+    await assertFails(
+      updateDoc(doc(db, 'groupActivities/a1'), {
+        reactions: { [CAROL]: ['fire'] },
+        updatedAt: new Date(),
+      })
+    );
   });
 
   it('denies a member from tampering with non-reaction fields', async () => {
     await seedTwoMemberGroup();
     await seed('groupActivities/a1', activity);
     const db = testEnv.authenticatedContext(BOB).firestore();
-    await assertFails(updateDoc(doc(db, 'groupActivities/a1'), {
-      userName: 'Hacked', updatedAt: new Date(),
-    }));
+    await assertFails(
+      updateDoc(doc(db, 'groupActivities/a1'), {
+        userName: 'Hacked',
+        updatedAt: new Date(),
+      })
+    );
   });
 });

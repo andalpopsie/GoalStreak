@@ -26,7 +26,6 @@ export default function HabitCard({
   onEdit,
   onDelete,
 }: HabitCardProps) {
-
   const handleToggleComplete = () => {
     if (isLoading) return;
 
@@ -59,10 +58,14 @@ export default function HabitCard({
 
   const getFrequencyText = () => {
     switch (habit.frequency) {
-      case 'daily': return 'Daily';
-      case 'weekly': return 'Weekly';
-      case 'monthly': return 'Monthly';
-      default: return 'Daily';
+      case 'daily':
+        return 'Daily';
+      case 'weekly':
+        return 'Weekly';
+      case 'monthly':
+        return 'Monthly';
+      default:
+        return 'Daily';
     }
   };
 
@@ -134,9 +137,7 @@ export default function HabitCard({
       </View>
 
       {/* Description */}
-      {habit.description && (
-        <Text style={styles.description}>{habit.description}</Text>
-      )}
+      {habit.description && <Text style={styles.description}>{habit.description}</Text>}
 
       {/* Streak Info */}
       {streak && (
@@ -150,9 +151,7 @@ export default function HabitCard({
           {streak.longestStreak > 0 && (
             <View style={styles.streakItem}>
               <Ionicons name="trophy" size={16} color={Colors.accent3} />
-              <Text style={styles.streakText}>
-                Best: {streak.longestStreak}
-              </Text>
+              <Text style={styles.streakText}>Best: {streak.longestStreak}</Text>
             </View>
           )}
         </View>

@@ -1,9 +1,9 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
   withSpring,
   withSequence,
   runOnJS,
@@ -47,7 +47,7 @@ export default function FloatingActionButton({
       withSpring(0.9, { damping: 15, stiffness: 300 }),
       withSpring(1, { damping: 15, stiffness: 300 })
     );
-    
+
     rotation.value = withSequence(
       withSpring(15, { damping: 15, stiffness: 300 }),
       withSpring(0, { damping: 15, stiffness: 300 })
@@ -55,17 +55,14 @@ export default function FloatingActionButton({
 
     // Haptic feedback
     runOnJS(triggerHapticFeedback)();
-    
+
     // Call the onPress function
     runOnJS(onPress)();
   };
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      transform: [
-        { scale: scale.value },
-        { rotate: `${rotation.value}deg` }
-      ],
+      transform: [{ scale: scale.value }, { rotate: `${rotation.value}deg` }],
     };
   });
 

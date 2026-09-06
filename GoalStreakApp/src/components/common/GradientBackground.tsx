@@ -13,7 +13,6 @@ export default function GradientBackground({
   style,
   variant = 'default',
 }: GradientBackgroundProps) {
-  
   const getBackgroundColor = () => {
     switch (variant) {
       case 'subtle':

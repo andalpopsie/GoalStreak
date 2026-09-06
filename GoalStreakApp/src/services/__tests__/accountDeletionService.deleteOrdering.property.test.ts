@@ -79,7 +79,11 @@ jest.mock('../ssoService', () => {
   return {
     __esModule: true,
     SsoError: actual.SsoError,
-    getAppleCredential: jest.fn(async () => ({ credential: {}, profile: {}, providerId: 'apple.com' })),
+    getAppleCredential: jest.fn(async () => ({
+      credential: {},
+      profile: {},
+      providerId: 'apple.com',
+    })),
     getGoogleCredential: jest.fn(() => ({ credential: {}, profile: {}, providerId: 'google.com' })),
   };
 });
@@ -93,7 +97,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { reauthenticateAndDeleteAccount } from '../accountDeletionService';
 import { auth as mockAuth } from '../firebase';
 
-const mockedReauth = reauthenticateWithCredential as jest.MockedFunction<typeof reauthenticateWithCredential>;
+const mockedReauth = reauthenticateWithCredential as jest.MockedFunction<
+  typeof reauthenticateWithCredential
+>;
 const mockedDeleteUser = deleteUser as jest.MockedFunction<typeof deleteUser>;
 const mockedGetDoc = getDoc as jest.MockedFunction<typeof getDoc>;
 const mockedGetDocs = getDocs as jest.MockedFunction<typeof getDocs>;
@@ -102,13 +108,22 @@ const mockedReleaseUsername = releaseUsername as jest.MockedFunction<typeof rele
 const mockedDeletePhoto = photoService.deleteProfilePhoto as jest.MockedFunction<
   typeof photoService.deleteProfilePhoto
 >;
-const mockedGetAllKeys = AsyncStorage.getAllKeys as jest.MockedFunction<typeof AsyncStorage.getAllKeys>;
-const mockedMultiRemove = AsyncStorage.multiRemove as jest.MockedFunction<typeof AsyncStorage.multiRemove>;
+const mockedGetAllKeys = AsyncStorage.getAllKeys as jest.MockedFunction<
+  typeof AsyncStorage.getAllKeys
+>;
+const mockedMultiRemove = AsyncStorage.multiRemove as jest.MockedFunction<
+  typeof AsyncStorage.multiRemove
+>;
 
 const UID = 'uid-under-test';
 
 // Cleanup markers that, when present in a run, must precede the final deleteUser.
-const CLEANUP_MARKERS = ['batchCommit', 'releaseUsername', 'deleteProfilePhoto', 'clearLocalStorage'];
+const CLEANUP_MARKERS = [
+  'batchCommit',
+  'releaseUsername',
+  'deleteProfilePhoto',
+  'clearLocalStorage',
+];
 
 interface Scenario {
   hasUsername: boolean; // getDoc returns a reserved username → releaseUsername runs
@@ -153,13 +168,13 @@ describe('accountDeletionService — Property 8: deleteUser runs only after all 
           async () =>
             (scenario.hasUsername
               ? { exists: () => true, data: () => ({ username: 'reserved-name' }) }
-              : { exists: () => false, data: () => undefined }) as never,
+              : { exists: () => false, data: () => undefined }) as never
         );
         mockedGetDocs.mockImplementation(
           async () =>
             (scenario.queriesReturnDocs
               ? { empty: false, docs: [{ ref: { __ref: true } }] }
-              : { empty: true, docs: [] }) as never,
+              : { empty: true, docs: [] }) as never
         );
         // Each batch commit records a marker; delete is a no-op.
         mockedWriteBatch.mockImplementation(
@@ -169,7 +184,7 @@ describe('accountDeletionService — Property 8: deleteUser runs only after all 
               commit: jest.fn(async () => {
                 log.push('batchCommit');
               }),
-            }) as never,
+            }) as never
         );
         mockedReleaseUsername.mockImplementation(async () => {
           log.push('releaseUsername');
@@ -178,7 +193,8 @@ describe('accountDeletionService — Property 8: deleteUser runs only after all 
           log.push('deleteProfilePhoto');
         });
         mockedGetAllKeys.mockImplementation(
-          async () => (scenario.hasStorageKeys ? [`${UID}:cache`, '@goalstreak_prefs'] : []) as never,
+          async () =>
+            (scenario.hasStorageKeys ? [`${UID}:cache`, '@goalstreak_prefs'] : []) as never
         );
         mockedMultiRemove.mockImplementation(async () => {
           log.push('clearLocalStorage');
@@ -235,7 +251,7 @@ describe('accountDeletionService — Property 8: deleteUser runs only after all 
           }
         }
       }),
-      { numRuns: 100 },
+      { numRuns: 100 }
     );
   });
 });

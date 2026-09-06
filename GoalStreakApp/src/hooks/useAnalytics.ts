@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { useHabits } from './useHabits';
-import { 
+import {
   getAllHabitAnalytics,
   getPeriodAnalytics,
   getTrendData,
@@ -25,17 +25,17 @@ interface UseAnalyticsReturn {
   yearAnalytics: PeriodAnalytics | null;
   trendData: TrendData[];
   insights: InsightData[];
-  
+
   // Loading states
   isLoadingAnalytics: boolean;
   isLoadingTrends: boolean;
   isLoadingInsights: boolean;
-  
+
   // Actions
   refreshAnalytics: () => Promise<void>;
   refreshTrends: (days?: number) => Promise<void>;
   refreshInsights: () => Promise<void>;
-  
+
   // Utility
   selectedPeriod: 'week' | 'month' | 'year';
   setSelectedPeriod: (period: 'week' | 'month' | 'year') => void;
@@ -46,7 +46,7 @@ interface UseAnalyticsReturn {
 export const useAnalytics = (): UseAnalyticsReturn => {
   const { user } = useAuth();
   const { habits } = useHabits();
-  
+
   // State
   const [habitAnalytics, setHabitAnalytics] = useState<HabitAnalytics[]>([]);
   const [weekAnalytics, setWeekAnalytics] = useState<PeriodAnalytics | null>(null);
@@ -54,12 +54,12 @@ export const useAnalytics = (): UseAnalyticsReturn => {
   const [yearAnalytics, setYearAnalytics] = useState<PeriodAnalytics | null>(null);
   const [trendData, setTrendData] = useState<TrendData[]>([]);
   const [insights, setInsights] = useState<InsightData[]>([]);
-  
+
   // Loading states
   const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false);
   const [isLoadingTrends, setIsLoadingTrends] = useState(false);
   const [isLoadingInsights, setIsLoadingInsights] = useState(false);
-  
+
   // UI state
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'year'>('week');
   const [error, setError] = useState<string | null>(null);
@@ -70,16 +70,19 @@ export const useAnalytics = (): UseAnalyticsReturn => {
       setHabitAnalytics([]);
       return;
     }
-    
+
     setIsLoadingAnalytics(true);
     setError(null);
-    
+
     try {
-      logInfo('analytics', 'Loading habit analytics', { userId: user.id, habitCount: habits.length });
-      
+      logInfo('analytics', 'Loading habit analytics', {
+        userId: user.id,
+        habitCount: habits.length,
+      });
+
       const analytics = await getAllHabitAnalytics(user.id, habits);
       setHabitAnalytics(analytics);
-      
+
       logInfo('analytics', 'Habit analytics loaded successfully', { count: analytics.length });
     } catch (err) {
       logError('analytics', 'Error loading habit analytics', { error: err });
@@ -98,20 +101,20 @@ export const useAnalytics = (): UseAnalyticsReturn => {
       setYearAnalytics(null);
       return;
     }
-    
+
     try {
       logInfo('analytics', 'Loading period analytics', { userId: user.id });
-      
+
       const [week, month, year] = await Promise.all([
         getPeriodAnalytics(user.id, 'week'),
         getPeriodAnalytics(user.id, 'month'),
         getPeriodAnalytics(user.id, 'year'),
       ]);
-      
+
       setWeekAnalytics(week);
       setMonthAnalytics(month);
       setYearAnalytics(year);
-      
+
       logInfo('analytics', 'Period analytics loaded successfully');
     } catch (err) {
       logError('analytics', 'Error loading period analytics', { error: err });
@@ -123,30 +126,33 @@ export const useAnalytics = (): UseAnalyticsReturn => {
   }, [user?.id]);
 
   // Load trend data with real data
-  const loadTrendData = useCallback(async (days: number = 30) => {
-    if (!user?.id) {
-      setTrendData([]);
-      return;
-    }
-    
-    setIsLoadingTrends(true);
-    setError(null);
-    
-    try {
-      logInfo('analytics', 'Loading trend data', { userId: user.id, days });
-      
-      const trends = await getTrendData(user.id, days);
-      setTrendData(trends);
-      
-      logInfo('analytics', 'Trend data loaded successfully', { dataPoints: trends.length });
-    } catch (err) {
-      logError('analytics', 'Error loading trend data', { error: err });
-      setError('Failed to load trend data. Please try again.');
-      setTrendData([]);
-    } finally {
-      setIsLoadingTrends(false);
-    }
-  }, [user?.id]);
+  const loadTrendData = useCallback(
+    async (days: number = 30) => {
+      if (!user?.id) {
+        setTrendData([]);
+        return;
+      }
+
+      setIsLoadingTrends(true);
+      setError(null);
+
+      try {
+        logInfo('analytics', 'Loading trend data', { userId: user.id, days });
+
+        const trends = await getTrendData(user.id, days);
+        setTrendData(trends);
+
+        logInfo('analytics', 'Trend data loaded successfully', { dataPoints: trends.length });
+      } catch (err) {
+        logError('analytics', 'Error loading trend data', { error: err });
+        setError('Failed to load trend data. Please try again.');
+        setTrendData([]);
+      } finally {
+        setIsLoadingTrends(false);
+      }
+    },
+    [user?.id]
+  );
 
   // Load insights with real data
   const loadInsights = useCallback(async () => {
@@ -154,30 +160,33 @@ export const useAnalytics = (): UseAnalyticsReturn => {
       setInsights([]);
       return;
     }
-    
+
     setIsLoadingInsights(true);
     setError(null);
-    
+
     try {
       logInfo('analytics', 'Generating insights', { userId: user.id });
-      
-      const currentPeriodAnalytics = selectedPeriod === 'week' ? weekAnalytics 
-        : selectedPeriod === 'month' ? monthAnalytics 
-        : yearAnalytics;
-      
+
+      const currentPeriodAnalytics =
+        selectedPeriod === 'week'
+          ? weekAnalytics
+          : selectedPeriod === 'month'
+            ? monthAnalytics
+            : yearAnalytics;
+
       if (!currentPeriodAnalytics) {
         setInsights([]);
         return;
       }
-      
+
       const generatedInsights = await generateInsights(
         user.id,
         habitAnalytics,
         currentPeriodAnalytics
       );
-      
+
       setInsights(generatedInsights);
-      
+
       logInfo('analytics', 'Insights generated successfully', { count: generatedInsights.length });
     } catch (err) {
       logError('analytics', 'Error generating insights', { error: err });
@@ -192,18 +201,18 @@ export const useAnalytics = (): UseAnalyticsReturn => {
   const refreshAnalytics = useCallback(async () => {
     // Clear any previous errors when refreshing
     setError(null);
-    
-    await Promise.all([
-      loadHabitAnalytics(),
-      loadPeriodAnalytics()
-    ]);
+
+    await Promise.all([loadHabitAnalytics(), loadPeriodAnalytics()]);
   }, [loadHabitAnalytics, loadPeriodAnalytics]);
 
-  const refreshTrends = useCallback(async (days?: number) => {
-    // Clear any previous errors when refreshing
-    setError(null);
-    await loadTrendData(days);
-  }, [loadTrendData]);
+  const refreshTrends = useCallback(
+    async (days?: number) => {
+      // Clear any previous errors when refreshing
+      setError(null);
+      await loadTrendData(days);
+    },
+    [loadTrendData]
+  );
 
   const refreshInsights = useCallback(async () => {
     // Clear any previous errors when refreshing
@@ -248,22 +257,22 @@ export const useAnalytics = (): UseAnalyticsReturn => {
     yearAnalytics,
     trendData,
     insights,
-    
+
     // Loading states
     isLoadingAnalytics,
     isLoadingTrends,
     isLoadingInsights,
-    
+
     // Actions
     refreshAnalytics,
     refreshTrends,
     refreshInsights,
-    
+
     // Utility
     selectedPeriod,
     setSelectedPeriod,
     getCurrentPeriodAnalytics,
-    error
+    error,
   };
 };
 

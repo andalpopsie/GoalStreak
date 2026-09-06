@@ -1,12 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  TextInput,
-  Modal,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography } from '../../constants/theme';
@@ -22,11 +15,11 @@ interface SearchModalProps {
   sendingRequestTo: string | null;
 }
 
-export default function SearchModal({ 
-  visible, 
-  onClose, 
-  onSendFriendRequest, 
-  sendingRequestTo
+export default function SearchModal({
+  visible,
+  onClose,
+  onSendFriendRequest,
+  sendingRequestTo,
 }: SearchModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<UserSearchResult[]>([]);
@@ -74,11 +67,7 @@ export default function SearchModal({
   };
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      presentationStyle="pageSheet"
-    >
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={handleClose}>
@@ -91,7 +80,12 @@ export default function SearchModal({
         <View style={styles.content}>
           {/* Search Input */}
           <View style={styles.searchContainer}>
-            <Ionicons name="search" size={20} color={Colors.secondaryText} style={styles.searchIcon} />
+            <Ionicons
+              name="search"
+              size={20}
+              color={Colors.secondaryText}
+              style={styles.searchIcon}
+            />
             <TextInput
               style={styles.searchInput}
               placeholder="Search by name or email..."
@@ -133,10 +127,14 @@ export default function SearchModal({
                         styles.addButton,
                         sendingRequestTo === user.id && styles.addButtonDisabled,
                         user.hasPendingRequest && styles.addButtonPending,
-                        user.isFriend && styles.addButtonFriends
+                        user.isFriend && styles.addButtonFriends,
                       ]}
-                      onPress={() => !user.isFriend && !user.hasPendingRequest ? onSendFriendRequest(user) : null}
-                      disabled={sendingRequestTo === user.id || user.isFriend || user.hasPendingRequest}
+                      onPress={() =>
+                        !user.isFriend && !user.hasPendingRequest ? onSendFriendRequest(user) : null
+                      }
+                      disabled={
+                        sendingRequestTo === user.id || user.isFriend || user.hasPendingRequest
+                      }
                     >
                       {sendingRequestTo === user.id ? (
                         <Ionicons name="hourglass" size={16} color={Colors.white} />
@@ -148,9 +146,13 @@ export default function SearchModal({
                         <Ionicons name="person-add" size={16} color={Colors.white} />
                       )}
                       <Text style={styles.addButtonText}>
-                        {sendingRequestTo === user.id ? 'Sending...' :
-                         user.isFriend ? 'Friends' :
-                         user.hasPendingRequest ? 'Pending' : 'Add'}
+                        {sendingRequestTo === user.id
+                          ? 'Sending...'
+                          : user.isFriend
+                            ? 'Friends'
+                            : user.hasPendingRequest
+                              ? 'Pending'
+                              : 'Add'}
                       </Text>
                     </TouchableOpacity>
                   </View>
@@ -159,14 +161,18 @@ export default function SearchModal({
                 <View style={styles.emptyState}>
                   <Ionicons name="search" size={48} color={Colors.secondaryText} />
                   <Text style={styles.emptyStateText}>No users found</Text>
-                  <Text style={styles.emptyStateSubtext}>Try searching with a different name or email</Text>
+                  <Text style={styles.emptyStateSubtext}>
+                    Try searching with a different name or email
+                  </Text>
                 </View>
               )
             ) : (
               <View style={styles.emptyState}>
                 <Ionicons name="people" size={48} color={Colors.secondaryText} />
                 <Text style={styles.emptyStateText}>Find Friends</Text>
-                <Text style={styles.emptyStateSubtext}>Search for users by name or email to send friend requests</Text>
+                <Text style={styles.emptyStateSubtext}>
+                  Search for users by name or email to send friend requests
+                </Text>
               </View>
             )}
           </View>

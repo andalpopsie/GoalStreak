@@ -150,12 +150,7 @@ export default function ReportReasonSheet({
   const confirmDisabled = selectedReason === null || isSubmitting || isSuccess;
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent
-      onRequestClose={handleRequestClose}
-    >
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleRequestClose}>
       {/* Backdrop — tap outside the sheet to dismiss */}
       <Pressable
         style={styles.backdrop}
@@ -199,10 +194,7 @@ export default function ReportReasonSheet({
               <Text style={styles.prompt}>Why are you reporting this?</Text>
 
               {/* Reason options — standard list-row recipe */}
-              <ScrollView
-                style={styles.optionsScroll}
-                showsVerticalScrollIndicator={false}
-              >
+              <ScrollView style={styles.optionsScroll} showsVerticalScrollIndicator={false}>
                 {REASON_OPTIONS.map((option) => {
                   const selected = selectedReason === option.reason;
                   return (
@@ -267,106 +259,106 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     paddingHorizontal: Spacing.comfortable, // 24
-    paddingTop: Spacing.base,               // 16
-    paddingBottom: Spacing.base,            // 16
+    paddingTop: Spacing.base, // 16
+    paddingBottom: Spacing.base, // 16
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
-    marginBottom: Spacing.base,             // 16
+    marginBottom: Spacing.base, // 16
   },
   headerText: {
     flex: 1,
-    marginRight: Spacing.base,              // 16
+    marginRight: Spacing.base, // 16
   },
   title: {
-    fontSize: Typography.fontSize.heading,  // 24
-    fontWeight: Typography.fontWeight.bold,  // '700'
+    fontSize: Typography.fontSize.heading, // 24
+    fontWeight: Typography.fontWeight.bold, // '700'
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.bold,
   },
   subtitle: {
-    fontSize: Typography.fontSize.caption,  // 14
+    fontSize: Typography.fontSize.caption, // 14
     fontWeight: Typography.fontWeight.regular, // '400'
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.regular,
     marginTop: 4,
   },
   closeButton: {
-    width: 48,                              // touch target ≥ 48px
+    width: 48, // touch target ≥ 48px
     height: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -Spacing.tight,              // pull up to align with title
+    marginTop: -Spacing.tight, // pull up to align with title
     marginRight: -Spacing.tight,
   },
   prompt: {
-    fontSize: Typography.fontSize.body,     // 16
+    fontSize: Typography.fontSize.body, // 16
     fontWeight: Typography.fontWeight.semibold, // '600'
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,
-    marginBottom: Spacing.tight,            // 8
+    marginBottom: Spacing.tight, // 8
   },
   optionsScroll: {
     // Cap height so a long list stays scrollable within the sheet on small
     // screens; six rows fit comfortably below this on most devices.
-    maxHeight: 336,                         // 8 × 42 (≈ six 56px rows)
+    maxHeight: 336, // 8 × 42 (≈ six 56px rows)
   },
   optionRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: Spacing.base,          // 16
-    minHeight: 56,                          // 8 × 7 (touch target / list recipe)
+    paddingVertical: Spacing.base, // 16
+    minHeight: 56, // 8 × 7 (touch target / list recipe)
     borderBottomWidth: 1,
-    borderBottomColor: Colors.gray.light,   // #E8E8E8
+    borderBottomColor: Colors.gray.light, // #E8E8E8
   },
   optionLabel: {
     flex: 1,
-    fontSize: Typography.fontSize.body,     // 16
+    fontSize: Typography.fontSize.body, // 16
     fontWeight: Typography.fontWeight.regular, // '400'
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.regular,
-    marginRight: Spacing.base,              // 16
+    marginRight: Spacing.base, // 16
   },
   errorText: {
-    marginTop: Spacing.base,                // 16
-    fontSize: Typography.fontSize.caption,  // 14
+    marginTop: Spacing.base, // 16
+    fontSize: Typography.fontSize.caption, // 14
     fontWeight: Typography.fontWeight.regular, // '400'
-    color: Colors.error,                    // #FF4444
+    color: Colors.error, // #FF4444
     fontFamily: Typography.fontFamily.regular,
     textAlign: 'center',
   },
   confirmButton: {
-    minHeight: 56,                          // 8 × 7 (primary CTA)
+    minHeight: 56, // 8 × 7 (primary CTA)
     borderRadius: 12,
-    backgroundColor: Colors.accent1,        // #B771E5
+    backgroundColor: Colors.accent1, // #B771E5
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: Spacing.comfortable, // 24
-    marginTop: Spacing.comfortable,         // 24 — separate CTA from option rows
+    marginTop: Spacing.comfortable, // 24 — separate CTA from option rows
   },
   confirmButtonDisabled: {
     opacity: 0.5,
   },
   confirmButtonText: {
-    fontSize: Typography.fontSize.body,     // 16
-    fontWeight: Typography.fontWeight.bold,  // '700'
+    fontSize: Typography.fontSize.body, // 16
+    fontWeight: Typography.fontWeight.bold, // '700'
     color: Colors.white,
     fontFamily: Typography.fontFamily.bold,
   },
   successContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: Spacing.loose,         // 32
+    paddingVertical: Spacing.loose, // 32
   },
   successText: {
-    fontSize: Typography.fontSize.body,     // 16
+    fontSize: Typography.fontSize.body, // 16
     fontWeight: Typography.fontWeight.semibold, // '600'
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,
     textAlign: 'center',
-    marginTop: Spacing.base,                // 16
+    marginTop: Spacing.base, // 16
   },
 });

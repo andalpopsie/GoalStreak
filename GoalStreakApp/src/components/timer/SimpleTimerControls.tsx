@@ -25,7 +25,6 @@ export default function SimpleTimerControls({
   compact = false,
   disabled = false,
 }: SimpleTimerControlsProps) {
-  
   const buttonSize = compact ? 36 : 44;
   const iconSize = compact ? 18 : 24;
 
@@ -38,7 +37,7 @@ export default function SimpleTimerControls({
           onPress: onStart,
           color: Colors.accent1,
           label: 'Start',
-        }
+        },
       ];
     }
 
@@ -55,7 +54,7 @@ export default function SimpleTimerControls({
           onPress: onReset,
           color: Colors.gray.dark,
           label: 'Stop',
-        }
+        },
       ];
     }
 
@@ -72,7 +71,7 @@ export default function SimpleTimerControls({
           onPress: onReset,
           color: Colors.gray.dark,
           label: 'Stop',
-        }
+        },
       ];
     }
 
@@ -82,7 +81,7 @@ export default function SimpleTimerControls({
         onPress: onReset,
         color: Colors.accent1,
         label: 'Reset',
-      }
+      },
     ];
   };
 
@@ -107,11 +106,7 @@ export default function SimpleTimerControls({
           disabled={disabled}
           activeOpacity={0.7}
         >
-          <Ionicons
-            name={button.icon}
-            size={iconSize}
-            color={Colors.white}
-          />
+          <Ionicons name={button.icon} size={iconSize} color={Colors.white} />
         </TouchableOpacity>
       ))}
     </View>

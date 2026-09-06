@@ -23,10 +23,10 @@ interface ThemeProviderProps {
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const systemColorScheme = useColorScheme();
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
-  
+
   // Calculate if dark mode should be active
-  const isDarkMode = themeMode === 'dark' || 
-    (themeMode === 'system' && systemColorScheme === 'dark');
+  const isDarkMode =
+    themeMode === 'dark' || (themeMode === 'system' && systemColorScheme === 'dark');
 
   // Load saved theme preference
   useEffect(() => {
@@ -40,7 +40,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
         console.error('Error loading theme preference:', error);
       }
     };
-    
+
     loadTheme();
   }, []);
 
@@ -67,11 +67,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     toggleTheme,
   };
 
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme(): ThemeContextType {

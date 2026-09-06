@@ -2,13 +2,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './useAuth';
 import groupService from '../services/groupService';
-import {
-  Group,
-  GroupActivity,
-  GroupProgress,
-  TrackedHabit,
-  ReactionType,
-} from '../types/social';
+import { Group, GroupActivity, GroupProgress, TrackedHabit, ReactionType } from '../types/social';
 
 interface UseGroupDetailReturn {
   // State
@@ -80,16 +74,13 @@ export const useGroupDetail = (groupId: string): UseGroupDetailReturn => {
     fetchGroup();
 
     // Subscribe to user's groups to catch membership/status changes
-    const unsubscribe = groupService.subscribeToUserGroups(
-      user.id,
-      (groups) => {
-        const updatedGroup = groups.find(g => g.id === groupId);
-        if (updatedGroup) {
-          setGroup(updatedGroup);
-        }
-        // If group disappears from active list (ended or removed), keep last known state
+    const unsubscribe = groupService.subscribeToUserGroups(user.id, (groups) => {
+      const updatedGroup = groups.find((g) => g.id === groupId);
+      if (updatedGroup) {
+        setGroup(updatedGroup);
       }
-    );
+      // If group disappears from active list (ended or removed), keep last known state
+    });
 
     return unsubscribe;
   }, [groupId, user?.id]);
@@ -101,12 +92,9 @@ export const useGroupDetail = (groupId: string): UseGroupDetailReturn => {
       return;
     }
 
-    const unsubscribe = groupService.subscribeToGroupFeed(
-      groupId,
-      (activities) => {
-        setFeed(activities);
-      }
-    );
+    const unsubscribe = groupService.subscribeToGroupFeed(groupId, (activities) => {
+      setFeed(activities);
+    });
 
     return unsubscribe;
   }, [groupId]);
@@ -119,12 +107,9 @@ export const useGroupDetail = (groupId: string): UseGroupDetailReturn => {
       return;
     }
 
-    const unsubscribe = groupService.subscribeToGroupProgress(
-      groupId,
-      (updatedProgress) => {
-        setProgress(updatedProgress);
-      }
-    );
+    const unsubscribe = groupService.subscribeToGroupProgress(groupId, (updatedProgress) => {
+      setProgress(updatedProgress);
+    });
 
     // Also fetch tracked habits directly for the linking UI
     const fetchTrackedHabits = async () => {
@@ -154,79 +139,86 @@ export const useGroupDetail = (groupId: string): UseGroupDetailReturn => {
 
   // ── Actions ──
 
-  const linkHabits = useCallback(async (
-    habits: { id: string; name: string; category: string }[]
-  ): Promise<void> => {
-    if (!user?.id) throw new Error('User not authenticated');
+  const linkHabits = useCallback(
+    async (habits: { id: string; name: string; category: string }[]): Promise<void> => {
+      if (!user?.id) throw new Error('User not authenticated');
 
-    setIsLinking(true);
-    setError(null);
+      setIsLinking(true);
+      setError(null);
 
-    try {
-      await groupService.linkHabits(groupId, user.id, habits);
-      // Refresh tracked habits after linking
-      const updated = await groupService.getTrackedHabits(groupId);
-      setTrackedHabits(updated);
-    } catch (err: any) {
-      console.error('Error linking habits:', err);
-      const message = err.message || 'Failed to link habits';
-      setError(message);
-      throw err;
-    } finally {
-      setIsLinking(false);
-    }
-  }, [groupId, user?.id]);
+      try {
+        await groupService.linkHabits(groupId, user.id, habits);
+        // Refresh tracked habits after linking
+        const updated = await groupService.getTrackedHabits(groupId);
+        setTrackedHabits(updated);
+      } catch (err: any) {
+        console.error('Error linking habits:', err);
+        const message = err.message || 'Failed to link habits';
+        setError(message);
+        throw err;
+      } finally {
+        setIsLinking(false);
+      }
+    },
+    [groupId, user?.id]
+  );
 
-  const unlinkHabit = useCallback(async (habitId: string): Promise<void> => {
-    if (!user?.id) throw new Error('User not authenticated');
+  const unlinkHabit = useCallback(
+    async (habitId: string): Promise<void> => {
+      if (!user?.id) throw new Error('User not authenticated');
 
-    setError(null);
+      setError(null);
 
-    try {
-      await groupService.unlinkHabit(groupId, user.id, habitId);
-      // Refresh tracked habits after unlinking
-      const updated = await groupService.getTrackedHabits(groupId);
-      setTrackedHabits(updated);
-    } catch (err: any) {
-      console.error('Error unlinking habit:', err);
-      const message = err.message || 'Failed to unlink habit';
-      setError(message);
-      throw err;
-    }
-  }, [groupId, user?.id]);
+      try {
+        await groupService.unlinkHabit(groupId, user.id, habitId);
+        // Refresh tracked habits after unlinking
+        const updated = await groupService.getTrackedHabits(groupId);
+        setTrackedHabits(updated);
+      } catch (err: any) {
+        console.error('Error unlinking habit:', err);
+        const message = err.message || 'Failed to unlink habit';
+        setError(message);
+        throw err;
+      }
+    },
+    [groupId, user?.id]
+  );
 
-  const inviteMember = useCallback(async (
-    friendId: string,
-    friendName: string
-  ): Promise<void> => {
-    if (!user?.id) throw new Error('User not authenticated');
+  const inviteMember = useCallback(
+    async (friendId: string, friendName: string): Promise<void> => {
+      if (!user?.id) throw new Error('User not authenticated');
 
-    setError(null);
+      setError(null);
 
-    try {
-      await groupService.inviteMember(groupId, user.id, friendId, friendName);
-    } catch (err: any) {
-      console.error('Error inviting member:', err);
-      const message = err.message || 'Failed to invite member';
-      setError(message);
-      throw err;
-    }
-  }, [groupId, user?.id]);
+      try {
+        await groupService.inviteMember(groupId, user.id, friendId, friendName);
+      } catch (err: any) {
+        console.error('Error inviting member:', err);
+        const message = err.message || 'Failed to invite member';
+        setError(message);
+        throw err;
+      }
+    },
+    [groupId, user?.id]
+  );
 
-  const removeMember = useCallback(async (memberId: string): Promise<void> => {
-    if (!user?.id) throw new Error('User not authenticated');
+  const removeMember = useCallback(
+    async (memberId: string): Promise<void> => {
+      if (!user?.id) throw new Error('User not authenticated');
 
-    setError(null);
+      setError(null);
 
-    try {
-      await groupService.removeMember(groupId, user.id, memberId);
-    } catch (err: any) {
-      console.error('Error removing member:', err);
-      const message = err.message || 'Failed to remove member';
-      setError(message);
-      throw err;
-    }
-  }, [groupId, user?.id]);
+      try {
+        await groupService.removeMember(groupId, user.id, memberId);
+      } catch (err: any) {
+        console.error('Error removing member:', err);
+        const message = err.message || 'Failed to remove member';
+        setError(message);
+        throw err;
+      }
+    },
+    [groupId, user?.id]
+  );
 
   const leaveGroup = useCallback(async (): Promise<void> => {
     if (!user?.id) throw new Error('User not authenticated');
@@ -258,41 +250,42 @@ export const useGroupDetail = (groupId: string): UseGroupDetailReturn => {
     }
   }, [groupId, user?.id]);
 
-  const updateGroup = useCallback(async (
-    updates: Partial<Pick<Group, 'name' | 'description' | 'endDate'>>
-  ): Promise<void> => {
-    setError(null);
+  const updateGroup = useCallback(
+    async (updates: Partial<Pick<Group, 'name' | 'description' | 'endDate'>>): Promise<void> => {
+      setError(null);
 
-    try {
-      await groupService.updateGroup(groupId, updates);
-      // Re-fetch group to get updated data
-      const updatedGroup = await groupService.getGroup(groupId);
-      setGroup(updatedGroup);
-    } catch (err: any) {
-      console.error('Error updating group:', err);
-      const message = err.message || 'Failed to update group';
-      setError(message);
-      throw err;
-    }
-  }, [groupId]);
+      try {
+        await groupService.updateGroup(groupId, updates);
+        // Re-fetch group to get updated data
+        const updatedGroup = await groupService.getGroup(groupId);
+        setGroup(updatedGroup);
+      } catch (err: any) {
+        console.error('Error updating group:', err);
+        const message = err.message || 'Failed to update group';
+        setError(message);
+        throw err;
+      }
+    },
+    [groupId]
+  );
 
-  const addReaction = useCallback(async (
-    activityId: string,
-    reactionType: ReactionType
-  ): Promise<void> => {
-    if (!user?.id) throw new Error('User not authenticated');
+  const addReaction = useCallback(
+    async (activityId: string, reactionType: ReactionType): Promise<void> => {
+      if (!user?.id) throw new Error('User not authenticated');
 
-    setError(null);
+      setError(null);
 
-    try {
-      await groupService.addGroupReaction(activityId, user.id, reactionType);
-    } catch (err: any) {
-      console.error('Error adding reaction:', err);
-      const message = err.message || 'Failed to add reaction';
-      setError(message);
-      throw err;
-    }
-  }, [user?.id]);
+      try {
+        await groupService.addGroupReaction(activityId, user.id, reactionType);
+      } catch (err: any) {
+        console.error('Error adding reaction:', err);
+        const message = err.message || 'Failed to add reaction';
+        setError(message);
+        throw err;
+      }
+    },
+    [user?.id]
+  );
 
   return {
     // State

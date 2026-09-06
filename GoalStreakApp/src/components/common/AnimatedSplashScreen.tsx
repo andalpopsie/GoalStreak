@@ -97,7 +97,10 @@ export function AnimatedSplashScreen({ onComplete }: Props) {
         {/* Lines drawn behind dots */}
         <AnimatedLine
           animatedProps={l1Props}
-          x1={10} y1={62} x2={40} y2={40}
+          x1={10}
+          y1={62}
+          x2={40}
+          y2={40}
           stroke="white"
           strokeWidth={5.5}
           strokeLinecap="round"
@@ -105,7 +108,10 @@ export function AnimatedSplashScreen({ onComplete }: Props) {
         />
         <AnimatedLine
           animatedProps={l2Props}
-          x1={40} y1={40} x2={70} y2={18}
+          x1={40}
+          y1={40}
+          x2={70}
+          y2={18}
           stroke="white"
           strokeWidth={5.5}
           strokeLinecap="round"
@@ -118,9 +124,7 @@ export function AnimatedSplashScreen({ onComplete }: Props) {
       </Svg>
 
       <Animated.Text style={[styles.title, titleStyle]}>Goalfer</Animated.Text>
-      <Animated.Text style={[styles.tagline, taglineStyle]}>
-        Your goals. Your squad.
-      </Animated.Text>
+      <Animated.Text style={[styles.tagline, taglineStyle]}>Your goals. Your squad.</Animated.Text>
     </Animated.View>
   );
 }

@@ -1,6 +1,6 @@
 /**
  * iOS Comprehensive Testing Suite
- * 
+ *
  * This test suite covers all iOS-specific requirements for pre-launch testing:
  * - Device compatibility (iPhone SE, iPhone 14, iPhone 14 Pro Max, iPad)
  * - iOS version compatibility (iOS 15.0+)
@@ -41,7 +41,7 @@ export interface TestResult {
 
 export class IOSTestSuite {
   private testResults: TestResult[] = [];
-  
+
   // iOS Device Matrix for Testing
   static readonly SUPPORTED_DEVICES: IOSDevice[] = [
     {
@@ -49,44 +49,66 @@ export class IOSTestSuite {
       screenSize: { width: 375, height: 667 },
       scale: 2,
       minIOSVersion: '15.0',
-      category: 'iPhone'
+      category: 'iPhone',
     },
     {
       name: 'iPhone 14',
       screenSize: { width: 390, height: 844 },
       scale: 3,
       minIOSVersion: '16.0',
-      category: 'iPhone'
+      category: 'iPhone',
     },
     {
       name: 'iPhone 14 Pro Max',
       screenSize: { width: 430, height: 932 },
       scale: 3,
       minIOSVersion: '16.0',
-      category: 'iPhone'
+      category: 'iPhone',
     },
     {
       name: 'iPad (9th generation)',
       screenSize: { width: 810, height: 1080 },
       scale: 2,
       minIOSVersion: '15.0',
-      category: 'iPad'
+      category: 'iPad',
     },
     {
       name: 'iPad Pro 11"',
       screenSize: { width: 834, height: 1194 },
       scale: 2,
       minIOSVersion: '15.0',
-      category: 'iPad'
-    }
+      category: 'iPad',
+    },
   ];
 
   // iOS Version Compatibility Matrix
   static readonly SUPPORTED_IOS_VERSIONS = [
-    '15.0', '15.1', '15.2', '15.3', '15.4', '15.5', '15.6', '15.7',
-    '16.0', '16.1', '16.2', '16.3', '16.4', '16.5', '16.6', '16.7',
-    '17.0', '17.1', '17.2', '17.3', '17.4', '17.5', '17.6',
-    '18.0', '18.1', '18.2'
+    '15.0',
+    '15.1',
+    '15.2',
+    '15.3',
+    '15.4',
+    '15.5',
+    '15.6',
+    '15.7',
+    '16.0',
+    '16.1',
+    '16.2',
+    '16.3',
+    '16.4',
+    '16.5',
+    '16.6',
+    '16.7',
+    '17.0',
+    '17.1',
+    '17.2',
+    '17.3',
+    '17.4',
+    '17.5',
+    '17.6',
+    '18.0',
+    '18.1',
+    '18.2',
   ];
 
   // Test Scenarios
@@ -98,7 +120,7 @@ export class IOSTestSuite {
       description: 'Test app functionality on iPhone SE (smallest supported screen)',
       category: 'device',
       priority: 'critical',
-      requirements: ['5.1']
+      requirements: ['5.1'],
     },
     {
       id: 'device-iphone-14',
@@ -106,7 +128,7 @@ export class IOSTestSuite {
       description: 'Test app functionality on iPhone 14 (standard size)',
       category: 'device',
       priority: 'critical',
-      requirements: ['5.1']
+      requirements: ['5.1'],
     },
     {
       id: 'device-iphone-14-pro-max',
@@ -114,7 +136,7 @@ export class IOSTestSuite {
       description: 'Test app functionality on iPhone 14 Pro Max (largest iPhone)',
       category: 'device',
       priority: 'critical',
-      requirements: ['5.1']
+      requirements: ['5.1'],
     },
     {
       id: 'device-ipad',
@@ -122,7 +144,7 @@ export class IOSTestSuite {
       description: 'Test app functionality on iPad (tablet form factor)',
       category: 'device',
       priority: 'high',
-      requirements: ['5.1']
+      requirements: ['5.1'],
     },
 
     // iOS Version Compatibility Tests
@@ -132,7 +154,7 @@ export class IOSTestSuite {
       description: 'Test app functionality on minimum supported iOS version',
       category: 'version',
       priority: 'critical',
-      requirements: ['5.2']
+      requirements: ['5.2'],
     },
     {
       id: 'version-ios-16',
@@ -140,7 +162,7 @@ export class IOSTestSuite {
       description: 'Test app functionality on iOS 16',
       category: 'version',
       priority: 'high',
-      requirements: ['5.2']
+      requirements: ['5.2'],
     },
     {
       id: 'version-ios-17',
@@ -148,7 +170,7 @@ export class IOSTestSuite {
       description: 'Test app functionality on iOS 17',
       category: 'version',
       priority: 'high',
-      requirements: ['5.2']
+      requirements: ['5.2'],
     },
 
     // Core User Flow Tests
@@ -158,7 +180,7 @@ export class IOSTestSuite {
       description: 'Test complete user onboarding experience',
       category: 'userFlow',
       priority: 'critical',
-      requirements: ['5.3']
+      requirements: ['5.3'],
     },
     {
       id: 'flow-habit-creation',
@@ -166,7 +188,7 @@ export class IOSTestSuite {
       description: 'Test habit creation and management',
       category: 'userFlow',
       priority: 'critical',
-      requirements: ['5.3']
+      requirements: ['5.3'],
     },
     {
       id: 'flow-habit-completion',
@@ -174,7 +196,7 @@ export class IOSTestSuite {
       description: 'Test habit completion and streak tracking',
       category: 'userFlow',
       priority: 'critical',
-      requirements: ['5.3']
+      requirements: ['5.3'],
     },
     {
       id: 'flow-social-features',
@@ -182,7 +204,7 @@ export class IOSTestSuite {
       description: 'Test friend management and social interactions',
       category: 'userFlow',
       priority: 'critical',
-      requirements: ['5.3']
+      requirements: ['5.3'],
     },
     {
       id: 'flow-analytics',
@@ -190,7 +212,7 @@ export class IOSTestSuite {
       description: 'Test analytics dashboard and insights',
       category: 'userFlow',
       priority: 'high',
-      requirements: ['5.3']
+      requirements: ['5.3'],
     },
 
     // iOS-Specific Feature Tests
@@ -200,7 +222,7 @@ export class IOSTestSuite {
       description: 'Test iOS haptic feedback integration',
       category: 'iosFeature',
       priority: 'high',
-      requirements: ['5.4']
+      requirements: ['5.4'],
     },
     {
       id: 'ios-notifications',
@@ -208,7 +230,7 @@ export class IOSTestSuite {
       description: 'Test iOS notification system integration',
       category: 'iosFeature',
       priority: 'critical',
-      requirements: ['5.4']
+      requirements: ['5.4'],
     },
     {
       id: 'ios-background-app-refresh',
@@ -216,7 +238,7 @@ export class IOSTestSuite {
       description: 'Test app behavior with background refresh',
       category: 'iosFeature',
       priority: 'medium',
-      requirements: ['5.4']
+      requirements: ['5.4'],
     },
     {
       id: 'ios-app-state-transitions',
@@ -224,7 +246,7 @@ export class IOSTestSuite {
       description: 'Test app behavior during state transitions (background/foreground)',
       category: 'iosFeature',
       priority: 'high',
-      requirements: ['5.4']
+      requirements: ['5.4'],
     },
     {
       id: 'ios-memory-management',
@@ -232,7 +254,7 @@ export class IOSTestSuite {
       description: 'Test app memory usage and management on iOS',
       category: 'iosFeature',
       priority: 'high',
-      requirements: ['5.4']
+      requirements: ['5.4'],
     },
     {
       id: 'ios-accessibility',
@@ -240,7 +262,7 @@ export class IOSTestSuite {
       description: 'Test VoiceOver and accessibility features',
       category: 'iosFeature',
       priority: 'high',
-      requirements: ['5.5']
+      requirements: ['5.5'],
     },
     {
       id: 'ios-dark-mode',
@@ -248,7 +270,7 @@ export class IOSTestSuite {
       description: 'Test app appearance in iOS dark mode',
       category: 'iosFeature',
       priority: 'medium',
-      requirements: ['5.5']
+      requirements: ['5.5'],
     },
     {
       id: 'ios-safe-area',
@@ -256,15 +278,15 @@ export class IOSTestSuite {
       description: 'Test safe area handling on devices with notches',
       category: 'iosFeature',
       priority: 'high',
-      requirements: ['5.5']
-    }
+      requirements: ['5.5'],
+    },
   ];
 
   /**
    * Run a specific test scenario
    */
   async runTestScenario(scenarioId: string, device?: IOSDevice): Promise<TestResult> {
-    const scenario = IOSTestSuite.TEST_SCENARIOS.find(s => s.id === scenarioId);
+    const scenario = IOSTestSuite.TEST_SCENARIOS.find((s) => s.id === scenarioId);
     if (!scenario) {
       throw new Error(`Test scenario ${scenarioId} not found`);
     }
@@ -279,7 +301,7 @@ export class IOSTestSuite {
         passed,
         duration: Date.now() - startTime,
         timestamp: new Date(),
-        deviceInfo: device
+        deviceInfo: device,
       };
     } catch (error) {
       result = {
@@ -288,7 +310,7 @@ export class IOSTestSuite {
         error: error instanceof Error ? error.message : String(error),
         duration: Date.now() - startTime,
         timestamp: new Date(),
-        deviceInfo: device
+        deviceInfo: device,
       };
     }
 
@@ -301,7 +323,7 @@ export class IOSTestSuite {
    */
   async runAllTests(): Promise<TestResult[]> {
     const results: TestResult[] = [];
-    
+
     for (const scenario of IOSTestSuite.TEST_SCENARIOS) {
       if (scenario.category === 'device') {
         // Run device-specific tests on each supported device
@@ -325,7 +347,7 @@ export class IOSTestSuite {
   private async executeTest(scenario: IOSTestScenario, device?: IOSDevice): Promise<boolean> {
     // This is where the actual test implementation would go
     // For now, we'll simulate test execution
-    
+
     switch (scenario.category) {
       case 'device':
         return this.testDeviceCompatibility(scenario, device);
@@ -354,8 +376,8 @@ export class IOSTestSuite {
 
     // Check screen dimensions
     const { width, height } = Dimensions.get('window');
-    const isCompatible = width >= device.screenSize.width * 0.9 && 
-                        height >= device.screenSize.height * 0.9;
+    const isCompatible =
+      width >= device.screenSize.width * 0.9 && height >= device.screenSize.height * 0.9;
 
     return isCompatible;
   }
@@ -370,7 +392,7 @@ export class IOSTestSuite {
 
     const iosVersion = Platform.Version as string;
     const minVersion = '15.0';
-    
+
     return this.compareVersions(iosVersion, minVersion) >= 0;
   }
 
@@ -398,15 +420,15 @@ export class IOSTestSuite {
   private compareVersions(version1: string, version2: string): number {
     const v1parts = version1.split('.').map(Number);
     const v2parts = version2.split('.').map(Number);
-    
+
     for (let i = 0; i < Math.max(v1parts.length, v2parts.length); i++) {
       const v1part = v1parts[i] || 0;
       const v2part = v2parts[i] || 0;
-      
+
       if (v1part > v2part) return 1;
       if (v1part < v2part) return -1;
     }
-    
+
     return 0;
   }
 
@@ -421,13 +443,13 @@ export class IOSTestSuite {
     criticalFailures: number;
   } {
     const total = this.testResults.length;
-    const passed = this.testResults.filter(r => r.passed).length;
+    const passed = this.testResults.filter((r) => r.passed).length;
     const failed = total - passed;
     const passRate = total > 0 ? (passed / total) * 100 : 0;
-    
-    const criticalFailures = this.testResults.filter(r => {
+
+    const criticalFailures = this.testResults.filter((r) => {
       if (r.passed) return false;
-      const scenario = IOSTestSuite.TEST_SCENARIOS.find(s => s.id === r.scenarioId);
+      const scenario = IOSTestSuite.TEST_SCENARIOS.find((s) => s.id === r.scenarioId);
       return scenario?.priority === 'critical';
     }).length;
 
@@ -436,7 +458,7 @@ export class IOSTestSuite {
       passed,
       failed,
       passRate,
-      criticalFailures
+      criticalFailures,
     };
   }
 
@@ -456,31 +478,31 @@ export class IOSTestSuite {
       `- Critical Failures: ${summary.criticalFailures}`,
       '',
       '## Test Results by Category',
-      ''
+      '',
     ];
 
     const categories = ['device', 'version', 'userFlow', 'iosFeature'];
-    
+
     for (const category of categories) {
-      const categoryResults = this.testResults.filter(r => {
-        const scenario = IOSTestSuite.TEST_SCENARIOS.find(s => s.id === r.scenarioId);
+      const categoryResults = this.testResults.filter((r) => {
+        const scenario = IOSTestSuite.TEST_SCENARIOS.find((s) => s.id === r.scenarioId);
         return scenario?.category === category;
       });
 
       report.push(`### ${category.charAt(0).toUpperCase() + category.slice(1)} Tests`);
-      
+
       for (const result of categoryResults) {
-        const scenario = IOSTestSuite.TEST_SCENARIOS.find(s => s.id === result.scenarioId);
+        const scenario = IOSTestSuite.TEST_SCENARIOS.find((s) => s.id === result.scenarioId);
         const status = result.passed ? '✅' : '❌';
         const device = result.deviceInfo ? ` (${result.deviceInfo.name})` : '';
-        
+
         report.push(`${status} ${scenario?.name}${device}`);
-        
+
         if (!result.passed && result.error) {
           report.push(`   Error: ${result.error}`);
         }
       }
-      
+
       report.push('');
     }
 

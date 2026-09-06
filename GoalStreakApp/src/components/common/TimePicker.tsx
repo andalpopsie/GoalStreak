@@ -28,19 +28,13 @@ export default function TimePicker({
           {Array.from({ length: 12 }, (_, i) => i + 1).map((hour) => (
             <TouchableOpacity
               key={hour}
-              style={[
-                styles.pickerOption,
-                selectedHour === hour && styles.pickerOptionSelected
-              ]}
+              style={[styles.pickerOption, selectedHour === hour && styles.pickerOptionSelected]}
               onPress={() => onHourChange(hour)}
               accessibilityRole="button"
               accessibilityLabel={`Select hour ${hour}`}
               accessibilityState={{ selected: selectedHour === hour }}
             >
-              <Text style={[
-                styles.pickerText,
-                selectedHour === hour && styles.pickerTextSelected
-              ]}>
+              <Text style={[styles.pickerText, selectedHour === hour && styles.pickerTextSelected]}>
                 {hour}
               </Text>
             </TouchableOpacity>
@@ -57,17 +51,16 @@ export default function TimePicker({
               key={minute}
               style={[
                 styles.pickerOption,
-                selectedMinute === minute && styles.pickerOptionSelected
+                selectedMinute === minute && styles.pickerOptionSelected,
               ]}
               onPress={() => onMinuteChange(minute)}
               accessibilityRole="button"
               accessibilityLabel={`Select minute ${minute.toString().padStart(2, '0')}`}
               accessibilityState={{ selected: selectedMinute === minute }}
             >
-              <Text style={[
-                styles.pickerText,
-                selectedMinute === minute && styles.pickerTextSelected
-              ]}>
+              <Text
+                style={[styles.pickerText, selectedMinute === minute && styles.pickerTextSelected]}
+              >
                 {minute.toString().padStart(2, '0')}
               </Text>
             </TouchableOpacity>
@@ -84,17 +77,16 @@ export default function TimePicker({
               key={period}
               style={[
                 styles.pickerOption,
-                selectedPeriod === period && styles.pickerOptionSelected
+                selectedPeriod === period && styles.pickerOptionSelected,
               ]}
               onPress={() => onPeriodChange(period as 'AM' | 'PM')}
               accessibilityRole="button"
               accessibilityLabel={`Select ${period}`}
               accessibilityState={{ selected: selectedPeriod === period }}
             >
-              <Text style={[
-                styles.pickerText,
-                selectedPeriod === period && styles.pickerTextSelected
-              ]}>
+              <Text
+                style={[styles.pickerText, selectedPeriod === period && styles.pickerTextSelected]}
+              >
                 {period}
               </Text>
             </TouchableOpacity>

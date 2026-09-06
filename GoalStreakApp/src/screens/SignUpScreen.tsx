@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Image
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -43,7 +43,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
   useEffect(() => {
     trackScreen('SignUpScreen', { source: 'app_navigation' });
     trackEvent('signup_screen_viewed', {
-      source: 'app_navigation'
+      source: 'app_navigation',
     });
   }, []);
 
@@ -97,8 +97,8 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
           has_name: !!form.displayName.trim(),
           has_email: !!form.email.trim(),
           has_password: !!form.password,
-          has_confirm_password: !!form.confirmPassword
-        }
+          has_confirm_password: !!form.confirmPassword,
+        },
       });
       return;
     }
@@ -108,30 +108,30 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
       // Track signup attempt
       trackEvent('signup_started', {
         email_domain: form.email.split('@')[1],
-        name_length: form.displayName.trim().length
+        name_length: form.displayName.trim().length,
       });
 
       await signUp(form.email.trim(), form.password, form.displayName.trim());
-      
+
       // Track successful signup
       trackConversion('first_open', 1, {
         userId: form.email, // Will be updated with actual user ID later
-        source: 'app_signup'
+        source: 'app_signup',
       });
-      
+
       trackEvent('signup_completed', {
         email_domain: form.email.split('@')[1],
-        name_length: form.displayName.trim().length
+        name_length: form.displayName.trim().length,
       });
-      
+
       // Navigation will be handled by the auth state change
     } catch (error: any) {
       // Track signup error
       trackEvent('signup_error', {
         error_message: error.message,
-        email_domain: form.email.split('@')[1]
+        email_domain: form.email.split('@')[1],
       });
-      
+
       Alert.alert('Sign Up Failed', error.message);
     } finally {
       setIsLoading(false);
@@ -144,20 +144,20 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
           bounces={false}
         >
           <View style={styles.header}>
-            <Image 
-              source={require('../../assets/icon.png')} 
+            <Image
+              source={require('../../assets/icon.png')}
               style={styles.logo}
               resizeMode="contain"
             />
@@ -209,9 +209,7 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
               accessibilityLabel="I agree to the Terms of Service, including zero tolerance for objectionable content and abusive behavior."
             >
               <View style={[styles.checkbox, acceptedTerms && styles.checkboxChecked]}>
-                {acceptedTerms && (
-                  <Ionicons name="checkmark" size={16} color={Colors.white} />
-                )}
+                {acceptedTerms && <Ionicons name="checkmark" size={16} color={Colors.white} />}
               </View>
               <Text style={styles.acceptText}>
                 I agree to the{' '}
@@ -248,8 +246,8 @@ export default function SignUpScreen({ navigation }: SignUpScreenProps) {
               By creating an account, you agree to our{' '}
               <TouchableOpacity onPress={openTermsOfService} style={styles.linkContainer}>
                 <Text style={styles.termsLink}>Terms of Service</Text>
-              </TouchableOpacity>
-              {' '}and{' '}
+              </TouchableOpacity>{' '}
+              and{' '}
               <TouchableOpacity onPress={openPrivacyPolicy} style={styles.linkContainer}>
                 <Text style={styles.termsLink}>Privacy Policy</Text>
               </TouchableOpacity>
@@ -271,53 +269,53 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 16,                    // 8 * 2 (base spacing)
-    paddingBottom: 32,              // 8 * 4 (loose)
+    padding: 16, // 8 * 2 (base spacing)
+    paddingBottom: 32, // 8 * 4 (loose)
   },
   header: {
     alignItems: 'center',
-    marginBottom: 32,               // 8 * 4 (loose)
-    paddingTop: 16,                 // 8 * 2 (base)
+    marginBottom: 32, // 8 * 4 (loose)
+    paddingTop: 16, // 8 * 2 (base)
   },
   logo: {
-    width: 96,                      // 8 * 12 (larger for brand presence)
-    height: 96,                     // 8 * 12
-    marginBottom: 24,               // 8 * 3 (comfortable)
+    width: 96, // 8 * 12 (larger for brand presence)
+    height: 96, // 8 * 12
+    marginBottom: 24, // 8 * 3 (comfortable)
   },
   title: {
-    fontSize: 24,                   // heading
-    fontWeight: '700',              // bold
+    fontSize: 24, // heading
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
-    marginBottom: 8,                // 8 * 1 (tight)
+    marginBottom: 8, // 8 * 1 (tight)
   },
   subtitle: {
-    fontSize: 16,                   // body
+    fontSize: 16, // body
     fontFamily: Typography.fontFamily.regular,
     color: Colors.accent2,
     textAlign: 'center',
-    lineHeight: 24,                 // 1.5 line height
+    lineHeight: 24, // 1.5 line height
   },
   form: {
-    marginBottom: 24,               // 8 * 3 (comfortable)
+    marginBottom: 24, // 8 * 3 (comfortable)
   },
   acceptRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 48,                  // 8 * 6 (touch target)
-    paddingVertical: 8,             // 8 * 1 (tight)
-    marginBottom: 16,               // 8 * 2 (base)
+    minHeight: 48, // 8 * 6 (touch target)
+    paddingVertical: 8, // 8 * 1 (tight)
+    marginBottom: 16, // 8 * 2 (base)
   },
   checkbox: {
-    width: 24,                      // 8 * 3
-    height: 24,                     // 8 * 3
+    width: 24, // 8 * 3
+    height: 24, // 8 * 3
     borderRadius: 4,
     borderWidth: 2,
     borderColor: Colors.gray.medium,
     backgroundColor: Colors.white,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,                // 8 * 2 (base)
+    marginRight: 16, // 8 * 2 (base)
   },
   checkboxChecked: {
     backgroundColor: Colors.accent1, // Purple CTA color
@@ -325,14 +323,14 @@ const styles = StyleSheet.create({
   },
   acceptText: {
     flex: 1,
-    fontSize: 14,                   // caption
+    fontSize: 14, // caption
     fontFamily: Typography.fontFamily.regular,
     color: Colors.gray.dark,
-    lineHeight: 20,                 // ~1.4 line height
+    lineHeight: 20, // ~1.4 line height
   },
   acceptLink: {
     color: Colors.accent1,
-    fontWeight: '600',              // semibold
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
     textDecorationLine: 'underline',
   },
@@ -340,36 +338,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,               // 8 * 3 (comfortable)
+    marginBottom: 24, // 8 * 3 (comfortable)
   },
   footerText: {
-    fontSize: 16,                   // body
+    fontSize: 16, // body
     fontFamily: Typography.fontFamily.regular,
     color: Colors.gray.dark,
   },
   signInLink: {
-    fontSize: 16,                   // body
+    fontSize: 16, // body
     color: Colors.accent1,
-    fontWeight: '600',              // semibold
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
   terms: {
-    paddingHorizontal: 16,          // 8 * 2 (base)
-    marginBottom: 32,               // 8 * 4 (loose)
+    paddingHorizontal: 16, // 8 * 2 (base)
+    marginBottom: 32, // 8 * 4 (loose)
   },
   termsText: {
-    fontSize: 14,                   // caption
+    fontSize: 14, // caption
     fontFamily: Typography.fontFamily.regular,
     color: Colors.gray.dark,
     textAlign: 'center',
-    lineHeight: 22,                 // ~1.6 line height
+    lineHeight: 22, // ~1.6 line height
   },
   linkContainer: {
     // Inline display for text links
   },
   termsLink: {
     color: Colors.accent1,
-    fontWeight: '500',              // medium
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
     textDecorationLine: 'underline',
   },

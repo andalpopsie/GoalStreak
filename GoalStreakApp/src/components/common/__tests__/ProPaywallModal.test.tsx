@@ -49,12 +49,8 @@ jest.mock('react-native-purchases', () => ({
 jest.mock('react-native-safe-area-context', () => {
   const { View } = require('react-native');
   return {
-    SafeAreaView: ({ children }: { children: React.ReactNode }) => (
-      <View>{children}</View>
-    ),
-    SafeAreaProvider: ({ children }: { children: React.ReactNode }) => (
-      <View>{children}</View>
-    ),
+    SafeAreaView: ({ children }: { children: React.ReactNode }) => <View>{children}</View>,
+    SafeAreaProvider: ({ children }: { children: React.ReactNode }) => <View>{children}</View>,
     useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }),
   };
 });

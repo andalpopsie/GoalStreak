@@ -9,11 +9,7 @@
 // This is an irreversible operation. The caller should require confirmation
 // (and ideally re-authentication) before invoking deleteAccount.
 
-import {
-  EmailAuthProvider,
-  reauthenticateWithCredential,
-  deleteUser,
-} from 'firebase/auth';
+import { EmailAuthProvider, reauthenticateWithCredential, deleteUser } from 'firebase/auth';
 import {
   collection,
   doc,
@@ -34,11 +30,7 @@ import { SsoError, getAppleCredential, getGoogleCredential } from './ssoService'
 const BATCH_LIMIT = 400;
 
 // Collections that store one document per user, keyed by uid.
-const USER_DOC_COLLECTIONS = [
-  'users',
-  'userProfiles',
-  'socialSettings',
-];
+const USER_DOC_COLLECTIONS = ['users', 'userProfiles', 'socialSettings'];
 
 // Collections containing documents owned by a user via a `userId` field.
 const USER_OWNED_COLLECTIONS = [
@@ -87,7 +79,7 @@ export async function reauthenticate(password: string): Promise<void> {
  */
 export async function reauthenticateForDeletion(
   password?: string,
-  getIdTokenForGoogle?: () => Promise<string>,
+  getIdTokenForGoogle?: () => Promise<string>
 ): Promise<void> {
   const user = auth.currentUser;
   if (!user) {
@@ -119,7 +111,7 @@ export async function reauthenticateForDeletion(
         // callback we cannot obtain a fresh id token here.
         throw new SsoError(
           'unavailable',
-          'Google re-authentication is unavailable: no id token provider was supplied.',
+          'Google re-authentication is unavailable: no id token provider was supplied.'
         );
       }
       const idToken = await getIdTokenForGoogle();
@@ -134,7 +126,7 @@ export async function reauthenticateForDeletion(
         'unavailable',
         `Cannot re-authenticate for deletion: unsupported sign-in provider "${
           providerId ?? 'unknown'
-        }".`,
+        }".`
       );
   }
 }
@@ -144,7 +136,7 @@ export async function reauthenticateForDeletion(
  */
 async function flushBatchIfNeeded(
   batch: WriteBatch,
-  opCount: number,
+  opCount: number
 ): Promise<{ batch: WriteBatch; opCount: number }> {
   if (opCount >= BATCH_LIMIT) {
     await batch.commit();
@@ -159,7 +151,7 @@ async function flushBatchIfNeeded(
 async function deleteOwnedDocuments(
   collectionName: string,
   userIdField: string,
-  userId: string,
+  userId: string
 ): Promise<number> {
   const q = query(collection(db, collectionName), where(userIdField, '==', userId));
   const snapshot = await getDocs(q);
@@ -189,23 +181,17 @@ async function deleteOwnedDocuments(
  */
 async function deleteFriendData(userId: string): Promise<void> {
   // Friends are stored with userId/friendId fields — delete both directions.
-  const friendsAsUser = query(
-    collection(db, 'friends'),
-    where('userId', '==', userId),
-  );
-  const friendsAsFriend = query(
-    collection(db, 'friends'),
-    where('friendId', '==', userId),
-  );
+  const friendsAsUser = query(collection(db, 'friends'), where('userId', '==', userId));
+  const friendsAsFriend = query(collection(db, 'friends'), where('friendId', '==', userId));
 
   // Friend requests can have the user as sender (fromUserId) or recipient (toUserId).
   const requestsAsSender = query(
     collection(db, 'friendRequests'),
-    where('fromUserId', '==', userId),
+    where('fromUserId', '==', userId)
   );
   const requestsAsRecipient = query(
     collection(db, 'friendRequests'),
-    where('toUserId', '==', userId),
+    where('toUserId', '==', userId)
   );
 
   const [a, b, c, d] = await Promise.all([
@@ -238,17 +224,14 @@ async function deleteFriendData(userId: string): Promise<void> {
 async function deleteGroupInvitations(userId: string): Promise<void> {
   const invitesAsRecipient = query(
     collection(db, 'groupInvitations'),
-    where('toUserId', '==', userId),
+    where('toUserId', '==', userId)
   );
   const invitesAsSender = query(
     collection(db, 'groupInvitations'),
-    where('fromUserId', '==', userId),
+    where('fromUserId', '==', userId)
   );
 
-  const [a, b] = await Promise.all([
-    getDocs(invitesAsRecipient),
-    getDocs(invitesAsSender),
-  ]);
+  const [a, b] = await Promise.all([getDocs(invitesAsRecipient), getDocs(invitesAsSender)]);
 
   const allDocs = [...a.docs, ...b.docs];
   if (allDocs.length === 0) return;
@@ -285,10 +268,7 @@ async function clearLocalStorage(userId: string): Promise<void> {
   try {
     const keys = await AsyncStorage.getAllKeys();
     const userScopedKeys = keys.filter(
-      (key) =>
-        key.includes(userId) ||
-        key.startsWith('@goalstreak_') ||
-        key.startsWith('@goalfer_'),
+      (key) => key.includes(userId) || key.startsWith('@goalstreak_') || key.startsWith('@goalfer_')
     );
     if (userScopedKeys.length > 0) {
       await AsyncStorage.multiRemove(userScopedKeys);
@@ -350,8 +330,8 @@ export async function deleteAccount(): Promise<void> {
   // 2. Delete user-owned documents across known collections.
   await Promise.all(
     USER_OWNED_COLLECTIONS.map((collectionName) =>
-      deleteOwnedDocuments(collectionName, 'userId', userId),
-    ),
+      deleteOwnedDocuments(collectionName, 'userId', userId)
+    )
   );
 
   // 3. Delete friend relationships and requests (both sides of the relation).
@@ -404,7 +384,7 @@ export async function deleteAccount(): Promise<void> {
  */
 export async function reauthenticateAndDeleteAccount(
   password?: string,
-  getIdTokenForGoogle?: () => Promise<string>,
+  getIdTokenForGoogle?: () => Promise<string>
 ): Promise<void> {
   await reauthenticateForDeletion(password, getIdTokenForGoogle);
   await deleteAccount();

@@ -38,10 +38,7 @@
  *   firebase emulators:exec --only firestore --config firebase/firebase.json \
  *     --project demo-goalstreak "npx jest --config config/jest.emulator.config.js"
  */
-import {
-  initializeTestEnvironment,
-  RulesTestEnvironment,
-} from '@firebase/rules-unit-testing';
+import { initializeTestEnvironment, RulesTestEnvironment } from '@firebase/rules-unit-testing';
 import {
   Firestore,
   collection,
@@ -165,7 +162,7 @@ async function provisionNewUser(db: Firestore, input: ProvisionInput): Promise<P
   }
   if (!username) {
     throw new Error(
-      `Unable to generate an available username after ${MAX_USERNAME_ATTEMPTS} attempts`,
+      `Unable to generate an available username after ${MAX_USERNAME_ATTEMPTS} attempts`
     );
   }
 
@@ -384,7 +381,7 @@ describe('New-user provisioning end-to-end (R5.1, R5.4, R5.6, R5.7, R2.6)', () =
 
       // Still exactly one username reservation for this uid.
       const usernames = await getDocs(
-        query(collection(db, 'usernames'), where('userId', '==', 'sso-repeat')),
+        query(collection(db, 'usernames'), where('userId', '==', 'sso-repeat'))
       );
       expect(usernames.size).toBe(1);
     });

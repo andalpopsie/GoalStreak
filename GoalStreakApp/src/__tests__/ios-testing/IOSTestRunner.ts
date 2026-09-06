@@ -1,6 +1,6 @@
 /**
  * iOS Test Runner
- * 
+ *
  * Main test runner for comprehensive iOS pre-launch testing
  * Requirements: 5.1, 5.2, 5.3, 5.4, 5.5 - Execute comprehensive iOS pre-launch testing
  */
@@ -35,13 +35,15 @@ export class IOSTestRunner {
   private testSuite: IOSTestSuite;
   private config: IOSTestRunnerConfig;
 
-  constructor(config: IOSTestRunnerConfig = {
-    runDeviceTests: true,
-    runVersionTests: true,
-    runUserFlowTests: true,
-    runIOSFeatureTests: true,
-    generateReport: true,
-  }) {
+  constructor(
+    config: IOSTestRunnerConfig = {
+      runDeviceTests: true,
+      runVersionTests: true,
+      runUserFlowTests: true,
+      runIOSFeatureTests: true,
+      generateReport: true,
+    }
+  ) {
     this.testSuite = new IOSTestSuite();
     this.config = config;
   }
@@ -51,7 +53,7 @@ export class IOSTestRunner {
    */
   async runComprehensiveTests(): Promise<IOSTestReport> {
     console.log('🚀 Starting iOS Pre-Launch Testing Suite...');
-    
+
     const startTime = Date.now();
     const results: TestResult[] = [];
 
@@ -91,8 +93,10 @@ export class IOSTestRunner {
       const report = this.generateTestReport(results, executionTime);
 
       console.log('✅ iOS Pre-Launch Testing Complete!');
-      console.log(`📊 Results: ${report.summary.passed}/${report.summary.total} tests passed (${report.summary.passRate.toFixed(1)}%)`);
-      
+      console.log(
+        `📊 Results: ${report.summary.passed}/${report.summary.total} tests passed (${report.summary.passRate.toFixed(1)}%)`
+      );
+
       if (report.summary.criticalFailures > 0) {
         console.log(`❌ Critical failures: ${report.summary.criticalFailures}`);
       }
@@ -102,7 +106,6 @@ export class IOSTestRunner {
       }
 
       return report;
-
     } catch (error) {
       console.error('❌ iOS testing failed:', error);
       throw error;
@@ -114,7 +117,7 @@ export class IOSTestRunner {
    */
   private async runDeviceTests(): Promise<TestResult[]> {
     const results: TestResult[] = [];
-    const deviceScenarios = IOSTestSuite.TEST_SCENARIOS.filter(s => s.category === 'device');
+    const deviceScenarios = IOSTestSuite.TEST_SCENARIOS.filter((s) => s.category === 'device');
 
     for (const scenario of deviceScenarios) {
       for (const device of IOSTestSuite.SUPPORTED_DEVICES) {
@@ -132,7 +135,7 @@ export class IOSTestRunner {
    */
   private async runVersionTests(): Promise<TestResult[]> {
     const results: TestResult[] = [];
-    const versionScenarios = IOSTestSuite.TEST_SCENARIOS.filter(s => s.category === 'version');
+    const versionScenarios = IOSTestSuite.TEST_SCENARIOS.filter((s) => s.category === 'version');
 
     for (const scenario of versionScenarios) {
       console.log(`  Testing ${scenario.name}...`);
@@ -148,7 +151,7 @@ export class IOSTestRunner {
    */
   private async runUserFlowTests(): Promise<TestResult[]> {
     const results: TestResult[] = [];
-    const userFlowScenarios = IOSTestSuite.TEST_SCENARIOS.filter(s => s.category === 'userFlow');
+    const userFlowScenarios = IOSTestSuite.TEST_SCENARIOS.filter((s) => s.category === 'userFlow');
 
     for (const scenario of userFlowScenarios) {
       console.log(`  Testing ${scenario.name}...`);
@@ -164,7 +167,9 @@ export class IOSTestRunner {
    */
   private async runIOSFeatureTests(): Promise<TestResult[]> {
     const results: TestResult[] = [];
-    const iosFeatureScenarios = IOSTestSuite.TEST_SCENARIOS.filter(s => s.category === 'iosFeature');
+    const iosFeatureScenarios = IOSTestSuite.TEST_SCENARIOS.filter(
+      (s) => s.category === 'iosFeature'
+    );
 
     for (const scenario of iosFeatureScenarios) {
       console.log(`  Testing ${scenario.name}...`);
@@ -199,7 +204,7 @@ export class IOSTestRunner {
    */
   private generateRecommendations(results: TestResult[]): string[] {
     const recommendations: string[] = [];
-    const failedResults = results.filter(r => !r.passed);
+    const failedResults = results.filter((r) => !r.passed);
 
     if (failedResults.length === 0) {
       recommendations.push('✅ All tests passed! Your app is ready for iOS App Store submission.');
@@ -213,7 +218,9 @@ export class IOSTestRunner {
       recommendations.push('📱 Device Compatibility Issues:');
       recommendations.push('  - Test your app on physical devices before submission');
       recommendations.push('  - Ensure UI elements are properly sized for all screen sizes');
-      recommendations.push('  - Verify touch targets meet iOS accessibility guidelines (44pt minimum)');
+      recommendations.push(
+        '  - Verify touch targets meet iOS accessibility guidelines (44pt minimum)'
+      );
     }
 
     if (failedByCategory.version?.length > 0) {
@@ -238,7 +245,7 @@ export class IOSTestRunner {
     }
 
     // Performance recommendations
-    const slowTests = results.filter(r => r.duration > 1000);
+    const slowTests = results.filter((r) => r.duration > 1000);
     if (slowTests.length > 0) {
       recommendations.push('⚡ Performance Recommendations:');
       recommendations.push('  - Optimize slow-performing features for better user experience');
@@ -256,7 +263,7 @@ export class IOSTestRunner {
     const grouped: Record<string, TestResult[]> = {};
 
     for (const result of failedResults) {
-      const scenario = IOSTestSuite.TEST_SCENARIOS.find(s => s.id === result.scenarioId);
+      const scenario = IOSTestSuite.TEST_SCENARIOS.find((s) => s.id === result.scenarioId);
       if (scenario) {
         if (!grouped[scenario.category]) {
           grouped[scenario.category] = [];
@@ -272,9 +279,9 @@ export class IOSTestRunner {
    * Assess if app is ready for App Store submission
    */
   private assessAppStoreReadiness(results: TestResult[]): boolean {
-    const criticalFailures = results.filter(r => {
+    const criticalFailures = results.filter((r) => {
       if (r.passed) return false;
-      const scenario = IOSTestSuite.TEST_SCENARIOS.find(s => s.id === r.scenarioId);
+      const scenario = IOSTestSuite.TEST_SCENARIOS.find((s) => s.id === r.scenarioId);
       return scenario?.priority === 'critical';
     });
 
@@ -308,11 +315,11 @@ export class IOSTestRunner {
     }
 
     // Failed Tests
-    const failedResults = report.results.filter(r => !r.passed);
+    const failedResults = report.results.filter((r) => !r.passed);
     if (failedResults.length > 0) {
       console.log('\n❌ FAILED TESTS:');
       for (const result of failedResults) {
-        const scenario = IOSTestSuite.TEST_SCENARIOS.find(s => s.id === result.scenarioId);
+        const scenario = IOSTestSuite.TEST_SCENARIOS.find((s) => s.id === result.scenarioId);
         const device = result.deviceInfo ? ` (${result.deviceInfo.name})` : '';
         console.log(`  • ${scenario?.name}${device}`);
         if (result.error) {
@@ -331,11 +338,13 @@ export class IOSTestRunner {
 
     // Device Coverage
     console.log('\n📱 DEVICE COVERAGE:');
-    const deviceResults = report.results.filter(r => r.deviceInfo);
+    const deviceResults = report.results.filter((r) => r.deviceInfo);
     const deviceCoverage = this.calculateDeviceCoverage(deviceResults);
     for (const [deviceName, coverage] of Object.entries(deviceCoverage)) {
       const status = coverage.passRate === 100 ? '✅' : coverage.passRate >= 80 ? '⚠️' : '❌';
-      console.log(`  ${status} ${deviceName}: ${coverage.passed}/${coverage.total} (${coverage.passRate.toFixed(1)}%)`);
+      console.log(
+        `  ${status} ${deviceName}: ${coverage.passed}/${coverage.total} (${coverage.passRate.toFixed(1)}%)`
+      );
     }
 
     console.log('\n' + '='.repeat(60));
@@ -344,11 +353,14 @@ export class IOSTestRunner {
   /**
    * Calculate device coverage statistics
    */
-  private calculateDeviceCoverage(deviceResults: TestResult[]): Record<string, {
-    total: number;
-    passed: number;
-    passRate: number;
-  }> {
+  private calculateDeviceCoverage(deviceResults: TestResult[]): Record<
+    string,
+    {
+      total: number;
+      passed: number;
+      passRate: number;
+    }
+  > {
     const coverage: Record<string, { total: number; passed: number; passRate: number }> = {};
 
     for (const result of deviceResults) {
@@ -380,9 +392,7 @@ export class IOSTestRunner {
   async runSmokeTests(): Promise<boolean> {
     console.log('🔥 Running iOS smoke tests...');
 
-    const criticalScenarios = IOSTestSuite.TEST_SCENARIOS.filter(
-      s => s.priority === 'critical'
-    );
+    const criticalScenarios = IOSTestSuite.TEST_SCENARIOS.filter((s) => s.priority === 'critical');
 
     let allPassed = true;
 

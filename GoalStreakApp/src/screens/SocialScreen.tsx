@@ -30,7 +30,7 @@ export default function SocialScreen() {
   const { user } = useAuth();
   const { habits } = useHabits();
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-  
+
   const {
     friends,
     pendingRequests,
@@ -47,12 +47,7 @@ export default function SocialScreen() {
     addReaction,
   } = useFriends();
 
-  const {
-    pendingInvitationCount,
-    createGroup,
-    isCreating,
-    refreshGroups,
-  } = useGroups();
+  const { pendingInvitationCount, createGroup, isCreating, refreshGroups } = useGroups();
 
   // UI state
   const [activeTab, setActiveTab] = useState<TabType>('feed');
@@ -80,7 +75,7 @@ export default function SocialScreen() {
     }
 
     try {
-      const friendIds = friends.map(f => f.friendId);
+      const friendIds = friends.map((f) => f.friendId);
       const suggestions = await friendSuggestionsService.getSuggestedFriends(
         user.id,
         habits,
@@ -105,70 +100,82 @@ export default function SocialScreen() {
   }, [activeTab, refreshActivityFeed, refreshFriends, refreshGroups]);
 
   // Handle reaction
-  const handleReaction = useCallback(async (activityId: string, reactionType: ReactionType) => {
-    if (!user?.id) return;
-    await addReaction(activityId, reactionType);
-  }, [user?.id, addReaction]);
+  const handleReaction = useCallback(
+    async (activityId: string, reactionType: ReactionType) => {
+      if (!user?.id) return;
+      await addReaction(activityId, reactionType);
+    },
+    [user?.id, addReaction]
+  );
 
   // Handle creating a progress post with photo
-  const handleCreatePost = useCallback(async (
-    habitId: string,
-    habitName: string,
-    habitCategory: string,
-    photoUri: string,
-    caption?: string
-  ) => {
-    if (!user?.id) return;
+  const handleCreatePost = useCallback(
+    async (
+      habitId: string,
+      habitName: string,
+      habitCategory: string,
+      photoUri: string,
+      caption?: string
+    ) => {
+      if (!user?.id) return;
 
-    try {
-      // Save photo and get a persistent URI
-      const savedPhotoUri = await photoService.saveProfilePhoto(
-        `${user.id}_post_${Date.now()}`,
-        photoUri
-      );
+      try {
+        // Save photo and get a persistent URI
+        const savedPhotoUri = await photoService.saveProfilePhoto(
+          `${user.id}_post_${Date.now()}`,
+          photoUri
+        );
 
-      // Create activity with photo
-      await friendService.createActivity(
-        user.id,
-        'progress_post',
-        habitId,
-        habitName,
-        habitCategory,
-        'friends',
-        {
-          photoUrl: savedPhotoUri,
-          caption: caption,
-        }
-      );
+        // Create activity with photo
+        await friendService.createActivity(
+          user.id,
+          'progress_post',
+          habitId,
+          habitName,
+          habitCategory,
+          'friends',
+          {
+            photoUrl: savedPhotoUri,
+            caption: caption,
+          }
+        );
 
-      // Refresh the feed
-      await refreshActivityFeed();
-      Alert.alert('Posted!', 'Your progress photo has been shared with friends.');
-    } catch (error: any) {
-      console.error('Error creating progress post:', error);
-      throw error;
-    }
-  }, [user?.id, refreshActivityFeed]);
+        // Refresh the feed
+        await refreshActivityFeed();
+        Alert.alert('Posted!', 'Your progress photo has been shared with friends.');
+      } catch (error: any) {
+        console.error('Error creating progress post:', error);
+        throw error;
+      }
+    },
+    [user?.id, refreshActivityFeed]
+  );
 
   // Handle creating a new group
-  const handleCreateGroup = useCallback(async (form: any) => {
-    try {
-      await createGroup(form);
-      setShowCreateGroup(false);
-      Alert.alert('Success', 'Group created! Invite friends to get started.');
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to create group');
-    }
-  }, [createGroup]);
+  const handleCreateGroup = useCallback(
+    async (form: any) => {
+      try {
+        await createGroup(form);
+        setShowCreateGroup(false);
+        Alert.alert('Success', 'Group created! Invite friends to get started.');
+      } catch (error: any) {
+        Alert.alert('Error', error.message || 'Failed to create group');
+      }
+    },
+    [createGroup]
+  );
 
   // Handle navigating to group detail
-  const handleNavigateToGroup = useCallback((groupId: string) => {
-    navigation.navigate('GroupDetail', { groupId });
-  }, [navigation]);
+  const handleNavigateToGroup = useCallback(
+    (groupId: string) => {
+      navigation.navigate('GroupDetail', { groupId });
+    },
+    [navigation]
+  );
 
   const handleSendFriendRequest = async (email: string, message: string) => {
     if (!user?.id) return;
-    
+
     try {
       await sendFriendRequest(email, message);
       Alert.alert('Success', 'Friend request sent successfully!');
@@ -184,7 +191,7 @@ export default function SocialScreen() {
     setSendingRequestTo(toUser.id);
     try {
       await sendFriendRequest(
-        toUser.email, 
+        toUser.email,
         `Hi ${toUser.name || 'there'}! I'd like to connect with you on Goalfer.`
       );
       Alert.alert('Success', 'Friend request sent successfully!');
@@ -217,24 +224,20 @@ export default function SocialScreen() {
   };
 
   const handleRemoveFriend = async (friendId: string) => {
-    Alert.alert(
-      'Remove Friend',
-      'Are you sure you want to remove this friend?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Remove',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await removeFriend(friendId);
-            } catch (error) {
-              console.error('Error removing friend:', error);
-            }
-          },
+    Alert.alert('Remove Friend', 'Are you sure you want to remove this friend?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Remove',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await removeFriend(friendId);
+          } catch (error) {
+            console.error('Error removing friend:', error);
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   // Tab button renderer
@@ -255,23 +258,22 @@ export default function SocialScreen() {
           </View>
         )}
       </View>
-      <Text style={[
-        styles.tabButtonText,
-        activeTab === tab && styles.activeTabButtonText
-      ]}>
+      <Text style={[styles.tabButtonText, activeTab === tab && styles.activeTabButtonText]}>
         {title}
       </Text>
     </TouchableOpacity>
   );
 
   // Check if current tab is empty (groups tab handles its own empty state)
-  const isEmpty = activeTab === 'feed' 
-    ? activityFeed.length === 0 
-    : activeTab === 'friends'
-    ? friends.length === 0 && pendingRequests.length === 0
-    : false;
+  const isEmpty =
+    activeTab === 'feed'
+      ? activityFeed.length === 0
+      : activeTab === 'friends'
+        ? friends.length === 0 && pendingRequests.length === 0
+        : false;
 
-  const isLoading = activeTab === 'feed' ? isLoadingActivity : activeTab === 'friends' ? isLoadingFriends : false;
+  const isLoading =
+    activeTab === 'feed' ? isLoadingActivity : activeTab === 'friends' ? isLoadingFriends : false;
 
   return (
     <View style={styles.container}>
@@ -280,10 +282,7 @@ export default function SocialScreen() {
         {renderTabButton('feed', 'Feed', 'newspaper-outline')}
         {renderTabButton('friends', 'Friends', 'people-outline')}
         {renderTabButton('groups', 'Groups', 'shield-outline', pendingInvitationCount)}
-        <TouchableOpacity
-          style={styles.searchTabButton}
-          onPress={() => setShowSearchModal(true)}
-        >
+        <TouchableOpacity style={styles.searchTabButton} onPress={() => setShowSearchModal(true)}>
           <Ionicons name="search" size={22} color={Colors.primaryText} />
         </TouchableOpacity>
       </View>
@@ -297,81 +296,83 @@ export default function SocialScreen() {
           />
         </View>
       ) : (
-      <ScrollView
-        style={styles.content}
-        refreshControl={
-          <RefreshControl
-            refreshing={isLoading}
-            onRefresh={handleRefresh}
-            tintColor={Colors.primary}
-          />
-        }
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={[
-          styles.contentContainer,
-          activeTab === 'friends' && styles.contentContainerPadded
-        ]}>
-          {activeTab === 'feed' && (
-            <ActivityFeedTab
-              activityFeed={activityFeed}
-              onReaction={handleReaction}
-              onCreatePost={handleCreatePost}
-              currentUserId={user?.id}
-              currentUserName={user?.displayName || user?.email?.split('@')[0] || 'User'}
-              habits={habits.map(h => ({ id: h.id, name: h.name, category: h.category }))}
+        <ScrollView
+          style={styles.content}
+          refreshControl={
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={handleRefresh}
+              tintColor={Colors.primary}
             />
-          )}
-
-          {activeTab === 'friends' && (
-            <FriendsTab
-              friends={friends}
-              pendingRequests={pendingRequests}
-              suggestedFriends={suggestedFriends}
-              onAcceptRequest={handleAcceptRequest}
-              onDeclineRequest={handleDeclineRequest}
-              onRemoveFriend={handleRemoveFriend}
-              onSendFriendRequest={async (email) => {
-                try {
-                  await sendFriendRequest(email, 'Hi! Let\'s connect on Goalfer!');
-                  Alert.alert('Success', 'Friend request sent!');
-                  // Refresh suggestions
-                  loadSuggestedFriends();
-                } catch (error: any) {
-                  Alert.alert('Error', error.message || 'Failed to send request');
-                }
-              }}
-            />
-          )}
-
-          {/* Empty State */}
-          {isEmpty && !isLoading && (
-            <View style={styles.emptyState}>
-              <Ionicons
-                name={activeTab === 'feed' ? 'newspaper-outline' : 'people-outline'}
-                size={64}
-                color={Colors.secondaryText}
+          }
+          showsVerticalScrollIndicator={false}
+        >
+          <View
+            style={[
+              styles.contentContainer,
+              activeTab === 'friends' && styles.contentContainerPadded,
+            ]}
+          >
+            {activeTab === 'feed' && (
+              <ActivityFeedTab
+                activityFeed={activityFeed}
+                onReaction={handleReaction}
+                onCreatePost={handleCreatePost}
+                currentUserId={user?.id}
+                currentUserName={user?.displayName || user?.email?.split('@')[0] || 'User'}
+                habits={habits.map((h) => ({ id: h.id, name: h.name, category: h.category }))}
               />
-              <Text style={styles.emptyStateTitle}>
-                {activeTab === 'feed' ? 'No Activity Yet' : 'No Friends Yet'}
-              </Text>
-              <Text style={styles.emptyStateText}>
-                {activeTab === 'feed'
-                  ? 'Add friends to see their habit progress and achievements here.'
-                  : 'Add friends to connect and share your habit journey together.'}
-              </Text>
-              {activeTab === 'friends' && (
-                <TouchableOpacity
-                  style={styles.emptyStateButton}
-                  onPress={() => setShowSearchModal(true)}
-                >
-                  <Text style={styles.emptyStateButtonText}>Search & Add Friends</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          )}
-        </View>
-      </ScrollView>
+            )}
+
+            {activeTab === 'friends' && (
+              <FriendsTab
+                friends={friends}
+                pendingRequests={pendingRequests}
+                suggestedFriends={suggestedFriends}
+                onAcceptRequest={handleAcceptRequest}
+                onDeclineRequest={handleDeclineRequest}
+                onRemoveFriend={handleRemoveFriend}
+                onSendFriendRequest={async (email) => {
+                  try {
+                    await sendFriendRequest(email, "Hi! Let's connect on Goalfer!");
+                    Alert.alert('Success', 'Friend request sent!');
+                    // Refresh suggestions
+                    loadSuggestedFriends();
+                  } catch (error: any) {
+                    Alert.alert('Error', error.message || 'Failed to send request');
+                  }
+                }}
+              />
+            )}
+
+            {/* Empty State */}
+            {isEmpty && !isLoading && (
+              <View style={styles.emptyState}>
+                <Ionicons
+                  name={activeTab === 'feed' ? 'newspaper-outline' : 'people-outline'}
+                  size={64}
+                  color={Colors.secondaryText}
+                />
+                <Text style={styles.emptyStateTitle}>
+                  {activeTab === 'feed' ? 'No Activity Yet' : 'No Friends Yet'}
+                </Text>
+                <Text style={styles.emptyStateText}>
+                  {activeTab === 'feed'
+                    ? 'Add friends to see their habit progress and achievements here.'
+                    : 'Add friends to connect and share your habit journey together.'}
+                </Text>
+                {activeTab === 'friends' && (
+                  <TouchableOpacity
+                    style={styles.emptyStateButton}
+                    onPress={() => setShowSearchModal(true)}
+                  >
+                    <Text style={styles.emptyStateButtonText}>Search & Add Friends</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+          </View>
+        </ScrollView>
       )}
 
       {/* Modals */}
@@ -409,9 +410,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,                // 8 * 2 (base)
-    gap: 8,                             // 8 * 1 (tight)
-    minHeight: 56,                      // 8 * 7 (touch target)
+    paddingVertical: 16, // 8 * 2 (base)
+    gap: 8, // 8 * 1 (tight)
+    minHeight: 56, // 8 * 7 (touch target)
   },
   tabIconContainer: {
     position: 'relative',
@@ -420,10 +421,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -6,
     right: -10,
-    backgroundColor: Colors.accent1,   // Purple badge (#B771E5)
+    backgroundColor: Colors.accent1, // Purple badge (#B771E5)
     borderRadius: 8,
-    minWidth: 16,                       // 8 × 2
-    height: 16,                         // 8 × 2
+    minWidth: 16, // 8 × 2
+    height: 16, // 8 × 2
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 4,
@@ -431,7 +432,7 @@ const styles = StyleSheet.create({
   tabBadgeText: {
     color: Colors.white,
     fontSize: 12,
-    fontWeight: '700',                  // bold
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
   },
   activeTabButton: {
@@ -439,23 +440,23 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.primary,
   },
   tabButtonText: {
-    fontSize: 16,                       // body
-    fontWeight: '500',                  // medium
+    fontSize: 16, // body
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
     color: Colors.secondaryText,
   },
   activeTabButtonText: {
     color: Colors.primary,
-    fontWeight: '600',                  // semibold
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
   searchTabButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,                // 8 * 2 (base)
-    paddingHorizontal: 20,              // 8 * 2.5
-    minHeight: 56,                      // 8 * 7 (touch target)
-    minWidth: 56,                       // 8 * 7 (touch target)
+    paddingVertical: 16, // 8 * 2 (base)
+    paddingHorizontal: 20, // 8 * 2.5
+    minHeight: 56, // 8 * 7 (touch target)
+    minWidth: 56, // 8 * 7 (touch target)
   },
   content: {
     flex: 1,
@@ -465,41 +466,41 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   contentContainerPadded: {
-    paddingHorizontal: 16,              // 8 * 2 (base)
-    paddingTop: 8,                      // 8 * 1 (tight)
+    paddingHorizontal: 16, // 8 * 2 (base)
+    paddingTop: 8, // 8 * 1 (tight)
   },
   emptyState: {
     alignItems: 'center',
-    paddingVertical: 64,                // 8 * 8 (spacious)
-    paddingHorizontal: 32,              // 8 * 4 (loose)
+    paddingVertical: 64, // 8 * 8 (spacious)
+    paddingHorizontal: 32, // 8 * 4 (loose)
   },
   emptyStateTitle: {
-    fontSize: 20,                       // subheading
-    fontWeight: '600',                  // semibold
+    fontSize: 20, // subheading
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
-    marginTop: 16,                      // 8 * 2 (base)
-    marginBottom: 8,                    // 8 * 1 (tight)
+    marginTop: 16, // 8 * 2 (base)
+    marginBottom: 8, // 8 * 1 (tight)
   },
   emptyStateText: {
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
     textAlign: 'center',
-    lineHeight: 24,                     // 1.5 line height
+    lineHeight: 24, // 1.5 line height
   },
   emptyStateButton: {
     backgroundColor: Colors.primary,
-    paddingHorizontal: 32,              // 8 * 4 (loose)
-    paddingVertical: 16,                // 8 * 2 (base)
-    borderRadius: 32,                   // Pill-shaped (modern)
-    marginTop: 24,                      // 8 * 3 (comfortable)
-    minHeight: 56,                      // 8 * 7 (touch target)
+    paddingHorizontal: 32, // 8 * 4 (loose)
+    paddingVertical: 16, // 8 * 2 (base)
+    borderRadius: 32, // Pill-shaped (modern)
+    marginTop: 24, // 8 * 3 (comfortable)
+    minHeight: 56, // 8 * 7 (touch target)
   },
   emptyStateButtonText: {
     color: Colors.white,
-    fontSize: 16,                       // body
-    fontWeight: '600',                  // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
 });

@@ -107,7 +107,7 @@ import { canUnlinkProvider } from '../useAuth';
 // the guard is exercised beyond the known SSO providers.
 const providerIdArb: fc.Arbitrary<string> = fc.oneof(
   fc.constantFrom('apple.com', 'google.com', 'password'),
-  fc.string({ minLength: 1, maxLength: 12 }),
+  fc.string({ minLength: 1, maxLength: 12 })
 );
 
 const linkedProvidersArb: fc.Arbitrary<string[]> = fc.array(providerIdArb, {
@@ -131,7 +131,7 @@ describe('useAuth — Property 10: at least one sign-in provider always remains 
         (linked, removeSelector) => {
           const providerToRemove =
             typeof removeSelector === 'number'
-              ? linked[removeSelector] ?? 'apple.com'
+              ? (linked[removeSelector] ?? 'apple.com')
               : removeSelector;
 
           const expected = remainsNonEmpty(linked, providerToRemove);
@@ -146,9 +146,9 @@ describe('useAuth — Property 10: at least one sign-in provider always remains 
           } else {
             expect(linked.filter((id) => id !== providerToRemove).length).toBe(0);
           }
-        },
+        }
       ),
-      { numRuns: 100 },
+      { numRuns: 100 }
     );
   });
 
@@ -163,7 +163,7 @@ describe('useAuth — Property 10: at least one sign-in provider always remains 
         const other = only === 'google.com' ? 'apple.com' : 'google.com';
         expect(canUnlinkProvider([only, other], only)).toBe(true);
       }),
-      { numRuns: 100 },
+      { numRuns: 100 }
     );
   });
 });

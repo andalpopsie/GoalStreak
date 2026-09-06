@@ -47,21 +47,27 @@ export default function GroupsTab({ onCreateGroup, onNavigateToGroup }: GroupsTa
     }
   }, [groups]);
 
-  const handleAcceptInvitation = useCallback(async (invitationId: string) => {
-    try {
-      await acceptInvitation(invitationId);
-    } catch (error) {
-      console.error('Error accepting invitation:', error);
-    }
-  }, [acceptInvitation]);
+  const handleAcceptInvitation = useCallback(
+    async (invitationId: string) => {
+      try {
+        await acceptInvitation(invitationId);
+      } catch (error) {
+        console.error('Error accepting invitation:', error);
+      }
+    },
+    [acceptInvitation]
+  );
 
-  const handleDeclineInvitation = useCallback(async (invitationId: string) => {
-    try {
-      await declineInvitation(invitationId);
-    } catch (error) {
-      console.error('Error declining invitation:', error);
-    }
-  }, [declineInvitation]);
+  const handleDeclineInvitation = useCallback(
+    async (invitationId: string) => {
+      try {
+        await declineInvitation(invitationId);
+      } catch (error) {
+        console.error('Error declining invitation:', error);
+      }
+    },
+    [declineInvitation]
+  );
 
   const isEmpty = groups.length === 0 && pendingInvitations.length === 0;
 
@@ -182,114 +188,114 @@ export default function GroupsTab({ onCreateGroup, onNavigateToGroup }: GroupsTa
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingBottom: 80,                  // Space for FAB
+    paddingBottom: 80, // Space for FAB
   },
   loadingContainer: {
     alignItems: 'center',
-    paddingVertical: 64,               // 8 × 8 (spacious)
-    gap: 16,                            // 8 × 2 (base)
+    paddingVertical: 64, // 8 × 8 (spacious)
+    gap: 16, // 8 × 2 (base)
   },
   loadingText: {
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.regular,
   },
   emptyContainer: {
     alignItems: 'center',
-    paddingVertical: 64,               // 8 × 8 (spacious)
-    paddingHorizontal: 32,             // 8 × 4 (loose)
+    paddingVertical: 64, // 8 × 8 (spacious)
+    paddingHorizontal: 32, // 8 × 4 (loose)
   },
   emptyTitle: {
-    fontSize: 20,                       // subheading
-    fontWeight: '600',                  // semibold
+    fontSize: 20, // subheading
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
-    marginTop: 16,                      // 8 × 2 (base)
-    marginBottom: 8,                    // 8 × 1 (tight)
+    marginTop: 16, // 8 × 2 (base)
+    marginBottom: 8, // 8 × 1 (tight)
     fontFamily: Typography.fontFamily.semibold,
   },
   emptyText: {
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     color: Colors.secondaryText,
     textAlign: 'center',
-    lineHeight: 24,                     // 1.5 line height
-    marginBottom: 24,                   // 8 × 3 (comfortable)
+    lineHeight: 24, // 1.5 line height
+    marginBottom: 24, // 8 × 3 (comfortable)
     fontFamily: Typography.fontFamily.regular,
   },
   createButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,                             // 8 × 1 (tight)
-    backgroundColor: Colors.accent1,   // Purple CTA
-    paddingHorizontal: 32,             // 8 × 4 (loose)
-    paddingVertical: 16,               // 8 × 2 (base)
-    borderRadius: 32,                   // Pill-shaped
-    minHeight: 56,                      // 8 × 7 (primary button)
+    gap: 8, // 8 × 1 (tight)
+    backgroundColor: Colors.accent1, // Purple CTA
+    paddingHorizontal: 32, // 8 × 4 (loose)
+    paddingVertical: 16, // 8 × 2 (base)
+    borderRadius: 32, // Pill-shaped
+    minHeight: 56, // 8 × 7 (primary button)
   },
   createButtonText: {
     color: Colors.white,
-    fontSize: 16,                       // body
-    fontWeight: '600',                  // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
   invitationsSection: {
-    marginBottom: 8,                    // 8 × 1 (tight)
+    marginBottom: 8, // 8 × 1 (tight)
   },
   groupsSection: {
-    marginBottom: 8,                    // 8 × 1 (tight)
+    marginBottom: 8, // 8 × 1 (tight)
   },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 16,               // 8 × 2 (base)
+    paddingVertical: 16, // 8 × 2 (base)
   },
   sectionTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,                             // 8 × 1 (tight)
+    gap: 8, // 8 × 1 (tight)
   },
   sectionTitle: {
-    fontSize: 20,                       // subheading
-    fontWeight: '600',                  // semibold
+    fontSize: 20, // subheading
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,
   },
   endedSectionTitle: {
-    fontSize: 20,                       // subheading
-    fontWeight: '600',                  // semibold
+    fontSize: 20, // subheading
+    fontWeight: '600', // semibold
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.semibold,
   },
   badge: {
     backgroundColor: Colors.accent1,
     borderRadius: 12,
-    minWidth: 24,                       // 8 × 3
-    height: 24,                         // 8 × 3
+    minWidth: 24, // 8 × 3
+    height: 24, // 8 × 3
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 8,              // 8 × 1 (tight)
+    paddingHorizontal: 8, // 8 × 1 (tight)
   },
   badgeText: {
     color: Colors.white,
-    fontSize: 12,                       // small
-    fontWeight: '700',                  // bold
+    fontSize: 12, // small
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
   },
   groupCount: {
-    fontSize: 16,                       // body
-    fontWeight: '600',                  // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.semibold,
   },
   fab: {
     position: 'absolute',
-    bottom: 24,                         // 8 × 3 (comfortable)
+    bottom: 24, // 8 × 3 (comfortable)
     right: 0,
-    width: 56,                          // 8 × 7
-    height: 56,                         // 8 × 7
+    width: 56, // 8 × 7
+    height: 56, // 8 × 7
     borderRadius: 28,
-    backgroundColor: Colors.accent1,   // Purple CTA
+    backgroundColor: Colors.accent1, // Purple CTA
     alignItems: 'center',
     justifyContent: 'center',
     ...Shadows.md,

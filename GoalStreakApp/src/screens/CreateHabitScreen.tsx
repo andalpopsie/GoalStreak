@@ -39,12 +39,12 @@ interface HabitCategoryOption {
 }
 
 const HABIT_CATEGORIES: HabitCategoryOption[] = [
-  { value: 'fitness', label: 'Fitness', icon: 'fitness' },           // 🟠 Orange - Exercise, workouts, running
-  { value: 'wellness', label: 'Wellness', icon: 'heart' },           // 🟦 Teal - Health, meditation, sleep
-  { value: 'nutrition', label: 'Nutrition', icon: 'restaurant' },    // 🟢 Light Green - Food, water, vitamins
-  { value: 'social', label: 'Social', icon: 'people' },              // 🟣 Purple - Friends, family, relationships
+  { value: 'fitness', label: 'Fitness', icon: 'fitness' }, // 🟠 Orange - Exercise, workouts, running
+  { value: 'wellness', label: 'Wellness', icon: 'heart' }, // 🟦 Teal - Health, meditation, sleep
+  { value: 'nutrition', label: 'Nutrition', icon: 'restaurant' }, // 🟢 Light Green - Food, water, vitamins
+  { value: 'social', label: 'Social', icon: 'people' }, // 🟣 Purple - Friends, family, relationships
   { value: 'productivity', label: 'Productivity', icon: 'briefcase' }, // 🔷 Navy - Work, learning, organization
-  { value: 'other', label: 'Other', icon: 'ellipsis-horizontal' },   // 🌸 Pink - Other habits
+  { value: 'other', label: 'Other', icon: 'ellipsis-horizontal' }, // 🌸 Pink - Other habits
 ];
 
 // Constants for better maintainability
@@ -63,7 +63,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
     trackScreen('CreateHabit');
     trackEvent('create_habit_screen_viewed', {
       current_habit_count: habits.length,
-      user_id: user?.id
+      user_id: user?.id,
     });
   }, [habits.length, user?.id]);
 
@@ -130,15 +130,18 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
   }, [form, validation]);
 
   // Helper function to format time for 24-hour storage
-  const formatTimeFor24Hour = useCallback((hour: number, minute: number, period: 'AM' | 'PM'): string => {
-    let hour24 = hour;
-    if (period === 'PM' && hour !== 12) {
-      hour24 += 12;
-    } else if (period === 'AM' && hour === 12) {
-      hour24 = 0;
-    }
-    return `${hour24.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-  }, []);
+  const formatTimeFor24Hour = useCallback(
+    (hour: number, minute: number, period: 'AM' | 'PM'): string => {
+      let hour24 = hour;
+      if (period === 'PM' && hour !== 12) {
+        hour24 += 12;
+      } else if (period === 'AM' && hour === 12) {
+        hour24 = 0;
+      }
+      return `${hour24.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+    },
+    []
+  );
 
   // Helper function to format time for display
   const formatTimeForDisplay = useCallback((timeString: string): string => {
@@ -157,9 +160,9 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
           category: form.category,
           has_target_value: !!form.targetValue,
           has_timer: !!form.timer,
-          reminder_enabled: form.reminderEnabled
+          reminder_enabled: form.reminderEnabled,
         },
-        user_id: user?.id
+        user_id: user?.id,
       });
       Alert.alert('Validation Error', 'Please check your form inputs');
       return;
@@ -175,7 +178,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
         has_timer: !!form.timer,
         reminder_enabled: form.reminderEnabled,
         is_public: form.isPublic,
-        user_id: user?.id
+        user_id: user?.id,
       });
 
       // Convert selected time to 24-hour format for storage
@@ -195,7 +198,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
           console.log(`📅 Scheduling notification for "${form.name}" at ${reminderTime}`);
 
           // Find the newly created habit by name (since createHabit doesn't return the habit)
-          const newHabit = habits.find(h => h.name === form.name && h.category === form.category);
+          const newHabit = habits.find((h) => h.name === form.name && h.category === form.category);
 
           if (newHabit) {
             const notificationId = await notificationService.scheduleHabitReminder({
@@ -211,19 +214,25 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
           }
         } catch (notificationError: any) {
           console.error('❌ Failed to schedule notification:', notificationError);
-          
+
           // Track notification error for analytics
           trackEvent('notification_scheduling_error', {
             error_message: notificationError?.message || 'Unknown notification error',
             habit_name: form.name,
-            user_id: user?.id
+            user_id: user?.id,
           });
-          
+
           // Don't fail the habit creation if notification fails
           Alert.alert(
             'Habit Created',
             'Habit created successfully, but notification scheduling failed. You can enable notifications later in settings.',
-            [{ text: 'OK', onPress: () => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MainTabs') }]
+            [
+              {
+                text: 'OK',
+                onPress: () =>
+                  navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MainTabs'),
+              },
+            ]
           );
           return;
         }
@@ -240,11 +249,15 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
         reminder_enabled: form.reminderEnabled,
         is_public: form.isPublic,
         user_id: user?.id,
-        total_habits_after_creation: habits.length + 1
+        total_habits_after_creation: habits.length + 1,
       });
 
       Alert.alert('Success', 'Habit created successfully!', [
-        { text: 'OK', onPress: () => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MainTabs') }
+        {
+          text: 'OK',
+          onPress: () =>
+            navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MainTabs'),
+        },
       ]);
     } catch (error: any) {
       console.error('Error creating habit:', error);
@@ -278,9 +291,9 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
           category: form.category,
           has_target_value: !!form.targetValue,
           has_timer: !!form.timer,
-          reminder_enabled: form.reminderEnabled
+          reminder_enabled: form.reminderEnabled,
         },
-        user_id: user?.id
+        user_id: user?.id,
       });
 
       Alert.alert('Error', error.message || 'Failed to create habit');
@@ -317,7 +330,11 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
       });
 
       Alert.alert('Success', 'Habit created successfully!', [
-        { text: 'OK', onPress: () => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MainTabs') }
+        {
+          text: 'OK',
+          onPress: () =>
+            navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MainTabs'),
+        },
       ]);
     } catch (error: any) {
       console.error('Error creating habit after paywall:', error);
@@ -341,7 +358,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
   }, []);
 
   const handleCategorySelect = useCallback((category: HabitCategory) => {
-    setForm(prev => ({ ...prev, category }));
+    setForm((prev) => ({ ...prev, category }));
   }, []);
 
   // Memoize category options to prevent unnecessary re-renders
@@ -349,59 +366,51 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
 
   // Memoize category colors for better performance
   const categoryColors = useMemo(() => {
-    return HABIT_CATEGORIES.reduce((acc, category) => {
-      acc[category.value] = getCategoryColor(category.value);
-      return acc;
-    }, {} as Record<HabitCategory, string>);
+    return HABIT_CATEGORIES.reduce(
+      (acc, category) => {
+        acc[category.value] = getCategoryColor(category.value);
+        return acc;
+      },
+      {} as Record<HabitCategory, string>
+    );
   }, []);
 
   // Render category cards with optimized performance
-  const renderCategoryCard = useCallback((category: HabitCategoryOption) => {
-    const categoryColor = categoryColors[category.value];
-    const isSelected = form.category === category.value;
+  const renderCategoryCard = useCallback(
+    (category: HabitCategoryOption) => {
+      const categoryColor = categoryColors[category.value];
+      const isSelected = form.category === category.value;
 
-    return (
-      <TouchableOpacity
-        key={category.value}
-        style={[
-          styles.categoryCard,
-          isSelected && styles.categoryCardSelected,
-          { borderColor: categoryColor + '30' }
-        ]}
-        onPress={() => handleCategorySelect(category.value)}
-        accessibilityRole="button"
-        accessibilityLabel={`${category.label} category`}
-        accessibilityState={{ selected: isSelected }}
-        accessibilityHint={`Select ${category.label} as the habit category`}
-      >
-        <View style={[
-          styles.categoryIconContainer,
-          { backgroundColor: categoryColor + '15' }
-        ]}>
-          <Ionicons
-            name={category.icon as any}
-            size={24}
-            color={categoryColor}
-          />
-        </View>
-        <Text style={[
-          styles.categoryLabel,
-          isSelected && { color: categoryColor }
-        ]}>
-          {category.label}
-        </Text>
-        {isSelected && (
-          <View style={styles.selectedIndicator}>
-            <Ionicons name="checkmark-circle" size={20} color={categoryColor} />
+      return (
+        <TouchableOpacity
+          key={category.value}
+          style={[
+            styles.categoryCard,
+            isSelected && styles.categoryCardSelected,
+            { borderColor: categoryColor + '30' },
+          ]}
+          onPress={() => handleCategorySelect(category.value)}
+          accessibilityRole="button"
+          accessibilityLabel={`${category.label} category`}
+          accessibilityState={{ selected: isSelected }}
+          accessibilityHint={`Select ${category.label} as the habit category`}
+        >
+          <View style={[styles.categoryIconContainer, { backgroundColor: categoryColor + '15' }]}>
+            <Ionicons name={category.icon as any} size={24} color={categoryColor} />
           </View>
-        )}
-      </TouchableOpacity>
-    );
-  }, [categoryColors, form.category, handleCategorySelect]);
-
-
-
-
+          <Text style={[styles.categoryLabel, isSelected && { color: categoryColor }]}>
+            {category.label}
+          </Text>
+          {isSelected && (
+            <View style={styles.selectedIndicator}>
+              <Ionicons name="checkmark-circle" size={20} color={categoryColor} />
+            </View>
+          )}
+        </TouchableOpacity>
+      );
+    },
+    [categoryColors, form.category, handleCategorySelect]
+  );
 
   const handleTimerConfigChange = (timerConfig: TimerConfig | undefined) => {
     setForm({ ...form, timer: timerConfig });
@@ -409,8 +418,10 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
 
   // Derive the active category color for the hero preview
   const activeCategoryColor = getCategoryColor(form.category);
-  const activeCategoryLabel = categoryOptions.find(c => c.value === form.category)?.label || 'Fitness';
-  const activeCategoryIcon = categoryOptions.find(c => c.value === form.category)?.icon || 'fitness';
+  const activeCategoryLabel =
+    categoryOptions.find((c) => c.value === form.category)?.label || 'Fitness';
+  const activeCategoryIcon =
+    categoryOptions.find((c) => c.value === form.category)?.icon || 'fitness';
 
   return (
     <SafeAreaView style={styles.container}>
@@ -436,7 +447,9 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
           </TouchableOpacity>
           <Text style={styles.title}>New Habit</Text>
           <View style={styles.habitCounterBadge}>
-            <Text style={styles.habitCounter}>{habits.length + 1}/{LIMITS.MAX_HABITS}</Text>
+            <Text style={styles.habitCounter}>
+              {habits.length + 1}/{LIMITS.MAX_HABITS}
+            </Text>
           </View>
         </View>
 
@@ -454,7 +467,9 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
             <Text style={styles.heroName} numberOfLines={1}>
               {form.name || 'Your new habit'}
             </Text>
-            <View style={[styles.heroCategoryPill, { backgroundColor: activeCategoryColor + '12' }]}>
+            <View
+              style={[styles.heroCategoryPill, { backgroundColor: activeCategoryColor + '12' }]}
+            >
               <Ionicons name={activeCategoryIcon as any} size={14} color={activeCategoryColor} />
               <Text style={[styles.heroCategoryText, { color: activeCategoryColor }]}>
                 {activeCategoryLabel}
@@ -480,7 +495,9 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
               onPress={() => setIsCategoryExpanded(!isCategoryExpanded)}
             >
               <View style={styles.cardHeaderLeft}>
-                <View style={[styles.cardHeaderIcon, { backgroundColor: activeCategoryColor + '12' }]}>
+                <View
+                  style={[styles.cardHeaderIcon, { backgroundColor: activeCategoryColor + '12' }]}
+                >
                   <Ionicons
                     name={activeCategoryIcon as any}
                     size={18}
@@ -495,16 +512,14 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                 </View>
               </View>
               <Ionicons
-                name={isCategoryExpanded ? "chevron-up" : "chevron-down"}
+                name={isCategoryExpanded ? 'chevron-up' : 'chevron-down'}
                 size={18}
                 color={Colors.secondaryText}
               />
             </TouchableOpacity>
 
             {isCategoryExpanded && (
-              <View style={styles.categoryGrid}>
-                {categoryOptions.map(renderCategoryCard)}
-              </View>
+              <View style={styles.categoryGrid}>{categoryOptions.map(renderCategoryCard)}</View>
             )}
           </View>
 
@@ -515,7 +530,9 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
               onPress={() => setIsIconExpanded(!isIconExpanded)}
             >
               <View style={styles.cardHeaderLeft}>
-                <View style={[styles.cardHeaderIcon, { backgroundColor: activeCategoryColor + '12' }]}>
+                <View
+                  style={[styles.cardHeaderIcon, { backgroundColor: activeCategoryColor + '12' }]}
+                >
                   <Ionicons name={form.icon as any} size={18} color={activeCategoryColor} />
                 </View>
                 <View>
@@ -524,7 +541,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                 </View>
               </View>
               <Ionicons
-                name={isIconExpanded ? "chevron-up" : "chevron-down"}
+                name={isIconExpanded ? 'chevron-up' : 'chevron-down'}
                 size={18}
                 color={Colors.secondaryText}
               />
@@ -565,13 +582,15 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                     {[
                       form.timer && 'Timer',
                       form.isPublic && 'Share',
-                      form.reminderEnabled && 'Remind'
-                    ].filter(Boolean).join(' · ') || 'None selected'}
+                      form.reminderEnabled && 'Remind',
+                    ]
+                      .filter(Boolean)
+                      .join(' · ') || 'None selected'}
                   </Text>
                 </View>
               </View>
               <Ionicons
-                name={isOptionsExpanded ? "chevron-up" : "chevron-down"}
+                name={isOptionsExpanded ? 'chevron-up' : 'chevron-down'}
                 size={18}
                 color={Colors.secondaryText}
               />
@@ -594,10 +613,10 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                     value={!!form.timer}
                     onValueChange={(value) => {
                       if (value) {
-                        handleTimerConfigChange({ 
-                          enabled: true, 
-                          durationMinutes: 5, 
-                          autoComplete: false 
+                        handleTimerConfigChange({
+                          enabled: true,
+                          durationMinutes: 5,
+                          autoComplete: false,
                         });
                       } else {
                         handleTimerConfigChange(undefined);
@@ -620,7 +639,8 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                     </View>
                     <View style={styles.timerDurationRight}>
                       <Text style={styles.timerDurationValue}>
-                        {form.timer.durationMinutes} {form.timer.durationMinutes === 1 ? 'min' : 'mins'}
+                        {form.timer.durationMinutes}{' '}
+                        {form.timer.durationMinutes === 1 ? 'min' : 'mins'}
                       </Text>
                       <Ionicons name="chevron-forward" size={14} color={Colors.secondaryText} />
                     </View>
@@ -678,8 +698,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                     <Text style={styles.timeText}>
                       {form.reminderTime
                         ? formatTimeForDisplay(form.reminderTime)
-                        : `${selectedHour}:${selectedMinute.toString().padStart(2, '0')} ${selectedPeriod}`
-                      }
+                        : `${selectedHour}:${selectedMinute.toString().padStart(2, '0')} ${selectedPeriod}`}
                     </Text>
                     <Ionicons name="chevron-forward" size={14} color={Colors.secondaryText} />
                   </TouchableOpacity>
@@ -691,7 +710,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
           {/* Create Button */}
           <View style={styles.buttonContainer}>
             <Button
-              title={isCreating ? "Creating..." : "Create Habit"}
+              title={isCreating ? 'Creating...' : 'Create Habit'}
               onPress={handleCreateHabit}
               loading={isCreating}
               variant="primary"
@@ -720,7 +739,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
         animationType="slide"
         onRequestClose={() => setShowTimerPicker(false)}
       >
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
           onPress={() => setShowTimerPicker(false)}
@@ -738,22 +757,24 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                   key={minutes}
                   style={[
                     styles.durationOption,
-                    form.timer?.durationMinutes === minutes && styles.durationOptionSelected
+                    form.timer?.durationMinutes === minutes && styles.durationOptionSelected,
                   ]}
                   onPress={() => {
                     if (form.timer) {
                       handleTimerConfigChange({
                         ...form.timer,
-                        durationMinutes: minutes
+                        durationMinutes: minutes,
                       });
                     }
                     setShowTimerPicker(false);
                   }}
                 >
-                  <Text style={[
-                    styles.durationOptionText,
-                    form.timer?.durationMinutes === minutes && styles.durationOptionTextSelected
-                  ]}>
+                  <Text
+                    style={[
+                      styles.durationOptionText,
+                      form.timer?.durationMinutes === minutes && styles.durationOptionTextSelected,
+                    ]}
+                  >
                     {minutes}
                   </Text>
                   {form.timer?.durationMinutes === minutes && (
@@ -773,7 +794,7 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
         animationType="slide"
         onRequestClose={() => setShowReminderPicker(false)}
       >
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
           onPress={() => setShowReminderPicker(false)}
@@ -792,17 +813,21 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                   key={`${hour}-AM`}
                   style={[
                     styles.durationOption,
-                    form.reminderTime === `${hour.toString().padStart(2, '0')}:00` && styles.durationOptionSelected
+                    form.reminderTime === `${hour.toString().padStart(2, '0')}:00` &&
+                      styles.durationOptionSelected,
                   ]}
                   onPress={() => {
                     setForm({ ...form, reminderTime: `${hour.toString().padStart(2, '0')}:00` });
                     setShowReminderPicker(false);
                   }}
                 >
-                  <Text style={[
-                    styles.durationOptionText,
-                    form.reminderTime === `${hour.toString().padStart(2, '0')}:00` && styles.durationOptionTextSelected
-                  ]}>
+                  <Text
+                    style={[
+                      styles.durationOptionText,
+                      form.reminderTime === `${hour.toString().padStart(2, '0')}:00` &&
+                        styles.durationOptionTextSelected,
+                    ]}
+                  >
                     {hour === 12 ? 12 : hour} AM
                   </Text>
                   {form.reminderTime === `${hour.toString().padStart(2, '0')}:00` && (
@@ -815,17 +840,19 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                 key="12-PM"
                 style={[
                   styles.durationOption,
-                  form.reminderTime === '12:00' && styles.durationOptionSelected
+                  form.reminderTime === '12:00' && styles.durationOptionSelected,
                 ]}
                 onPress={() => {
                   setForm({ ...form, reminderTime: '12:00' });
                   setShowReminderPicker(false);
                 }}
               >
-                <Text style={[
-                  styles.durationOptionText,
-                  form.reminderTime === '12:00' && styles.durationOptionTextSelected
-                ]}>
+                <Text
+                  style={[
+                    styles.durationOptionText,
+                    form.reminderTime === '12:00' && styles.durationOptionTextSelected,
+                  ]}
+                >
                   12 PM
                 </Text>
                 {form.reminderTime === '12:00' && (
@@ -838,17 +865,21 @@ export default function CreateHabitScreen({ navigation }: CreateHabitScreenProps
                   key={`${hour}-PM`}
                   style={[
                     styles.durationOption,
-                    form.reminderTime === `${hour.toString().padStart(2, '0')}:00` && styles.durationOptionSelected
+                    form.reminderTime === `${hour.toString().padStart(2, '0')}:00` &&
+                      styles.durationOptionSelected,
                   ]}
                   onPress={() => {
                     setForm({ ...form, reminderTime: `${hour.toString().padStart(2, '0')}:00` });
                     setShowReminderPicker(false);
                   }}
                 >
-                  <Text style={[
-                    styles.durationOptionText,
-                    form.reminderTime === `${hour.toString().padStart(2, '0')}:00` && styles.durationOptionTextSelected
-                  ]}>
+                  <Text
+                    style={[
+                      styles.durationOptionText,
+                      form.reminderTime === `${hour.toString().padStart(2, '0')}:00` &&
+                        styles.durationOptionTextSelected,
+                    ]}
+                  >
                     {hour - 12} PM
                   </Text>
                   {form.reminderTime === `${hour.toString().padStart(2, '0')}:00` && (
@@ -885,37 +916,37 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,          // 8 × 2
-    paddingVertical: 12,            // 8 × 1.5
+    paddingHorizontal: 16, // 8 × 2
+    paddingVertical: 12, // 8 × 1.5
     backgroundColor: Colors.white,
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
   },
   backButton: {
-    width: 40,                      // 8 × 5
-    height: 40,                     // 8 × 5
+    width: 40, // 8 × 5
+    height: 40, // 8 × 5
     borderRadius: 20,
     backgroundColor: Colors.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
   title: {
-    fontSize: 20,                   // subheading
-    fontWeight: '700',              // bold
+    fontSize: 20, // subheading
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
     letterSpacing: -0.3,
   },
   habitCounterBadge: {
     backgroundColor: Colors.accent1 + '12',
-    paddingHorizontal: 10,          // 8 × 1.25
+    paddingHorizontal: 10, // 8 × 1.25
     paddingVertical: 4,
     borderRadius: 12,
   },
   habitCounter: {
-    fontSize: 12,                   // small
+    fontSize: 12, // small
     color: Colors.accent1,
-    fontWeight: '600',              // semibold
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
 
@@ -923,16 +954,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: 16,                    // 8 × 2
-    paddingBottom: 32,              // 8 × 4
+    padding: 16, // 8 × 2
+    paddingBottom: 32, // 8 × 4
   },
 
   // Hero Preview Card
   heroCard: {
     backgroundColor: Colors.white,
-    borderRadius: 20,               // 8 × 2.5
-    padding: 24,                    // 8 × 3
-    marginBottom: 24,               // 8 × 3
+    borderRadius: 20, // 8 × 2.5
+    padding: 24, // 8 × 3
+    marginBottom: 24, // 8 × 3
     alignItems: 'center',
     borderWidth: 1.5,
     shadowColor: Colors.black,
@@ -942,54 +973,54 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   heroIconCircle: {
-    width: 64,                      // 8 × 8
-    height: 64,                     // 8 × 8
+    width: 64, // 8 × 8
+    height: 64, // 8 × 8
     borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 12,               // 8 × 1.5
+    marginBottom: 12, // 8 × 1.5
   },
   heroName: {
-    fontSize: 20,                   // subheading
-    fontWeight: '700',              // bold
+    fontSize: 20, // subheading
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
-    marginBottom: 8,                // 8 × 1
+    marginBottom: 8, // 8 × 1
     textAlign: 'center',
     letterSpacing: -0.3,
   },
   heroCategoryPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,          // 8 × 1.5
+    paddingHorizontal: 12, // 8 × 1.5
     paddingVertical: 6,
     borderRadius: 16,
     gap: 6,
   },
   heroCategoryText: {
-    fontSize: 12,                   // small
-    fontWeight: '600',              // semibold
+    fontSize: 12, // small
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
 
   // Section Label
   sectionLabel: {
-    fontSize: 12,                   // small
-    fontWeight: '600',              // semibold
+    fontSize: 12, // small
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.secondaryText,
     letterSpacing: 1,
-    marginBottom: 8,                // 8 × 1
+    marginBottom: 8, // 8 × 1
   },
   nameSection: {
-    marginBottom: 8,                // 8 × 1
+    marginBottom: 8, // 8 × 1
   },
 
   // Card (replaces collapsibleSection)
   card: {
     backgroundColor: Colors.white,
-    borderRadius: 16,               // 8 × 2
-    marginBottom: 12,               // 8 × 1.5
+    borderRadius: 16, // 8 × 2
+    marginBottom: 12, // 8 × 1.5
     overflow: 'hidden',
     shadowColor: Colors.black,
     shadowOffset: { width: 0, height: 2 },
@@ -1001,8 +1032,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,                    // 8 × 2
-    minHeight: 64,                  // 8 × 8
+    padding: 16, // 8 × 2
+    minHeight: 64, // 8 × 8
   },
   cardHeaderLeft: {
     flexDirection: 'row',
@@ -1010,33 +1041,33 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cardHeaderIcon: {
-    width: 36,                      // 8 × 4.5
-    height: 36,                     // 8 × 4.5
+    width: 36, // 8 × 4.5
+    height: 36, // 8 × 4.5
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,                // 8 × 1.5
+    marginRight: 12, // 8 × 1.5
   },
   cardHeaderTitle: {
-    fontSize: 12,                   // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
-    fontWeight: '500',              // medium
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
     marginBottom: 2,
     letterSpacing: 0.2,
   },
   cardHeaderValue: {
-    fontSize: 16,                   // body
+    fontSize: 16, // body
     color: Colors.primaryText,
-    fontWeight: '600',              // semibold
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
   expandedContent: {
-    paddingHorizontal: 12,          // 8 × 1.5
-    paddingBottom: 12,              // 8 × 1.5
+    paddingHorizontal: 12, // 8 × 1.5
+    paddingBottom: 12, // 8 × 1.5
     borderTopWidth: 1,
     borderTopColor: Colors.gray.light,
-    paddingTop: 12,                 // 8 × 1.5
+    paddingTop: 12, // 8 × 1.5
   },
 
   // Category Grid
@@ -1044,24 +1075,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,          // 8 × 1.5
-    paddingBottom: 12,              // 8 × 1.5
-    paddingTop: 8,                  // 8 × 1
+    paddingHorizontal: 12, // 8 × 1.5
+    paddingBottom: 12, // 8 × 1.5
+    paddingTop: 8, // 8 × 1
     borderTopWidth: 1,
     borderTopColor: Colors.gray.light,
   },
   categoryCard: {
     width: '48%',
     backgroundColor: Colors.background,
-    borderRadius: 12,               // 8 × 1.5
-    padding: 10,                    // 8 × 1.25
+    borderRadius: 12, // 8 × 1.5
+    padding: 10, // 8 × 1.25
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1.5,
     borderColor: 'transparent',
     position: 'relative',
-    minHeight: 48,                  // 8 × 6
-    marginBottom: 8,                // 8 × 1
+    minHeight: 48, // 8 × 6
+    marginBottom: 8, // 8 × 1
   },
   categoryCardSelected: {
     borderWidth: 1.5,
@@ -1073,16 +1104,16 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   categoryIconContainer: {
-    width: 32,                      // 8 × 4
-    height: 32,                     // 8 × 4
+    width: 32, // 8 × 4
+    height: 32, // 8 × 4
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 8,                 // 8 × 1
+    marginRight: 8, // 8 × 1
   },
   categoryLabel: {
-    fontSize: 14,                   // caption
-    fontWeight: '600',              // semibold
+    fontSize: 14, // caption
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
     flex: 1,
@@ -1097,19 +1128,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: Colors.accent1 + '08',
-    padding: 14,                    // 8 × 1.75
-    borderRadius: 12,               // 8 × 1.5
-    minHeight: 48,                  // 8 × 6
+    padding: 14, // 8 × 1.75
+    borderRadius: 12, // 8 × 1.5
+    minHeight: 48, // 8 × 6
   },
   iconSelectorLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,                         // 8 × 1
+    gap: 8, // 8 × 1
   },
   iconSelectorButtonText: {
-    fontSize: 14,                   // caption
+    fontSize: 14, // caption
     color: Colors.accent1,
-    fontWeight: '600',              // semibold
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
 
@@ -1118,9 +1149,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,            // 8 × 1.25
+    paddingVertical: 10, // 8 × 1.25
     paddingHorizontal: 4,
-    minHeight: 56,                  // 8 × 7
+    minHeight: 56, // 8 × 7
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light + '80',
   },
@@ -1130,22 +1161,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   optionIconContainer: {
-    width: 36,                      // 8 × 4.5
-    height: 36,                     // 8 × 4.5
+    width: 36, // 8 × 4.5
+    height: 36, // 8 × 4.5
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,                // 8 × 1.5
+    marginRight: 12, // 8 × 1.5
   },
   optionLabel: {
-    fontSize: 16,                   // body
-    fontWeight: '500',              // medium
+    fontSize: 16, // body
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
     color: Colors.primaryText,
     marginBottom: 1,
   },
   optionDescription: {
-    fontSize: 14,                   // caption
+    fontSize: 14, // caption
     fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
   },
@@ -1155,21 +1186,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,            // 8 × 1.25
+    paddingVertical: 10, // 8 × 1.25
     paddingHorizontal: 4,
-    minHeight: 48,                  // 8 × 6
+    minHeight: 48, // 8 × 6
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light + '80',
   },
   timerDurationLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,                        // 8 × 1.5
+    gap: 12, // 8 × 1.5
   },
   timerDurationLabel: {
-    fontSize: 16,                   // body
+    fontSize: 16, // body
     color: Colors.primaryText,
-    fontWeight: '500',              // medium
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
   },
   timerDurationRight: {
@@ -1178,9 +1209,9 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   timerDurationValue: {
-    fontSize: 16,                   // body
+    fontSize: 16, // body
     color: Colors.accent1,
-    fontWeight: '600',              // semibold
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
 
@@ -1189,24 +1220,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFF4E8',
-    borderRadius: 12,               // 8 × 1.5
-    padding: 12,                    // 8 × 1.5
-    marginTop: 8,                   // 8 × 1
-    minHeight: 48,                  // 8 × 6
+    borderRadius: 12, // 8 × 1.5
+    padding: 12, // 8 × 1.5
+    marginTop: 8, // 8 × 1
+    minHeight: 48, // 8 × 6
   },
   timeText: {
     flex: 1,
-    fontSize: 16,                   // body
+    fontSize: 16, // body
     color: Colors.primaryText,
-    fontWeight: '600',              // semibold
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
     marginLeft: 10,
   },
 
   // Create Button
   buttonContainer: {
-    marginTop: 24,                  // 8 × 3
-    marginBottom: 16,               // 8 × 2
+    marginTop: 24, // 8 × 3
+    marginBottom: 16, // 8 × 2
   },
 
   // Modal
@@ -1217,22 +1248,22 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     backgroundColor: Colors.white,
-    borderTopLeftRadius: 24,        // 8 × 3
-    borderTopRightRadius: 24,       // 8 × 3
+    borderTopLeftRadius: 24, // 8 × 3
+    borderTopRightRadius: 24, // 8 × 3
     height: '50%',
-    paddingBottom: 32,              // 8 × 4
+    paddingBottom: 32, // 8 × 4
   },
   modalHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,                    // 8 × 2
+    padding: 16, // 8 × 2
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
   },
   modalTitle: {
-    fontSize: 20,                   // subheading
-    fontWeight: '700',              // bold
+    fontSize: 20, // subheading
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
   },
@@ -1243,9 +1274,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 14,            // 8 × 1.75
-    paddingHorizontal: 24,          // 8 × 3
-    minHeight: 52,                  // 8 × 6.5
+    paddingVertical: 14, // 8 × 1.75
+    paddingHorizontal: 24, // 8 × 3
+    minHeight: 52, // 8 × 6.5
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
   },
@@ -1253,14 +1284,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accent1 + '08',
   },
   durationOptionText: {
-    fontSize: 16,                   // body
+    fontSize: 16, // body
     color: Colors.primaryText,
-    fontWeight: '400',              // regular
+    fontWeight: '400', // regular
     fontFamily: Typography.fontFamily.regular,
   },
   durationOptionTextSelected: {
     color: Colors.accent1,
-    fontWeight: '600',              // semibold
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
 });

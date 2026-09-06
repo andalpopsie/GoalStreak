@@ -1,13 +1,5 @@
 // Analytics Service - Comprehensive habit analytics and insights
-import { 
-  collection, 
-  query, 
-  where, 
-  getDocs, 
-  orderBy, 
-  limit,
-  Timestamp 
-} from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, limit, Timestamp } from 'firebase/firestore';
 import { db } from './firebase';
 import { Habit, HabitCompletion, HabitCategory } from '../types';
 import { logInfo, logError } from './smartLoggingService';
@@ -55,7 +47,7 @@ export interface InsightData {
 const getDateRange = (period: 'week' | 'month' | 'year'): { start: Date; end: Date } => {
   const end = new Date();
   const start = new Date();
-  
+
   switch (period) {
     case 'week':
       start.setDate(end.getDate() - 7);
@@ -67,49 +59,49 @@ const getDateRange = (period: 'week' | 'month' | 'year'): { start: Date; end: Da
       start.setDate(end.getDate() - 365);
       break;
   }
-  
+
   start.setHours(0, 0, 0, 0);
   end.setHours(23, 59, 59, 999);
-  
+
   return { start, end };
 };
 
 // Calculate streak from completions
 const calculateStreak = (completions: HabitCompletion[]): { current: number; longest: number } => {
   if (completions.length === 0) return { current: 0, longest: 0 };
-  
+
   // Sort by date descending
-  const sorted = [...completions].sort((a, b) => 
-    b.completedAt.getTime() - a.completedAt.getTime()
-  );
-  
+  const sorted = [...completions].sort((a, b) => b.completedAt.getTime() - a.completedAt.getTime());
+
   let currentStreak = 0;
   let longestStreak = 0;
   let tempStreak = 1;
   const lastDate = sorted[0].completedAt;
-  
+
   // Check if most recent completion was today or yesterday
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
-  
+
   const lastCompletionDate = new Date(lastDate);
   lastCompletionDate.setHours(0, 0, 0, 0);
-  
+
   if (lastCompletionDate >= yesterday) {
     currentStreak = 1;
-    
+
     // Count consecutive days
     for (let i = 1; i < sorted.length; i++) {
       const currentDate = new Date(sorted[i].completedAt);
       currentDate.setHours(0, 0, 0, 0);
-      
+
       const prevDate = new Date(sorted[i - 1].completedAt);
       prevDate.setHours(0, 0, 0, 0);
-      
-      const dayDiff = Math.floor((prevDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
-      
+
+      const dayDiff = Math.floor(
+        (prevDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
       if (dayDiff === 1) {
         currentStreak++;
         tempStreak++;
@@ -121,18 +113,20 @@ const calculateStreak = (completions: HabitCompletion[]): { current: number; lon
       }
     }
   }
-  
+
   // Calculate longest streak
   tempStreak = 1;
   for (let i = 1; i < sorted.length; i++) {
     const currentDate = new Date(sorted[i].completedAt);
     currentDate.setHours(0, 0, 0, 0);
-    
+
     const prevDate = new Date(sorted[i - 1].completedAt);
     prevDate.setHours(0, 0, 0, 0);
-    
-    const dayDiff = Math.floor((prevDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
-    
+
+    const dayDiff = Math.floor(
+      (prevDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
     if (dayDiff === 1) {
       tempStreak++;
       longestStreak = Math.max(longestStreak, tempStreak);
@@ -143,9 +137,9 @@ const calculateStreak = (completions: HabitCompletion[]): { current: number; lon
       tempStreak = 1;
     }
   }
-  
+
   longestStreak = Math.max(longestStreak, currentStreak, tempStreak);
-  
+
   return { current: currentStreak, longest: longestStreak };
 };
 
@@ -164,32 +158,35 @@ export const getHabitAnalytics = async (
       where('habitId', '==', habitId),
       orderBy('completedAt', 'desc')
     );
-    
+
     const snapshot = await getDocs(q);
-    const completions: HabitCompletion[] = snapshot.docs.map(doc => ({
+    const completions: HabitCompletion[] = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
       completedAt: doc.data().completedAt?.toDate() || new Date(),
     })) as HabitCompletion[];
-    
+
     // Calculate streaks
     const { current, longest } = calculateStreak(completions);
-    
+
     // Calculate completion rate (last 30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
-    const recentCompletions = completions.filter(c => 
-      c.completedAt >= thirtyDaysAgo
-    );
-    
+
+    const recentCompletions = completions.filter((c) => c.completedAt >= thirtyDaysAgo);
+
     const completionRate = (recentCompletions.length / 30) * 100;
-    
+
     // Calculate average completions per week
-    const weeklyAverage = completions.length > 0 
-      ? (completions.length / Math.max(1, Math.ceil((Date.now() - habit.createdAt.getTime()) / (7 * 24 * 60 * 60 * 1000))))
-      : 0;
-    
+    const weeklyAverage =
+      completions.length > 0
+        ? completions.length /
+          Math.max(
+            1,
+            Math.ceil((Date.now() - habit.createdAt.getTime()) / (7 * 24 * 60 * 60 * 1000))
+          )
+        : 0;
+
     return {
       habitId,
       habitName: habit.name,
@@ -214,13 +211,11 @@ export const getAllHabitAnalytics = async (
 ): Promise<HabitAnalytics[]> => {
   try {
     logInfo('analytics', 'Loading analytics for all habits', { userId, habitCount: habits.length });
-    
-    const analyticsPromises = habits.map(habit => 
-      getHabitAnalytics(userId, habit.id, habit)
-    );
-    
+
+    const analyticsPromises = habits.map((habit) => getHabitAnalytics(userId, habit.id, habit));
+
     const analytics = await Promise.all(analyticsPromises);
-    
+
     // Sort by total completions descending
     return analytics.sort((a, b) => b.totalCompletions - a.totalCompletions);
   } catch (error) {
@@ -236,7 +231,7 @@ export const getPeriodAnalytics = async (
 ): Promise<PeriodAnalytics> => {
   try {
     const { start, end } = getDateRange(period);
-    
+
     // Get completions in period
     const completionsRef = collection(db, 'completions');
     const q = query(
@@ -245,48 +240,48 @@ export const getPeriodAnalytics = async (
       where('completedAt', '>=', Timestamp.fromDate(start)),
       where('completedAt', '<=', Timestamp.fromDate(end))
     );
-    
+
     const snapshot = await getDocs(q);
-    const completions: HabitCompletion[] = snapshot.docs.map(doc => ({
+    const completions: HabitCompletion[] = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
       completedAt: doc.data().completedAt?.toDate() || new Date(),
     })) as HabitCompletion[];
-    
+
     // Get habits to map categories
     const habitsRef = collection(db, 'habits');
     const habitsQuery = query(habitsRef, where('userId', '==', userId));
     const habitsSnapshot = await getDocs(habitsQuery);
-    const habits: Habit[] = habitsSnapshot.docs.map(doc => ({
+    const habits: Habit[] = habitsSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate() || new Date(),
       updatedAt: doc.data().updatedAt?.toDate() || new Date(),
     })) as Habit[];
-    
-    const habitMap = new Map(habits.map(h => [h.id, h]));
-    
+
+    const habitMap = new Map(habits.map((h) => [h.id, h]));
+
     // Calculate unique habits completed
-    const uniqueHabits = new Set(completions.map(c => c.habitId));
-    
+    const uniqueHabits = new Set(completions.map((c) => c.habitId));
+
     // Calculate most active day
     const dayCount: Record<string, number> = {};
-    completions.forEach(c => {
+    completions.forEach((c) => {
       const day = c.completedAt.toLocaleDateString('en-US', { weekday: 'short' });
       dayCount[day] = (dayCount[day] || 0) + 1;
     });
-    
+
     const mostActiveDay = Object.entries(dayCount).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
-    
+
     // Calculate top categories
     const categoryCount: Record<string, number> = {};
-    completions.forEach(c => {
+    completions.forEach((c) => {
       const habit = habitMap.get(c.habitId);
       if (habit) {
         categoryCount[habit.category] = (categoryCount[habit.category] || 0) + 1;
       }
     });
-    
+
     const topCategories = Object.entries(categoryCount)
       .map(([category, completions]) => ({
         category: category as HabitCategory,
@@ -294,14 +289,13 @@ export const getPeriodAnalytics = async (
       }))
       .sort((a, b) => b.completions - a.completions)
       .slice(0, 5);
-    
+
     // Calculate completion rate
     const daysInPeriod = period === 'week' ? 7 : period === 'month' ? 30 : 365;
     const expectedCompletions = uniqueHabits.size * daysInPeriod;
-    const completionRate = expectedCompletions > 0 
-      ? (completions.length / expectedCompletions) * 100 
-      : 0;
-    
+    const completionRate =
+      expectedCompletions > 0 ? (completions.length / expectedCompletions) * 100 : 0;
+
     return {
       period,
       totalCompletions: completions.length,
@@ -317,16 +311,13 @@ export const getPeriodAnalytics = async (
 };
 
 // Get trend data for charts
-export const getTrendData = async (
-  userId: string,
-  days: number = 30
-): Promise<TrendData[]> => {
+export const getTrendData = async (userId: string, days: number = 30): Promise<TrendData[]> => {
   try {
     const endDate = new Date();
     const startDate = new Date();
     startDate.setDate(endDate.getDate() - days);
     startDate.setHours(0, 0, 0, 0);
-    
+
     // Get completions in range
     const completionsRef = collection(db, 'completions');
     const q = query(
@@ -335,17 +326,17 @@ export const getTrendData = async (
       where('completedAt', '>=', Timestamp.fromDate(startDate)),
       where('completedAt', '<=', Timestamp.fromDate(endDate))
     );
-    
+
     const snapshot = await getDocs(q);
-    const completions: HabitCompletion[] = snapshot.docs.map(doc => ({
+    const completions: HabitCompletion[] = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
       completedAt: doc.data().completedAt?.toDate() || new Date(),
     })) as HabitCompletion[];
-    
+
     // Group by date
     const dateMap: Record<string, { completions: number; habits: Set<string> }> = {};
-    
+
     // Initialize all dates
     for (let i = 0; i < days; i++) {
       const date = new Date(startDate);
@@ -353,16 +344,16 @@ export const getTrendData = async (
       const dateStr = date.toISOString().split('T')[0];
       dateMap[dateStr] = { completions: 0, habits: new Set() };
     }
-    
+
     // Fill in completion data
-    completions.forEach(c => {
+    completions.forEach((c) => {
       const dateStr = c.completedAt.toISOString().split('T')[0];
       if (dateMap[dateStr]) {
         dateMap[dateStr].completions++;
         dateMap[dateStr].habits.add(c.habitId);
       }
     });
-    
+
     // Convert to array
     return Object.entries(dateMap)
       .map(([date, data]) => ({
@@ -385,12 +376,13 @@ export const generateInsights = async (
 ): Promise<InsightData[]> => {
   try {
     const insights: InsightData[] = [];
-    
+
     // Streak insights
-    const bestStreak = habitAnalytics.reduce((max, h) => 
-      h.currentStreak > max.currentStreak ? h : max
-    , habitAnalytics[0]);
-    
+    const bestStreak = habitAnalytics.reduce(
+      (max, h) => (h.currentStreak > max.currentStreak ? h : max),
+      habitAnalytics[0]
+    );
+
     if (bestStreak && bestStreak.currentStreak >= 7) {
       insights.push({
         type: 'streak',
@@ -400,7 +392,7 @@ export const generateInsights = async (
         icon: 'flame',
       });
     }
-    
+
     // Category insights
     if (periodAnalytics.topCategories.length > 0) {
       const topCategory = periodAnalytics.topCategories[0];
@@ -412,12 +404,12 @@ export const generateInsights = async (
         icon: 'trophy',
       });
     }
-    
+
     // Improvement insights
-    const improvingHabits = habitAnalytics.filter(h => 
-      h.currentStreak > 0 && h.completionRate > 70
+    const improvingHabits = habitAnalytics.filter(
+      (h) => h.currentStreak > 0 && h.completionRate > 70
     );
-    
+
     if (improvingHabits.length > 0) {
       insights.push({
         type: 'improvement',
@@ -427,7 +419,7 @@ export const generateInsights = async (
         icon: 'trending-up',
       });
     }
-    
+
     // Time insights
     if (periodAnalytics.mostActiveDay !== 'N/A') {
       insights.push({
@@ -437,7 +429,7 @@ export const generateInsights = async (
         icon: 'calendar',
       });
     }
-    
+
     // Completion rate insight
     if (periodAnalytics.completionRate >= 80) {
       insights.push({
@@ -448,7 +440,7 @@ export const generateInsights = async (
         icon: 'star',
       });
     }
-    
+
     return insights;
   } catch (error) {
     logError('analytics', 'Error generating insights', { userId, error });

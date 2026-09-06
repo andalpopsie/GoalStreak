@@ -6,12 +6,7 @@
  */
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import {
-  Group,
-  GroupInvitation,
-  GroupProgress,
-  GroupActivity,
-} from '../../types/social';
+import { Group, GroupInvitation, GroupProgress, GroupActivity } from '../../types/social';
 
 // ── Mocks ──
 
@@ -345,9 +340,7 @@ describe('Accountability Groups — UI Component Render Tests', () => {
   describe('GroupProgressCard', () => {
     it('renders without errors with habits', () => {
       const progress = makeProgress();
-      const { getByText } = render(
-        <GroupProgressCard memberProgress={progress} />
-      );
+      const { getByText } = render(<GroupProgressCard memberProgress={progress} />);
       expect(getByText('Test User')).toBeTruthy();
       expect(getByText('1/2 completed today')).toBeTruthy();
       expect(getByText('Morning Run')).toBeTruthy();
@@ -357,9 +350,7 @@ describe('Accountability Groups — UI Component Render Tests', () => {
 
     it('renders empty state when no habits linked', () => {
       const progress = makeProgress({ habits: [] });
-      const { getByText } = render(
-        <GroupProgressCard memberProgress={progress} />
-      );
+      const { getByText } = render(<GroupProgressCard memberProgress={progress} />);
       expect(getByText('No habits linked yet')).toBeTruthy();
       expect(getByText('0/0 completed today')).toBeTruthy();
     });
@@ -370,11 +361,7 @@ describe('Accountability Groups — UI Component Render Tests', () => {
     it('renders habit_completed activity', () => {
       const activity = makeActivity();
       const { getByText } = render(
-        <GroupFeedCard
-          activity={activity}
-          onReaction={jest.fn()}
-          currentUserId="user-1"
-        />
+        <GroupFeedCard activity={activity} onReaction={jest.fn()} currentUserId="user-1" />
       );
       expect(getByText('Jane Doe')).toBeTruthy();
     });
@@ -385,11 +372,7 @@ describe('Accountability Groups — UI Component Render Tests', () => {
         streakCount: 30,
       });
       const { getByText } = render(
-        <GroupFeedCard
-          activity={activity}
-          onReaction={jest.fn()}
-          currentUserId="user-1"
-        />
+        <GroupFeedCard activity={activity} onReaction={jest.fn()} currentUserId="user-1" />
       );
       expect(getByText('Jane Doe')).toBeTruthy();
     });
@@ -397,11 +380,7 @@ describe('Accountability Groups — UI Component Render Tests', () => {
     it('renders member_joined system event', () => {
       const activity = makeActivity({ type: 'member_joined' });
       const { getByText } = render(
-        <GroupFeedCard
-          activity={activity}
-          onReaction={jest.fn()}
-          currentUserId="user-1"
-        />
+        <GroupFeedCard activity={activity} onReaction={jest.fn()} currentUserId="user-1" />
       );
       expect(getByText('Jane Doe')).toBeTruthy();
     });
@@ -409,11 +388,7 @@ describe('Accountability Groups — UI Component Render Tests', () => {
     it('renders member_left system event', () => {
       const activity = makeActivity({ type: 'member_left' });
       const { getByText } = render(
-        <GroupFeedCard
-          activity={activity}
-          onReaction={jest.fn()}
-          currentUserId="user-1"
-        />
+        <GroupFeedCard activity={activity} onReaction={jest.fn()} currentUserId="user-1" />
       );
       expect(getByText('Jane Doe')).toBeTruthy();
     });

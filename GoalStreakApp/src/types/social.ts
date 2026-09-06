@@ -50,7 +50,7 @@ export interface SocialActivity {
   caption?: string;
 }
 
-export type ActivityType = 
+export type ActivityType =
   | 'habit_completed'
   | 'streak_milestone'
   | 'habit_created'
@@ -129,17 +129,17 @@ export interface GroupMember {
 
 export interface Group {
   id: string;
-  name: string;                    // 3–50 characters
-  description: string;             // 0–200 characters
-  category: string;                // habit category from existing system
-  adminId: string;                 // userId of creator
-  members: GroupMember[];          // 1–10 members (includes admin)
-  memberIds: string[];             // denormalized for Firestore array-contains queries
+  name: string; // 3–50 characters
+  description: string; // 0–200 characters
+  category: string; // habit category from existing system
+  adminId: string; // userId of creator
+  members: GroupMember[]; // 1–10 members (includes admin)
+  memberIds: string[]; // denormalized for Firestore array-contains queries
   status: GroupStatus;
   createdAt: Date;
   updatedAt: Date;
-  endDate?: Date;                  // optional, at least 1 day in future
-  endedAt?: Date;                  // when the group was ended
+  endDate?: Date; // optional, at least 1 day in future
+  endedAt?: Date; // when the group was ended
 }
 
 export interface GroupInvitation {
@@ -147,12 +147,12 @@ export interface GroupInvitation {
   groupId: string;
   groupName: string;
   groupDescription: string;
-  fromUserId: string;              // admin who sent it
+  fromUserId: string; // admin who sent it
   fromUserName: string;
   toUserId: string;
   toUserName: string;
   status: GroupInvitationStatus;
-  memberCount: number;             // current member count at time of invite
+  memberCount: number; // current member count at time of invite
   createdAt: Date;
   updatedAt?: Date;
 }
@@ -178,7 +178,7 @@ export interface GroupActivity {
   habitCategory?: string;
   streakCount?: number;
   timestamp: Date;
-  reactions?: Reactions;           // reuses existing Reactions type
+  reactions?: Reactions; // reuses existing Reactions type
 }
 
 export interface GroupProgress {
@@ -244,6 +244,6 @@ export interface Report {
 }
 
 export interface ModerationState {
-  blockedUserIds: Set<string>;   // bidirectional
+  blockedUserIds: Set<string>; // bidirectional
   reportedContentIds: Set<string>;
 }

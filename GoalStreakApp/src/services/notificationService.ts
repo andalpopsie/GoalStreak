@@ -46,12 +46,12 @@ class NotificationService {
    */
   async checkAndRequestPermissions(): Promise<boolean> {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    
+
     if (existingStatus !== 'granted') {
       const { status } = await Notifications.requestPermissionsAsync();
       return status === 'granted';
     }
-    
+
     return true;
   }
 
@@ -62,7 +62,9 @@ class NotificationService {
   async scheduleHabitReminder(habit: Habit): Promise<string | null> {
     try {
       if (!habit.reminderTime || !habit.reminderEnabled) {
-        console.log(`⏭️ Skipping notification for ${habit.name} - reminder disabled or no time set`);
+        console.log(
+          `⏭️ Skipping notification for ${habit.name} - reminder disabled or no time set`
+        );
         return null;
       }
 
@@ -89,7 +91,7 @@ class NotificationService {
           body: `Keep your streak alive - complete your ${habit.name} habit now!`,
           badge: 1,
           categoryIdentifier: 'habit-reminder',
-          data: { 
+          data: {
             type: 'habit_reminder',
             habitId: habit.id,
             habitName: habit.name,
@@ -102,11 +104,13 @@ class NotificationService {
         },
       });
 
-      console.log(`✅ Scheduled daily reminder for ${habit.name} at ${hours}:${minutes.toString().padStart(2, '0')}`);
-      
+      console.log(
+        `✅ Scheduled daily reminder for ${habit.name} at ${hours}:${minutes.toString().padStart(2, '0')}`
+      );
+
       // Store notification ID for cancellation
       await this.storeNotificationId(habit.id, notificationId);
-      
+
       return notificationId;
     } catch (error) {
       console.error('❌ Error scheduling habit reminder:', error);
@@ -120,7 +124,7 @@ class NotificationService {
   async cancelHabitReminders(habitId: string): Promise<void> {
     try {
       const notificationIds = await this.getStoredNotificationIds(habitId);
-      
+
       if (notificationIds.length > 0) {
         await Notifications.cancelScheduledNotificationAsync(notificationIds[0]);
         await this.clearStoredNotificationIds(habitId);
@@ -136,14 +140,14 @@ class NotificationService {
    */
   async handleNotificationAction(actionIdentifier: string, notification: any) {
     const { habitId } = notification.request.content.data;
-    
+
     switch (actionIdentifier) {
       case 'complete':
         // Mark habit as complete without opening app
         // This would integrate with your habit service
         console.log(`✅ Marked habit ${habitId} as complete from notification`);
         break;
-        
+
       case 'snooze':
         // Schedule snooze notification (10 minutes)
         await this.scheduleSnoozeNotification(habitId, notification.request.content);
@@ -175,7 +179,7 @@ class NotificationService {
   async testHabitReminder(): Promise<any> {
     try {
       console.log('🧪 Testing individual habit reminder...');
-      
+
       // Create a test habit
       const testHabit: Habit = {
         id: 'test-habit-001',
@@ -186,7 +190,7 @@ class NotificationService {
 
       // Schedule the reminder
       const notificationId = await this.scheduleHabitReminder(testHabit);
-      
+
       if (notificationId) {
         console.log(`✅ Test habit reminder scheduled: ${notificationId}`);
         return {
@@ -234,7 +238,7 @@ class NotificationService {
       // Test 2: Daily repeating notification (1 minute from now)
       const now = new Date();
       const testTime = new Date(now.getTime() + 60000); // 1 minute from now
-      
+
       const dailyId = await Notifications.scheduleNotificationAsync({
         content: {
           title: '🧪 Test 2: Daily Repeat',
@@ -268,7 +272,7 @@ class NotificationService {
 
       // Get all scheduled notifications for verification
       const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-      
+
       console.log('✅ Test notifications scheduled:');
       console.log(`📱 Immediate (5s): ${immediateId}`);
       console.log(`🔄 Daily repeat: ${dailyId}`);
@@ -329,12 +333,14 @@ class NotificationService {
   async getNotificationSettings() {
     try {
       const settings = await AsyncStorage.getItem('notification_settings');
-      return settings ? JSON.parse(settings) : {
-        enabled: true,
-        sound: true,
-        badge: true,
-        lastUpdated: new Date().toISOString(),
-      };
+      return settings
+        ? JSON.parse(settings)
+        : {
+            enabled: true,
+            sound: true,
+            badge: true,
+            lastUpdated: new Date().toISOString(),
+          };
     } catch (error) {
       console.error('❌ Error getting notification settings:', error);
       return { enabled: true, sound: true, badge: true };
@@ -363,13 +369,13 @@ class NotificationService {
   async getScheduledNotificationsInfo() {
     try {
       const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-      const info = scheduled.map(notification => ({
+      const info = scheduled.map((notification) => ({
         id: notification.identifier,
         title: notification.content.title,
         trigger: notification.trigger,
         data: notification.content.data,
       }));
-      
+
       console.log(`📊 Currently scheduled notifications: ${scheduled.length}`);
       return info;
     } catch (error) {

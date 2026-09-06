@@ -35,7 +35,7 @@ const flagArb: fc.Arbitrary<boolean | undefined | null> = fc.constantFrom(
   true,
   false,
   undefined,
-  null,
+  null
 );
 
 const docExistsArb: fc.Arbitrary<boolean> = fc.boolean();
@@ -69,7 +69,7 @@ describe('userProvisioningService.isNewUser — Property 6: new-user detection f
           expect(mockedGetDoc).toHaveBeenCalledTimes(1);
         }
       }),
-      { numRuns: 100 },
+      { numRuns: 100 }
     );
   });
 });

@@ -7,26 +7,26 @@ export const TIMER_CONSTANTS = {
   MIN_DURATION_MINUTES: 1,
   MAX_DURATION_MINUTES: 24 * 60, // 24 hours
   DEFAULT_DURATION_MINUTES: 25, // Pomodoro technique default
-  
+
   // Update intervals
   PROGRESS_UPDATE_INTERVAL: 100, // Update every 100ms for smooth animation
   BACKGROUND_SYNC_INTERVAL: 5000, // Sync every 5 seconds when backgrounded
   PERSISTENCE_INTERVAL: 1000, // Save state every second
-  
+
   // Limits
   MAX_CONCURRENT_TIMERS: 3, // Maximum number of concurrent active timers
-  
+
   // Notifications
   NOTIFICATION_PROGRESS_THRESHOLD: 0.75, // Send notification at 75% completion
-  
+
   // Suggested increments for timer duration picker
   ALLOWED_INCREMENTS: [1, 5, 10, 15, 20, 25, 30, 45, 60, 90, 120], // Minutes
-  
+
   // Animation and UI
   PROGRESS_RING_ANIMATION_DURATION: 300, // Animation duration in ms
   TIMER_RING_STROKE_WIDTH: 6,
   TIMER_RING_SIZE_OFFSET: 20, // Offset from habit circle
-  
+
   // Colors (matching design system)
   COLORS: {
     INACTIVE: '#E8E8E8', // Light gray for inactive timer
@@ -102,12 +102,12 @@ export const TIMER_NOTIFICATION_CONFIG = {
   COMPLETION_NOTIFICATION_ID: 'timer_completion',
   PROGRESS_NOTIFICATION_ID: 'timer_progress',
   REMINDER_NOTIFICATION_ID: 'timer_reminder',
-  
+
   // Notification channels (Android)
   CHANNEL_ID: 'timer_notifications',
   CHANNEL_NAME: 'Timer Notifications',
   CHANNEL_DESCRIPTION: 'Notifications for habit timer progress and completion',
-  
+
   // Notification priorities
   PRIORITY_HIGH: 'high',
   PRIORITY_DEFAULT: 'default',
@@ -133,7 +133,7 @@ export const TIMER_ACCESSIBILITY = {
     TIME_REMAINING: 'Time remaining',
     TIMER_COMPLETED: 'Timer completed',
   },
-  
+
   ANNOUNCEMENTS: {
     TIMER_STARTED: 'Timer started',
     TIMER_PAUSED: 'Timer paused',
@@ -143,7 +143,7 @@ export const TIMER_ACCESSIBILITY = {
     PROGRESS_UPDATE: 'Timer progress: {percentage}% complete',
     TIME_REMAINING: '{time} remaining',
   },
-  
+
   HAPTIC_PATTERNS: {
     TIMER_START: 'light',
     TIMER_PAUSE: 'medium',
@@ -162,7 +162,7 @@ export const TIMER_DESIGN = {
     SHADOW_OFFSET: { width: 0, height: 2 },
     SHADOW_RADIUS: 4,
   },
-  
+
   // Timer display
   TIMER_DISPLAY: {
     FONT_FAMILY: 'Montserrat_600SemiBold',
@@ -171,7 +171,7 @@ export const TIMER_DESIGN = {
     TEXT_ALIGN: 'center' as const,
     MARGIN_TOP: 4,
   },
-  
+
   // Control buttons
   CONTROL_BUTTONS: {
     SIZE: 44,
@@ -182,7 +182,7 @@ export const TIMER_DESIGN = {
     SHADOW_OFFSET: { width: 0, height: 2 },
     SHADOW_RADIUS: 4,
   },
-  
+
   // Animation curves
   ANIMATIONS: {
     PROGRESS_UPDATE: 'easeInOut' as const,

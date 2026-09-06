@@ -23,7 +23,9 @@ interface GroupSettingsModalProps {
   onClose: () => void;
   group: Group;
   isAdmin: boolean;
-  onUpdateGroup: (updates: Partial<Pick<Group, 'name' | 'description' | 'endDate'>>) => Promise<void>;
+  onUpdateGroup: (
+    updates: Partial<Pick<Group, 'name' | 'description' | 'endDate'>>
+  ) => Promise<void>;
   onRemoveMember: (memberId: string) => Promise<void>;
   onLeaveGroup: () => Promise<void>;
   onEndGroup: () => Promise<void>;
@@ -49,7 +51,8 @@ export default function GroupSettingsModal({
 
   // Validation
   const nameValidation = editName.length > 0 ? groupService.validateGroupName(editName) : null;
-  const descValidation = editDescription.length > 0 ? groupService.validateGroupDescription(editDescription) : null;
+  const descValidation =
+    editDescription.length > 0 ? groupService.validateGroupDescription(editDescription) : null;
   const endDateValidation = hasEndDate ? groupService.validateEndDate(editEndDate) : null;
 
   const hasChanges =
@@ -78,24 +81,20 @@ export default function GroupSettingsModal({
   }, [isSaving, editName, editDescription, hasEndDate, editEndDate, group, onUpdateGroup]);
 
   const handleRemoveMember = (memberId: string, memberName: string) => {
-    Alert.alert(
-      'Remove Member',
-      `Are you sure you want to remove ${memberName} from the group?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Remove',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await onRemoveMember(memberId);
-            } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to remove member');
-            }
-          },
+    Alert.alert('Remove Member', `Are you sure you want to remove ${memberName} from the group?`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Remove',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await onRemoveMember(memberId);
+          } catch (error: any) {
+            Alert.alert('Error', error.message || 'Failed to remove member');
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleLeaveGroup = () => {
@@ -407,21 +406,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,             // 8 × 2 (base)
-    paddingVertical: 16,               // 8 × 2 (base)
+    paddingHorizontal: 16, // 8 × 2 (base)
+    paddingVertical: 16, // 8 × 2 (base)
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
     backgroundColor: Colors.white,
   },
   closeButton: {
-    width: 48,                          // 8 × 6 (touch target)
-    height: 48,                         // 8 × 6 (touch target)
+    width: 48, // 8 × 6 (touch target)
+    height: 48, // 8 × 6 (touch target)
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 20,                       // subheading
-    fontWeight: '600',                  // semibold
+    fontSize: 20, // subheading
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
   },
   headerSpacer: {
@@ -431,38 +430,38 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContentContainer: {
-    padding: 16,                        // 8 × 2 (base)
-    paddingBottom: 48,                  // 8 × 6 (spacious)
+    padding: 16, // 8 × 2 (base)
+    paddingBottom: 48, // 8 × 6 (spacious)
   },
   fieldContainer: {
-    marginBottom: 24,                   // 8 × 3 (comfortable)
+    marginBottom: 24, // 8 × 3 (comfortable)
   },
   label: {
-    fontSize: 14,                       // caption
-    fontWeight: '600',                  // semibold
+    fontSize: 14, // caption
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
-    marginBottom: 8,                    // 8 × 1 (tight)
+    marginBottom: 8, // 8 × 1 (tight)
   },
   input: {
     backgroundColor: Colors.white,
     borderWidth: 1,
     borderColor: Colors.gray.light,
     borderRadius: 12,
-    paddingHorizontal: 16,             // 8 × 2 (base)
+    paddingHorizontal: 16, // 8 × 2 (base)
     paddingVertical: 12,
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     color: Colors.primaryText,
-    minHeight: 48,                      // 8 × 6 (touch target)
+    minHeight: 48, // 8 × 6 (touch target)
   },
   textArea: {
-    minHeight: 80,                      // 8 × 10
+    minHeight: 80, // 8 × 10
     paddingTop: 12,
   },
   inputError: {
     borderColor: Colors.error,
   },
   errorText: {
-    fontSize: 12,                       // small
+    fontSize: 12, // small
     color: Colors.error,
     marginTop: 4,
   },
@@ -470,10 +469,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 8,                    // 8 × 1 (tight)
+    marginBottom: 8, // 8 × 1 (tight)
   },
   toggle: {
-    width: 48,                          // 8 × 6
+    width: 48, // 8 × 6
     height: 28,
     borderRadius: 14,
     backgroundColor: Colors.gray.light,
@@ -484,8 +483,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.accent3,
   },
   toggleThumb: {
-    width: 24,                          // 8 × 3
-    height: 24,                         // 8 × 3
+    width: 24, // 8 × 3
+    height: 24, // 8 × 3
     borderRadius: 12,
     backgroundColor: Colors.white,
   },
@@ -493,108 +492,108 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   datePickerContainer: {
-    marginTop: 8,                       // 8 × 1 (tight)
+    marginTop: 8, // 8 × 1 (tight)
   },
   dateButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,                             // 8 × 1 (tight)
+    gap: 8, // 8 × 1 (tight)
     backgroundColor: Colors.white,
     borderWidth: 1,
     borderColor: Colors.gray.light,
     borderRadius: 12,
-    paddingHorizontal: 16,             // 8 × 2 (base)
+    paddingHorizontal: 16, // 8 × 2 (base)
     paddingVertical: 12,
-    minHeight: 48,                      // 8 × 6 (touch target)
+    minHeight: 48, // 8 × 6 (touch target)
   },
   dateButtonText: {
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     color: Colors.primaryText,
   },
   dateAdjustRow: {
     flexDirection: 'row',
-    gap: 8,                             // 8 × 1 (tight)
-    marginTop: 8,                       // 8 × 1 (tight)
+    gap: 8, // 8 × 1 (tight)
+    marginTop: 8, // 8 × 1 (tight)
   },
   dateAdjustButton: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 8,                // 8 × 1 (tight)
+    paddingVertical: 8, // 8 × 1 (tight)
     borderRadius: 8,
     backgroundColor: Colors.gray.light,
     minHeight: 36,
   },
   dateAdjustText: {
-    fontSize: 12,                       // small
-    fontWeight: '500',                  // medium
+    fontSize: 12, // small
+    fontWeight: '500', // medium
     color: Colors.primaryText,
   },
   saveButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.accent1,   // Purple CTA
+    backgroundColor: Colors.accent1, // Purple CTA
     borderRadius: 16,
-    minHeight: 56,                      // 8 × 7 (primary button)
-    paddingVertical: 16,               // 8 × 2 (base)
-    marginBottom: 16,                   // 8 × 2 (base)
+    minHeight: 56, // 8 × 7 (primary button)
+    paddingVertical: 16, // 8 × 2 (base)
+    marginBottom: 16, // 8 × 2 (base)
   },
   saveButtonText: {
     color: Colors.white,
-    fontSize: 16,                       // body
-    fontWeight: '700',                  // bold
+    fontSize: 16, // body
+    fontWeight: '700', // bold
   },
   divider: {
     height: 1,
     backgroundColor: Colors.gray.light,
-    marginVertical: 24,                // 8 × 3 (comfortable)
+    marginVertical: 24, // 8 × 3 (comfortable)
   },
   sectionTitle: {
-    fontSize: 20,                       // subheading
-    fontWeight: '600',                  // semibold
+    fontSize: 20, // subheading
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
-    marginBottom: 16,                   // 8 × 2 (base)
+    marginBottom: 16, // 8 × 2 (base)
   },
   memberRow: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.white,
     borderRadius: 12,
-    padding: 16,                        // 8 × 2 (base)
-    marginBottom: 8,                    // 8 × 1 (tight)
-    minHeight: 56,                      // 8 × 7
+    padding: 16, // 8 × 2 (base)
+    marginBottom: 8, // 8 × 1 (tight)
+    minHeight: 56, // 8 × 7
   },
   memberAvatar: {
-    width: 40,                          // 8 × 5
-    height: 40,                         // 8 × 5
+    width: 40, // 8 × 5
+    height: 40, // 8 × 5
     borderRadius: 20,
     backgroundColor: Colors.accent3,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,                    // 8 × 2 (base)
+    marginRight: 16, // 8 × 2 (base)
   },
   memberAvatarText: {
     color: Colors.white,
-    fontSize: 16,                       // body
-    fontWeight: '600',                  // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
   },
   memberInfo: {
     flex: 1,
-    marginRight: 16,                    // 8 × 2 (base)
+    marginRight: 16, // 8 × 2 (base)
   },
   memberName: {
-    fontSize: 16,                       // body
-    fontWeight: '600',                  // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
     marginBottom: 2,
   },
   memberRole: {
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
   },
   removeButton: {
-    width: 48,                          // 8 × 6 (touch target)
-    height: 48,                         // 8 × 6 (touch target)
+    width: 48, // 8 × 6 (touch target)
+    height: 48, // 8 × 6 (touch target)
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
@@ -604,30 +603,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,                             // 8 × 1 (tight)
+    gap: 8, // 8 × 1 (tight)
     backgroundColor: '#FFF4F4',
     borderWidth: 1,
-    borderColor: Colors.error,         // Red (#FF4444)
+    borderColor: Colors.error, // Red (#FF4444)
     borderRadius: 16,
-    minHeight: 56,                      // 8 × 7 (primary button)
-    paddingVertical: 16,               // 8 × 2 (base)
+    minHeight: 56, // 8 × 7 (primary button)
+    paddingVertical: 16, // 8 × 2 (base)
   },
   destructiveButtonText: {
-    color: Colors.error,               // Red (#FF4444)
-    fontSize: 16,                       // body
-    fontWeight: '600',                  // semibold
+    color: Colors.error, // Red (#FF4444)
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
   },
   memberViewContainer: {
-    paddingTop: 8,                      // 8 × 1 (tight)
+    paddingTop: 8, // 8 × 1 (tight)
   },
   memberViewDescription: {
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     color: Colors.secondaryText,
-    lineHeight: 24,                     // 1.5 line height
-    marginBottom: 8,                    // 8 × 1 (tight)
+    lineHeight: 24, // 1.5 line height
+    marginBottom: 8, // 8 × 1 (tight)
   },
   memberViewMeta: {
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
   },
 });

@@ -1,31 +1,31 @@
 // Friend Service - Social Features for GoalStreak
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  getDocs, 
+import {
+  collection,
+  doc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  getDocs,
   getDoc,
   setDoc,
-  query, 
-  where, 
-  orderBy, 
+  query,
+  where,
+  orderBy,
   limit,
   onSnapshot,
   serverTimestamp,
-  writeBatch
+  writeBatch,
 } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { db } from './firebase';
 import { resolveUserDisplayName } from '../utils/usernameUtils';
 import { achievementsService } from './achievementsService';
-import { 
-  Friend, 
-  FriendRequest, 
-  FriendStatus, 
-  SocialActivity, 
-  ActivityType, 
+import {
+  Friend,
+  FriendRequest,
+  FriendStatus,
+  SocialActivity,
+  ActivityType,
   ActivityVisibility,
   SocialSettings,
   UserProfile,
@@ -37,7 +37,7 @@ import {
   Block,
   Report,
   ReportContentType,
-  ReportReason
+  ReportReason,
 } from '../types/social';
 import { buildReport, selectOutgoingBlocks } from './moderationTransitions';
 
@@ -54,7 +54,11 @@ class FriendService {
   private reportsCollection = collection(db, 'reports');
 
   // Friend Management
-  async sendFriendRequest(fromUserId: string, toUserEmail: string, message?: string): Promise<string> {
+  async sendFriendRequest(
+    fromUserId: string,
+    toUserEmail: string,
+    message?: string
+  ): Promise<string> {
     try {
       // First, find the user by email
       const userQuery = query(
@@ -62,7 +66,7 @@ class FriendService {
         where('email', '==', toUserEmail.toLowerCase())
       );
       const userSnapshot = await getDocs(userQuery);
-      
+
       if (userSnapshot.empty) {
         throw new Error('User not found with that email address');
       }
@@ -117,12 +121,12 @@ class FriendService {
         toUserEmail: toUserData.email,
         status: 'pending',
         createdAt: new Date(),
-        ...(message && { message })
+        ...(message && { message }),
       };
 
       const docRef = await addDoc(this.friendRequestsCollection, {
         ...friendRequest,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
       });
 
       return docRef.id;
@@ -157,7 +161,7 @@ class FriendService {
         // Friendship already exists — just mark the request as accepted
         batch.update(doc(this.friendRequestsCollection, requestId), {
           status: 'accepted',
-          updatedAt: serverTimestamp()
+          updatedAt: serverTimestamp(),
         });
         await batch.commit();
         return;
@@ -166,7 +170,7 @@ class FriendService {
       // Get user profiles for proper names
       const fromUserDoc = await getDoc(doc(this.userProfilesCollection, request.fromUserId));
       const toUserDoc = await getDoc(doc(this.userProfilesCollection, request.toUserId));
-      
+
       // Profiles may be missing for older accounts; the request already
       // carries names/emails, so fall back to those instead of crashing.
       const fromUserData = fromUserDoc.data() as UserProfile | undefined;
@@ -180,7 +184,7 @@ class FriendService {
         friendName: toUserData?.name || request.toUserEmail?.split('@')[0] || 'User',
         status: 'accepted',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       const friend2: Omit<Friend, 'id'> = {
@@ -190,29 +194,29 @@ class FriendService {
         friendName: fromUserData?.name || request.fromUserName || 'User',
         status: 'accepted',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       // Add both friendship records
       const friend1Ref = doc(this.friendsCollection);
       const friend2Ref = doc(this.friendsCollection);
-      
+
       batch.set(friend1Ref, {
         ...friend1,
         createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
-      
+
       batch.set(friend2Ref, {
         ...friend2,
         createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
 
       // Update the friend request status
       batch.update(doc(this.friendRequestsCollection, requestId), {
         status: 'accepted',
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
 
       await batch.commit();
@@ -222,7 +226,7 @@ class FriendService {
       if (friendsData.friends.length === 1) {
         await achievementsService.unlockAchievement('social_butterfly');
       }
-      
+
       // Also check for the person who sent the request
       const senderFriendsData = await this.getFriends(request.fromUserId);
       if (senderFriendsData.friends.length === 1) {
@@ -238,7 +242,7 @@ class FriendService {
     try {
       await updateDoc(doc(this.friendRequestsCollection, requestId), {
         status: 'declined',
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
     } catch (error) {
       console.error('Error declining friend request:', error);
@@ -265,11 +269,11 @@ class FriendService {
       );
       const friendship2Snapshot = await getDocs(friendship2Query);
 
-      friendship1Snapshot.forEach(doc => {
+      friendship1Snapshot.forEach((doc) => {
         batch.delete(doc.ref);
       });
 
-      friendship2Snapshot.forEach(doc => {
+      friendship2Snapshot.forEach((doc) => {
         batch.delete(doc.ref);
       });
 
@@ -291,9 +295,9 @@ class FriendService {
         orderBy('createdAt', 'desc')
       );
       const friendsSnapshot = await getDocs(friendsQuery);
-      const friends = friendsSnapshot.docs.map(doc => ({
+      const friends = friendsSnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       })) as Friend[];
 
       // Get pending requests (received)
@@ -304,9 +308,9 @@ class FriendService {
         orderBy('createdAt', 'desc')
       );
       const pendingSnapshot = await getDocs(pendingQuery);
-      const pendingRequests = pendingSnapshot.docs.map(doc => ({
+      const pendingRequests = pendingSnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       })) as FriendRequest[];
 
       // Get sent requests
@@ -317,15 +321,15 @@ class FriendService {
         orderBy('createdAt', 'desc')
       );
       const sentSnapshot = await getDocs(sentQuery);
-      const sentRequests = sentSnapshot.docs.map(doc => ({
+      const sentRequests = sentSnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       })) as FriendRequest[];
 
       return {
         friends,
         pendingRequests,
-        sentRequests
+        sentRequests,
       };
     } catch (error) {
       console.error('Error getting friends:', error);
@@ -341,7 +345,13 @@ class FriendService {
     habitName: string,
     habitCategory: string,
     visibility: ActivityVisibility = 'friends',
-    additionalData?: { streakCount?: number; completionCount?: number; milestone?: string; photoUrl?: string; caption?: string }
+    additionalData?: {
+      streakCount?: number;
+      completionCount?: number;
+      milestone?: string;
+      photoUrl?: string;
+      caption?: string;
+    }
   ): Promise<string> {
     try {
       // Resolve the display name across both profile collections + auth so we
@@ -366,7 +376,7 @@ class FriendService {
         habitCategory,
         timestamp: new Date(),
         visibility,
-        ...additionalData
+        ...additionalData,
       };
 
       // Strip undefined values — Firestore rejects them
@@ -376,7 +386,7 @@ class FriendService {
 
       const docRef = await addDoc(this.activitiesCollection, {
         ...cleanActivity,
-        timestamp: serverTimestamp()
+        timestamp: serverTimestamp(),
       });
 
       return docRef.id;
@@ -386,11 +396,15 @@ class FriendService {
     }
   }
 
-  async getActivityFeed(userId: string, lastActivityId?: string, limitCount: number = 20): Promise<ActivityFeedResponse> {
+  async getActivityFeed(
+    userId: string,
+    lastActivityId?: string,
+    limitCount: number = 20
+  ): Promise<ActivityFeedResponse> {
     try {
       // Get user's friends to filter activities
       const friendsData = await this.getFriends(userId);
-      const friendIds = friendsData.friends.map(friend => friend.friendId);
+      const friendIds = friendsData.friends.map((friend) => friend.friendId);
       friendIds.push(userId); // Include user's own activities
 
       if (friendIds.length === 0) {
@@ -407,9 +421,9 @@ class FriendService {
       );
 
       const activitiesSnapshot = await getDocs(activitiesQuery);
-      const activities = activitiesSnapshot.docs.map(doc => ({
+      const activities = activitiesSnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       })) as SocialActivity[];
 
       const hasMore = activities.length > limitCount;
@@ -420,7 +434,7 @@ class FriendService {
       return {
         activities,
         hasMore,
-        lastActivityId: activities.length > 0 ? activities[activities.length - 1].id : undefined
+        lastActivityId: activities.length > 0 ? activities[activities.length - 1].id : undefined,
       };
     } catch (error) {
       console.error('Error getting activity feed:', error);
@@ -438,12 +452,12 @@ class FriendService {
         totalCompletions: 0,
         longestStreak: 0,
         joinedAt: new Date(),
-        isPublic: true
+        isPublic: true,
       };
 
       await setDoc(doc(this.userProfilesCollection, userId), {
         ...profile,
-        joinedAt: serverTimestamp()
+        joinedAt: serverTimestamp(),
       });
     } catch (error) {
       console.error('Error creating user profile:', error);
@@ -464,7 +478,7 @@ class FriendService {
   async getSocialSettings(userId: string): Promise<SocialSettings> {
     try {
       const settingsDoc = await getDoc(doc(this.socialSettingsCollection, userId));
-      
+
       if (!settingsDoc.exists()) {
         // Create default settings
         const defaultSettings: Omit<SocialSettings, 'userId'> = {
@@ -474,14 +488,14 @@ class FriendService {
           shareHabitCompletions: true,
           shareNewHabits: false,
           notifyOnFriendActivity: true,
-          updatedAt: new Date()
+          updatedAt: new Date(),
         };
 
         // Use setDoc instead of updateDoc for new documents
         await setDoc(doc(this.socialSettingsCollection, userId), {
           userId,
           ...defaultSettings,
-          updatedAt: serverTimestamp()
+          updatedAt: serverTimestamp(),
         });
 
         return { userId, ...defaultSettings };
@@ -489,7 +503,7 @@ class FriendService {
 
       return {
         userId,
-        ...settingsDoc.data()
+        ...settingsDoc.data(),
       } as SocialSettings;
     } catch (error) {
       console.error('Error getting social settings:', error);
@@ -501,7 +515,7 @@ class FriendService {
     try {
       await updateDoc(doc(this.socialSettingsCollection, userId), {
         ...settings,
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
     } catch (error) {
       console.error('Error updating social settings:', error);
@@ -527,7 +541,10 @@ class FriendService {
     });
   }
 
-  subscribeActivityFeed(userId: string, callback: (activities: SocialActivity[]) => void): () => void {
+  subscribeActivityFeed(
+    userId: string,
+    callback: (activities: SocialActivity[]) => void
+  ): () => void {
     // This is a simplified version - in production, you'd want more sophisticated real-time updates
     const activitiesQuery = query(
       this.activitiesCollection,
@@ -547,7 +564,7 @@ class FriendService {
 
   // Real-time activity feed subscription (cross-device optimized)
   subscribeToActivityFeed(
-    userId: string, 
+    userId: string,
     callback: (activities: SocialActivity[]) => void,
     errorCallback?: (error: any) => void
   ): () => void {
@@ -559,7 +576,7 @@ class FriendService {
     );
 
     return onSnapshot(
-      activitiesQuery, 
+      activitiesQuery,
       async (snapshot) => {
         try {
           // Check if any document changed (including reactions from other devices)
@@ -589,7 +606,7 @@ class FriendService {
     try {
       const activityRef = doc(this.activitiesCollection, activityId);
       const activityDoc = await getDoc(activityRef);
-      
+
       if (!activityDoc.exists()) {
         throw new Error('Activity not found');
       }
@@ -617,7 +634,7 @@ class FriendService {
       await updateDoc(activityRef, {
         reactions,
         updatedAt: serverTimestamp(),
-        lastReactionAt: serverTimestamp()
+        lastReactionAt: serverTimestamp(),
       });
 
       // Check for cheerleader achievement (10 reactions)
@@ -634,9 +651,9 @@ class FriendService {
       // Count total reactions given by user across all activities
       const activitiesQuery = query(this.activitiesCollection);
       const activitiesSnapshot = await getDocs(activitiesQuery);
-      
+
       let totalReactions = 0;
-      activitiesSnapshot.forEach(doc => {
+      activitiesSnapshot.forEach((doc) => {
         const activity = doc.data() as SocialActivity;
         if (activity.reactions && activity.reactions[userId]) {
           totalReactions += activity.reactions[userId].length;
@@ -655,7 +672,7 @@ class FriendService {
   // Get reaction counts for activity (optimized)
   getReactionCounts(reactions?: Reactions): Record<ReactionType, number> {
     const counts: Record<ReactionType, number> = { heart: 0, flame: 0, medal: 0 };
-    
+
     if (!reactions) return counts;
 
     Object.values(reactions).forEach((userReactions) => {
@@ -724,17 +741,13 @@ class FriendService {
         where('toUserId', '==', blockerId)
       );
 
-      const [
-        friendship1Snapshot,
-        friendship2Snapshot,
-        request1Snapshot,
-        request2Snapshot
-      ] = await Promise.all([
-        getDocs(friendship1Query),
-        getDocs(friendship2Query),
-        getDocs(request1Query),
-        getDocs(request2Query)
-      ]);
+      const [friendship1Snapshot, friendship2Snapshot, request1Snapshot, request2Snapshot] =
+        await Promise.all([
+          getDocs(friendship1Query),
+          getDocs(friendship2Query),
+          getDocs(request1Query),
+          getDocs(request2Query),
+        ]);
 
       const batch = writeBatch(db);
 
@@ -743,19 +756,16 @@ class FriendService {
       batch.set(blockRef, {
         blockerId,
         blockedUserId,
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
       });
 
       // Delete both friendship docs (R1.8) and any pending friend requests in
       // either direction (R1.9)
-      [
-        friendship1Snapshot,
-        friendship2Snapshot,
-        request1Snapshot,
-        request2Snapshot
-      ].forEach((snapshot) => {
-        snapshot.forEach((docSnap) => batch.delete(docSnap.ref));
-      });
+      [friendship1Snapshot, friendship2Snapshot, request1Snapshot, request2Snapshot].forEach(
+        (snapshot) => {
+          snapshot.forEach((docSnap) => batch.delete(docSnap.ref));
+        }
+      );
 
       // Rethrow on commit failure so nothing persists (R1.7)
       await batch.commit();
@@ -797,14 +807,11 @@ class FriendService {
    */
   async getBlockedUsers(userId: string): Promise<Block[]> {
     try {
-      const blocksQuery = query(
-        this.blocksCollection,
-        where('blockerId', '==', userId)
-      );
+      const blocksQuery = query(this.blocksCollection, where('blockerId', '==', userId));
       const snapshot = await getDocs(blocksQuery);
       const blocks = snapshot.docs.map((docSnap) => ({
         id: docSnap.id,
-        ...docSnap.data()
+        ...docSnap.data(),
       })) as Block[];
 
       // selectOutgoingBlocks re-asserts the blockerId == userId invariant.
@@ -832,7 +839,7 @@ class FriendService {
       );
       const [forwardSnapshot, reverseSnapshot] = await Promise.all([
         getDocs(forwardQuery),
-        getDocs(reverseQuery)
+        getDocs(reverseQuery),
       ]);
       return !forwardSnapshot.empty || !reverseSnapshot.empty;
     } catch (error) {
@@ -851,14 +858,8 @@ class FriendService {
    * detaches both listeners (R2.7, R2.8, R3.2).
    */
   subscribeBlockSet(userId: string, callback: (ids: Set<string>) => void): () => void {
-    const outgoingQuery = query(
-      this.blocksCollection,
-      where('blockerId', '==', userId)
-    );
-    const incomingQuery = query(
-      this.blocksCollection,
-      where('blockedUserId', '==', userId)
-    );
+    const outgoingQuery = query(this.blocksCollection, where('blockerId', '==', userId));
+    const incomingQuery = query(this.blocksCollection, where('blockedUserId', '==', userId));
 
     let outgoingIds = new Set<string>();
     let incomingIds = new Set<string>();
@@ -887,9 +888,7 @@ class FriendService {
     const unsubscribeIncoming = onSnapshot(
       incomingQuery,
       (snapshot) => {
-        incomingIds = new Set(
-          snapshot.docs.map((docSnap) => (docSnap.data() as Block).blockerId)
-        );
+        incomingIds = new Set(snapshot.docs.map((docSnap) => (docSnap.data() as Block).blockerId));
         emit();
       },
       (error) => {
@@ -928,14 +927,14 @@ class FriendService {
           reportedUserId: params.reportedUserId,
           contentType: params.contentType,
           contentId: params.contentId,
-          reason: params.reason
+          reason: params.reason,
         },
         new Date()
       );
 
       await addDoc(this.reportsCollection, {
         ...report,
-        timestamp: serverTimestamp()
+        timestamp: serverTimestamp(),
       });
     } catch (error) {
       console.error('Error reporting content:', error);
@@ -947,13 +946,17 @@ class FriendService {
    * Convenience wrapper that reports a user profile (R4.1). Sets
    * `contentType: 'user'` and `contentId` equal to the reported user id (R4.9).
    */
-  async reportUser(reporterId: string, reportedUserId: string, reason: ReportReason): Promise<void> {
+  async reportUser(
+    reporterId: string,
+    reportedUserId: string,
+    reason: ReportReason
+  ): Promise<void> {
     return this.reportContent({
       reporterId,
       reportedUserId,
       contentType: 'user',
       contentId: reportedUserId,
-      reason
+      reason,
     });
   }
 
@@ -963,14 +966,9 @@ class FriendService {
    */
   async getReportedContentIds(userId: string): Promise<Set<string>> {
     try {
-      const reportsQuery = query(
-        this.reportsCollection,
-        where('reporterId', '==', userId)
-      );
+      const reportsQuery = query(this.reportsCollection, where('reporterId', '==', userId));
       const snapshot = await getDocs(reportsQuery);
-      return new Set(
-        snapshot.docs.map((docSnap) => (docSnap.data() as Report).contentId)
-      );
+      return new Set(snapshot.docs.map((docSnap) => (docSnap.data() as Report).contentId));
     } catch (error) {
       console.error('Error getting reported content ids:', error);
       throw error;
@@ -983,17 +981,12 @@ class FriendService {
    * (R5.1, R5.2).
    */
   subscribeReportedContent(userId: string, callback: (ids: Set<string>) => void): () => void {
-    const reportsQuery = query(
-      this.reportsCollection,
-      where('reporterId', '==', userId)
-    );
+    const reportsQuery = query(this.reportsCollection, where('reporterId', '==', userId));
 
     return onSnapshot(
       reportsQuery,
       (snapshot) => {
-        const ids = new Set(
-          snapshot.docs.map((docSnap) => (docSnap.data() as Report).contentId)
-        );
+        const ids = new Set(snapshot.docs.map((docSnap) => (docSnap.data() as Report).contentId));
         callback(ids);
       },
       (error) => {
@@ -1013,14 +1006,11 @@ class FriendService {
 
       const results: UserSearchResult[] = [];
       const userIds = new Set<string>(); // Track unique users
-      
+
       // Get current user's friends and pending requests (simplified)
-      const friendsQuery = query(
-        this.friendsCollection,
-        where('userId', '==', currentUserId)
-      );
+      const friendsQuery = query(this.friendsCollection, where('userId', '==', currentUserId));
       const friendsSnapshot = await getDocs(friendsQuery);
-      const friendIds = new Set(friendsSnapshot.docs.map(doc => doc.data().friendId));
+      const friendIds = new Set(friendsSnapshot.docs.map((doc) => doc.data().friendId));
 
       const sentRequestsQuery = query(
         this.friendRequestsCollection,
@@ -1028,7 +1018,7 @@ class FriendService {
         where('status', '==', 'pending')
       );
       const sentRequestsSnapshot = await getDocs(sentRequestsQuery);
-      const sentRequestIds = new Set(sentRequestsSnapshot.docs.map(doc => doc.data().toUserId));
+      const sentRequestIds = new Set(sentRequestsSnapshot.docs.map((doc) => doc.data().toUserId));
 
       const receivedRequestsQuery = query(
         this.friendRequestsCollection,
@@ -1036,16 +1026,18 @@ class FriendService {
         where('status', '==', 'pending')
       );
       const receivedRequestsSnapshot = await getDocs(receivedRequestsQuery);
-      const receivedRequestIds = new Set(receivedRequestsSnapshot.docs.map(doc => doc.data().fromUserId));
+      const receivedRequestIds = new Set(
+        receivedRequestsSnapshot.docs.map((doc) => doc.data().fromUserId)
+      );
 
       // Helper function to add user to results
       const addUserToResults = (doc: any) => {
         const userData = doc.data();
         const userId = doc.id;
-        
+
         // Skip current user and duplicates
         if (userId === currentUserId || userIds.has(userId)) return;
-        
+
         userIds.add(userId);
         results.push({
           id: userId,
@@ -1054,7 +1046,7 @@ class FriendService {
           avatar: userData.avatar || userData.profilePhoto || undefined,
           mutualFriends: 0,
           isFriend: friendIds.has(userId),
-          hasPendingRequest: sentRequestIds.has(userId) || receivedRequestIds.has(userId)
+          hasPendingRequest: sentRequestIds.has(userId) || receivedRequestIds.has(userId),
         });
       };
 
@@ -1089,8 +1081,8 @@ class FriendService {
       displayNameSnapshot.forEach(addUserToResults);
 
       // Search by username (strip @ prefix if present)
-      const usernameSearch = searchQuery.startsWith('@') 
-        ? searchQuery.slice(1).toLowerCase() 
+      const usernameSearch = searchQuery.startsWith('@')
+        ? searchQuery.slice(1).toLowerCase()
         : searchQuery.toLowerCase();
       if (usernameSearch.length >= 2) {
         const usernameQuery = query(

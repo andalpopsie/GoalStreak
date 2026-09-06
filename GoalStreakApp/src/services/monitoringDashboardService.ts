@@ -1,6 +1,6 @@
 /**
  * Monitoring Dashboard Service
- * 
+ *
  * Provides real-time monitoring and performance tracking for iOS launch.
  * Implements Task 7.3: Set up performance monitoring dashboard
  */
@@ -39,7 +39,7 @@ class MonitoringDashboardService {
   private systemHealth: SystemHealth = {
     memoryUsage: 0,
     cpuUsage: 0,
-    networkStatus: 'online'
+    networkStatus: 'online',
   };
   private monitoringInterval: ReturnType<typeof setInterval> | null = null;
 
@@ -49,14 +49,15 @@ class MonitoringDashboardService {
   async initialize(): Promise<void> {
     try {
       // Check if performance monitoring is disabled
-      const performanceMonitoringEnabled = process.env.EXPO_PUBLIC_ENABLE_PERFORMANCE_MONITORING === 'true';
-      
+      const performanceMonitoringEnabled =
+        process.env.EXPO_PUBLIC_ENABLE_PERFORMANCE_MONITORING === 'true';
+
       if (!config.analytics.enabled || !performanceMonitoringEnabled) {
         logInfo('performance', 'Monitoring Dashboard: Performance monitoring disabled');
         this.isInitialized = true; // Mark as initialized but don't start monitoring
         return;
       }
-      
+
       if (config.environment === 'development') {
         logInfo('performance', 'Monitoring Dashboard: Running in mock mode (development)');
         this.startPerformanceMonitoring();
@@ -67,15 +68,16 @@ class MonitoringDashboardService {
 
       // Initialize performance monitoring
       this.startPerformanceMonitoring();
-      
+
       // Initialize system health monitoring
       this.startSystemHealthMonitoring();
-      
+
       this.isInitialized = true;
       logInfo('performance', 'Monitoring Dashboard: Initialized successfully');
-
     } catch (error) {
-      logWarn('performance', 'Monitoring Dashboard: Failed to initialize', { error: error.message });
+      logWarn('performance', 'Monitoring Dashboard: Failed to initialize', {
+        error: error.message,
+      });
       throw error;
     }
   }
@@ -86,7 +88,7 @@ class MonitoringDashboardService {
   private startPerformanceMonitoring(): void {
     // Monitor app performance metrics
     this.recordPerformanceMetric('service_initialization', Date.now(), 'startup');
-    
+
     // Set up periodic monitoring - Less frequent in production
     const monitoringInterval = config.environment === 'production' ? 300000 : 60000; // 5 min in prod, 1 min in dev
     this.monitoringInterval = setInterval(() => {
@@ -106,8 +108,8 @@ class MonitoringDashboardService {
    * Record a performance metric
    */
   recordPerformanceMetric(
-    name: string, 
-    value: number, 
+    name: string,
+    value: number,
     category: PerformanceMetric['category'],
     metadata?: Record<string, any>
   ): void {
@@ -121,7 +123,7 @@ class MonitoringDashboardService {
       value,
       category,
       timestamp: new Date(),
-      metadata
+      metadata,
     };
 
     this.performanceMetrics.push(metric);
@@ -133,11 +135,11 @@ class MonitoringDashboardService {
 
     // Only log significant metrics to reduce noise
     if (this.isSignificantMetric(metric)) {
-      logPerformance(`Significant Performance Metric: ${name}`, { 
-        value, 
-        category, 
+      logPerformance(`Significant Performance Metric: ${name}`, {
+        value,
+        category,
         metadata,
-        timestamp: metric.timestamp 
+        timestamp: metric.timestamp,
       });
     }
 
@@ -155,10 +157,10 @@ class MonitoringDashboardService {
     // In a real implementation, this would collect actual system metrics
     this.systemHealth = {
       memoryUsage: Math.random() * 100, // Placeholder
-      cpuUsage: Math.random() * 100,    // Placeholder
-      networkStatus: 'online',          // Placeholder
+      cpuUsage: Math.random() * 100, // Placeholder
+      networkStatus: 'online', // Placeholder
       batteryLevel: Math.random() * 100, // Placeholder
-      diskSpace: Math.random() * 100     // Placeholder
+      diskSpace: Math.random() * 100, // Placeholder
     };
   }
 
@@ -167,25 +169,25 @@ class MonitoringDashboardService {
    */
   private collectSystemMetrics(): void {
     this.updateSystemHealth();
-    
+
     // Only record system health metrics if they're significant or in development
     const memorySignificant = this.systemHealth.memoryUsage > 80;
     const cpuSignificant = this.systemHealth.cpuUsage > 80;
-    
+
     if (memorySignificant || config.environment === 'development') {
       this.recordPerformanceMetric('memory_usage', this.systemHealth.memoryUsage, 'memory');
     }
-    
+
     if (cpuSignificant || config.environment === 'development') {
       this.recordPerformanceMetric('cpu_usage', this.systemHealth.cpuUsage, 'memory');
     }
-    
+
     // Log system health summary less frequently
     if (config.environment === 'development') {
       logPerformance('System Health Check', {
         memory: this.systemHealth.memoryUsage.toFixed(1) + '%',
         cpu: this.systemHealth.cpuUsage.toFixed(1) + '%',
-        network: this.systemHealth.networkStatus
+        network: this.systemHealth.networkStatus,
       });
     }
   }
@@ -198,13 +200,13 @@ class MonitoringDashboardService {
       case 'startup':
         return metric.value > 3000; // Startup time > 3 seconds
       case 'navigation':
-        return metric.value > 500;  // Navigation > 500ms
+        return metric.value > 500; // Navigation > 500ms
       case 'api':
         return metric.value > 2000; // API call > 2 seconds
       case 'render':
-        return metric.value > 100;  // Render time > 100ms
+        return metric.value > 100; // Render time > 100ms
       case 'memory':
-        return metric.value > 80;   // Memory usage > 80%
+        return metric.value > 80; // Memory usage > 80%
       default:
         return false;
     }
@@ -219,7 +221,7 @@ class MonitoringDashboardService {
       systemHealth: { ...this.systemHealth },
       errorRate: this.calculateErrorRate(),
       crashFreeSessionRate: this.calculateCrashFreeSessionRate(),
-      userSatisfactionScore: this.calculateUserSatisfactionScore()
+      userSatisfactionScore: this.calculateUserSatisfactionScore(),
     };
   }
 
@@ -252,7 +254,7 @@ class MonitoringDashboardService {
    */
   getPerformanceSummary(): Record<string, any> {
     const recentMetrics = this.performanceMetrics.slice(-20);
-    
+
     return {
       totalMetrics: this.performanceMetrics.length,
       recentMetrics: recentMetrics.length,
@@ -260,7 +262,7 @@ class MonitoringDashboardService {
       averageNavigationTime: this.getAverageMetricValue('navigation'),
       averageApiTime: this.getAverageMetricValue('api'),
       systemHealth: this.systemHealth,
-      isHealthy: this.isSystemHealthy()
+      isHealthy: this.isSystemHealthy(),
     };
   }
 
@@ -268,9 +270,9 @@ class MonitoringDashboardService {
    * Get average value for a metric category
    */
   private getAverageMetricValue(category: PerformanceMetric['category']): number {
-    const categoryMetrics = this.performanceMetrics.filter(m => m.category === category);
+    const categoryMetrics = this.performanceMetrics.filter((m) => m.category === category);
     if (categoryMetrics.length === 0) return 0;
-    
+
     const sum = categoryMetrics.reduce((acc, metric) => acc + metric.value, 0);
     return sum / categoryMetrics.length;
   }
@@ -292,7 +294,7 @@ class MonitoringDashboardService {
   generateMonitoringReport(): string {
     const dashboard = this.getDashboardData();
     const summary = this.getPerformanceSummary();
-    
+
     return `
 # GoalStreak Monitoring Dashboard Report
 
@@ -340,10 +342,10 @@ class MonitoringDashboardService {
       clearInterval(this.monitoringInterval);
       this.monitoringInterval = null;
     }
-    
+
     this.performanceMetrics = [];
     this.isInitialized = false;
-    
+
     logInfo('performance', 'Monitoring Dashboard: Cleaned up resources');
   }
 }
@@ -353,8 +355,8 @@ export const monitoringDashboardService = new MonitoringDashboardService();
 
 // Helper functions for easy usage throughout the app
 export const recordPerformance = (
-  name: string, 
-  value: number, 
+  name: string,
+  value: number,
   category: PerformanceMetric['category'],
   metadata?: Record<string, any>
 ) => {

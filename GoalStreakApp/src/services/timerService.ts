@@ -1,28 +1,28 @@
 // Timer Service - Core timer functionality with state management and persistence
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { 
-  TimerState, 
-  TimerSession, 
+import {
+  TimerState,
+  TimerSession,
   TimerConfig,
-  TimerError, 
+  TimerError,
   TimerErrorDetails,
   StoredTimerState,
   TimerCalculations,
   TimerEvent,
-  TimerEventType
+  TimerEventType,
 } from '../types/timer';
-import { 
-  TIMER_CONSTANTS, 
-  TIMER_STORAGE_KEYS, 
+import {
+  TIMER_CONSTANTS,
+  TIMER_STORAGE_KEYS,
   TIMER_ERROR_MESSAGES,
-  TIMER_EVENTS 
+  TIMER_EVENTS,
 } from '../constants/timer';
 import { validateTimerState } from '../utils/timerValidation';
-import { 
-  BackgroundTimerManager, 
+import {
+  BackgroundTimerManager,
   backgroundTimerManager,
   TimerCalculations as BackgroundTimerCalculations,
-  TimerPersistence
+  TimerPersistence,
 } from '../utils/backgroundTimer';
 
 /**
@@ -48,10 +48,10 @@ export class TimerService {
     try {
       // Import error handler dynamically to avoid circular dependencies
       const { timerErrorHandler } = await import('../utils/timerErrorHandler');
-      
+
       // Enhanced input validation - temporarily bypassed
       const inputValidation = { isValid: true, errors: [] };
-      
+
       /*
       const inputValidation = timerErrorHandler.validateTimerInput({
         duration: durationMinutes,
@@ -59,41 +59,47 @@ export class TimerService {
         userId
       });
       */
-      
+
       if (!inputValidation.isValid) {
-        const errorMessage = inputValidation.errors.map(e => e.message).join(', ');
+        const errorMessage = inputValidation.errors.map((e) => e.message).join(', ');
         const error = this.createError(TimerError.INVALID_DURATION, errorMessage, habitId);
         await timerErrorHandler.handleError(error, {
           habitId,
           operation: 'startTimer',
-          additionalData: { durationMinutes, userId }
+          additionalData: { durationMinutes, userId },
         });
         throw error;
       }
 
       // Check if timer already exists for this habit
       if (this.activeTimers.has(habitId)) {
-        const error = this.createError(TimerError.TIMER_ALREADY_ACTIVE, 
-          TIMER_ERROR_MESSAGES[TimerError.TIMER_ALREADY_ACTIVE], habitId);
+        const error = this.createError(
+          TimerError.TIMER_ALREADY_ACTIVE,
+          TIMER_ERROR_MESSAGES[TimerError.TIMER_ALREADY_ACTIVE],
+          habitId
+        );
         await timerErrorHandler.handleError(error, {
           habitId,
           operation: 'startTimer',
-          additionalData: { existingTimer: true }
+          additionalData: { existingTimer: true },
         });
         throw error;
       }
 
       // Check concurrent timer limit
       if (this.activeTimers.size >= TIMER_CONSTANTS.MAX_CONCURRENT_TIMERS) {
-        const error = this.createError(TimerError.MAX_CONCURRENT_TIMERS_EXCEEDED,
-          TIMER_ERROR_MESSAGES[TimerError.MAX_CONCURRENT_TIMERS_EXCEEDED], habitId);
+        const error = this.createError(
+          TimerError.MAX_CONCURRENT_TIMERS_EXCEEDED,
+          TIMER_ERROR_MESSAGES[TimerError.MAX_CONCURRENT_TIMERS_EXCEEDED],
+          habitId
+        );
         await timerErrorHandler.handleError(error, {
           habitId,
           operation: 'startTimer',
-          additionalData: { 
+          additionalData: {
             activeTimerCount: this.activeTimers.size,
-            maxAllowed: TIMER_CONSTANTS.MAX_CONCURRENT_TIMERS
-          }
+            maxAllowed: TIMER_CONSTANTS.MAX_CONCURRENT_TIMERS,
+          },
         });
         throw error;
       }
@@ -111,18 +117,21 @@ export class TimerService {
         remainingTime: durationMs,
         progress: 0,
         lastUpdate: now,
-        originalDuration: durationMs
+        originalDuration: durationMs,
       };
 
       // Enhanced timer state validation
       const stateValidation = timerErrorHandler.validateTimerState(timerState);
       if (!stateValidation.isValid) {
-        const error = this.createError(TimerError.INVALID_TIMER_STATE, 
-          stateValidation.errors.join(', '), habitId);
+        const error = this.createError(
+          TimerError.INVALID_TIMER_STATE,
+          stateValidation.errors.join(', '),
+          habitId
+        );
         await timerErrorHandler.handleError(error, {
           habitId,
           operation: 'startTimer',
-          additionalData: { timerState, validationErrors: stateValidation.errors }
+          additionalData: { timerState, validationErrors: stateValidation.errors },
         });
         throw error;
       }
@@ -138,14 +147,11 @@ export class TimerService {
         await this.persistTimerState();
       } catch (persistError) {
         console.error('Failed to persist timer state:', persistError);
-        await timerErrorHandler.handleError(
-          TimerError.TIMER_PERSISTENCE_FAILED,
-          {
-            habitId,
-            operation: 'startTimer',
-            additionalData: { persistError: persistError.message }
-          }
-        );
+        await timerErrorHandler.handleError(TimerError.TIMER_PERSISTENCE_FAILED, {
+          habitId,
+          operation: 'startTimer',
+          additionalData: { persistError: persistError.message },
+        });
         // Continue execution - timer can work without persistence
       }
 
@@ -163,20 +169,24 @@ export class TimerService {
       return timerState;
     } catch (error) {
       console.error('Error starting timer:', error);
-      
+
       // If it's already a timer error, re-throw it
-      if (error instanceof Error && error.name && Object.values(TimerError).includes(error.name as TimerError)) {
+      if (
+        error instanceof Error &&
+        error.name &&
+        Object.values(TimerError).includes(error.name as TimerError)
+      ) {
         throw error;
       }
-      
+
       // Handle unexpected errors
       const { timerErrorHandler } = await import('../utils/timerErrorHandler');
       const enhancedError = await timerErrorHandler.handleError(error, {
         habitId,
         operation: 'startTimer',
-        additionalData: { durationMinutes, userId }
+        additionalData: { durationMinutes, userId },
       });
-      
+
       throw this.createError(TimerError.INVALID_TIMER_STATE, 'Failed to start timer', habitId);
     }
   }
@@ -187,57 +197,66 @@ export class TimerService {
   async pauseTimer(habitId: string, userId: string): Promise<TimerState> {
     try {
       const { timerErrorHandler } = await import('../utils/timerErrorHandler');
-      
+
       // Validate inputs
       const inputValidation = timerErrorHandler.validateTimerInput({ habitId, userId });
       if (!inputValidation.isValid) {
-        const errorMessage = inputValidation.errors.map(e => e.message).join(', ');
+        const errorMessage = inputValidation.errors.map((e) => e.message).join(', ');
         const error = this.createError(TimerError.INVALID_TIMER_STATE, errorMessage, habitId);
         await timerErrorHandler.handleError(error, {
           habitId,
           operation: 'pauseTimer',
-          additionalData: { userId }
+          additionalData: { userId },
         });
         throw error;
       }
 
       const timerState = this.activeTimers.get(habitId);
       if (!timerState) {
-        const error = this.createError(TimerError.TIMER_NOT_FOUND, 
-          TIMER_ERROR_MESSAGES[TimerError.TIMER_NOT_FOUND], habitId);
+        const error = this.createError(
+          TimerError.TIMER_NOT_FOUND,
+          TIMER_ERROR_MESSAGES[TimerError.TIMER_NOT_FOUND],
+          habitId
+        );
         await timerErrorHandler.handleError(error, {
           habitId,
           operation: 'pauseTimer',
-          additionalData: { userId, activeTimerCount: this.activeTimers.size }
+          additionalData: { userId, activeTimerCount: this.activeTimers.size },
         });
         throw error;
       }
 
       // Validate timer state before pausing
       if (!timerState.isActive) {
-        const error = this.createError(TimerError.TIMER_NOT_ACTIVE, 
-          'Timer is not active and cannot be paused', habitId);
+        const error = this.createError(
+          TimerError.TIMER_NOT_ACTIVE,
+          'Timer is not active and cannot be paused',
+          habitId
+        );
         await timerErrorHandler.handleError(error, {
           habitId,
           operation: 'pauseTimer',
-          additionalData: { 
-            userId, 
-            timerState: { 
-              isActive: timerState.isActive, 
-              isPaused: timerState.isPaused 
-            }
-          }
+          additionalData: {
+            userId,
+            timerState: {
+              isActive: timerState.isActive,
+              isPaused: timerState.isPaused,
+            },
+          },
         });
         throw error;
       }
 
       if (timerState.isPaused) {
-        const error = this.createError(TimerError.TIMER_NOT_ACTIVE, 
-          'Timer is already paused', habitId);
+        const error = this.createError(
+          TimerError.TIMER_NOT_ACTIVE,
+          'Timer is already paused',
+          habitId
+        );
         await timerErrorHandler.handleError(error, {
           habitId,
           operation: 'pauseTimer',
-          additionalData: { userId, alreadyPaused: true }
+          additionalData: { userId, alreadyPaused: true },
         });
         throw error;
       }
@@ -250,7 +269,7 @@ export class TimerService {
         await timerErrorHandler.handleError(calcError, {
           habitId,
           operation: 'pauseTimer',
-          additionalData: { userId, step: 'updateCalculations' }
+          additionalData: { userId, step: 'updateCalculations' },
         });
         // Continue with pause operation
       }
@@ -274,14 +293,11 @@ export class TimerService {
         await this.persistTimerState();
       } catch (persistError) {
         console.error('Failed to persist timer state after pause:', persistError);
-        await timerErrorHandler.handleError(
-          TimerError.TIMER_PERSISTENCE_FAILED,
-          {
-            habitId,
-            operation: 'pauseTimer',
-            additionalData: { userId, persistError: persistError.message }
-          }
-        );
+        await timerErrorHandler.handleError(TimerError.TIMER_PERSISTENCE_FAILED, {
+          habitId,
+          operation: 'pauseTimer',
+          additionalData: { userId, persistError: persistError.message },
+        });
         // Continue execution - timer can work without persistence
       }
 
@@ -294,28 +310,32 @@ export class TimerService {
       }
 
       // Emit event
-      this.emitEvent(TIMER_EVENTS.PAUSED, habitId, userId, { 
+      this.emitEvent(TIMER_EVENTS.PAUSED, habitId, userId, {
         remainingTime: timerState.remainingTime,
-        progress: timerState.progress 
+        progress: timerState.progress,
       });
 
       return timerState;
     } catch (error) {
       console.error('Error pausing timer:', error);
-      
+
       // If it's already a timer error, re-throw it
-      if (error instanceof Error && error.name && Object.values(TimerError).includes(error.name as TimerError)) {
+      if (
+        error instanceof Error &&
+        error.name &&
+        Object.values(TimerError).includes(error.name as TimerError)
+      ) {
         throw error;
       }
-      
+
       // Handle unexpected errors
       const { timerErrorHandler } = await import('../utils/timerErrorHandler');
       await timerErrorHandler.handleError(error, {
         habitId,
         operation: 'pauseTimer',
-        additionalData: { userId }
+        additionalData: { userId },
       });
-      
+
       throw this.createError(TimerError.INVALID_TIMER_STATE, 'Failed to pause timer', habitId);
     }
   }
@@ -327,13 +347,15 @@ export class TimerService {
     try {
       const timerState = this.activeTimers.get(habitId);
       if (!timerState) {
-        throw this.createError(TimerError.TIMER_NOT_FOUND, 
-          TIMER_ERROR_MESSAGES[TimerError.TIMER_NOT_FOUND], habitId);
+        throw this.createError(
+          TimerError.TIMER_NOT_FOUND,
+          TIMER_ERROR_MESSAGES[TimerError.TIMER_NOT_FOUND],
+          habitId
+        );
       }
 
       if (!timerState.isActive || !timerState.isPaused) {
-        throw this.createError(TimerError.TIMER_NOT_ACTIVE, 
-          'Timer is not paused', habitId);
+        throw this.createError(TimerError.TIMER_NOT_ACTIVE, 'Timer is not paused', habitId);
       }
 
       // Resume timer
@@ -348,9 +370,9 @@ export class TimerService {
       await this.persistTimerState();
 
       // Emit event
-      this.emitEvent(TIMER_EVENTS.RESUMED, habitId, userId, { 
+      this.emitEvent(TIMER_EVENTS.RESUMED, habitId, userId, {
         remainingTime: timerState.remainingTime,
-        progress: timerState.progress 
+        progress: timerState.progress,
       });
 
       return timerState;
@@ -367,8 +389,11 @@ export class TimerService {
     try {
       const timerState = this.activeTimers.get(habitId);
       if (!timerState) {
-        throw this.createError(TimerError.TIMER_NOT_FOUND, 
-          TIMER_ERROR_MESSAGES[TimerError.TIMER_NOT_FOUND], habitId);
+        throw this.createError(
+          TimerError.TIMER_NOT_FOUND,
+          TIMER_ERROR_MESSAGES[TimerError.TIMER_NOT_FOUND],
+          habitId
+        );
       }
 
       // Stop update interval
@@ -395,8 +420,11 @@ export class TimerService {
     try {
       const timerState = this.activeTimers.get(habitId);
       if (!timerState) {
-        throw this.createError(TimerError.TIMER_NOT_FOUND, 
-          TIMER_ERROR_MESSAGES[TimerError.TIMER_NOT_FOUND], habitId);
+        throw this.createError(
+          TimerError.TIMER_NOT_FOUND,
+          TIMER_ERROR_MESSAGES[TimerError.TIMER_NOT_FOUND],
+          habitId
+        );
       }
 
       // Calculate final values
@@ -414,7 +442,7 @@ export class TimerService {
         pausedDuration: Math.round(timerState.pausedTime / (60 * 1000)), // Convert to minutes
         completed: true,
         completionMethod: timerState.remainingTime <= 0 ? 'timer' : 'manual',
-        createdAt: new Date()
+        createdAt: new Date(),
       };
 
       // Stop update interval
@@ -430,10 +458,10 @@ export class TimerService {
       await this.persistTimerState();
 
       // Emit event
-      this.emitEvent(TIMER_EVENTS.COMPLETED, habitId, userId, { 
+      this.emitEvent(TIMER_EVENTS.COMPLETED, habitId, userId, {
         sessionId: session.id,
         actualDuration: session.actualDuration,
-        completionMethod: session.completionMethod
+        completionMethod: session.completionMethod,
       });
 
       return session;
@@ -490,7 +518,7 @@ export class TimerService {
       elapsedTime,
       remainingTime,
       progress,
-      progressPercentage: Math.round(progress * 100)
+      progressPercentage: Math.round(progress * 100),
     };
   }
 
@@ -539,7 +567,7 @@ export class TimerService {
     backgroundTimerManager.cleanup();
 
     // Clear all timer checkpoints
-    TimerPersistence.clearAllCheckpoints().catch(error => {
+    TimerPersistence.clearAllCheckpoints().catch((error) => {
       console.error('Error clearing timer checkpoints during cleanup:', error);
     });
   }
@@ -557,24 +585,22 @@ export class TimerService {
    */
   async handleAppBackground(): Promise<void> {
     try {
-      
       // Update all timer calculations before saving
       for (const [habitId, timerState] of this.activeTimers) {
         if (timerState.isActive && !timerState.isPaused) {
           this.updateTimerCalculations(timerState);
         }
       }
-      
+
       // Persist current state
       await this.persistTimerState();
-      
+
       // Save individual checkpoints for each active timer
       for (const [habitId, timerState] of this.activeTimers) {
         if (timerState.isActive) {
           await this.saveTimerCheckpoint(habitId);
         }
       }
-      
     } catch (error) {
       console.error('Error handling app background:', error);
     }
@@ -585,44 +611,42 @@ export class TimerService {
    */
   async handleAppForeground(): Promise<void> {
     try {
-      
       // Force update timers through background manager first
       const completedTimers = await backgroundTimerManager.forceUpdateTimers();
-      
+
       // Reload persisted timers to get updated states after background
       await this.loadPersistedTimers();
-      
+
       // Handle timers that completed while in background
       for (const habitId of completedTimers) {
-        
         // Remove from active timers since it completed
         this.activeTimers.delete(habitId);
-        
+
         // Stop any update intervals
         this.stopUpdateInterval(habitId);
-        
+
         // Clear checkpoint since timer completed
         await this.clearTimerCheckpoint(habitId);
-        
+
         // Emit completion event with background completion flag
-        this.emitEvent(TIMER_EVENTS.COMPLETED, habitId, '', { 
+        this.emitEvent(TIMER_EVENTS.COMPLETED, habitId, '', {
           autoCompleted: true,
           completedInBackground: true,
-          requiresHabitCompletion: true // Flag to indicate habit should be marked complete
+          requiresHabitCompletion: true, // Flag to indicate habit should be marked complete
         });
       }
-      
+
       // Check remaining active timers for any other completions
       for (const [habitId, timerState] of this.activeTimers) {
         if (timerState.remainingTime <= 0 && timerState.isActive) {
-          this.emitEvent(TIMER_EVENTS.COMPLETED, habitId, '', { 
+          this.emitEvent(TIMER_EVENTS.COMPLETED, habitId, '', {
             autoCompleted: true,
             completedOnForeground: true,
-            requiresHabitCompletion: true
+            requiresHabitCompletion: true,
           });
         }
       }
-      
+
       // Clear background completion tracking
       backgroundTimerManager.clearCompletedTimersWhileBackground();
     } catch (error) {
@@ -662,7 +686,7 @@ export class TimerService {
         targetDuration: 0, // Will be calculated
         lastUpdate: checkpoint.timestamp,
         isActive: checkpoint.isActive,
-        isPaused: checkpoint.isPaused
+        isPaused: checkpoint.isPaused,
       };
 
       return BackgroundTimerManager.restoreTimerState(storedTimer);
@@ -702,9 +726,9 @@ export class TimerService {
       if (timerState.remainingTime <= 0) {
         this.stopUpdateInterval(habitId);
         // Timer completed - emit event with habit completion flag
-        this.emitEvent(TIMER_EVENTS.COMPLETED, habitId, '', { 
+        this.emitEvent(TIMER_EVENTS.COMPLETED, habitId, '', {
           autoCompleted: true,
-          requiresHabitCompletion: true // Flag to indicate habit should be marked complete
+          requiresHabitCompletion: true, // Flag to indicate habit should be marked complete
         });
       }
     }, TIMER_CONSTANTS.PROGRESS_UPDATE_INTERVAL);
@@ -768,22 +792,21 @@ export class TimerService {
           targetDuration: this.calculateTargetDuration(timerState),
           lastUpdate: timerState.lastUpdate?.toISOString() || new Date().toISOString(),
           isActive: timerState.isActive,
-          isPaused: timerState.isPaused
+          isPaused: timerState.isPaused,
         };
       }
 
       // Save to regular storage
-      await AsyncStorage.setItem(
-        TIMER_STORAGE_KEYS.ACTIVE_TIMERS, 
-        JSON.stringify(storedTimers)
-      );
+      await AsyncStorage.setItem(TIMER_STORAGE_KEYS.ACTIVE_TIMERS, JSON.stringify(storedTimers));
 
       // Also save to background state for better recovery
       await TimerPersistence.saveBackgroundState(storedTimers);
     } catch (error) {
       console.error('Error persisting timer state:', error);
-      throw this.createError(TimerError.TIMER_PERSISTENCE_FAILED,
-        TIMER_ERROR_MESSAGES[TimerError.TIMER_PERSISTENCE_FAILED]);
+      throw this.createError(
+        TimerError.TIMER_PERSISTENCE_FAILED,
+        TIMER_ERROR_MESSAGES[TimerError.TIMER_PERSISTENCE_FAILED]
+      );
     }
   }
 
@@ -792,7 +815,7 @@ export class TimerService {
       // Try to load from background state first (more recent)
       const backgroundState = await TimerPersistence.loadBackgroundState();
       let storedTimers: Record<string, StoredTimerState> = {};
-      
+
       if (backgroundState) {
         storedTimers = backgroundState.timers;
       } else {
@@ -814,20 +837,19 @@ export class TimerService {
         try {
           // Use background timer manager to restore accurate state
           const restoredState = BackgroundTimerManager.restoreTimerState(storedTimer, now);
-          
+
           if (restoredState && restoredState.remainingTime > 0 && restoredState.isActive) {
             // Timer is still active
             this.activeTimers.set(habitId, restoredState);
-            
+
             // Restart update interval if timer was active and not paused
             if (!restoredState.isPaused) {
               this.startUpdateInterval(habitId);
             }
-            
           } else if (restoredState && restoredState.remainingTime <= 0) {
             // Timer completed while app was closed/backgrounded
             completedTimers.push(habitId);
-            
+
             // Don't add to active timers since it's completed
             // Clear any stored checkpoint
             await this.clearTimerCheckpoint(habitId);
@@ -843,16 +865,16 @@ export class TimerService {
 
       // Emit completion events for timers that completed while closed
       for (const habitId of completedTimers) {
-        this.emitEvent(TIMER_EVENTS.COMPLETED, habitId, '', { 
+        this.emitEvent(TIMER_EVENTS.COMPLETED, habitId, '', {
           autoCompleted: true,
           completedWhileClosed: true,
-          requiresHabitCompletion: true
+          requiresHabitCompletion: true,
         });
       }
 
       // Update stored state to reflect current active timers
       await this.persistTimerState();
-      
+
       // Clear background state since we've processed it
       if (backgroundState) {
         await TimerPersistence.clearBackgroundState();
@@ -866,7 +888,7 @@ export class TimerService {
   private initializePersistence(): void {
     // Periodically persist timer state
     this.persistenceInterval = setInterval(() => {
-      this.persistTimerState().catch(error => {
+      this.persistTimerState().catch((error) => {
         console.error('Error in periodic persistence:', error);
       });
     }, TIMER_CONSTANTS.PERSISTENCE_INTERVAL);
@@ -876,36 +898,38 @@ export class TimerService {
     try {
       const stored = await AsyncStorage.getItem(TIMER_STORAGE_KEYS.TIMER_SESSIONS);
       const sessions: TimerSession[] = stored ? JSON.parse(stored) : [];
-      
+
       sessions.push(session);
-      
+
       // Keep only last 100 sessions to prevent storage bloat
       if (sessions.length > 100) {
         sessions.splice(0, sessions.length - 100);
       }
-      
-      await AsyncStorage.setItem(
-        TIMER_STORAGE_KEYS.TIMER_SESSIONS, 
-        JSON.stringify(sessions)
-      );
+
+      await AsyncStorage.setItem(TIMER_STORAGE_KEYS.TIMER_SESSIONS, JSON.stringify(sessions));
     } catch (error) {
       console.error('Error saving timer session:', error);
       // Don't throw - session saving failure shouldn't break timer completion
     }
   }
 
-  private emitEvent(type: TimerEventType, habitId: string, userId: string, data?: Record<string, any>): void {
+  private emitEvent(
+    type: TimerEventType,
+    habitId: string,
+    userId: string,
+    data?: Record<string, any>
+  ): void {
     const event: TimerEvent = {
       type,
       habitId,
       userId,
       timestamp: new Date(),
-      data
+      data,
     };
 
     const listeners = this.eventListeners.get(type);
     if (listeners) {
-      listeners.forEach(listener => {
+      listeners.forEach((listener) => {
         try {
           listener(event);
         } catch (error) {
@@ -940,7 +964,7 @@ export const timerSessionService = {
 
       const sessions: TimerSession[] = JSON.parse(stored);
       return sessions
-        .filter(session => session.habitId === habitId)
+        .filter((session) => session.habitId === habitId)
         .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     } catch (error) {
       console.error('Error getting habit timer sessions:', error);
@@ -960,7 +984,7 @@ export const timerSessionService = {
 
       const sessions: TimerSession[] = JSON.parse(stored);
       return sessions
-        .filter(session => session.userId === userId)
+        .filter((session) => session.userId === userId)
         .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     } catch (error) {
       console.error('Error getting user timer sessions:', error);
@@ -982,16 +1006,13 @@ export const timerSessionService = {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-      const recentSessions = sessions.filter(session => 
-        new Date(session.createdAt) > thirtyDaysAgo
+      const recentSessions = sessions.filter(
+        (session) => new Date(session.createdAt) > thirtyDaysAgo
       );
 
-      await AsyncStorage.setItem(
-        TIMER_STORAGE_KEYS.TIMER_SESSIONS, 
-        JSON.stringify(recentSessions)
-      );
+      await AsyncStorage.setItem(TIMER_STORAGE_KEYS.TIMER_SESSIONS, JSON.stringify(recentSessions));
     } catch (error) {
       console.error('Error clearing old timer sessions:', error);
     }
-  }
+  },
 };

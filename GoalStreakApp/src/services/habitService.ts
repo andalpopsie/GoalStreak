@@ -1,23 +1,31 @@
 // Habit Service - Firestore operations for habits with retry logic
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  getDocs, 
+import {
+  collection,
+  doc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  getDocs,
   getDoc,
   setDoc,
-  query, 
-  where, 
-  orderBy, 
+  query,
+  where,
+  orderBy,
   onSnapshot,
   Timestamp,
-  writeBatch
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { withRetry, RETRY_CONFIGS } from './retryService';
-import { Habit, HabitCompletion, Streak, CreateHabitForm, TimerConfig, TimerSession, TimerState } from '../types';
+import {
+  Habit,
+  HabitCompletion,
+  Streak,
+  CreateHabitForm,
+  TimerConfig,
+  TimerSession,
+  TimerState,
+} from '../types';
 import { notificationService } from './notificationService';
 import { achievementsService } from './achievementsService';
 import { subscriptionService } from './subscriptionService';
@@ -68,7 +76,7 @@ export const habitService = {
       if (habitData.icon) {
         habit.icon = habitData.icon;
       }
-      
+
       // Handle timer configuration with proper validation
       if (habitData.timer && habitData.timer.enabled) {
         habit.timer = {
@@ -76,7 +84,7 @@ export const habitService = {
           durationMinutes: habitData.timer.durationMinutes,
           autoComplete: habitData.timer.autoComplete,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         };
       }
 
@@ -87,16 +95,16 @@ export const habitService = {
       }
 
       const docRef = await addDoc(collection(db, HABITS_COLLECTION), habit);
-      
+
       // Initialize streak data
       await this.initializeStreak(docRef.id);
-      
+
       // Check for habit collector achievement
       const userHabits = await this.getUserHabits(userId);
       if (userHabits.length >= 5) {
         await achievementsService.unlockAchievement('habit_collector');
       }
-      
+
       // Schedule notification if reminder is enabled
       if (habitData.reminderEnabled && habitData.reminderTime) {
         try {
@@ -110,7 +118,7 @@ export const habitService = {
           console.error('⚠️ Failed to schedule notification (non-critical):', notificationError);
         }
       }
-      
+
       return docRef.id;
     }, RETRY_CONFIGS.habitCreation);
   },
@@ -123,10 +131,10 @@ export const habitService = {
         where('userId', '==', userId)
         // Removed orderBy to avoid index requirement for now
       );
-      
+
       const querySnapshot = await getDocs(q);
       const habits: Habit[] = [];
-      
+
       querySnapshot.forEach((doc) => {
         habits.push({
           id: doc.id,
@@ -135,10 +143,10 @@ export const habitService = {
           updatedAt: doc.data().updatedAt.toDate(),
         } as Habit);
       });
-      
+
       // Sort in JavaScript instead of Firestore
       habits.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-      
+
       return habits;
     } catch (error) {
       console.error('Error fetching habits:', error);
@@ -164,10 +172,10 @@ export const habitService = {
           updatedAt: doc.data().updatedAt.toDate(),
         } as Habit);
       });
-      
+
       // Sort in JavaScript instead of Firestore
       habits.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-      
+
       callback(habits);
     });
   },
@@ -176,7 +184,7 @@ export const habitService = {
   async updateHabit(habitId: string, updates: Partial<Habit>): Promise<void> {
     try {
       const habitRef = doc(db, HABITS_COLLECTION, habitId);
-      
+
       // Prepare update data
       const updateData: any = {
         ...updates,
@@ -191,7 +199,7 @@ export const habitService = {
             durationMinutes: updates.timer.durationMinutes,
             autoComplete: updates.timer.autoComplete,
             createdAt: updates.timer.createdAt || new Date(),
-            updatedAt: new Date()
+            updatedAt: new Date(),
           };
         } else {
           // Remove timer configuration if disabled
@@ -210,11 +218,11 @@ export const habitService = {
   async deleteHabit(habitId: string): Promise<void> {
     try {
       const batch = writeBatch(db);
-      
+
       // Delete habit
       const habitRef = doc(db, HABITS_COLLECTION, habitId);
       batch.delete(habitRef);
-      
+
       // Delete associated completions
       const completionsQuery = query(
         collection(db, COMPLETIONS_COLLECTION),
@@ -224,11 +232,11 @@ export const habitService = {
       completionsSnapshot.forEach((doc) => {
         batch.delete(doc.ref);
       });
-      
+
       // Delete streak data
       const streakRef = doc(db, STREAKS_COLLECTION, habitId);
       batch.delete(streakRef);
-      
+
       await batch.commit();
     } catch (error) {
       console.error('Error deleting habit:', error);
@@ -245,7 +253,7 @@ export const habitService = {
         longestStreak: 0,
         lastCompletedDate: null,
       };
-      
+
       const streakRef = doc(db, STREAKS_COLLECTION, habitId);
       await setDoc(streakRef, streak);
     } catch (error) {
@@ -258,37 +266,35 @@ export const habitService = {
   async updateStreak(habitId: string): Promise<void> {
     try {
       // Simplified query to avoid index requirement
-      const q = query(
-        collection(db, COMPLETIONS_COLLECTION),
-        where('habitId', '==', habitId)
-      );
-      
+      const q = query(collection(db, COMPLETIONS_COLLECTION), where('habitId', '==', habitId));
+
       const querySnapshot = await getDocs(q);
       const completions: Date[] = [];
-      
+
       querySnapshot.forEach((doc) => {
         const date = doc.data().completedAt.toDate();
         date.setHours(0, 0, 0, 0); // Normalize to start of day
         completions.push(date);
       });
-      
+
       // Sort in JavaScript instead of Firestore
       completions.sort((a, b) => b.getTime() - a.getTime());
-      
+
       // Calculate current streak
       let currentStreak = 0;
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       if (completions.length > 0) {
         // Check if completed today or yesterday (to maintain streak)
         const lastCompletion = completions[0];
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
-        
-        if (lastCompletion.getTime() === today.getTime() || 
-            lastCompletion.getTime() === yesterday.getTime()) {
-          
+
+        if (
+          lastCompletion.getTime() === today.getTime() ||
+          lastCompletion.getTime() === yesterday.getTime()
+        ) {
           // Count consecutive days
           const checkDate = new Date(lastCompletion);
           for (const completion of completions) {
@@ -301,12 +307,12 @@ export const habitService = {
           }
         }
       }
-      
+
       // Calculate longest streak
       let longestStreak = 0;
       let tempStreak = 0;
       let expectedDate = completions.length > 0 ? new Date(completions[0]) : null;
-      
+
       for (const completion of completions) {
         if (expectedDate && completion.getTime() === expectedDate.getTime()) {
           tempStreak++;
@@ -318,7 +324,7 @@ export const habitService = {
           expectedDate.setDate(expectedDate.getDate() - 1);
         }
       }
-      
+
       // Update or create streak document
       const streakRef = doc(db, STREAKS_COLLECTION, habitId);
       const streakData = {
@@ -327,7 +333,7 @@ export const habitService = {
         longestStreak,
         lastCompletedDate: completions.length > 0 ? completions[0] : null,
       };
-      
+
       // Use setDoc with merge to create or update
       await setDoc(streakRef, streakData, { merge: true });
     } catch (error) {
@@ -340,22 +346,24 @@ export const habitService = {
   async getHabitWithTimer(habitId: string): Promise<Habit | null> {
     try {
       const habitDoc = await getDoc(doc(db, HABITS_COLLECTION, habitId));
-      
+
       if (!habitDoc.exists()) {
         return null;
       }
-      
+
       const data = habitDoc.data();
       return {
         id: habitDoc.id,
         ...data,
         createdAt: data.createdAt.toDate(),
         updatedAt: data.updatedAt.toDate(),
-        timer: data.timer ? {
-          ...data.timer,
-          createdAt: data.timer.createdAt?.toDate(),
-          updatedAt: data.timer.updatedAt?.toDate()
-        } : undefined
+        timer: data.timer
+          ? {
+              ...data.timer,
+              createdAt: data.timer.createdAt?.toDate(),
+              updatedAt: data.timer.updatedAt?.toDate(),
+            }
+          : undefined,
       } as Habit;
     } catch (error) {
       console.error('Error getting habit with timer:', error);
@@ -367,9 +375,9 @@ export const habitService = {
   async updateHabitTimer(habitId: string, timerConfig: TimerConfig | null): Promise<void> {
     try {
       const habitRef = doc(db, HABITS_COLLECTION, habitId);
-      
+
       const updateData: any = {
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       if (timerConfig && timerConfig.enabled) {
@@ -378,7 +386,7 @@ export const habitService = {
           durationMinutes: timerConfig.durationMinutes,
           autoComplete: timerConfig.autoComplete,
           createdAt: timerConfig.createdAt || new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
         };
       } else {
         // Remove timer configuration
@@ -400,10 +408,10 @@ export const habitService = {
         where('userId', '==', userId),
         where('timer.enabled', '==', true)
       );
-      
+
       const querySnapshot = await getDocs(q);
       const habits: Habit[] = [];
-      
+
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         habits.push({
@@ -411,38 +419,38 @@ export const habitService = {
           ...data,
           createdAt: data.createdAt.toDate(),
           updatedAt: data.updatedAt.toDate(),
-          timer: data.timer ? {
-            ...data.timer,
-            createdAt: data.timer.createdAt?.toDate(),
-            updatedAt: data.timer.updatedAt?.toDate()
-          } : undefined
+          timer: data.timer
+            ? {
+                ...data.timer,
+                createdAt: data.timer.createdAt?.toDate(),
+                updatedAt: data.timer.updatedAt?.toDate(),
+              }
+            : undefined,
         } as Habit);
       });
-      
+
       // Sort by creation date
       habits.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-      
+
       return habits;
     } catch (error) {
       console.error('Error fetching habits with timers:', error);
       // Fallback to getting all habits and filtering
       const allHabits = await this.getUserHabits(userId);
-      return allHabits.filter(habit => habit.timer?.enabled);
+      return allHabits.filter((habit) => habit.timer?.enabled);
     }
   },
 
   // TEMPORARY: Clear all habits for a user (for testing)
   async clearAllHabits(userId: string): Promise<void> {
     try {
-      
       // Get all user habits
       const habits = await this.getUserHabits(userId);
-      
+
       // Delete each habit (this will also delete completions and streaks)
       for (const habit of habits) {
         await this.deleteHabit(habit.id);
       }
-      
     } catch (error) {
       console.error('Error clearing all habits:', error);
       throw new Error('Failed to clear all habits');
@@ -453,29 +461,35 @@ export const habitService = {
 // Habit Completion Operations
 export const completionService = {
   // Mark habit as completed for today
-  async completeHabit(habitId: string, userId: string, value?: number, notes?: string, timerSessionId?: string): Promise<void> {
+  async completeHabit(
+    habitId: string,
+    userId: string,
+    value?: number,
+    notes?: string,
+    timerSessionId?: string
+  ): Promise<void> {
     try {
       const today = new Date();
       today.setHours(0, 0, 0, 0); // Start of day
-      
+
       // Check if already completed today
       const existingCompletion = await this.getTodayCompletion(habitId, userId);
       if (existingCompletion) {
         throw new Error('Habit already completed today');
       }
-      
+
       // Create completion object with only defined values
       const completion: any = {
         habitId,
         userId,
         completedAt: new Date(),
       };
-      
+
       // Only add optional fields if they have values
       if (value !== undefined && value !== null) {
         completion.value = value;
       }
-      
+
       if (notes && notes.trim()) {
         completion.notes = notes.trim();
       }
@@ -483,7 +497,7 @@ export const completionService = {
       // Add timer session reference if provided
       if (timerSessionId) {
         completion.timerSessionId = timerSessionId;
-        
+
         // Get timer session details for completion record
         try {
           const timerSession = await firebaseTimerSessionService.getTimerSession(timerSessionId);
@@ -492,7 +506,8 @@ export const completionService = {
               sessionId: timerSessionId,
               duration: timerSession.actualDuration,
               targetDuration: timerSession.targetDuration,
-              completedViaTimer: timerSession.completed && timerSession.completionMethod === 'timer'
+              completedViaTimer:
+                timerSession.completed && timerSession.completionMethod === 'timer',
             };
           }
         } catch (error) {
@@ -500,12 +515,12 @@ export const completionService = {
           // Continue with completion even if timer session fetch fails
         }
       }
-      
+
       await addDoc(collection(db, COMPLETIONS_COLLECTION), completion);
-      
+
       // Update streak
       await habitService.updateStreak(habitId);
-      
+
       // Check for achievements
       await streakService.checkCompletionAchievements(habitId, userId);
     } catch (error) {
@@ -521,9 +536,9 @@ export const completionService = {
       if (!completion) {
         return; // Gracefully handle - nothing to uncomplete
       }
-      
+
       await deleteDoc(doc(db, COMPLETIONS_COLLECTION, completion.id));
-      
+
       // Update streak
       await habitService.updateStreak(habitId);
     } catch (error) {
@@ -539,7 +554,7 @@ export const completionService = {
       today.setHours(0, 0, 0, 0);
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
-      
+
       // Simplified query to avoid index requirement
       const q = query(
         collection(db, COMPLETIONS_COLLECTION),
@@ -547,14 +562,14 @@ export const completionService = {
         where('userId', '==', userId)
         // Removed date range query to avoid index requirement
       );
-      
+
       const querySnapshot = await getDocs(q);
-      
+
       // Filter for today's completion in JavaScript
       for (const doc of querySnapshot.docs) {
         const data = doc.data();
         const completedAt = data.completedAt.toDate();
-        
+
         if (completedAt >= today && completedAt < tomorrow) {
           return {
             id: doc.id,
@@ -563,7 +578,7 @@ export const completionService = {
           } as HabitCompletion;
         }
       }
-      
+
       return null;
     } catch (error) {
       console.error('Error getting today completion:', error);
@@ -572,7 +587,11 @@ export const completionService = {
   },
 
   // Get habit completions for a date range
-  async getHabitCompletions(habitId: string, startDate: Date, endDate: Date): Promise<HabitCompletion[]> {
+  async getHabitCompletions(
+    habitId: string,
+    startDate: Date,
+    endDate: Date
+  ): Promise<HabitCompletion[]> {
     try {
       // Simplified query to avoid index requirement
       const q = query(
@@ -580,15 +599,15 @@ export const completionService = {
         where('habitId', '==', habitId)
         // Removed date range and orderBy to avoid index requirement
       );
-      
+
       const querySnapshot = await getDocs(q);
       const completions: HabitCompletion[] = [];
-      
+
       // Filter and sort in JavaScript
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         const completedAt = data.completedAt.toDate();
-        
+
         if (completedAt >= startDate && completedAt <= endDate) {
           completions.push({
             id: doc.id,
@@ -597,10 +616,10 @@ export const completionService = {
           } as HabitCompletion);
         }
       });
-      
+
       // Sort by date descending
       completions.sort((a, b) => b.completedAt.getTime() - a.completedAt.getTime());
-      
+
       return completions;
     } catch (error) {
       console.error('Error fetching completions:', error);
@@ -615,11 +634,11 @@ export const streakService = {
   async getStreak(habitId: string): Promise<Streak | null> {
     try {
       const streakDoc = await getDoc(doc(db, STREAKS_COLLECTION, habitId));
-      
+
       if (!streakDoc.exists()) {
         return null;
       }
-      
+
       const data = streakDoc.data();
       return {
         habitId,
@@ -642,7 +661,7 @@ export const streakService = {
         new Date(0),
         new Date()
       );
-      
+
       if (allCompletions.length === 1) {
         await achievementsService.unlockAchievement('first_step');
       }
@@ -651,12 +670,12 @@ export const streakService = {
       const todayCompletion = await completionService.getTodayCompletion(habitId, userId);
       if (todayCompletion) {
         const hour = todayCompletion.completedAt.getHours();
-        
+
         // Early bird (before 8 AM)
         if (hour < 8) {
           await achievementsService.unlockAchievement('early_bird');
         }
-        
+
         // Night owl (after 10 PM)
         if (hour >= 22) {
           await achievementsService.unlockAchievement('night_owl');
@@ -696,7 +715,7 @@ export const streakService = {
       if (userHabits.length > 0) {
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        
+
         let isPerfectWeek = true;
         for (const habit of userHabits) {
           const completions = await completionService.getHabitCompletions(
@@ -704,18 +723,16 @@ export const streakService = {
             sevenDaysAgo,
             new Date()
           );
-          
+
           // Check if completed every day for the past 7 days
-          const uniqueDays = new Set(
-            completions.map(c => c.completedAt.toDateString())
-          );
-          
+          const uniqueDays = new Set(completions.map((c) => c.completedAt.toDateString()));
+
           if (uniqueDays.size < 7) {
             isPerfectWeek = false;
             break;
           }
         }
-        
+
         if (isPerfectWeek) {
           await achievementsService.unlockAchievement('perfect_week');
         }
@@ -736,7 +753,7 @@ export const firebaseTimerSessionService = {
         ...session,
         startTime: Timestamp.fromDate(session.startTime),
         endTime: session.endTime ? Timestamp.fromDate(session.endTime) : null,
-        createdAt: Timestamp.fromDate(session.createdAt)
+        createdAt: Timestamp.fromDate(session.createdAt),
       };
 
       const docRef = await addDoc(collection(db, TIMER_SESSIONS_COLLECTION), sessionData);
@@ -748,9 +765,9 @@ export const firebaseTimerSessionService = {
   async updateTimerSession(sessionId: string, updates: Partial<TimerSession>): Promise<void> {
     try {
       const sessionRef = doc(db, TIMER_SESSIONS_COLLECTION, sessionId);
-      
+
       const updateData: any = { ...updates };
-      
+
       // Convert Date objects to Timestamps
       if (updates.startTime) {
         updateData.startTime = Timestamp.fromDate(updates.startTime);
@@ -777,10 +794,10 @@ export const firebaseTimerSessionService = {
         where('habitId', '==', habitId),
         orderBy('createdAt', 'desc')
       );
-      
+
       const querySnapshot = await getDocs(q);
       const sessions: TimerSession[] = [];
-      
+
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         sessions.push({
@@ -788,23 +805,20 @@ export const firebaseTimerSessionService = {
           ...data,
           startTime: data.startTime.toDate(),
           endTime: data.endTime?.toDate(),
-          createdAt: data.createdAt.toDate()
+          createdAt: data.createdAt.toDate(),
         } as TimerSession);
       });
-      
+
       return sessions.slice(0, limit);
     } catch (error) {
       console.error('Error fetching habit timer sessions:', error);
       // Fallback to simple query without orderBy
       try {
-        const q = query(
-          collection(db, TIMER_SESSIONS_COLLECTION),
-          where('habitId', '==', habitId)
-        );
-        
+        const q = query(collection(db, TIMER_SESSIONS_COLLECTION), where('habitId', '==', habitId));
+
         const querySnapshot = await getDocs(q);
         const sessions: TimerSession[] = [];
-        
+
         querySnapshot.forEach((doc) => {
           const data = doc.data();
           sessions.push({
@@ -812,10 +826,10 @@ export const firebaseTimerSessionService = {
             ...data,
             startTime: data.startTime.toDate(),
             endTime: data.endTime?.toDate(),
-            createdAt: data.createdAt.toDate()
+            createdAt: data.createdAt.toDate(),
           } as TimerSession);
         });
-        
+
         // Sort in JavaScript
         sessions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
         return sessions.slice(0, limit);
@@ -834,10 +848,10 @@ export const firebaseTimerSessionService = {
         where('userId', '==', userId),
         orderBy('createdAt', 'desc')
       );
-      
+
       const querySnapshot = await getDocs(q);
       const sessions: TimerSession[] = [];
-      
+
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         sessions.push({
@@ -845,23 +859,20 @@ export const firebaseTimerSessionService = {
           ...data,
           startTime: data.startTime.toDate(),
           endTime: data.endTime?.toDate(),
-          createdAt: data.createdAt.toDate()
+          createdAt: data.createdAt.toDate(),
         } as TimerSession);
       });
-      
+
       return sessions.slice(0, limit);
     } catch (error) {
       console.error('Error fetching user timer sessions:', error);
       // Fallback to simple query without orderBy
       try {
-        const q = query(
-          collection(db, TIMER_SESSIONS_COLLECTION),
-          where('userId', '==', userId)
-        );
-        
+        const q = query(collection(db, TIMER_SESSIONS_COLLECTION), where('userId', '==', userId));
+
         const querySnapshot = await getDocs(q);
         const sessions: TimerSession[] = [];
-        
+
         querySnapshot.forEach((doc) => {
           const data = doc.data();
           sessions.push({
@@ -869,10 +880,10 @@ export const firebaseTimerSessionService = {
             ...data,
             startTime: data.startTime.toDate(),
             endTime: data.endTime?.toDate(),
-            createdAt: data.createdAt.toDate()
+            createdAt: data.createdAt.toDate(),
           } as TimerSession);
         });
-        
+
         // Sort in JavaScript
         sessions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
         return sessions.slice(0, limit);
@@ -897,18 +908,18 @@ export const firebaseTimerSessionService = {
   async getTimerSession(sessionId: string): Promise<TimerSession | null> {
     try {
       const sessionDoc = await getDoc(doc(db, TIMER_SESSIONS_COLLECTION, sessionId));
-      
+
       if (!sessionDoc.exists()) {
         return null;
       }
-      
+
       const data = sessionDoc.data();
       return {
         id: sessionDoc.id,
         ...data,
         startTime: data.startTime.toDate(),
         endTime: data.endTime?.toDate(),
-        createdAt: data.createdAt.toDate()
+        createdAt: data.createdAt.toDate(),
       } as TimerSession;
     } catch (error) {
       console.error('Error getting timer session:', error);
@@ -921,20 +932,20 @@ export const firebaseTimerSessionService = {
     try {
       const ninetyDaysAgo = new Date();
       ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-      
+
       const q = query(
         collection(db, TIMER_SESSIONS_COLLECTION),
         where('userId', '==', userId),
         where('createdAt', '<', Timestamp.fromDate(ninetyDaysAgo))
       );
-      
+
       const querySnapshot = await getDocs(q);
       const batch = writeBatch(db);
-      
+
       querySnapshot.forEach((doc) => {
         batch.delete(doc.ref);
       });
-      
+
       if (querySnapshot.size > 0) {
         await batch.commit();
       }
@@ -942,7 +953,7 @@ export const firebaseTimerSessionService = {
       console.error('Error cleaning up old timer sessions:', error);
       // Don't throw - cleanup failure shouldn't break the app
     }
-  }
+  },
 };
 
 // Firebase Timer State Sync Operations
@@ -951,7 +962,7 @@ export const firebaseTimerStateService = {
   async saveTimerState(userId: string, habitId: string, timerState: TimerState): Promise<void> {
     try {
       const stateRef = doc(db, TIMER_STATES_COLLECTION, `${userId}_${habitId}`);
-      
+
       const stateData = {
         userId,
         habitId: timerState.habitId,
@@ -963,7 +974,7 @@ export const firebaseTimerStateService = {
         progress: timerState.progress,
         lastUpdate: Timestamp.fromDate(timerState.lastUpdate),
         originalDuration: timerState.originalDuration,
-        syncedAt: Timestamp.fromDate(new Date())
+        syncedAt: Timestamp.fromDate(new Date()),
       };
 
       await setDoc(stateRef, stateData, { merge: true });
@@ -977,11 +988,11 @@ export const firebaseTimerStateService = {
   async loadTimerState(userId: string, habitId: string): Promise<TimerState | null> {
     try {
       const stateDoc = await getDoc(doc(db, TIMER_STATES_COLLECTION, `${userId}_${habitId}`));
-      
+
       if (!stateDoc.exists()) {
         return null;
       }
-      
+
       const data = stateDoc.data();
       return {
         habitId: data.habitId,
@@ -992,7 +1003,7 @@ export const firebaseTimerStateService = {
         remainingTime: data.remainingTime,
         progress: data.progress,
         lastUpdate: data.lastUpdate.toDate(),
-        originalDuration: data.originalDuration || 0
+        originalDuration: data.originalDuration || 0,
       };
     } catch (error) {
       console.error('Error loading timer state from Firebase:', error);
@@ -1018,10 +1029,10 @@ export const firebaseTimerStateService = {
         where('userId', '==', userId),
         where('isActive', '==', true)
       );
-      
+
       const querySnapshot = await getDocs(q);
       const states: TimerState[] = [];
-      
+
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         states.push({
@@ -1033,10 +1044,10 @@ export const firebaseTimerStateService = {
           remainingTime: data.remainingTime,
           progress: data.progress,
           lastUpdate: data.lastUpdate.toDate(),
-          originalDuration: data.originalDuration || 0
+          originalDuration: data.originalDuration || 0,
         });
       });
-      
+
       return states;
     } catch (error) {
       console.error('Error getting user active timer states:', error);
@@ -1045,31 +1056,39 @@ export const firebaseTimerStateService = {
   },
 
   // Subscribe to timer state changes for real-time sync
-  subscribeToTimerState(userId: string, habitId: string, callback: (state: TimerState | null) => void): () => void {
+  subscribeToTimerState(
+    userId: string,
+    habitId: string,
+    callback: (state: TimerState | null) => void
+  ): () => void {
     const stateRef = doc(db, TIMER_STATES_COLLECTION, `${userId}_${habitId}`);
-    
-    return onSnapshot(stateRef, (doc) => {
-      if (doc.exists()) {
-        const data = doc.data();
-        const state: TimerState = {
-          habitId: data.habitId,
-          isActive: data.isActive,
-          isPaused: data.isPaused,
-          startTime: data.startTime?.toDate() || null,
-          pausedTime: data.pausedTime,
-          remainingTime: data.remainingTime,
-          progress: data.progress,
-          lastUpdate: data.lastUpdate.toDate(),
-          originalDuration: data.originalDuration || 0
-        };
-        callback(state);
-      } else {
+
+    return onSnapshot(
+      stateRef,
+      (doc) => {
+        if (doc.exists()) {
+          const data = doc.data();
+          const state: TimerState = {
+            habitId: data.habitId,
+            isActive: data.isActive,
+            isPaused: data.isPaused,
+            startTime: data.startTime?.toDate() || null,
+            pausedTime: data.pausedTime,
+            remainingTime: data.remainingTime,
+            progress: data.progress,
+            lastUpdate: data.lastUpdate.toDate(),
+            originalDuration: data.originalDuration || 0,
+          };
+          callback(state);
+        } else {
+          callback(null);
+        }
+      },
+      (error) => {
+        console.error('Error in timer state subscription:', error);
         callback(null);
       }
-    }, (error) => {
-      console.error('Error in timer state subscription:', error);
-      callback(null);
-    });
+    );
   },
 
   // Clean up inactive timer states (older than 24 hours)
@@ -1077,20 +1096,20 @@ export const firebaseTimerStateService = {
     try {
       const twentyFourHoursAgo = new Date();
       twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
-      
+
       const q = query(
         collection(db, TIMER_STATES_COLLECTION),
         where('userId', '==', userId),
         where('lastUpdate', '<', Timestamp.fromDate(twentyFourHoursAgo))
       );
-      
+
       const querySnapshot = await getDocs(q);
       const batch = writeBatch(db);
-      
+
       querySnapshot.forEach((doc) => {
         batch.delete(doc.ref);
       });
-      
+
       if (querySnapshot.size > 0) {
         await batch.commit();
       }
@@ -1098,5 +1117,5 @@ export const firebaseTimerStateService = {
       console.error('Error cleaning up inactive timer states:', error);
       // Don't throw - cleanup failure shouldn't break the app
     }
-  }
+  },
 };

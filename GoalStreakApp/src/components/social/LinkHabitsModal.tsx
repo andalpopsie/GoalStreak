@@ -35,10 +35,7 @@ export default function LinkHabitsModal({
 }: LinkHabitsModalProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  const alreadyLinkedSet = useMemo(
-    () => new Set(alreadyLinkedHabitIds),
-    [alreadyLinkedHabitIds]
-  );
+  const alreadyLinkedSet = useMemo(() => new Set(alreadyLinkedHabitIds), [alreadyLinkedHabitIds]);
 
   const remainingSlots = MAX_HABITS - alreadyLinkedSet.size;
   const canSelectMore = selectedIds.size < remainingSlots;
@@ -150,7 +147,10 @@ export default function LinkHabitsModal({
                   disabled={isAlreadyLinked}
                   accessibilityLabel={`${habit.name}${isAlreadyLinked ? ', already linked' : isSelected ? ', selected' : ''}`}
                   accessibilityRole="checkbox"
-                  accessibilityState={{ checked: isSelected || isAlreadyLinked, disabled: isDisabled }}
+                  accessibilityState={{
+                    checked: isSelected || isAlreadyLinked,
+                    disabled: isDisabled,
+                  }}
                 >
                   {/* Checkbox */}
                   <View
@@ -178,9 +178,7 @@ export default function LinkHabitsModal({
                     >
                       {habit.name}
                     </Text>
-                    {isAlreadyLinked && (
-                      <Text style={styles.linkedLabel}>Already linked</Text>
-                    )}
+                    {isAlreadyLinked && <Text style={styles.linkedLabel}>Already linked</Text>}
                   </View>
                 </TouchableOpacity>
               );
@@ -201,7 +199,8 @@ export default function LinkHabitsModal({
               <ActivityIndicator size="small" color={Colors.white} />
             ) : (
               <Text style={styles.confirmButtonText}>
-                Link {selectedIds.size > 0 ? `${selectedIds.size} ` : ''}Habit{selectedIds.size !== 1 ? 's' : ''}
+                Link {selectedIds.size > 0 ? `${selectedIds.size} ` : ''}Habit
+                {selectedIds.size !== 1 ? 's' : ''}
               </Text>
             )}
           </TouchableOpacity>
@@ -220,21 +219,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,             // 8 × 2 (base)
-    paddingVertical: 16,               // 8 × 2 (base)
+    paddingHorizontal: 16, // 8 × 2 (base)
+    paddingVertical: 16, // 8 × 2 (base)
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
     backgroundColor: Colors.white,
   },
   closeButton: {
-    width: 48,                          // 8 × 6 (touch target)
-    height: 48,                         // 8 × 6 (touch target)
+    width: 48, // 8 × 6 (touch target)
+    height: 48, // 8 × 6 (touch target)
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
-    fontSize: 20,                       // subheading
-    fontWeight: '600',                  // semibold
+    fontSize: 20, // subheading
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.semibold,
   },
@@ -242,46 +241,46 @@ const styles = StyleSheet.create({
     width: 48,
   },
   limitBar: {
-    paddingHorizontal: 16,             // 8 × 2 (base)
-    paddingVertical: 16,               // 8 × 2 (base)
+    paddingHorizontal: 16, // 8 × 2 (base)
+    paddingVertical: 16, // 8 × 2 (base)
     backgroundColor: Colors.white,
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
   },
   limitText: {
-    fontSize: 14,                       // caption
-    fontWeight: '500',                  // medium
+    fontSize: 14, // caption
+    fontWeight: '500', // medium
     color: Colors.primaryText,
-    marginBottom: 8,                    // 8 × 1 (tight)
+    marginBottom: 8, // 8 × 1 (tight)
     fontFamily: Typography.fontFamily.medium,
   },
   limitProgress: {
-    height: 8,                          // 8 × 1
+    height: 8, // 8 × 1
     backgroundColor: Colors.gray.light,
     borderRadius: 4,
     overflow: 'hidden',
   },
   limitProgressFill: {
     height: '100%',
-    backgroundColor: Colors.accent3,   // Teal
+    backgroundColor: Colors.accent3, // Teal
     borderRadius: 4,
   },
   limitProgressFull: {
-    backgroundColor: Colors.error,     // Red when at limit
+    backgroundColor: Colors.error, // Red when at limit
   },
   scrollContent: {
     flex: 1,
   },
   scrollContentContainer: {
-    padding: 16,                        // 8 × 2 (base)
+    padding: 16, // 8 × 2 (base)
   },
   emptyState: {
     alignItems: 'center',
-    paddingVertical: 48,               // 8 × 6 (spacious)
-    gap: 16,                            // 8 × 2 (base)
+    paddingVertical: 48, // 8 × 6 (spacious)
+    gap: 16, // 8 × 2 (base)
   },
   emptyText: {
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     color: Colors.secondaryText,
     textAlign: 'center',
     fontFamily: Typography.fontFamily.regular,
@@ -291,30 +290,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.white,
     borderRadius: 12,
-    padding: 16,                        // 8 × 2 (base)
-    marginBottom: 8,                    // 8 × 1 (tight)
-    minHeight: 56,                      // 8 × 7
+    padding: 16, // 8 × 2 (base)
+    marginBottom: 8, // 8 × 1 (tight)
+    minHeight: 56, // 8 × 7
     ...Shadows.sm,
   },
   habitRowSelected: {
     borderWidth: 2,
-    borderColor: Colors.accent1,       // Purple
+    borderColor: Colors.accent1, // Purple
   },
   habitRowLinked: {
     opacity: 0.6,
   },
   checkbox: {
-    width: 24,                          // 8 × 3
-    height: 24,                         // 8 × 3
+    width: 24, // 8 × 3
+    height: 24, // 8 × 3
     borderRadius: 6,
     borderWidth: 2,
     borderColor: Colors.gray.light,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,                    // 8 × 2 (base)
+    marginRight: 16, // 8 × 2 (base)
   },
   checkboxSelected: {
-    backgroundColor: Colors.accent1,   // Purple
+    backgroundColor: Colors.accent1, // Purple
     borderColor: Colors.accent1,
   },
   checkboxLinked: {
@@ -322,19 +321,19 @@ const styles = StyleSheet.create({
     borderColor: Colors.gray.dark,
   },
   habitIcon: {
-    width: 32,                          // 8 × 4
-    height: 32,                         // 8 × 4
+    width: 32, // 8 × 4
+    height: 32, // 8 × 4
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,                    // 8 × 2 (base)
+    marginRight: 16, // 8 × 2 (base)
   },
   habitInfo: {
     flex: 1,
   },
   habitName: {
-    fontSize: 16,                       // body
-    fontWeight: '500',                  // medium
+    fontSize: 16, // body
+    fontWeight: '500', // medium
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.medium,
   },
@@ -342,13 +341,13 @@ const styles = StyleSheet.create({
     color: Colors.secondaryText,
   },
   linkedLabel: {
-    fontSize: 12,                       // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
     marginTop: 2,
     fontFamily: Typography.fontFamily.regular,
   },
   footer: {
-    padding: 16,                        // 8 × 2 (base)
+    padding: 16, // 8 × 2 (base)
     borderTopWidth: 1,
     borderTopColor: Colors.gray.light,
     backgroundColor: Colors.white,
@@ -356,18 +355,18 @@ const styles = StyleSheet.create({
   confirmButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.accent1,   // Purple CTA
+    backgroundColor: Colors.accent1, // Purple CTA
     borderRadius: 16,
-    minHeight: 56,                      // 8 × 7 (primary button)
-    paddingVertical: 16,               // 8 × 2 (base)
+    minHeight: 56, // 8 × 7 (primary button)
+    paddingVertical: 16, // 8 × 2 (base)
   },
   confirmButtonDisabled: {
     opacity: 0.5,
   },
   confirmButtonText: {
     color: Colors.white,
-    fontSize: 16,                       // body
-    fontWeight: '700',                  // bold
+    fontSize: 16, // body
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
   },
 });

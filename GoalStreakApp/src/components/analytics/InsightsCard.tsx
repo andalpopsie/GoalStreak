@@ -43,7 +43,7 @@ export default function InsightsCard({ insight, onPress }: InsightsCardProps) {
 
   const getTrendIcon = () => {
     if (!insight.trend) return null;
-    
+
     switch (insight.trend) {
       case 'up':
         return 'trending-up';
@@ -70,33 +70,23 @@ export default function InsightsCard({ insight, onPress }: InsightsCardProps) {
   };
 
   return (
-    <TouchableOpacity 
-      style={styles.container} 
-      onPress={onPress}
-      activeOpacity={onPress ? 0.7 : 1}
-    >
+    <TouchableOpacity style={styles.container} onPress={onPress} activeOpacity={onPress ? 0.7 : 1}>
       {/* Header */}
       <View style={styles.header}>
         <View style={[styles.iconContainer, { backgroundColor: getInsightColor() + '20' }]}>
-          <Ionicons 
-            name={getInsightIcon() as any} 
-            size={24} 
-            color={getInsightColor()} 
-          />
+          <Ionicons name={getInsightIcon() as any} size={24} color={getInsightColor()} />
         </View>
-        
+
         <View style={styles.headerText}>
           <Text style={styles.title}>{insight.title}</Text>
           {insight.value !== undefined && (
             <View style={styles.valueContainer}>
-              <Text style={[styles.value, { color: getInsightColor() }]}>
-                {insight.value}
-              </Text>
+              <Text style={[styles.value, { color: getInsightColor() }]}>{insight.value}</Text>
               {insight.trend && (
-                <Ionicons 
-                  name={getTrendIcon() as any} 
-                  size={16} 
-                  color={getTrendColor()} 
+                <Ionicons
+                  name={getTrendIcon() as any}
+                  size={16}
+                  color={getTrendColor()}
                   style={styles.trendIcon}
                 />
               )}

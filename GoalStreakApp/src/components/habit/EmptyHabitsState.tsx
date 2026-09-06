@@ -12,18 +12,12 @@ export default function EmptyHabitsState({ onCreateHabit }: EmptyHabitsStateProp
   return (
     <Animated.View style={styles.container} entering={FadeIn.duration(600)}>
       {/* Illustration */}
-      <Animated.View 
-        style={styles.iconContainer}
-        entering={FadeInUp.delay(200).duration(500)}
-      >
+      <Animated.View style={styles.iconContainer} entering={FadeInUp.delay(200).duration(500)}>
         <Ionicons name="rocket" size={80} color={Colors.accent1} />
       </Animated.View>
 
       {/* Main Message */}
-      <Animated.View 
-        style={styles.textContainer}
-        entering={FadeInUp.delay(400).duration(500)}
-      >
+      <Animated.View style={styles.textContainer} entering={FadeInUp.delay(400).duration(500)}>
         <Text style={styles.title}>Ready to build great habits?</Text>
         <Text style={styles.subtitle}>
           Start your journey by creating your first habit. Small steps lead to big changes!
@@ -31,10 +25,7 @@ export default function EmptyHabitsState({ onCreateHabit }: EmptyHabitsStateProp
       </Animated.View>
 
       {/* Tips */}
-      <Animated.View 
-        style={styles.tipsContainer}
-        entering={FadeInUp.delay(600).duration(500)}
-      >
+      <Animated.View style={styles.tipsContainer} entering={FadeInUp.delay(600).duration(500)}>
         <View style={styles.tip}>
           <Ionicons name="bulb" size={16} color={Colors.accent2} />
           <Text style={styles.tipText}>Start small - even 5 minutes counts</Text>
@@ -50,10 +41,7 @@ export default function EmptyHabitsState({ onCreateHabit }: EmptyHabitsStateProp
       </Animated.View>
 
       {/* Call to Action */}
-      <Animated.View 
-        style={styles.ctaContainer}
-        entering={FadeInUp.delay(800).duration(500)}
-      >
+      <Animated.View style={styles.ctaContainer} entering={FadeInUp.delay(800).duration(500)}>
         <TouchableOpacity style={styles.createButton} onPress={onCreateHabit}>
           <Ionicons name="add-circle" size={24} color={Colors.white} />
           <Text style={styles.createButtonText}>Create Your First Habit</Text>

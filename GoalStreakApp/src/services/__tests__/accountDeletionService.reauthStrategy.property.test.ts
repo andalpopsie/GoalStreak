@@ -99,8 +99,12 @@ const mockedEmailCredential = EmailAuthProvider.credential as jest.MockedFunctio
 const mockedReauthWithCredential = reauthenticateWithCredential as jest.MockedFunction<
   typeof reauthenticateWithCredential
 >;
-const mockedGetAppleCredential = getAppleCredential as jest.MockedFunction<typeof getAppleCredential>;
-const mockedGetGoogleCredential = getGoogleCredential as jest.MockedFunction<typeof getGoogleCredential>;
+const mockedGetAppleCredential = getAppleCredential as jest.MockedFunction<
+  typeof getAppleCredential
+>;
+const mockedGetGoogleCredential = getGoogleCredential as jest.MockedFunction<
+  typeof getGoogleCredential
+>;
 
 // The generator: the three supported provider ids plus absent/unsupported ones.
 type ProviderCase =
@@ -113,7 +117,7 @@ type ProviderCase =
 const supportedArb: fc.Arbitrary<ProviderCase> = fc.constantFrom<ProviderCase[]>(
   { providerId: 'password' },
   { providerId: 'apple.com' },
-  { providerId: 'google.com' },
+  { providerId: 'google.com' }
 );
 
 // Unsupported ids: undefined, empty string, and arbitrary strings that are not
@@ -123,7 +127,7 @@ const unsupportedArb: fc.Arbitrary<ProviderCase> = fc.oneof(
   fc
     .string()
     .filter((s) => !['password', 'apple.com', 'google.com'].includes(s))
-    .map<ProviderCase>((providerId) => ({ providerId })),
+    .map<ProviderCase>((providerId) => ({ providerId }))
 );
 
 const providerCaseArb: fc.Arbitrary<ProviderCase> = fc.oneof(supportedArb, unsupportedArb);
@@ -210,7 +214,7 @@ describe('accountDeletionService.reauthenticateForDeletion — Property 7: strat
           expect(mockedEmailCredential).not.toHaveBeenCalled();
         }
       }),
-      { numRuns: 100 },
+      { numRuns: 100 }
     );
   });
 });

@@ -124,13 +124,22 @@ jest.mock('../../services/accountDeletionService', () => ({
 // ── Imports resolved through the mocks above ─────────────────────────────────
 import { signInWithCredential } from 'firebase/auth';
 import { setDoc } from 'firebase/firestore';
-import { assertSsoConfig, getAppleCredential, SsoError, SsoErrorKind } from '../../services/ssoService';
+import {
+  assertSsoConfig,
+  getAppleCredential,
+  SsoError,
+  SsoErrorKind,
+} from '../../services/ssoService';
 import { isNewUser, provisionNewUser } from '../../services/userProvisioningService';
 import { AuthProvider, useAuth } from '../useAuth';
 
 const mockedAssertSsoConfig = assertSsoConfig as jest.MockedFunction<typeof assertSsoConfig>;
-const mockedGetAppleCredential = getAppleCredential as jest.MockedFunction<typeof getAppleCredential>;
-const mockedSignInWithCredential = signInWithCredential as jest.MockedFunction<typeof signInWithCredential>;
+const mockedGetAppleCredential = getAppleCredential as jest.MockedFunction<
+  typeof getAppleCredential
+>;
+const mockedSignInWithCredential = signInWithCredential as jest.MockedFunction<
+  typeof signInWithCredential
+>;
 const mockedSetDoc = setDoc as jest.MockedFunction<typeof setDoc>;
 const mockedIsNewUser = isNewUser as jest.MockedFunction<typeof isNewUser>;
 const mockedProvisionNewUser = provisionNewUser as jest.MockedFunction<typeof provisionNewUser>;

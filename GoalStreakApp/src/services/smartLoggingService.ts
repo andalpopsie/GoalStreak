@@ -1,6 +1,6 @@
 /**
  * Smart Logging Service
- * 
+ *
  * Optimized logging strategy to prevent storage bloat and reduce costs.
  * Implements intelligent log filtering, sampling, and batching.
  */
@@ -48,30 +48,30 @@ class SmartLoggingService {
         enabledLevels: ['debug', 'info', 'warn', 'error', 'critical'],
         enabledCategories: ['analytics', 'performance', 'error', 'user', 'system'],
         samplingRates: {
-          analytics: 0.5,    // Sample 50% of analytics in dev
-          performance: 0.3,  // Sample 30% of performance in dev (reduce noise)
-          error: 1.0,        // Log all errors
-          user: 0.8,         // Sample 80% of user actions in dev
-          system: 0.2        // Sample 20% of system logs
+          analytics: 0.5, // Sample 50% of analytics in dev
+          performance: 0.3, // Sample 30% of performance in dev (reduce noise)
+          error: 1.0, // Log all errors
+          user: 0.8, // Sample 80% of user actions in dev
+          system: 0.2, // Sample 20% of system logs
         },
         batchSize: 10,
         maxStorageSize: 50, // 50MB max in dev
-        retentionDays: 7
+        retentionDays: 7,
       };
     } else if (config.environment === 'staging') {
       return {
         enabledLevels: ['info', 'warn', 'error', 'critical'],
         enabledCategories: ['analytics', 'performance', 'error', 'user'],
         samplingRates: {
-          analytics: 0.5,    // Sample 50% of analytics
-          performance: 0.8,  // Sample 80% of performance
-          error: 1.0,        // Log all errors
-          user: 0.3,         // Sample 30% of user actions
-          system: 0.1        // Sample 10% of system logs
+          analytics: 0.5, // Sample 50% of analytics
+          performance: 0.8, // Sample 80% of performance
+          error: 1.0, // Log all errors
+          user: 0.3, // Sample 30% of user actions
+          system: 0.1, // Sample 10% of system logs
         },
         batchSize: 25,
         maxStorageSize: 25, // 25MB max in staging
-        retentionDays: 14
+        retentionDays: 14,
       };
     } else {
       // Production - Minimal logging
@@ -79,15 +79,15 @@ class SmartLoggingService {
         enabledLevels: ['warn', 'error', 'critical'],
         enabledCategories: ['error', 'user'],
         samplingRates: {
-          analytics: 0.05,   // Sample only 5% of analytics
-          performance: 0.1,  // Sample 10% of performance
-          error: 1.0,        // Log all errors
-          user: 0.02,        // Sample only 2% of user actions
-          system: 0.005      // Sample 0.5% of system logs
+          analytics: 0.05, // Sample only 5% of analytics
+          performance: 0.1, // Sample 10% of performance
+          error: 1.0, // Log all errors
+          user: 0.02, // Sample only 2% of user actions
+          system: 0.005, // Sample 0.5% of system logs
         },
         batchSize: 50,
         maxStorageSize: 10, // 10MB max in production
-        retentionDays: 30
+        retentionDays: 30,
       };
     }
   }
@@ -97,8 +97,10 @@ class SmartLoggingService {
    */
   log(level: LogLevel, category: LogCategory, message: string, data?: Record<string, any>): void {
     // Check if this log level and category are enabled
-    if (!this.config.enabledLevels.includes(level) || 
-        !this.config.enabledCategories.includes(category)) {
+    if (
+      !this.config.enabledLevels.includes(level) ||
+      !this.config.enabledCategories.includes(category)
+    ) {
       return;
     }
 
@@ -116,7 +118,7 @@ class SmartLoggingService {
       data: this.sanitizeData(data),
       timestamp: new Date(),
       userId: data?.userId,
-      sessionId: data?.sessionId
+      sessionId: data?.sessionId,
     };
 
     // Add to buffer
@@ -135,17 +137,17 @@ class SmartLoggingService {
     if (!data) return undefined;
 
     const sanitized = { ...data };
-    
+
     // Remove sensitive fields
     const sensitiveFields = ['password', 'token', 'apiKey', 'email', 'phone', 'address'];
-    sensitiveFields.forEach(field => {
+    sensitiveFields.forEach((field) => {
       if (sanitized[field]) {
         sanitized[field] = '[REDACTED]';
       }
     });
 
     // Truncate long strings
-    Object.keys(sanitized).forEach(key => {
+    Object.keys(sanitized).forEach((key) => {
       if (typeof sanitized[key] === 'string' && sanitized[key].length > 200) {
         sanitized[key] = sanitized[key].substring(0, 200) + '...';
       }
@@ -159,7 +161,7 @@ class SmartLoggingService {
    */
   private addToBuffer(logEntry: LogEntry): void {
     const entrySize = this.estimateLogSize(logEntry);
-    
+
     // Check if adding this entry would exceed storage limit
     if (this.totalLogSize + entrySize > this.config.maxStorageSize * 1024 * 1024) {
       this.flushOldestLogs();
@@ -187,7 +189,7 @@ class SmartLoggingService {
   private consoleLog(logEntry: LogEntry): void {
     const emoji = this.getLogEmoji(logEntry.level, logEntry.category);
     const prefix = `${emoji} ${logEntry.category.toUpperCase()}`;
-    
+
     switch (logEntry.level) {
       case 'debug':
         console.debug(prefix, logEntry.message, logEntry.data);
@@ -211,14 +213,20 @@ class SmartLoggingService {
   private getLogEmoji(level: LogLevel, category: LogCategory): string {
     if (level === 'error' || level === 'critical') return '🚨';
     if (level === 'warn') return '⚠️';
-    
+
     switch (category) {
-      case 'analytics': return '📊';
-      case 'performance': return '⚡';
-      case 'error': return '🚨';
-      case 'user': return '👤';
-      case 'system': return '⚙️';
-      default: return '📝';
+      case 'analytics':
+        return '📊';
+      case 'performance':
+        return '⚡';
+      case 'error':
+        return '🚨';
+      case 'user':
+        return '👤';
+      case 'system':
+        return '⚙️';
+      default:
+        return '📝';
     }
   }
 
@@ -244,13 +252,13 @@ class SmartLoggingService {
    */
   private flushOldestLogs(): void {
     const removeCount = Math.floor(this.logBuffer.length * 0.3); // Remove 30%
-    
+
     // Pre-calculate removed size for efficiency
     let removedSize = 0;
     for (let i = 0; i < removeCount; i++) {
       removedSize += this.estimateLogSize(this.logBuffer[i]);
     }
-    
+
     // Remove logs and update size
     this.logBuffer.splice(0, removeCount);
     this.totalLogSize -= removedSize;
@@ -269,7 +277,7 @@ class SmartLoggingService {
       totalSizeMB: (this.totalLogSize / (1024 * 1024)).toFixed(2),
       maxSizeMB: this.config.maxStorageSize,
       lastFlush: this.lastFlush,
-      config: this.config
+      config: this.config,
     };
   }
 

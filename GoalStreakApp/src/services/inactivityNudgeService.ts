@@ -23,17 +23,17 @@ const NUDGE_MESSAGES = {
     },
     {
       title: '👋 Hey There, Stranger!',
-      body: 'It\'s been 3 days! Your future self is waiting for you to show up.',
+      body: "It's been 3 days! Your future self is waiting for you to show up.",
     },
     {
       title: '🌱 Your Habits Need Water!',
-      body: 'Don\'t let your progress wilt. Come back and tend to your goals!',
+      body: "Don't let your progress wilt. Come back and tend to your goals!",
     },
   ],
   day5: [
     {
       title: '😢 Your Habits Are Lonely',
-      body: 'They\'ve been sitting here for 5 days... wondering if you still care.',
+      body: "They've been sitting here for 5 days... wondering if you still care.",
     },
     {
       title: '🎭 The Drama Begins',
@@ -46,7 +46,7 @@ const NUDGE_MESSAGES = {
   ],
   day7: [
     {
-      title: '🦉 Don\'t Make Us Send the Owl',
+      title: "🦉 Don't Make Us Send the Owl",
       body: 'You know what happens when you ignore us for a week. The owl is watching... 👀',
     },
     {
@@ -61,11 +61,11 @@ const NUDGE_MESSAGES = {
   day10: [
     {
       title: '😭 Your Streak Is Crying',
-      body: 'It\'s been 10 days. Your habits are in the corner, sobbing uncontrollably.',
+      body: "It's been 10 days. Your habits are in the corner, sobbing uncontrollably.",
     },
     {
       title: '💔 Heartbreak Hotel',
-      body: 'Your goals checked in 10 days ago and haven\'t checked out. They miss you!',
+      body: "Your goals checked in 10 days ago and haven't checked out. They miss you!",
     },
     {
       title: '🎪 The Circus Left Town',
@@ -75,7 +75,7 @@ const NUDGE_MESSAGES = {
   day14: [
     {
       title: '👻 Your Habits Are Ghosts Now',
-      body: '2 weeks of haunting silence. They\'re officially haunting your phone.',
+      body: "2 weeks of haunting silence. They're officially haunting your phone.",
     },
     {
       title: '🏚️ Abandoned Dreams',
@@ -83,7 +83,7 @@ const NUDGE_MESSAGES = {
     },
     {
       title: '⏰ Wake Up Call',
-      body: '14 days! This is your sign to restart. One habit. Right now. Let\'s go!',
+      body: "14 days! This is your sign to restart. One habit. Right now. Let's go!",
     },
   ],
 };
@@ -131,7 +131,7 @@ export const inactivityNudgeService = {
   async recordActivity(): Promise<void> {
     try {
       await AsyncStorage.setItem(LAST_ACTIVITY_KEY, new Date().toISOString());
-      
+
       // Reset nudge level when user is active
       const settings = await this.getSettings();
       if (settings) {
@@ -155,9 +155,9 @@ export const inactivityNudgeService = {
         orderBy('completedAt', 'desc'),
         limit(1)
       );
-      
+
       const querySnapshot = await getDocs(q);
-      
+
       if (querySnapshot.empty) {
         return 0; // No completions yet
       }
@@ -167,7 +167,7 @@ export const inactivityNudgeService = {
       const now = new Date();
       const diffTime = Math.abs(now.getTime() - lastDate.getTime());
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-      
+
       return diffDays;
     } catch (error) {
       console.error('Error getting days since last activity:', error);
@@ -186,7 +186,7 @@ export const inactivityNudgeService = {
       }
 
       const daysSinceActivity = await this.getDaysSinceLastActivity(userId);
-      
+
       // Determine if we should send a nudge
       let shouldNudge = false;
       let messageCategory: keyof typeof NUDGE_MESSAGES | null = null;
@@ -217,7 +217,7 @@ export const inactivityNudgeService = {
         const lastNudge = new Date(settings.lastNudgeDate);
         const now = new Date();
         const hoursSinceLastNudge = (now.getTime() - lastNudge.getTime()) / (1000 * 60 * 60);
-        
+
         if (hoursSinceLastNudge < 24) {
           return; // Don't spam - wait 24 hours between nudges
         }
@@ -230,7 +230,6 @@ export const inactivityNudgeService = {
       settings.lastNudgeDate = new Date().toISOString();
       settings.nudgeLevel = Math.min(settings.nudgeLevel + 1, 4);
       await AsyncStorage.setItem(NUDGE_SETTINGS_KEY, JSON.stringify(settings));
-
     } catch (error) {
       console.error('Error checking and sending nudge:', error);
     }
@@ -250,7 +249,7 @@ export const inactivityNudgeService = {
           body: randomMessage.body,
           sound: 'default',
           priority: Notifications.AndroidNotificationPriority.HIGH,
-          data: { 
+          data: {
             type: 'inactivity_nudge',
             category,
           },
@@ -270,7 +269,7 @@ export const inactivityNudgeService = {
    */
   async setEnabled(enabled: boolean): Promise<void> {
     try {
-      const settings = await this.getSettings() || {
+      const settings = (await this.getSettings()) || {
         enabled: false,
         lastNudgeDate: null,
         nudgeLevel: 0,
@@ -292,7 +291,7 @@ export const inactivityNudgeService = {
       if (settingsStr) {
         return JSON.parse(settingsStr);
       }
-      
+
       // Return default settings
       return {
         enabled: true, // Enabled by default

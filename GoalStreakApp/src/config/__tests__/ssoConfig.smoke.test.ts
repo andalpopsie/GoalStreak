@@ -114,8 +114,7 @@ describe('SSO config & secrets smoke checks', () => {
     // Match a non-empty assignment: KEY=<something that isn't just whitespace>.
     // A key that is absent, or present with an empty value, is acceptable —
     // SSO client ids come from EAS secrets injected at build time.
-    const assignmentRegexFor = (key: string) =>
-      new RegExp(`^\\s*${key}\\s*=\\s*(\\S+)`, 'm');
+    const assignmentRegexFor = (key: string) => new RegExp(`^\\s*${key}\\s*=\\s*(\\S+)`, 'm');
 
     for (const fileName of envFiles) {
       it(`${fileName} does not commit non-empty SSO client ids`, () => {

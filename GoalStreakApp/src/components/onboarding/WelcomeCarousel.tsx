@@ -1,12 +1,5 @@
 import React, { useState, useRef, useMemo, useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, StyleSheet, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
@@ -48,7 +41,8 @@ const welcomeSlides: WelcomeSlide[] = [
   {
     id: 'habits',
     title: 'Build Lasting Habits',
-    description: 'Transform your daily routines into powerful habits with beautiful progress tracking',
+    description:
+      'Transform your daily routines into powerful habits with beautiful progress tracking',
     icon: 'checkmark-circle',
     benefits: ['Visual progress tracking', 'Streak celebrations', '39+ categories'],
     color: Colors.accent1,
@@ -56,7 +50,8 @@ const welcomeSlides: WelcomeSlide[] = [
   {
     id: 'social',
     title: 'Stay Accountable with Friends',
-    description: 'Connect with friends and family to stay motivated and celebrate achievements together',
+    description:
+      'Connect with friends and family to stay motivated and celebrate achievements together',
     icon: 'people',
     benefits: ['Friend accountability', 'Real-time reactions', 'Shared progress'],
     color: Colors.accent2,
@@ -64,7 +59,8 @@ const welcomeSlides: WelcomeSlide[] = [
   {
     id: 'groups',
     title: 'Accountability Groups & Chat',
-    description: 'Form small groups around shared goals, track progress together, and chat in real time',
+    description:
+      'Form small groups around shared goals, track progress together, and chat in real time',
     icon: 'chatbubbles',
     benefits: ['Group challenges', 'Live group chat', 'Shared habit tracking'],
     color: Colors.accent3,
@@ -88,26 +84,26 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
   const [currentSlide, setCurrentSlide] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
   const insets = useSafeAreaInsets();
-  
+
   // Memoized dynamic calculations based on safe area and screen size
   // Following 4px base grid: 8, 16, 24, 32
   const skipButtonTop = useMemo(
     () => Math.max(getResponsiveSpacing(16), insets.top + 8), // 16px base
     [insets.top]
   );
-  
+
   const slideTopPadding = useMemo(
     () => Math.max(getResponsiveSpacing(64), insets.top + getResponsiveSpacing(48)), // 64px = 8*8
     [insets.top]
   );
-  
+
   const footerBottomPadding = useMemo(() => {
     const baseFooterPadding = getResponsiveSpacing(24); // 24px = comfortable
-    return insets.bottom > 0 
+    return insets.bottom > 0
       ? Math.max(baseFooterPadding, insets.bottom + getResponsiveSpacing(16)) // 16px = base
       : baseFooterPadding;
   }, [insets.bottom]);
-  
+
   const slideBottomPadding = useMemo(
     () => getResponsiveSpacing(200), // 200px = 8*25 (ensures footer clearance)
     []
@@ -130,54 +126,53 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
     setCurrentSlide(slideIndex);
   };
 
-  const renderSlide = useCallback((slide: WelcomeSlide) => (
-    <ScrollView 
-      key={slide.id} 
-      style={styles.slideScrollView}
-      contentContainerStyle={[styles.slide, { 
-        paddingTop: slideTopPadding,
-        paddingBottom: slideBottomPadding 
-      }]}
-      showsVerticalScrollIndicator={false}
-      bounces={false}
-    >
-      <Animated.View 
-        entering={FadeInUp.delay(200)}
-        style={[styles.iconContainer, { backgroundColor: slide.color + '15' }]}
+  const renderSlide = useCallback(
+    (slide: WelcomeSlide) => (
+      <ScrollView
+        key={slide.id}
+        style={styles.slideScrollView}
+        contentContainerStyle={[
+          styles.slide,
+          {
+            paddingTop: slideTopPadding,
+            paddingBottom: slideBottomPadding,
+          },
+        ]}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
       >
-        <Ionicons 
-          name={slide.icon} 
-          size={getResponsiveIconSize()} 
-          color={slide.color} 
-        />
-      </Animated.View>
+        <Animated.View
+          entering={FadeInUp.delay(200)}
+          style={[styles.iconContainer, { backgroundColor: slide.color + '15' }]}
+        >
+          <Ionicons name={slide.icon} size={getResponsiveIconSize()} color={slide.color} />
+        </Animated.View>
 
-      <Animated.View entering={FadeInUp.delay(400)} style={styles.content}>
-        <Text style={styles.title}>{slide.title}</Text>
-        <Text style={styles.description}>{slide.description}</Text>
+        <Animated.View entering={FadeInUp.delay(400)} style={styles.content}>
+          <Text style={styles.title}>{slide.title}</Text>
+          <Text style={styles.description}>{slide.description}</Text>
 
-        <View style={styles.benefitsContainer}>
-          {slide.benefits.map((benefit, benefitIndex) => (
-            <Animated.View
-              key={benefit}
-              entering={FadeInUp.delay(600 + benefitIndex * 100)}
-              style={styles.benefitItem}
-            >
-              <Ionicons name="checkmark-circle" size={20} color={slide.color} />
-              <Text style={styles.benefitText}>{benefit}</Text>
-            </Animated.View>
-          ))}
-        </View>
-      </Animated.View>
-    </ScrollView>
-  ), [slideTopPadding, slideBottomPadding]);
+          <View style={styles.benefitsContainer}>
+            {slide.benefits.map((benefit, benefitIndex) => (
+              <Animated.View
+                key={benefit}
+                entering={FadeInUp.delay(600 + benefitIndex * 100)}
+                style={styles.benefitItem}
+              >
+                <Ionicons name="checkmark-circle" size={20} color={slide.color} />
+                <Text style={styles.benefitText}>{benefit}</Text>
+              </Animated.View>
+            ))}
+          </View>
+        </Animated.View>
+      </ScrollView>
+    ),
+    [slideTopPadding, slideBottomPadding]
+  );
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity 
-        style={[styles.skipButton, { top: skipButtonTop }]} 
-        onPress={onSkip}
-      >
+      <TouchableOpacity style={[styles.skipButton, { top: skipButtonTop }]} onPress={onSkip}>
         <Text style={styles.skipText}>Skip</Text>
       </TouchableOpacity>
 
@@ -198,10 +193,7 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
           {welcomeSlides.map((_, index) => (
             <View
               key={index}
-              style={[
-                styles.paginationDot,
-                index === currentSlide && styles.paginationDotActive,
-              ]}
+              style={[styles.paginationDot, index === currentSlide && styles.paginationDotActive]}
             />
           ))}
         </View>
@@ -211,10 +203,10 @@ export default function WelcomeCarousel({ onComplete, onSkip }: WelcomeCarouselP
             <Text style={styles.nextButtonText}>
               {currentSlide === welcomeSlides.length - 1 ? 'Get Started' : 'Next'}
             </Text>
-            <Ionicons 
-              name={currentSlide === welcomeSlides.length - 1 ? 'rocket' : 'arrow-forward'} 
-              size={24} 
-              color={Colors.white} 
+            <Ionicons
+              name={currentSlide === welcomeSlides.length - 1 ? 'rocket' : 'arrow-forward'}
+              size={24}
+              color={Colors.white}
             />
           </TouchableOpacity>
         </Animated.View>
@@ -231,12 +223,12 @@ const styles = StyleSheet.create({
   skipButton: {
     position: 'absolute',
     // top is set dynamically via inline style
-    right: 16,              // 16px = base spacing
+    right: 16, // 16px = base spacing
     zIndex: 1,
-    paddingHorizontal: 16,  // 16px = base
-    paddingVertical: 8,     // 8px = tight
+    paddingHorizontal: 16, // 16px = base
+    paddingVertical: 8, // 8px = tight
     backgroundColor: Colors.white + '90',
-    borderRadius: 20,       // 20px = 5*4 (grid aligned)
+    borderRadius: 20, // 20px = 5*4 (grid aligned)
   },
   skipText: {
     ...Typography.body,
@@ -252,11 +244,11 @@ const styles = StyleSheet.create({
   },
   slide: {
     alignItems: 'center',
-    paddingHorizontal: 24,  // 24px = comfortable spacing
+    paddingHorizontal: 24, // 24px = comfortable spacing
     // paddingTop and paddingBottom are set dynamically via inline style
   },
   iconContainer: {
-    width: getResponsiveSpacing(160),  // 160px = 8*20
+    width: getResponsiveSpacing(160), // 160px = 8*20
     height: getResponsiveSpacing(160),
     borderRadius: getResponsiveSpacing(80), // 80px = 8*10
     alignItems: 'center',
@@ -293,20 +285,20 @@ const styles = StyleSheet.create({
   benefitsContainer: {
     alignSelf: 'stretch',
     backgroundColor: Colors.background,
-    borderRadius: 16,       // 16px = 4*4
-    padding: 16,            // 16px = base spacing (card padding)
+    borderRadius: 16, // 16px = 4*4
+    padding: 16, // 16px = base spacing (card padding)
   },
   benefitItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,        // 8px = tight spacing (related items)
-    paddingVertical: 4,     // 4px = base unit
+    marginBottom: 8, // 8px = tight spacing (related items)
+    paddingVertical: 4, // 4px = base unit
   },
   benefitText: {
     fontFamily: Typography.fontFamily.medium,
-    fontSize: 16,           // 16px = body text
+    fontSize: 16, // 16px = body text
     color: Colors.primaryText,
-    marginLeft: 8,          // 8px = tight (icon-text pair)
+    marginLeft: 8, // 8px = tight (icon-text pair)
     flex: 1,
     fontWeight: '500',
   },
@@ -315,8 +307,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    paddingHorizontal: 24,  // 24px = comfortable spacing
-    paddingTop: 8,          // 8px = tight spacing
+    paddingHorizontal: 24, // 24px = comfortable spacing
+    paddingTop: 8, // 8px = tight spacing
     // paddingBottom is set dynamically via inline style
     alignItems: 'center',
     backgroundColor: Colors.white,
@@ -325,28 +317,28 @@ const styles = StyleSheet.create({
   },
   pagination: {
     flexDirection: 'row',
-    marginBottom: 8,        // 8px = tight spacing
+    marginBottom: 8, // 8px = tight spacing
   },
   paginationDot: {
-    width: 8,               // 8px = base unit
+    width: 8, // 8px = base unit
     height: 8,
-    borderRadius: 4,        // 4px = base unit
+    borderRadius: 4, // 4px = base unit
     backgroundColor: Colors.gray.light,
-    marginHorizontal: 4,    // 4px = base unit
+    marginHorizontal: 4, // 4px = base unit
   },
   paginationDotActive: {
     backgroundColor: Colors.accent1,
-    width: 24,              // 24px = 6*4
+    width: 24, // 24px = 6*4
   },
   nextButton: {
     backgroundColor: Colors.accent1,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 32,  // 32px = loose spacing
-    paddingVertical: 16,    // 16px = base spacing
-    borderRadius: 16,       // 16px = 4*4
-    minWidth: 160,          // 160px = 8*20
-    minHeight: 56,          // 56px = 8*7 (touch target)
+    paddingHorizontal: 32, // 32px = loose spacing
+    paddingVertical: 16, // 16px = base spacing
+    borderRadius: 16, // 16px = 4*4
+    minWidth: 160, // 160px = 8*20
+    minHeight: 56, // 56px = 8*7 (touch target)
     justifyContent: 'center',
     shadowColor: Colors.accent1,
     shadowOffset: { width: 0, height: 4 },
@@ -356,9 +348,9 @@ const styles = StyleSheet.create({
   },
   nextButtonText: {
     fontFamily: Typography.fontFamily.semibold,
-    fontSize: 16,           // body
+    fontSize: 16, // body
     fontWeight: '600',
     color: Colors.white,
-    marginRight: 8,         // 8px = tight spacing (icon-text)
+    marginRight: 8, // 8px = tight spacing (icon-text)
   },
 });

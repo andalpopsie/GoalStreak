@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Colors, Spacing, CategoryColors, Typography } from '../../constants/theme';
@@ -23,7 +16,11 @@ const HABIT_TEMPLATES: HabitTemplate[] = [
     description: 'Stay hydrated throughout the day',
     difficulty: 'easy',
     popularity: 95,
-    tips: ['Start with a glass when you wake up', 'Use a water tracking app', 'Add lemon for flavor'],
+    tips: [
+      'Start with a glass when you wake up',
+      'Use a water tracking app',
+      'Add lemon for flavor',
+    ],
   },
   {
     id: 'morning-walk',
@@ -33,7 +30,11 @@ const HABIT_TEMPLATES: HabitTemplate[] = [
     description: 'Start your day with gentle movement',
     difficulty: 'easy',
     popularity: 88,
-    tips: ['Lay out clothes the night before', 'Start with 5 minutes', 'Listen to podcasts while walking'],
+    tips: [
+      'Lay out clothes the night before',
+      'Start with 5 minutes',
+      'Listen to podcasts while walking',
+    ],
   },
   {
     id: 'meditation',
@@ -57,7 +58,7 @@ const HABIT_TEMPLATES: HabitTemplate[] = [
   },
   {
     id: 'gratitude-journal',
-    name: 'Write 3 things I\'m grateful for',
+    name: "Write 3 things I'm grateful for",
     category: 'wellness',
     icon: 'heart',
     description: 'Practice gratitude and positive thinking',
@@ -93,7 +94,11 @@ const HABIT_TEMPLATES: HabitTemplate[] = [
     description: 'Fuel your day with nutritious food',
     difficulty: 'easy',
     popularity: 79,
-    tips: ['Prep ingredients the night before', 'Include protein and fiber', 'Avoid processed foods'],
+    tips: [
+      'Prep ingredients the night before',
+      'Include protein and fiber',
+      'Avoid processed foods',
+    ],
   },
   {
     id: 'learn-skill',
@@ -112,14 +117,17 @@ interface HabitSuggestionsProps {
   onSkip: () => void;
 }
 
-export default React.memo(function HabitSuggestions({ onSelectHabits, onSkip }: HabitSuggestionsProps) {
+export default React.memo(function HabitSuggestions({
+  onSelectHabits,
+  onSkip,
+}: HabitSuggestionsProps) {
   const [selectedHabits, setSelectedHabits] = useState<HabitTemplate[]>([]);
 
   const toggleHabit = (habit: HabitTemplate) => {
-    setSelectedHabits(prev => {
-      const isSelected = prev.some(h => h.id === habit.id);
+    setSelectedHabits((prev) => {
+      const isSelected = prev.some((h) => h.id === habit.id);
       if (isSelected) {
-        return prev.filter(h => h.id !== habit.id);
+        return prev.filter((h) => h.id !== habit.id);
       } else {
         if (prev.length >= LIMITS.MAX_HABITS) {
           Alert.alert(
@@ -136,10 +144,14 @@ export default React.memo(function HabitSuggestions({ onSelectHabits, onSkip }: 
 
   const getDifficultyColor = (difficulty: HabitTemplate['difficulty']) => {
     switch (difficulty) {
-      case 'easy': return Colors.accent3;
-      case 'medium': return Colors.accent1;
-      case 'hard': return '#FF6B6B';
-      default: return Colors.gray.medium;
+      case 'easy':
+        return Colors.accent3;
+      case 'medium':
+        return Colors.accent1;
+      case 'hard':
+        return '#FF6B6B';
+      default:
+        return Colors.gray.medium;
     }
   };
 
@@ -167,64 +179,67 @@ export default React.memo(function HabitSuggestions({ onSelectHabits, onSkip }: 
       <Animated.View entering={FadeInUp.delay(200)} style={styles.header}>
         <Text style={styles.title}>Start with Popular Habits</Text>
         <Text style={styles.subtitle}>
-          Choose up to {LIMITS.MAX_HABITS} habits to begin your journey. We recommend starting with 2-3 for best results!
+          Choose up to {LIMITS.MAX_HABITS} habits to begin your journey. We recommend starting with
+          2-3 for best results!
         </Text>
       </Animated.View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {HABIT_TEMPLATES.map((habit, index) => {
-          const isSelected = selectedHabits.some(h => h.id === habit.id);
-          
+          const isSelected = selectedHabits.some((h) => h.id === habit.id);
+
           return (
-            <Animated.View
-              key={habit.id}
-              entering={FadeInUp.delay(400 + index * 100)}
-            >
+            <Animated.View key={habit.id} entering={FadeInUp.delay(400 + index * 100)}>
               <TouchableOpacity
-                style={[
-                  styles.habitCard,
-                  isSelected && styles.habitCardSelected,
-                ]}
+                style={[styles.habitCard, isSelected && styles.habitCardSelected]}
                 onPress={() => toggleHabit(habit)}
                 accessibilityRole="button"
                 accessibilityLabel={`${habit.name}. ${habit.description}. Difficulty: ${habit.difficulty}. ${isSelected ? 'Selected' : 'Not selected'}`}
-                accessibilityHint={isSelected ? 'Double tap to deselect this habit' : 'Double tap to select this habit'}
+                accessibilityHint={
+                  isSelected
+                    ? 'Double tap to deselect this habit'
+                    : 'Double tap to select this habit'
+                }
               >
                 <View style={styles.habitHeader}>
-                  <View style={[
-                    styles.iconContainer,
-                    { backgroundColor: getCategoryColor(habit.category) + '20' }
-                  ]}>
-                    <Ionicons 
-                      name={habit.icon as keyof typeof Ionicons.glyphMap} 
-                      size={28} 
-                      color={getCategoryColor(habit.category)} 
+                  <View
+                    style={[
+                      styles.iconContainer,
+                      { backgroundColor: getCategoryColor(habit.category) + '20' },
+                    ]}
+                  >
+                    <Ionicons
+                      name={habit.icon as keyof typeof Ionicons.glyphMap}
+                      size={28}
+                      color={getCategoryColor(habit.category)}
                     />
                   </View>
-                  
+
                   <View style={styles.habitInfo}>
                     <Text style={styles.habitName}>{habit.name}</Text>
                     <Text style={styles.habitDescription}>{habit.description}</Text>
-                    
+
                     <View style={styles.habitMeta}>
-                      <View style={[
-                        styles.difficultyBadge,
-                        { backgroundColor: getDifficultyColor(habit.difficulty) + '20' }
-                      ]}>
-                        <Text style={[
-                          styles.difficultyText,
-                          { color: getDifficultyColor(habit.difficulty) }
-                        ]}>
+                      <View
+                        style={[
+                          styles.difficultyBadge,
+                          { backgroundColor: getDifficultyColor(habit.difficulty) + '20' },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.difficultyText,
+                            { color: getDifficultyColor(habit.difficulty) },
+                          ]}
+                        >
                           {habit.difficulty}
                         </Text>
                       </View>
-                      
-                      <Text style={styles.popularityText}>
-                        {habit.popularity}% of users
-                      </Text>
+
+                      <Text style={styles.popularityText}>{habit.popularity}% of users</Text>
                     </View>
                   </View>
-                  
+
                   <View style={styles.selectionIndicator}>
                     {isSelected ? (
                       <Ionicons name="checkmark-circle" size={28} color={Colors.accent1} />
@@ -243,17 +258,17 @@ export default React.memo(function HabitSuggestions({ onSelectHabits, onSkip }: 
         <Text style={styles.selectionCount}>
           {selectedHabits.length}/{LIMITS.MAX_HABITS} habits selected
         </Text>
-        
+
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.skipButton} onPress={onSkip}>
             <Text style={styles.skipButtonText}>Skip for now</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[
               styles.continueButton,
-              selectedHabits.length === 0 && styles.continueButtonDisabled
-            ]} 
+              selectedHabits.length === 0 && styles.continueButtonDisabled,
+            ]}
             onPress={handleContinue}
           >
             <Text style={styles.continueButtonText}>

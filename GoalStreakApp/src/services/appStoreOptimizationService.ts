@@ -1,6 +1,6 @@
 /**
  * App Store Optimization Service
- * 
+ *
  * Provides App Store Connect integration and optimization tracking for iOS launch.
  * Implements Task 8.2: Configure App Store Connect analytics integration
  * Implements Task 8.3: Set up conversion tracking from App Store to app install
@@ -60,7 +60,7 @@ class AppStoreOptimizationService {
     onboardingCompleted: 0,
     firstHabitCreated: 0,
     dayOneRetention: 0,
-    daySevenRetention: 0
+    daySevenRetention: 0,
   };
   private userAcquisitions: UserAcquisition[] = [];
 
@@ -80,16 +80,15 @@ class AppStoreOptimizationService {
 
       // Initialize App Store Connect analytics
       await this.initializeAppStoreConnect();
-      
+
       // Set up conversion tracking
       this.setupConversionTracking();
-      
+
       // Initialize acquisition source detection
       this.initializeAcquisitionTracking();
-      
+
       this.isInitialized = true;
       console.log('🏪 App Store Optimization: Initialized successfully');
-
     } catch (error) {
       console.warn('🏪 App Store Optimization: Failed to initialize:', error);
       throw error;
@@ -102,7 +101,7 @@ class AppStoreOptimizationService {
   private async initializeAppStoreConnect(): Promise<void> {
     // In a real implementation, this would connect to App Store Connect API
     console.log('🏪 App Store Connect: Analytics integration initialized');
-    
+
     // Simulate fetching initial metrics
     this.conversionFunnel = {
       appStoreViews: Math.floor(Math.random() * 10000),
@@ -112,7 +111,7 @@ class AppStoreOptimizationService {
       onboardingCompleted: Math.floor(Math.random() * 500),
       firstHabitCreated: Math.floor(Math.random() * 400),
       dayOneRetention: Math.floor(Math.random() * 300),
-      daySevenRetention: Math.floor(Math.random() * 200)
+      daySevenRetention: Math.floor(Math.random() * 200),
     };
   }
 
@@ -124,7 +123,7 @@ class AppStoreOptimizationService {
     this.trackConversionEvent('app_install', {
       platform: Platform.OS,
       version: config.app.version,
-      environment: config.environment
+      environment: config.environment,
     });
   }
 
@@ -134,7 +133,7 @@ class AppStoreOptimizationService {
   private initializeAcquisitionTracking(): void {
     // Detect acquisition source from app launch
     const acquisitionSource = this.detectAcquisitionSource();
-    
+
     if (acquisitionSource) {
       this.trackUserAcquisition(acquisitionSource);
     }
@@ -151,15 +150,15 @@ class AppStoreOptimizationService {
       'app_store_browse',
       'referral',
       'web',
-      'social'
+      'social',
     ];
-    
+
     const randomSource = sources[Math.floor(Math.random() * sources.length)];
-    
+
     return {
       source: randomSource,
       campaign: randomSource === 'social' ? 'launch_campaign' : undefined,
-      keyword: randomSource === 'app_store_search' ? 'habit_tracker' : undefined
+      keyword: randomSource === 'app_store_search' ? 'habit_tracker' : undefined,
     };
   }
 
@@ -175,7 +174,7 @@ class AppStoreOptimizationService {
     const userAcquisition: UserAcquisition = {
       userId: userId || `user_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
       acquisitionSource,
-      installDate: new Date()
+      installDate: new Date(),
     };
 
     this.userAcquisitions.push(userAcquisition);
@@ -243,7 +242,7 @@ class AppStoreOptimizationService {
       source,
       conversions,
       timestamp: new Date(),
-      platform: Platform.OS
+      platform: Platform.OS,
     };
 
     console.log('🏪 Campaign Effectiveness Tracked:', effectiveness);
@@ -264,7 +263,7 @@ class AppStoreOptimizationService {
       conversionRate: this.calculateConversionRate(),
       crashes: Math.floor(Math.random() * 10),
       rating: 4.5 + Math.random() * 0.5,
-      reviews: Math.floor(Math.random() * 100)
+      reviews: Math.floor(Math.random() * 100),
     };
   }
 
@@ -279,18 +278,21 @@ class AppStoreOptimizationService {
    * Get user acquisition summary
    */
   getUserAcquisitionSummary(): Record<string, any> {
-    const sourceBreakdown = this.userAcquisitions.reduce((acc, acquisition) => {
-      const source = acquisition.acquisitionSource.source;
-      acc[source] = (acc[source] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const sourceBreakdown = this.userAcquisitions.reduce(
+      (acc, acquisition) => {
+        const source = acquisition.acquisitionSource.source;
+        acc[source] = (acc[source] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     return {
       totalAcquisitions: this.userAcquisitions.length,
       sourceBreakdown,
       topSource: this.getTopAcquisitionSource(),
       averageTimeToFirstHabit: this.calculateAverageTimeToFirstHabit(),
-      retentionRate: this.calculateRetentionRate()
+      retentionRate: this.calculateRetentionRate(),
     };
   }
 
@@ -306,20 +308,27 @@ class AppStoreOptimizationService {
    * Get top acquisition source
    */
   private getTopAcquisitionSource(): string {
-    const sourceCount = this.userAcquisitions.reduce((acc, acquisition) => {
-      const source = acquisition.acquisitionSource.source;
-      acc[source] = (acc[source] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const sourceCount = this.userAcquisitions.reduce(
+      (acc, acquisition) => {
+        const source = acquisition.acquisitionSource.source;
+        acc[source] = (acc[source] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
-    return Object.entries(sourceCount).reduce((a, b) => sourceCount[a[0]] > sourceCount[b[0]] ? a : b)?.[0] || 'unknown';
+    return (
+      Object.entries(sourceCount).reduce((a, b) =>
+        sourceCount[a[0]] > sourceCount[b[0]] ? a : b
+      )?.[0] || 'unknown'
+    );
   }
 
   /**
    * Calculate average time to first habit
    */
   private calculateAverageTimeToFirstHabit(): number {
-    const usersWithFirstHabit = this.userAcquisitions.filter(u => u.firstHabitDate);
+    const usersWithFirstHabit = this.userAcquisitions.filter((u) => u.firstHabitDate);
     if (usersWithFirstHabit.length === 0) return 0;
 
     const totalTime = usersWithFirstHabit.reduce((acc, user) => {
@@ -404,9 +413,9 @@ class AppStoreOptimizationService {
 - **Avg Time to First Habit**: ${acquisition.averageTimeToFirstHabit.toFixed(1)} hours
 
 ## Source Breakdown
-${Object.entries(acquisition.sourceBreakdown).map(([source, count]) => 
-  `- **${source}**: ${count}`
-).join('\n')}
+${Object.entries(acquisition.sourceBreakdown)
+  .map(([source, count]) => `- **${source}**: ${count}`)
+  .join('\n')}
 
 ---
 *Report generated by GoalStreak App Store Optimization Service*

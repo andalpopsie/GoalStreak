@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 import * as Google from 'expo-auth-session/providers/google';
-import { 
+import {
   User,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -13,7 +13,7 @@ import {
   sendPasswordResetEmail,
   linkWithCredential,
   reauthenticateWithCredential,
-  unlink
+  unlink,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from '../services/firebase';
@@ -58,7 +58,7 @@ function isConfigPresent(value: string | undefined | null): boolean {
  */
 export function isLoginStale(
   lastSignInTime: string | undefined | null,
-  now: number = Date.now(),
+  now: number = Date.now()
 ): boolean {
   if (!lastSignInTime) {
     return true;
@@ -78,7 +78,7 @@ export function isLoginStale(
  */
 export function canUnlinkProvider(
   linkedProviders: readonly string[],
-  providerToRemove: string,
+  providerToRemove: string
 ): boolean {
   return linkedProviders.filter((id) => id !== providerToRemove).length >= 1;
 }
@@ -145,9 +145,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // sync with Firebase's providerData: hydrated by onAuthStateChanged and
   // refreshed after every successful link/unlink so the Settings surface
   // reflects the true linked set.
-  const [connectedProviders, setConnectedProviders] = useState<
-    Array<SsoProviderId | 'password'>
-  >([]);
+  const [connectedProviders, setConnectedProviders] = useState<Array<SsoProviderId | 'password'>>(
+    []
+  );
 
   // Google's id token is obtained through expo-auth-session's useAuthRequest
   // hook, which must live at the component/hook level rather than inside an
@@ -218,7 +218,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               username = generateUsername(firebaseUser.displayName);
               attempts++;
             }
-            await setDoc(doc(db, 'users', firebaseUser.uid), { username, updatedAt: new Date() }, { merge: true });
+            await setDoc(
+              doc(db, 'users', firebaseUser.uid),
+              { username, updatedAt: new Date() },
+              { merge: true }
+            );
             await reserveUsername(username, firebaseUser.uid);
             appUser.username = username;
           }
@@ -232,9 +236,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Hydrate the linked-provider set from Firebase so the Settings
           // connect/disconnect surface reflects the account's true state (R8.3).
           setConnectedProviders(
-            firebaseUser.providerData.map(
-              (p) => p.providerId as SsoProviderId | 'password',
-            ),
+            firebaseUser.providerData.map((p) => p.providerId as SsoProviderId | 'password')
           );
 
           // Fire-and-forget: initialize RevenueCat for the signed-in user.
@@ -278,7 +280,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Convert Firebase errors to user-friendly messages
       const errorCode = error.code;
       let userMessage = 'Failed to sign in. Please try again.';
-      
+
       switch (errorCode) {
         case 'auth/invalid-credential':
         case 'auth/wrong-password':
@@ -302,7 +304,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.error('Sign in error:', errorCode, error.message);
           userMessage = 'Unable to sign in. Please try again later.';
       }
-      
+
       throw new Error(userMessage);
     }
   };
@@ -314,7 +316,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const { user: firebaseUser } = await createUserWithEmailAndPassword(auth, email, password);
-      
+
       // Update the user's display name
       await updateProfile(firebaseUser, { displayName });
 
@@ -328,10 +330,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Convert Firebase errors to user-friendly messages
       const errorCode = error.code;
       let userMessage = 'Failed to create account. Please try again.';
-      
+
       switch (errorCode) {
         case 'auth/email-already-in-use':
-          userMessage = 'This email is already registered. Please sign in or use a different email.';
+          userMessage =
+            'This email is already registered. Please sign in or use a different email.';
           break;
         case 'auth/invalid-email':
           userMessage = 'Invalid email address. Please enter a valid email.';
@@ -350,7 +353,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.error('Sign up error:', errorCode, error.message);
           userMessage = 'Unable to create account. Please try again later.';
       }
-      
+
       throw new Error(userMessage);
     }
   };
@@ -378,7 +381,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Convert Firebase errors to user-friendly messages
       const errorCode = error.code;
       let userMessage = 'Failed to send password reset email. Please try again.';
-      
+
       switch (errorCode) {
         case 'auth/invalid-email':
           userMessage = 'Invalid email address. Please enter a valid email.';
@@ -394,7 +397,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           console.error('Password reset error:', errorCode, error.message);
           userMessage = 'Unable to send reset email. Please try again later.';
       }
-      
+
       throw new Error(userMessage);
     }
   };
@@ -406,13 +409,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const userRef = doc(db, 'users', authState.user.id);
-      await setDoc(userRef, {
-        ...updates,
-        updatedAt: new Date(),
-      }, { merge: true });
+      await setDoc(
+        userRef,
+        {
+          ...updates,
+          updatedAt: new Date(),
+        },
+        { merge: true }
+      );
 
       // Update local state
-      setAuthState(prev => ({
+      setAuthState((prev) => ({
         ...prev,
         user: prev.user ? { ...prev.user, ...updates } : null,
       }));
@@ -433,7 +440,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const promptFreshGoogleIdToken = (): Promise<string> => {
     if (!googleRequest) {
       return Promise.reject(
-        new SsoError('generic', 'Google sign-in is not ready yet, please try again.'),
+        new SsoError('generic', 'Google sign-in is not ready yet, please try again.')
       );
     }
 
@@ -476,7 +483,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // No password; supply the id-token callback for the Google re-auth branch.
         await accountDeletionService.reauthenticateAndDeleteAccount(
           undefined,
-          promptFreshGoogleIdToken,
+          promptFreshGoogleIdToken
         );
       } else {
         // apple.com re-runs its native sheet inside the service; an absent or
@@ -498,7 +505,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           case 'unavailable':
             throw new Error(
               error.message ||
-                'Account deletion is unavailable for this sign-in method. Please try again.',
+                'Account deletion is unavailable for this sign-in method. Please try again.'
             );
           default:
             throw new Error(error.message || 'Unable to delete account. Please try again later.');
@@ -523,7 +530,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           userMessage = 'Network error. Please check your connection and try again.';
           break;
         case 'auth/requires-recent-login':
-          userMessage = 'For security, please sign out and sign back in before deleting your account.';
+          userMessage =
+            'For security, please sign out and sign back in before deleting your account.';
           break;
         default:
           console.error('Account deletion error:', errorCode, error.message);
@@ -572,13 +580,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const emitSsoAuthAnalytics = (
     providerId: SsoProviderId,
     newUser: boolean,
-    firebaseUser: User,
+    firebaseUser: User
   ): void => {
     try {
       const email = firebaseUser.email ?? undefined;
       // Match the email flow's `email_domain` property when an email is present.
-      const emailDomain =
-        email && email.includes('@') ? email.split('@')[1] : undefined;
+      const emailDomain = email && email.includes('@') ? email.split('@')[1] : undefined;
 
       // Sign-in event, parity with LoginScreen's `login_completed` (R11.1).
       trackEvent('login_completed', {
@@ -606,9 +613,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    * detect first-time users, and provision their records. onAuthStateChanged
    * handles hydration, so no manual setState here (R3.2, R4.2–R4.4, R5.2).
    */
-  const finishCredentialSignIn = async (
-    credentialResult: SsoCredentialResult,
-  ): Promise<void> => {
+  const finishCredentialSignIn = async (credentialResult: SsoCredentialResult): Promise<void> => {
     const result = await signInWithCredential(auth, credentialResult.credential);
     const newUser = await isNewUser(result.user, getAdditionalUserInfo(result)?.isNewUser);
     if (newUser) {
@@ -684,9 +689,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   /** Re-reads the linked-provider set from Firebase into local state (R8.3). */
   const refreshConnectedProviders = (): void => {
     setConnectedProviders(
-      (auth.currentUser?.providerData ?? []).map(
-        (p) => p.providerId as SsoProviderId | 'password',
-      ),
+      (auth.currentUser?.providerData ?? []).map((p) => p.providerId as SsoProviderId | 'password')
     );
   };
 
@@ -697,7 +700,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
    * classified SsoErrors from the adapters.
    */
   const getCredentialForProvider = async (
-    provider: SsoProviderId,
+    provider: SsoProviderId
   ): Promise<SsoCredentialResult> => {
     if (provider === 'apple.com') {
       return getAppleCredential();
@@ -734,7 +737,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // password (or any provider we can't re-run non-interactively here).
     throw new SsoError(
       'generic',
-      'For security, please sign out and sign back in, then connect the provider again.',
+      'For security, please sign out and sign back in, then connect the provider again.'
     );
   };
 
@@ -785,7 +788,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           throw new SsoError(
             'generic',
             'That account is already linked to another Goalfer account. ' +
-              'Please use a different Apple or Google account.',
+              'Please use a different Apple or Google account.'
           );
         } else {
           throw error;
@@ -818,7 +821,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Removing this provider would leave the account with no way to sign in.
       throw new SsoError(
         'generic',
-        'At least one sign-in method must remain connected. Connect another provider before disconnecting this one.',
+        'At least one sign-in method must remain connected. Connect another provider before disconnecting this one.'
       );
     }
 
@@ -868,8 +871,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return;
           }
 
-          const rawError =
-            googleResponse.type === 'error' ? googleResponse.error : undefined;
+          const rawError = googleResponse.type === 'error' ? googleResponse.error : undefined;
           pendingToken.reject(await mapAuthError(rawError));
         } catch (error) {
           if (error instanceof SsoError) {
@@ -891,9 +893,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         if (googleResponse.type === 'success') {
           const idToken =
-            googleResponse.params?.id_token ??
-            googleResponse.authentication?.idToken ??
-            undefined;
+            googleResponse.params?.id_token ?? googleResponse.authentication?.idToken ?? undefined;
           if (!idToken) {
             throw new SsoError('generic', 'Authentication failed, please try again.');
           }
@@ -910,8 +910,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         // type === 'error' (or any other terminal state) → map and surface.
-        const rawError =
-          googleResponse.type === 'error' ? googleResponse.error : undefined;
+        const rawError = googleResponse.type === 'error' ? googleResponse.error : undefined;
         pending.reject(await mapAuthError(rawError));
       } catch (error) {
         if (error instanceof SsoError) {
@@ -942,11 +941,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     connectedProviders,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

@@ -34,19 +34,11 @@ export default function ConsentControl({ checked, onChange }: ConsentControlProp
       </View>
       <Text style={styles.acceptText}>
         I agree to the{' '}
-        <Text
-          style={styles.acceptLink}
-          onPress={openTermsOfService}
-          accessibilityRole="link"
-        >
+        <Text style={styles.acceptLink} onPress={openTermsOfService} accessibilityRole="link">
           Terms
-        </Text>
-        {' '}and{' '}
-        <Text
-          style={styles.acceptLink}
-          onPress={openPrivacyPolicy}
-          accessibilityRole="link"
-        >
+        </Text>{' '}
+        and{' '}
+        <Text style={styles.acceptLink} onPress={openPrivacyPolicy} accessibilityRole="link">
           Privacy Policy
         </Text>
         .
@@ -64,36 +56,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
-    minHeight: 44,                    // touch target
-    paddingVertical: Spacing.tight,   // 8
-    marginTop: Spacing.tight,         // 8 — small gap under the SSO buttons
+    minHeight: 44, // touch target
+    paddingVertical: Spacing.tight, // 8
+    marginTop: Spacing.tight, // 8 — small gap under the SSO buttons
   },
   checkbox: {
-    width: 20,                        // 8 * 2.5 (compact)
-    height: 20,                       // 8 * 2.5
+    width: 20, // 8 * 2.5 (compact)
+    height: 20, // 8 * 2.5
     borderRadius: 4,
     borderWidth: 1.5,
     borderColor: Colors.gray.medium,
     backgroundColor: Colors.white,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: Spacing.tight,       // 8
+    marginRight: Spacing.tight, // 8
   },
   checkboxChecked: {
-    backgroundColor: Colors.accent1,  // Purple CTA color
+    backgroundColor: Colors.accent1, // Purple CTA color
     borderColor: Colors.accent1,
   },
   acceptText: {
-    flexShrink: 1,                    // hug content + wrap gracefully, stays centered
+    flexShrink: 1, // hug content + wrap gracefully, stays centered
     fontFamily: Typography.fontFamily.regular,
-    fontSize: 14,                     // caption
+    fontSize: 14, // caption
     color: Colors.gray.dark,
-    lineHeight: 18,                   // ~1.4 line height
+    lineHeight: 18, // ~1.4 line height
   },
   acceptLink: {
     color: Colors.accent1,
     fontFamily: Typography.fontFamily.semibold,
-    fontWeight: '600',                // semibold
+    fontWeight: '600', // semibold
     textDecorationLine: 'underline',
   },
 });

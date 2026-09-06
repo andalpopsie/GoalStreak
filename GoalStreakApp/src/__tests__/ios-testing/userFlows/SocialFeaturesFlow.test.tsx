@@ -1,6 +1,6 @@
 /**
  * iOS Social Features Flow Tests
- * 
+ *
  * Tests social features functionality on iOS devices
  * Requirements: 5.3 - Verify core user flows work flawlessly on iOS
  */
@@ -59,9 +59,7 @@ jest.mock('../../../hooks/useFriends', () => ({
 // Test wrapper component
 const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <NavigationContainer>
-    <AuthProvider>
-      {children}
-    </AuthProvider>
+    <AuthProvider>{children}</AuthProvider>
   </NavigationContainer>
 );
 
@@ -69,7 +67,7 @@ describe('iOS Social Features Flow', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     Platform.OS = 'ios';
-    
+
     // Mock authenticated user
     jest.spyOn(require('../../../hooks/useAuth'), 'useAuth').mockReturnValue({
       user: { id: 'test-user-id', email: 'test@example.com', displayName: 'Test User' },
@@ -103,7 +101,9 @@ describe('iOS Social Features Flow', () => {
       );
 
       expect(screen.getByText('No friends yet')).toBeTruthy();
-      expect(screen.getByText('Add friends to see their progress and stay motivated together!')).toBeTruthy();
+      expect(
+        screen.getByText('Add friends to see their progress and stay motivated together!')
+      ).toBeTruthy();
     });
 
     it('should handle iOS safe area correctly', () => {
@@ -131,7 +131,7 @@ describe('iOS Social Features Flow', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Add Friend by Email')).toBeTruthy();
-        expect(screen.getByPlaceholderText('Enter friend\'s email')).toBeTruthy();
+        expect(screen.getByPlaceholderText("Enter friend's email")).toBeTruthy();
       });
     });
 
@@ -148,7 +148,7 @@ describe('iOS Social Features Flow', () => {
       fireEvent.press(addFriendButton);
 
       await waitFor(() => {
-        const emailInput = screen.getByPlaceholderText('Enter friend\'s email');
+        const emailInput = screen.getByPlaceholderText("Enter friend's email");
         fireEvent.changeText(emailInput, 'friend@example.com');
 
         const sendButton = screen.getByText('Send Request');
@@ -172,7 +172,7 @@ describe('iOS Social Features Flow', () => {
       fireEvent.press(addFriendButton);
 
       await waitFor(() => {
-        const emailInput = screen.getByPlaceholderText('Enter friend\'s email');
+        const emailInput = screen.getByPlaceholderText("Enter friend's email");
         fireEvent.changeText(emailInput, 'invalid-email');
 
         const sendButton = screen.getByText('Send Request');
@@ -312,7 +312,9 @@ describe('iOS Social Features Flow', () => {
 
       await waitFor(() => {
         expect(screen.getByText('John Doe completed Morning Exercise')).toBeTruthy();
-        expect(screen.getByText('Jane Smith reached a 30-day streak for Daily Reading')).toBeTruthy();
+        expect(
+          screen.getByText('Jane Smith reached a 30-day streak for Daily Reading')
+        ).toBeTruthy();
       });
     });
 
@@ -364,9 +366,7 @@ describe('iOS Social Features Flow', () => {
       });
 
       await waitFor(() => {
-        expect(mockHaptics.impactAsync).toHaveBeenCalledWith(
-          mockHaptics.ImpactFeedbackStyle.Light
-        );
+        expect(mockHaptics.impactAsync).toHaveBeenCalledWith(mockHaptics.ImpactFeedbackStyle.Light);
       });
     });
 
@@ -411,8 +411,8 @@ describe('iOS Social Features Flow', () => {
       fireEvent.press(addFriendButton);
 
       await waitFor(() => {
-        const emailInput = screen.getByPlaceholderText('Enter friend\'s email');
-        
+        const emailInput = screen.getByPlaceholderText("Enter friend's email");
+
         // Test iOS-specific keyboard props
         expect(emailInput.props.keyboardType).toBe('email-address');
         expect(emailInput.props.autoCapitalize).toBe('none');
@@ -429,7 +429,7 @@ describe('iOS Social Features Flow', () => {
       );
 
       const scrollView = screen.getByTestId('activity-feed-scroll');
-      
+
       // Test iOS-specific scroll props
       expect(scrollView.props.bounces).toBe(true);
       expect(scrollView.props.showsVerticalScrollIndicator).toBe(false);
@@ -463,7 +463,7 @@ describe('iOS Social Features Flow', () => {
 
       await waitFor(() => {
         const activityItem = screen.getByTestId('activity-item-activity-1');
-        
+
         // Simulate swipe gesture
         fireEvent(activityItem, 'swipeLeft');
       });
@@ -486,7 +486,7 @@ describe('iOS Social Features Flow', () => {
       );
 
       const activityText = screen.getByText('John Doe completed Morning Exercise');
-      
+
       // Text should scale appropriately
       expect(activityText.props.style).toMatchObject({
         fontSize: expect.any(Number),
@@ -495,7 +495,7 @@ describe('iOS Social Features Flow', () => {
 
     it('should handle iOS background app refresh for social data', () => {
       const mockAppState = require('react-native/Libraries/AppState/AppState');
-      
+
       render(
         <TestWrapper>
           <SocialScreen />
@@ -588,7 +588,7 @@ describe('iOS Social Features Flow', () => {
 
       await waitFor(() => {
         const heartButton = screen.getByTestId('reaction-heart-activity-1');
-        
+
         // Rapid taps
         fireEvent.press(heartButton);
         fireEvent.press(heartButton);
@@ -614,7 +614,7 @@ describe('iOS Social Features Flow', () => {
       fireEvent.press(addFriendButton);
 
       await waitFor(() => {
-        const emailInput = screen.getByPlaceholderText('Enter friend\'s email');
+        const emailInput = screen.getByPlaceholderText("Enter friend's email");
         fireEvent.changeText(emailInput, 'friend@example.com');
 
         const sendButton = screen.getByText('Send Request');

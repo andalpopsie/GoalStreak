@@ -40,10 +40,12 @@ export default function BadgeShowcase({ onViewAll, refreshKey }: BadgeShowcasePr
             <View style={[styles.badgeIconCircle, { backgroundColor: badge.color + '25' }]}>
               <Ionicons name={badge.icon as any} size={28} color={badge.color} />
             </View>
-            <Text style={styles.badgeTitle} numberOfLines={2}>{badge.title}</Text>
+            <Text style={styles.badgeTitle} numberOfLines={2}>
+              {badge.title}
+            </Text>
           </View>
         ))}
-        
+
         {/* Show empty slots if less than 3 */}
         {[...Array(3 - topBadges.length)].map((_, i) => (
           <View key={`empty-${i}`} style={styles.emptyBadge}>
@@ -60,18 +62,18 @@ export default function BadgeShowcase({ onViewAll, refreshKey }: BadgeShowcasePr
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: Spacing.base,     // 16px
-    marginBottom: Spacing.base,         // 16px
+    marginHorizontal: Spacing.base, // 16px
+    marginBottom: Spacing.base, // 16px
     backgroundColor: Colors.white,
-    borderRadius: 16,                   // 8 × 2
-    padding: Spacing.base,             // 16px
+    borderRadius: 16, // 8 × 2
+    padding: Spacing.base, // 16px
     ...Shadows.sm,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: Spacing.base,         // 16px
+    marginBottom: Spacing.base, // 16px
   },
   title: {
     fontSize: Typography.fontSize.subheading, // 20px
@@ -80,7 +82,7 @@ const styles = StyleSheet.create({
     color: Colors.primaryText,
   },
   viewAllButton: {
-    minHeight: 48,                      // 8 × 6 (touch target)
+    minHeight: 48, // 8 × 6 (touch target)
     justifyContent: 'center',
   },
   viewAll: {
@@ -91,22 +93,22 @@ const styles = StyleSheet.create({
   },
   badgesContainer: {
     flexDirection: 'row',
-    gap: Spacing.tight,                 // 8px (on grid)
+    gap: Spacing.tight, // 8px (on grid)
   },
   badge: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: Spacing.base,      // 16px
-    paddingHorizontal: Spacing.tight,   // 8px
-    borderRadius: 12,                   // 8 × 1.5
+    paddingVertical: Spacing.base, // 16px
+    paddingHorizontal: Spacing.tight, // 8px
+    borderRadius: 12, // 8 × 1.5
   },
   badgeIconCircle: {
-    width: 48,                          // 8 × 6
+    width: 48, // 8 × 6
     height: 48,
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Spacing.tight,        // 8px
+    marginBottom: Spacing.tight, // 8px
   },
   badgeTitle: {
     fontSize: Typography.fontSize.small, // 12px (from type scale)
@@ -120,20 +122,20 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: Spacing.base,      // 16px
-    paddingHorizontal: Spacing.tight,   // 8px
-    borderRadius: 12,                   // 8 × 1.5
+    paddingVertical: Spacing.base, // 16px
+    paddingHorizontal: Spacing.tight, // 8px
+    borderRadius: 12, // 8 × 1.5
     backgroundColor: Colors.gray.light + '80',
-    minHeight: 96,                      // 8 × 12
+    minHeight: 96, // 8 × 12
   },
   emptyIconCircle: {
-    width: 48,                          // 8 × 6
+    width: 48, // 8 × 6
     height: 48,
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: Colors.gray.light,
-    marginBottom: Spacing.tight,        // 8px
+    marginBottom: Spacing.tight, // 8px
   },
   emptyBadgeText: {
     fontSize: Typography.fontSize.small, // 12px

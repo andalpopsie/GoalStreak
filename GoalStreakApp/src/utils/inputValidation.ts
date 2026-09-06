@@ -1,6 +1,6 @@
 /**
  * Input Validation and Sanitization Utilities
- * 
+ *
  * Provides comprehensive input validation and sanitization functions
  * to prevent XSS, SQL injection, and other security vulnerabilities.
  */
@@ -9,11 +9,31 @@ import { CreateHabitForm } from '../types';
 
 // Valid habit categories
 const VALID_CATEGORIES = [
-  'fitness', 'health', 'mindfulness', 'productivity', 'learning',
-  'creativity', 'social', 'finance', 'career', 'hobbies',
-  'environment', 'family', 'spiritual', 'travel', 'cooking',
-  'reading', 'music', 'art', 'sports', 'technology',
-  'volunteering', 'self-care', 'organization', 'communication', 'other'
+  'fitness',
+  'health',
+  'mindfulness',
+  'productivity',
+  'learning',
+  'creativity',
+  'social',
+  'finance',
+  'career',
+  'hobbies',
+  'environment',
+  'family',
+  'spiritual',
+  'travel',
+  'cooking',
+  'reading',
+  'music',
+  'art',
+  'sports',
+  'technology',
+  'volunteering',
+  'self-care',
+  'organization',
+  'communication',
+  'other',
 ];
 
 // Valid habit frequencies
@@ -44,27 +64,29 @@ export function sanitizeInput(input: string): string {
     return '';
   }
 
-  return input
-    // Remove HTML tags and brackets
-    .replace(/<[^>]*>/g, '')
-    .replace(/[<>]/g, '')
-    // Remove script content
-    .replace(/javascript:/gi, '')
-    // Remove event handlers
-    .replace(/on\w+\s*=/gi, '')
-    // Remove SQL injection patterns
-    .replace(/[';]/g, '')
-    .replace(/--/g, '')
-    .replace(/\/\*/g, '')
-    .replace(/\*\//g, '')
-    // Remove directory traversal
-    .replace(/\.\./g, '')
-    // Remove command injection characters
-    .replace(/[`${}]/g, '')
-    // Remove quotes that could be used for injection
-    .replace(/["']/g, '')
-    // Trim whitespace
-    .trim();
+  return (
+    input
+      // Remove HTML tags and brackets
+      .replace(/<[^>]*>/g, '')
+      .replace(/[<>]/g, '')
+      // Remove script content
+      .replace(/javascript:/gi, '')
+      // Remove event handlers
+      .replace(/on\w+\s*=/gi, '')
+      // Remove SQL injection patterns
+      .replace(/[';]/g, '')
+      .replace(/--/g, '')
+      .replace(/\/\*/g, '')
+      .replace(/\*\//g, '')
+      // Remove directory traversal
+      .replace(/\.\./g, '')
+      // Remove command injection characters
+      .replace(/[`${}]/g, '')
+      // Remove quotes that could be used for injection
+      .replace(/["']/g, '')
+      // Trim whitespace
+      .trim()
+  );
 }
 
 /**
@@ -84,21 +106,15 @@ export function validateHabitInput(habitData: CreateHabitForm): ValidationResult
     } else if (sanitizedName.length > 100) {
       errors.push('Habit name must be less than 100 characters');
     }
-    
+
     // Check for dangerous patterns in original input
-    const dangerousPatterns = [
-      /<script/i,
-      /javascript:/i,
-      /on\w+\s*=/i,
-      /[<>]/,
-      /['"]/
-    ];
-    
-    const hasDangerousContent = dangerousPatterns.some(pattern => pattern.test(habitData.name));
+    const dangerousPatterns = [/<script/i, /javascript:/i, /on\w+\s*=/i, /[<>]/, /['"]/];
+
+    const hasDangerousContent = dangerousPatterns.some((pattern) => pattern.test(habitData.name));
     if (hasDangerousContent || sanitizedName !== habitData.name.trim()) {
       errors.push('Invalid characters in habit name');
     }
-    
+
     sanitizedData.name = sanitizedName;
   }
 
@@ -135,7 +151,7 @@ export function validateHabitInput(habitData: CreateHabitForm): ValidationResult
   return {
     isValid: errors.length === 0,
     errors,
-    sanitizedData: errors.length === 0 ? sanitizedData : undefined
+    sanitizedData: errors.length === 0 ? sanitizedData : undefined,
   };
 }
 
@@ -210,8 +226,16 @@ export function validatePassword(password: string): PasswordValidationResult {
 
   // Common password checks
   const commonPasswords = [
-    'password', '123456', '12345678', 'qwerty', 'abc123',
-    'password123', 'admin', 'letmein', 'welcome', 'monkey'
+    'password',
+    '123456',
+    '12345678',
+    'qwerty',
+    'abc123',
+    'password123',
+    'admin',
+    'letmein',
+    'welcome',
+    'monkey',
   ];
 
   if (commonPasswords.includes(password.toLowerCase())) {
@@ -227,8 +251,9 @@ export function validatePassword(password: string): PasswordValidationResult {
     const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
     const isLongEnough = password.length >= 12;
 
-    const criteriaCount = [hasLower, hasUpper, hasNumber, hasSpecial, isLongEnough]
-      .filter(Boolean).length;
+    const criteriaCount = [hasLower, hasUpper, hasNumber, hasSpecial, isLongEnough].filter(
+      Boolean
+    ).length;
 
     if (criteriaCount >= 4) {
       strength = 'strong';
@@ -240,7 +265,7 @@ export function validatePassword(password: string): PasswordValidationResult {
   return {
     isValid: errors.length === 0,
     errors,
-    strength: errors.length === 0 ? strength : undefined
+    strength: errors.length === 0 ? strength : undefined,
   };
 }
 
@@ -256,7 +281,7 @@ export function validateDisplayName(displayName: string): ValidationResult {
   }
 
   const sanitized = sanitizeInput(displayName);
-  
+
   if (sanitized.length < 2) {
     errors.push('Display name must be at least 2 characters');
   }
@@ -272,7 +297,7 @@ export function validateDisplayName(displayName: string): ValidationResult {
   return {
     isValid: errors.length === 0,
     errors,
-    sanitizedData: sanitized
+    sanitizedData: sanitized,
   };
 }
 
@@ -314,7 +339,7 @@ export function validateFileUpload(file: {
   return {
     isValid: errors.length === 0,
     errors,
-    sanitizedData: { ...file, name: sanitizedName }
+    sanitizedData: { ...file, name: sanitizedName },
   };
 }
 
@@ -343,7 +368,7 @@ export function validateSearchQuery(query: string): ValidationResult {
   }
 
   const sanitized = sanitizeInput(query);
-  
+
   if (sanitized.length < 1) {
     errors.push('Search query is too short');
   }
@@ -360,7 +385,7 @@ export function validateSearchQuery(query: string): ValidationResult {
     /insert\s+into/i,
     /update\s+set/i,
     /exec\s+/i,
-    /xp_cmdshell/i
+    /xp_cmdshell/i,
   ];
 
   for (const pattern of sqlPatterns) {
@@ -373,7 +398,7 @@ export function validateSearchQuery(query: string): ValidationResult {
   return {
     isValid: errors.length === 0,
     errors,
-    sanitizedData: sanitized
+    sanitizedData: sanitized,
   };
 }
 
@@ -416,7 +441,7 @@ export function validateApiParameters(params: Record<string, any>): ValidationRe
   return {
     isValid: errors.length === 0,
     errors,
-    sanitizedData: errors.length === 0 ? sanitizedData : undefined
+    sanitizedData: errors.length === 0 ? sanitizedData : undefined,
   };
 }
 

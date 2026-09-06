@@ -95,26 +95,10 @@ function MainTabNavigator() {
         },
       })}
     >
-      <Tab.Screen
-        name="Home"
-        component={CleanHomeScreen}
-        options={{ title: 'Dashboard' }}
-      />
-      <Tab.Screen
-        name="Social"
-        component={SocialScreen}
-        options={{ title: 'Social' }}
-      />
-      <Tab.Screen
-        name="Analytics"
-        component={AnalyticsScreen}
-        options={{ title: 'Analytics' }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{ title: 'Profile' }}
-      />
+      <Tab.Screen name="Home" component={CleanHomeScreen} options={{ title: 'Dashboard' }} />
+      <Tab.Screen name="Social" component={SocialScreen} options={{ title: 'Social' }} />
+      <Tab.Screen name="Analytics" component={AnalyticsScreen} options={{ title: 'Analytics' }} />
+      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profile' }} />
     </Tab.Navigator>
   );
 }
@@ -190,12 +174,12 @@ export default function AppNavigator() {
       // Track screen view
       trackScreenView(currentRoute, {
         navigation_time: navigationTime,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       // Record navigation performance
       recordPerformance('navigation_time', navigationTime, 'navigation', {
-        screen: currentRoute
+        screen: currentRoute,
       });
     }
   }, []);

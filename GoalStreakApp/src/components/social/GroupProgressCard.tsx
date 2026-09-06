@@ -11,7 +11,7 @@ interface GroupProgressCardProps {
 }
 
 export default function GroupProgressCard({ memberProgress }: GroupProgressCardProps) {
-  const completedCount = memberProgress.habits.filter(h => h.completedToday).length;
+  const completedCount = memberProgress.habits.filter((h) => h.completedToday).length;
   const totalCount = memberProgress.habits.length;
 
   return (
@@ -22,9 +22,7 @@ export default function GroupProgressCard({ memberProgress }: GroupProgressCardP
       {/* Member Header */}
       <View style={styles.headerRow}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
-            {memberProgress.userName.charAt(0).toUpperCase()}
-          </Text>
+          <Text style={styles.avatarText}>{memberProgress.userName.charAt(0).toUpperCase()}</Text>
         </View>
         <View style={styles.headerInfo}>
           <Text style={styles.memberName} numberOfLines={1}>
@@ -79,74 +77,74 @@ export default function GroupProgressCard({ memberProgress }: GroupProgressCardP
 const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.white,
-    borderRadius: 16,                   // Standard card recipe
-    padding: 16,                        // 8 × 2 (base)
-    marginBottom: 8,                    // 8 × 1 (tight)
+    borderRadius: 16, // Standard card recipe
+    padding: 16, // 8 × 2 (base)
+    marginBottom: 8, // 8 × 1 (tight)
     ...Shadows.sm,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,                   // 8 × 2 (base)
+    marginBottom: 16, // 8 × 2 (base)
   },
   avatar: {
-    width: 40,                          // 8 × 5
-    height: 40,                         // 8 × 5
+    width: 40, // 8 × 5
+    height: 40, // 8 × 5
     borderRadius: 20,
-    backgroundColor: Colors.accent3,   // Teal
+    backgroundColor: Colors.accent3, // Teal
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,                    // 8 × 2 (base)
+    marginRight: 16, // 8 × 2 (base)
   },
   avatarText: {
     color: Colors.white,
-    fontSize: 16,                       // body
-    fontWeight: '700',                  // bold
+    fontSize: 16, // body
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
   },
   headerInfo: {
     flex: 1,
   },
   memberName: {
-    fontSize: 16,                       // body
-    fontWeight: '600',                  // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
     marginBottom: 2,
     fontFamily: Typography.fontFamily.semibold,
   },
   completionSummary: {
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.regular,
   },
   habitsContainer: {
-    gap: 8,                             // 8 × 1 (tight)
+    gap: 8, // 8 × 1 (tight)
   },
   habitRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 32,                      // 8 × 4
+    minHeight: 32, // 8 × 4
   },
   completionDot: {
-    width: 24,                          // 8 × 3
-    height: 24,                         // 8 × 3
+    width: 24, // 8 × 3
+    height: 24, // 8 × 3
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 8,                     // 8 × 1 (tight)
+    marginRight: 8, // 8 × 1 (tight)
   },
   completedDot: {
-    backgroundColor: Colors.accent3,   // Teal (#4A90A4)
+    backgroundColor: Colors.accent3, // Teal (#4A90A4)
   },
   incompleteDot: {
     backgroundColor: Colors.gray.light, // Gray (#E8E8E8)
   },
   habitIcon: {
-    marginRight: 8,                     // 8 × 1 (tight)
+    marginRight: 8, // 8 × 1 (tight)
   },
   habitName: {
     flex: 1,
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     color: Colors.primaryText,
     fontFamily: Typography.fontFamily.regular,
   },
@@ -155,22 +153,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 2,
     backgroundColor: Colors.background,
-    paddingHorizontal: 8,              // 8 × 1 (tight)
+    paddingHorizontal: 8, // 8 × 1 (tight)
     paddingVertical: 4,
     borderRadius: 8,
   },
   streakText: {
-    fontSize: 12,                       // small
-    fontWeight: '600',                  // semibold
+    fontSize: 12, // small
+    fontWeight: '600', // semibold
     color: Colors.accent1,
     fontFamily: Typography.fontFamily.semibold,
   },
   noHabitsText: {
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
     fontStyle: 'italic',
     textAlign: 'center',
-    paddingVertical: 8,                // 8 × 1 (tight)
+    paddingVertical: 8, // 8 × 1 (tight)
     fontFamily: Typography.fontFamily.regular,
   },
 });

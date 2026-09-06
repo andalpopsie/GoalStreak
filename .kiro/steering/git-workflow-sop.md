@@ -99,6 +99,9 @@ Before / after or new-only.
 
 ## Follow-ups
 - Anything intentionally deferred (link to issue if opened)
+
+## ADR check
+- Does this change involve a significant architectural decision (new library, new pattern, data model change, platform choice)? If yes, add or update a record in `docs/adr/`.
 ```
 
 ## Merge strategy

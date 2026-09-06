@@ -37,7 +37,7 @@ const OnboardingContext = createContext<OnboardingContextType | undefined>(undef
 const ONBOARDING_STORAGE_KEY = 'onboarding_state';
 /**
  * OnboardingProvider - Manages user onboarding state and flow
- * 
+ *
  * Handles the complete onboarding experience including:
  * - Welcome carousel completion
  * - Habit suggestions selection
@@ -94,7 +94,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
       console.error('Error saving onboarding state:', error);
       // Still update local state even if storage fails
       setOnboardingState(newState);
-      
+
       // Track storage error for monitoring
       trackEvent('onboarding_storage_error', {
         error_type: 'save_failed',
@@ -135,13 +135,13 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
       }
     } catch (error) {
       console.error('Error syncing onboarding with database:', error);
-      
+
       // Track sync errors for monitoring
       trackEvent('onboarding_sync_error', {
         error_message: error instanceof Error ? error.message : 'Unknown error',
         user_id: user?.id,
       });
-      
+
       // If we can't check database, rely on local storage
       // Don't reset state on network errors to avoid disrupting user experience
     }
@@ -163,36 +163,39 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     });
   }, [onboardingState, user?.id]);
 
-  const completeHabitSuggestions = useCallback(async (selectedTemplates: string[]) => {
-    const newState: OnboardingState = {
-      ...onboardingState,
-      selectedHabitTemplates: selectedTemplates,
-      onboardingStep: 'notification_setup', // Move to notification setup instead of completed
-    };
-    
-    await saveOnboardingState(newState);
+  const completeHabitSuggestions = useCallback(
+    async (selectedTemplates: string[]) => {
+      const newState: OnboardingState = {
+        ...onboardingState,
+        selectedHabitTemplates: selectedTemplates,
+        onboardingStep: 'notification_setup', // Move to notification setup instead of completed
+      };
 
-    // Track habit suggestions completion and overall completion
-    const completionTime = new Date().toISOString();
-    try {
-      await Promise.all([
-        trackEvent('onboarding_habits_completed', {
-          user_id: user?.id,
-          selected_templates: selectedTemplates,
-          template_count: selectedTemplates.length,
-          completion_time: completionTime,
-        }),
-        trackEvent('onboarding_completed', {
-          user_id: user?.id,
-          completion_method: 'with_habits',
-          selected_habit_count: selectedTemplates.length,
-          completion_time: completionTime,
-        })
-      ]);
-    } catch (error) {
-      console.warn('Analytics tracking failed:', error);
-    }
-  }, [onboardingState, user?.id]);
+      await saveOnboardingState(newState);
+
+      // Track habit suggestions completion and overall completion
+      const completionTime = new Date().toISOString();
+      try {
+        await Promise.all([
+          trackEvent('onboarding_habits_completed', {
+            user_id: user?.id,
+            selected_templates: selectedTemplates,
+            template_count: selectedTemplates.length,
+            completion_time: completionTime,
+          }),
+          trackEvent('onboarding_completed', {
+            user_id: user?.id,
+            completion_method: 'with_habits',
+            selected_habit_count: selectedTemplates.length,
+            completion_time: completionTime,
+          }),
+        ]);
+      } catch (error) {
+        console.warn('Analytics tracking failed:', error);
+      }
+    },
+    [onboardingState, user?.id]
+  );
 
   const completeNotificationSetup = useCallback(async () => {
     const newState: OnboardingState = {
@@ -206,10 +209,14 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     // Save completion status to Firestore (standard mobile app pattern)
     if (user?.id) {
       try {
-        await setDoc(doc(db, 'users', user.id), {
-          hasCompletedOnboarding: true,
-          onboardingCompletedAt: new Date(),
-        }, { merge: true });
+        await setDoc(
+          doc(db, 'users', user.id),
+          {
+            hasCompletedOnboarding: true,
+            onboardingCompletedAt: new Date(),
+          },
+          { merge: true }
+        );
       } catch (error) {
         console.error('Error saving onboarding completion to database:', error);
       }
@@ -235,11 +242,15 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     // Save completion status to Firestore (standard mobile app pattern)
     if (user?.id) {
       try {
-        await setDoc(doc(db, 'users', user.id), {
-          hasCompletedOnboarding: true,
-          onboardingCompletedAt: new Date(),
-          onboardingSkipped: true,
-        }, { merge: true });
+        await setDoc(
+          doc(db, 'users', user.id),
+          {
+            hasCompletedOnboarding: true,
+            onboardingCompletedAt: new Date(),
+            onboardingSkipped: true,
+          },
+          { merge: true }
+        );
       } catch (error) {
         console.error('Error saving onboarding skip to database:', error);
       }
@@ -258,7 +269,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
           user_id: user?.id,
           completion_method: 'skipped',
           completion_time: completionTime,
-        })
+        }),
       ]);
     } catch (error) {
       console.warn('Analytics tracking failed:', error);
@@ -271,10 +282,14 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     // Reset completion status in Firestore
     if (user?.id) {
       try {
-        await setDoc(doc(db, 'users', user.id), {
-          hasCompletedOnboarding: false,
-          onboardingCompletedAt: null,
-        }, { merge: true });
+        await setDoc(
+          doc(db, 'users', user.id),
+          {
+            hasCompletedOnboarding: false,
+            onboardingCompletedAt: null,
+          },
+          { merge: true }
+        );
       } catch (error) {
         console.error('Error resetting onboarding in database:', error);
       }
@@ -300,16 +315,12 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     resetOnboarding,
   };
 
-  return (
-    <OnboardingContext.Provider value={value}>
-      {children}
-    </OnboardingContext.Provider>
-  );
+  return <OnboardingContext.Provider value={value}>{children}</OnboardingContext.Provider>;
 }
 
 /**
  * useOnboarding - Hook to access onboarding state and actions
- * 
+ *
  * @returns OnboardingContextType with state and methods for managing onboarding flow
  * @throws Error if used outside of OnboardingProvider
  */

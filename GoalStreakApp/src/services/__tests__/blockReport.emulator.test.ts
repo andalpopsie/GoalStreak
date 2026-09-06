@@ -14,10 +14,7 @@
  *   firebase emulators:exec --only firestore \
  *     "npx jest --config config/jest.emulator.config.js" --project goalstreak-test
  */
-import {
-  initializeTestEnvironment,
-  RulesTestEnvironment,
-} from '@firebase/rules-unit-testing';
+import { initializeTestEnvironment, RulesTestEnvironment } from '@firebase/rules-unit-testing';
 import {
   Firestore,
   collection,
@@ -46,7 +43,12 @@ beforeAll(async () => {
     projectId: PROJECT_ID,
     // Rules disabled: these tests verify the write/teardown data behavior,
     // not the security rules (those are covered in moderationRules.rules.test.ts).
-    firestore: { rules: 'rules_version = "2";\nservice cloud.firestore {\n  match /databases/{db}/documents {\n    match /{doc=**} { allow read, write: if true; }\n  }\n}', host, port },
+    firestore: {
+      rules:
+        'rules_version = "2";\nservice cloud.firestore {\n  match /databases/{db}/documents {\n    match /{doc=**} { allow read, write: if true; }\n  }\n}',
+      host,
+      port,
+    },
   });
 });
 
@@ -66,15 +68,35 @@ async function blockUser(db: Firestore, blockerId: string, blockedUserId: string
 
   // Idempotent pre-check
   const existing = await getDocs(
-    query(blocksCol, where('blockerId', '==', blockerId), where('blockedUserId', '==', blockedUserId))
+    query(
+      blocksCol,
+      where('blockerId', '==', blockerId),
+      where('blockedUserId', '==', blockedUserId)
+    )
   );
   if (!existing.empty) return;
 
   const [f1, f2, r1, r2] = await Promise.all([
-    getDocs(query(friendsCol, where('userId', '==', blockerId), where('friendId', '==', blockedUserId))),
-    getDocs(query(friendsCol, where('userId', '==', blockedUserId), where('friendId', '==', blockerId))),
-    getDocs(query(requestsCol, where('fromUserId', '==', blockerId), where('toUserId', '==', blockedUserId))),
-    getDocs(query(requestsCol, where('fromUserId', '==', blockedUserId), where('toUserId', '==', blockerId))),
+    getDocs(
+      query(friendsCol, where('userId', '==', blockerId), where('friendId', '==', blockedUserId))
+    ),
+    getDocs(
+      query(friendsCol, where('userId', '==', blockedUserId), where('friendId', '==', blockerId))
+    ),
+    getDocs(
+      query(
+        requestsCol,
+        where('fromUserId', '==', blockerId),
+        where('toUserId', '==', blockedUserId)
+      )
+    ),
+    getDocs(
+      query(
+        requestsCol,
+        where('fromUserId', '==', blockedUserId),
+        where('toUserId', '==', blockerId)
+      )
+    ),
   ]);
 
   const batch = writeBatch(db);
@@ -86,7 +108,13 @@ async function blockUser(db: Firestore, blockerId: string, blockedUserId: string
 /** Mirrors friendService.reportContent. */
 async function reportContent(
   db: Firestore,
-  input: { reporterId: string; reportedUserId: string; contentType: string; contentId: string; reason: string }
+  input: {
+    reporterId: string;
+    reportedUserId: string;
+    contentType: string;
+    contentId: string;
+    reason: string;
+  }
 ) {
   const ref = doc(collection(db, 'reports'));
   await setDoc(ref, { ...input, status: 'pending', timestamp: serverTimestamp() });
@@ -102,13 +130,19 @@ describe('blockUser teardown (R1.4, R1.8, R1.9)', () => {
       // third-party A↔C friendship that must survive.
       await setDoc(doc(db, 'friends/ab'), { userId: ALICE, friendId: BOB });
       await setDoc(doc(db, 'friends/ba'), { userId: BOB, friendId: ALICE });
-      await setDoc(doc(db, 'friendRequests/ab'), { fromUserId: ALICE, toUserId: BOB, status: 'pending' });
+      await setDoc(doc(db, 'friendRequests/ab'), {
+        fromUserId: ALICE,
+        toUserId: BOB,
+        status: 'pending',
+      });
       await setDoc(doc(db, 'friends/ac'), { userId: ALICE, friendId: CAROL });
 
       await blockUser(db, ALICE, BOB);
 
       // Block doc exists with correct fields
-      const blocks = await getDocs(query(collection(db, 'blocks'), where('blockerId', '==', ALICE)));
+      const blocks = await getDocs(
+        query(collection(db, 'blocks'), where('blockerId', '==', ALICE))
+      );
       expect(blocks.size).toBe(1);
       expect(blocks.docs[0].data().blockedUserId).toBe(BOB);
       expect(blocks.docs[0].data().createdAt).toBeTruthy();
@@ -128,7 +162,9 @@ describe('blockUser teardown (R1.4, R1.8, R1.9)', () => {
       const db = ctx.firestore() as unknown as Firestore;
       await blockUser(db, ALICE, BOB);
       await blockUser(db, ALICE, BOB);
-      const blocks = await getDocs(query(collection(db, 'blocks'), where('blockerId', '==', ALICE)));
+      const blocks = await getDocs(
+        query(collection(db, 'blocks'), where('blockerId', '==', ALICE))
+      );
       expect(blocks.size).toBe(1);
     });
   });

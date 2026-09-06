@@ -74,10 +74,7 @@ export default function CompletionShareModal({
   const handleShare = async () => {
     setIsSharing(true);
     try {
-      await onShare(
-        photoUri || undefined,
-        caption.trim() || undefined,
-      );
+      await onShare(photoUri || undefined, caption.trim() || undefined);
       reset();
     } catch (error) {
       console.error('Error sharing:', error);
@@ -100,12 +97,7 @@ export default function CompletionShareModal({
   const hasContent = !!photoUri || !!caption.trim();
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent
-      onRequestClose={handleSkip}
-    >
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleSkip}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.overlay}
@@ -124,18 +116,14 @@ export default function CompletionShareModal({
             <View style={styles.headerText}>
               <Text style={styles.headerTitle}>Nice work! 🎉</Text>
               <View style={styles.headerSubRow}>
-                <Text style={styles.headerSubtitle}>
-                  You completed "{habitName}"
-                </Text>
+                <Text style={styles.headerSubtitle}>You completed "{habitName}"</Text>
                 <View style={styles.visibilityBadge}>
                   <Ionicons
                     name={isPublic ? 'people-outline' : 'lock-closed-outline'}
                     size={12}
                     color={Colors.secondaryText}
                   />
-                  <Text style={styles.visibilityText}>
-                    {isPublic ? 'Friends' : 'Private'}
-                  </Text>
+                  <Text style={styles.visibilityText}>{isPublic ? 'Friends' : 'Private'}</Text>
                 </View>
               </View>
             </View>
@@ -218,44 +206,44 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingHorizontal: 16,           // 8 × 2 (base)
-    paddingBottom: 40,               // safe area
+    paddingHorizontal: 16, // 8 × 2 (base)
+    paddingBottom: 40, // safe area
   },
   handleBar: {
-    width: 40,                       // 8 × 5
+    width: 40, // 8 × 5
     height: 4,
     backgroundColor: Colors.gray.light,
     borderRadius: 2,
     alignSelf: 'center',
-    marginTop: 12,                   // 8 × 1.5
-    marginBottom: 16,                // 8 × 2 (base)
+    marginTop: 12, // 8 × 1.5
+    marginBottom: 16, // 8 × 2 (base)
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,                // 8 × 2 (base)
+    marginBottom: 16, // 8 × 2 (base)
   },
   headerIcon: {
-    width: 48,                       // 8 × 6
-    height: 48,                      // 8 × 6
+    width: 48, // 8 × 6
+    height: 48, // 8 × 6
     borderRadius: 24,
     backgroundColor: Colors.accent3 + '15',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,                 // 8 × 1.5
+    marginRight: 12, // 8 × 1.5
   },
   headerText: {
     flex: 1,
   },
   headerTitle: {
     fontFamily: Typography.fontFamily.bold,
-    fontSize: 20,                    // subheading
-    fontWeight: '700',               // bold
+    fontSize: 20, // subheading
+    fontWeight: '700', // bold
     color: Colors.primaryText,
   },
   headerSubtitle: {
     fontFamily: Typography.fontFamily.regular,
-    fontSize: 14,                    // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
     marginTop: 2,
   },
@@ -263,7 +251,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 2,
-    gap: 8,                          // 8 × 1 (tight)
+    gap: 8, // 8 × 1 (tight)
     flexWrap: 'wrap',
   },
   visibilityBadge: {
@@ -271,48 +259,48 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 3,
     backgroundColor: Colors.gray.light,
-    paddingHorizontal: 8,            // 8 × 1 (tight)
+    paddingHorizontal: 8, // 8 × 1 (tight)
     paddingVertical: 2,
     borderRadius: 8,
   },
   visibilityText: {
     fontFamily: Typography.fontFamily.medium,
-    fontSize: 12,                    // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
-    fontWeight: '500',               // medium
+    fontWeight: '500', // medium
   },
   // Photo
   photoButtons: {
     flexDirection: 'row',
-    gap: 12,                         // 8 × 1.5
-    marginBottom: 12,                // 8 × 1.5
+    gap: 12, // 8 × 1.5
+    marginBottom: 12, // 8 × 1.5
   },
   photoButton: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,                          // 8 × 1 (tight)
+    gap: 8, // 8 × 1 (tight)
     paddingVertical: 14,
     borderRadius: 12,
     backgroundColor: Colors.accent1 + '10',
     borderWidth: 1,
     borderColor: Colors.accent1 + '30',
-    minHeight: 48,                   // 8 × 6 (touch target)
+    minHeight: 48, // 8 × 6 (touch target)
   },
   photoButtonText: {
     fontFamily: Typography.fontFamily.semibold,
-    fontSize: 14,                    // caption
-    fontWeight: '600',               // semibold
+    fontSize: 14, // caption
+    fontWeight: '600', // semibold
     color: Colors.accent1,
   },
   photoPreview: {
     position: 'relative',
-    marginBottom: 12,                // 8 × 1.5
+    marginBottom: 12, // 8 × 1.5
   },
   photoImage: {
     width: '100%',
-    height: 200,                     // 8 × 25
+    height: 200, // 8 × 25
     borderRadius: 12,
     backgroundColor: Colors.gray.light,
   },
@@ -324,34 +312,34 @@ const styles = StyleSheet.create({
   // Caption
   captionInput: {
     fontFamily: Typography.fontFamily.regular,
-    fontSize: 16,                    // body
+    fontSize: 16, // body
     color: Colors.primaryText,
     backgroundColor: Colors.background,
     borderRadius: 12,
-    padding: 12,                     // 8 × 1.5
-    minHeight: 64,                   // 8 × 8
+    padding: 12, // 8 × 1.5
+    minHeight: 64, // 8 × 8
     maxHeight: 100,
-    marginBottom: 16,                // 8 × 2 (base)
+    marginBottom: 16, // 8 × 2 (base)
     lineHeight: 22,
   },
   // Actions
   actions: {
     flexDirection: 'row',
-    gap: 12,                         // 8 × 1.5
+    gap: 12, // 8 × 1.5
   },
   skipButton: {
     paddingVertical: 14,
-    paddingHorizontal: 24,           // 8 × 3 (comfortable)
-    borderRadius: 24,                // pill
+    paddingHorizontal: 24, // 8 × 3 (comfortable)
+    borderRadius: 24, // pill
     backgroundColor: Colors.gray.light,
-    minHeight: 48,                   // 8 × 6 (touch target)
+    minHeight: 48, // 8 × 6 (touch target)
     alignItems: 'center',
     justifyContent: 'center',
   },
   skipText: {
     fontFamily: Typography.fontFamily.medium,
-    fontSize: 16,                    // body
-    fontWeight: '500',               // medium
+    fontSize: 16, // body
+    fontWeight: '500', // medium
     color: Colors.secondaryText,
   },
   shareButton: {
@@ -359,27 +347,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,                          // 8 × 1 (tight)
+    gap: 8, // 8 × 1 (tight)
     paddingVertical: 14,
-    borderRadius: 24,                // pill
+    borderRadius: 24, // pill
     backgroundColor: Colors.accent1,
-    minHeight: 48,                   // 8 × 6 (touch target)
+    minHeight: 48, // 8 × 6 (touch target)
   },
   shareButtonDisabled: {
     backgroundColor: Colors.gray.medium,
   },
   shareText: {
     fontFamily: Typography.fontFamily.semibold,
-    fontSize: 16,                    // body
-    fontWeight: '600',               // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     color: Colors.white,
   },
   privateNote: {
     fontFamily: Typography.fontFamily.regular,
-    fontSize: 14,                    // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
     textAlign: 'center',
-    marginTop: 8,                    // 8 × 1 (tight)
+    marginTop: 8, // 8 × 1 (tight)
     fontStyle: 'italic',
   },
 });

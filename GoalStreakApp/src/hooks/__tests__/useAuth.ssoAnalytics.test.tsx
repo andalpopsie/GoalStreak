@@ -123,9 +123,15 @@ import { isNewUser, provisionNewUser } from '../../services/userProvisioningServ
 import { trackEvent } from '../../services/enhancedAnalyticsService';
 import { AuthProvider, useAuth } from '../useAuth';
 
-const mockedGetAppleCredential = getAppleCredential as jest.MockedFunction<typeof getAppleCredential>;
-const mockedSignInWithCredential = signInWithCredential as jest.MockedFunction<typeof signInWithCredential>;
-const mockedGetAdditionalUserInfo = getAdditionalUserInfo as jest.MockedFunction<typeof getAdditionalUserInfo>;
+const mockedGetAppleCredential = getAppleCredential as jest.MockedFunction<
+  typeof getAppleCredential
+>;
+const mockedSignInWithCredential = signInWithCredential as jest.MockedFunction<
+  typeof signInWithCredential
+>;
+const mockedGetAdditionalUserInfo = getAdditionalUserInfo as jest.MockedFunction<
+  typeof getAdditionalUserInfo
+>;
 const mockedIsNewUser = isNewUser as jest.MockedFunction<typeof isNewUser>;
 const mockedProvisionNewUser = provisionNewUser as jest.MockedFunction<typeof provisionNewUser>;
 const mockedTrackEvent = trackEvent as jest.MockedFunction<typeof trackEvent>;
@@ -173,13 +179,13 @@ describe('useAuth SSO analytics parity (R11)', () => {
     // Sign-in event fired with the email-flow name + provider property (R11.1).
     expect(mockedTrackEvent).toHaveBeenCalledWith(
       'login_completed',
-      expect.objectContaining({ provider: 'apple.com', email_domain: 'example.com' }),
+      expect.objectContaining({ provider: 'apple.com', email_domain: 'example.com' })
     );
 
     // New-user provisioning also emits the account-creation event (R11.2).
     expect(mockedTrackEvent).toHaveBeenCalledWith(
       'signup_completed',
-      expect.objectContaining({ provider: 'apple.com', email_domain: 'example.com' }),
+      expect.objectContaining({ provider: 'apple.com', email_domain: 'example.com' })
     );
 
     // Exactly the two expected events, no more.
@@ -200,14 +206,11 @@ describe('useAuth SSO analytics parity (R11)', () => {
     // Existing user still gets the sign-in event tagged with the provider.
     expect(mockedTrackEvent).toHaveBeenCalledWith(
       'login_completed',
-      expect.objectContaining({ provider: 'apple.com' }),
+      expect.objectContaining({ provider: 'apple.com' })
     );
 
     // No account-creation event for an existing user (R11.2 gate on new-user).
-    expect(mockedTrackEvent).not.toHaveBeenCalledWith(
-      'signup_completed',
-      expect.anything(),
-    );
+    expect(mockedTrackEvent).not.toHaveBeenCalledWith('signup_completed', expect.anything());
     expect(mockedProvisionNewUser).not.toHaveBeenCalled();
     expect(mockedTrackEvent).toHaveBeenCalledTimes(1);
 

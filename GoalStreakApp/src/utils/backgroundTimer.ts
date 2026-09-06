@@ -23,7 +23,10 @@ export class BackgroundTimerManager {
    * Initialize app state listener to track background/foreground transitions
    */
   private initializeAppStateListener(): void {
-    this.appStateSubscription = AppState.addEventListener('change', this.handleAppStateChange.bind(this));
+    this.appStateSubscription = AppState.addEventListener(
+      'change',
+      this.handleAppStateChange.bind(this)
+    );
   }
 
   /**
@@ -54,14 +57,13 @@ export class BackgroundTimerManager {
       // Save all active timer states as checkpoints for recovery
       await this.saveActiveTimerCheckpoints();
 
-      
       // Emit background event
       this.emitEvent({
         type: 'timer_backgrounded',
         habitId: '',
         userId: '',
         timestamp: this.backgroundTime,
-        data: { backgroundTime: this.backgroundTime?.toISOString() || new Date().toISOString() }
+        data: { backgroundTime: this.backgroundTime?.toISOString() || new Date().toISOString() },
       });
     } catch (error) {
       console.error('Error handling app background:', error);
@@ -85,25 +87,24 @@ export class BackgroundTimerManager {
       const backgroundTime = new Date(backgroundTimeStr);
       const timeInBackground = foregroundTime.getTime() - backgroundTime.getTime();
 
-
       // Update timer states based on background time and detect completions
       const completedTimers = await this.updateTimersAfterBackground(timeInBackground);
 
       // Handle completed timers
       for (const habitId of completedTimers) {
         this.completedTimersWhileBackground.add(habitId);
-        
+
         // Emit completion event for each completed timer
         this.emitEvent({
           type: 'timer_completed',
           habitId,
           userId: '',
           timestamp: foregroundTime,
-          data: { 
+          data: {
             completedInBackground: true,
             backgroundDuration: timeInBackground,
-            autoCompleted: true
-          }
+            autoCompleted: true,
+          },
         });
       }
 
@@ -113,10 +114,10 @@ export class BackgroundTimerManager {
         habitId: '',
         userId: '',
         timestamp: foregroundTime,
-        data: { 
+        data: {
           backgroundDuration: timeInBackground,
-          completedTimers: Array.from(completedTimers)
-        }
+          completedTimers: Array.from(completedTimers),
+        },
       });
 
       // Clear background time
@@ -133,7 +134,7 @@ export class BackgroundTimerManager {
    */
   private async updateTimersAfterBackground(timeInBackground: number): Promise<string[]> {
     const completedTimers: string[] = [];
-    
+
     try {
       const stored = await AsyncStorage.getItem(TIMER_STORAGE_KEYS.ACTIVE_TIMERS);
       if (!stored) {
@@ -164,18 +165,18 @@ export class BackgroundTimerManager {
           // Check if timer completed while in background
           if (remainingTime <= 0) {
             completedTimers.push(habitId);
-            
+
             // Mark timer as completed but keep in storage for completion handling
             updatedTimers[habitId] = {
               ...storedTimer,
               isActive: false, // Mark as inactive since it completed
-              lastUpdate: now.toISOString()
+              lastUpdate: now.toISOString(),
             };
           } else {
             // Update timer with new remaining time
             updatedTimers[habitId] = {
               ...storedTimer,
-              lastUpdate: now.toISOString()
+              lastUpdate: now.toISOString(),
             };
           }
         } catch (error) {
@@ -186,10 +187,7 @@ export class BackgroundTimerManager {
       }
 
       // Save updated timers
-      await AsyncStorage.setItem(
-        TIMER_STORAGE_KEYS.ACTIVE_TIMERS,
-        JSON.stringify(updatedTimers)
-      );
+      await AsyncStorage.setItem(TIMER_STORAGE_KEYS.ACTIVE_TIMERS, JSON.stringify(updatedTimers));
 
       return completedTimers;
     } catch (error) {
@@ -232,7 +230,12 @@ export class BackgroundTimerManager {
     pausedTime: number,
     currentTime: Date = new Date()
   ): number {
-    return BackgroundTimerManager.calculateRemainingTime(startTime, targetDuration, pausedTime, currentTime);
+    return BackgroundTimerManager.calculateRemainingTime(
+      startTime,
+      targetDuration,
+      pausedTime,
+      currentTime
+    );
   }
 
   /**
@@ -261,21 +264,39 @@ export class BackgroundTimerManager {
     pausedTime: number,
     currentTime: Date = new Date()
   ): boolean {
-    const remainingTime = this.calculateRemainingTime(startTime, targetDuration, pausedTime, currentTime);
+    const remainingTime = this.calculateRemainingTime(
+      startTime,
+      targetDuration,
+      pausedTime,
+      currentTime
+    );
     return remainingTime <= 0;
   }
 
   /**
    * Restore timer state with accurate calculations
    */
-  static restoreTimerState(storedTimer: StoredTimerState, currentTime: Date = new Date()): TimerState | null {
+  static restoreTimerState(
+    storedTimer: StoredTimerState,
+    currentTime: Date = new Date()
+  ): TimerState | null {
     try {
       const startTime = new Date(storedTimer.startTime);
       const targetDuration = storedTimer.targetDuration;
 
       // Calculate current state
-      const remainingTime = this.calculateRemainingTime(startTime, targetDuration, storedTimer.pausedTime, currentTime);
-      const progress = this.calculateProgress(startTime, targetDuration, storedTimer.pausedTime, currentTime);
+      const remainingTime = this.calculateRemainingTime(
+        startTime,
+        targetDuration,
+        storedTimer.pausedTime,
+        currentTime
+      );
+      const progress = this.calculateProgress(
+        startTime,
+        targetDuration,
+        storedTimer.pausedTime,
+        currentTime
+      );
 
       return {
         habitId: storedTimer.habitId,
@@ -286,7 +307,7 @@ export class BackgroundTimerManager {
         remainingTime,
         progress,
         lastUpdate: currentTime,
-        originalDuration: targetDuration
+        originalDuration: targetDuration,
       };
     } catch (error) {
       console.error('Error restoring timer state:', error);
@@ -329,7 +350,7 @@ export class BackgroundTimerManager {
             targetDuration: timer.targetDuration,
             isActive: timer.isActive,
             isPaused: timer.isPaused,
-            backgroundTime: new Date().toISOString()
+            backgroundTime: new Date().toISOString(),
           };
         }
       }
@@ -393,7 +414,7 @@ export class BackgroundTimerManager {
   private emitEvent(event: TimerEvent): void {
     const listeners = this.eventListeners.get(event.type);
     if (listeners) {
-      listeners.forEach(listener => {
+      listeners.forEach((listener) => {
         try {
           listener(event);
         } catch (error) {
@@ -409,7 +430,7 @@ export class BackgroundTimerManager {
   getBackgroundState(): { isInBackground: boolean; backgroundTime: Date | null } {
     return {
       isInBackground: this.isInBackground,
-      backgroundTime: this.backgroundTime
+      backgroundTime: this.backgroundTime,
     };
   }
 
@@ -432,10 +453,10 @@ export class BackgroundTimerManager {
       this.appStateSubscription.remove();
       this.appStateSubscription = null;
     }
-    
+
     // Clear event listeners
     this.eventListeners.clear();
-    
+
     // Clear completed timers tracking
     this.completedTimersWhileBackground.clear();
   }
@@ -488,14 +509,14 @@ export const TimerCalculations = {
    * Check if timer should show warning (less than 5 minutes remaining)
    */
   shouldShowWarning(remainingTime: number): boolean {
-    return remainingTime > 0 && remainingTime <= (5 * 60 * 1000); // 5 minutes in ms
+    return remainingTime > 0 && remainingTime <= 5 * 60 * 1000; // 5 minutes in ms
   },
 
   /**
    * Check if timer is in final minute
    */
   isInFinalMinute(remainingTime: number): boolean {
-    return remainingTime > 0 && remainingTime <= (60 * 1000); // 1 minute in ms
+    return remainingTime > 0 && remainingTime <= 60 * 1000; // 1 minute in ms
   },
 
   /**
@@ -503,18 +524,18 @@ export const TimerCalculations = {
    */
   getNextMilestone(progress: number): { milestone: number; timeToMilestone: number } | null {
     const milestones = [0.25, 0.5, 0.75, 1.0];
-    
+
     for (const milestone of milestones) {
       if (progress < milestone) {
         return {
           milestone,
-          timeToMilestone: milestone - progress
+          timeToMilestone: milestone - progress,
         };
       }
     }
-    
+
     return null; // Already at 100%
-  }
+  },
 };
 
 /**
@@ -534,7 +555,7 @@ export const TimerPersistence = {
         progress: timerState.progress,
         isActive: timerState.isActive,
         isPaused: timerState.isPaused,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       await AsyncStorage.setItem(
@@ -576,11 +597,12 @@ export const TimerPersistence = {
   async clearAllCheckpoints(): Promise<void> {
     try {
       const keys = await AsyncStorage.getAllKeys();
-      const checkpointKeys = keys.filter(key => 
-        key.startsWith('@goalstreak/timer_checkpoint_') ||
-        key.startsWith('@goalstreak/timer_background_checkpoints')
+      const checkpointKeys = keys.filter(
+        (key) =>
+          key.startsWith('@goalstreak/timer_checkpoint_') ||
+          key.startsWith('@goalstreak/timer_background_checkpoints')
       );
-      
+
       if (checkpointKeys.length > 0) {
         await AsyncStorage.multiRemove(checkpointKeys);
       }
@@ -597,7 +619,7 @@ export const TimerPersistence = {
       const backgroundState = {
         timers,
         timestamp: new Date().toISOString(),
-        appState: 'background'
+        appState: 'background',
       };
 
       await AsyncStorage.setItem(
@@ -612,7 +634,10 @@ export const TimerPersistence = {
   /**
    * Load timer state from background recovery
    */
-  async loadBackgroundState(): Promise<{ timers: Record<string, StoredTimerState>; timestamp: string } | null> {
+  async loadBackgroundState(): Promise<{
+    timers: Record<string, StoredTimerState>;
+    timestamp: string;
+  } | null> {
     try {
       const stored = await AsyncStorage.getItem('@goalstreak/timer_background_state');
       if (!stored) {
@@ -622,7 +647,7 @@ export const TimerPersistence = {
       const backgroundState = JSON.parse(stored);
       return {
         timers: backgroundState.timers || {},
-        timestamp: backgroundState.timestamp
+        timestamp: backgroundState.timestamp,
       };
     } catch (error) {
       console.error('Error loading background timer state:', error);
@@ -647,14 +672,13 @@ export const TimerPersistence = {
   async getTimerStorageKeys(): Promise<string[]> {
     try {
       const keys = await AsyncStorage.getAllKeys();
-      return keys.filter(key => 
-        key.includes('timer') || 
-        key.includes('background_time') ||
-        key.includes('checkpoint')
+      return keys.filter(
+        (key) =>
+          key.includes('timer') || key.includes('background_time') || key.includes('checkpoint')
       );
     } catch (error) {
       console.error('Error getting timer storage keys:', error);
       return [];
     }
-  }
+  },
 };

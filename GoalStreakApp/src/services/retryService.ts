@@ -29,7 +29,7 @@ export async function withRetry<T>(
       return await operation();
     } catch (error) {
       lastError = error as Error;
-      
+
       // Don't retry on the last attempt
       if (attempt === maxAttempts) {
         break;
@@ -52,18 +52,20 @@ export async function withRetry<T>(
 
 function isRetryableError(error: any): boolean {
   // Check for network-related errors
-  if (error?.code === 'unavailable' || 
-      error?.code === 'deadline-exceeded' ||
-      error?.message?.includes('network') ||
-      error?.message?.includes('timeout')) {
+  if (
+    error?.code === 'unavailable' ||
+    error?.code === 'deadline-exceeded' ||
+    error?.message?.includes('network') ||
+    error?.message?.includes('timeout')
+  ) {
     return true;
   }
-  
+
   return false;
 }
 
 function delay(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // Specific retry configurations for different operations

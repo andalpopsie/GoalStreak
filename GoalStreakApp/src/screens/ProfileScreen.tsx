@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image, Modal, TextInput, Switch, ActivityIndicator, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  Image,
+  Modal,
+  TextInput,
+  Switch,
+  ActivityIndicator,
+  Platform,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -13,9 +26,18 @@ import { photoService } from '../services/photoService';
 import type { SsoProviderId } from '../services/ssoService';
 import { openPrivacyPolicy, openTermsOfService, openSupport } from '../utils/linkingUtils';
 import { trackScreen, trackEvent } from '../services/enhancedAnalyticsService';
-import { motivationalNotificationService, notificationPreferencesService, AppNotificationPreferences } from '../services/motivationalNotificationService';
+import {
+  motivationalNotificationService,
+  notificationPreferencesService,
+  AppNotificationPreferences,
+} from '../services/motivationalNotificationService';
 import BadgeShowcase from '../components/profile/BadgeShowcase';
-import { validateUsername, isUsernameAvailable, reserveUsername, releaseUsername } from '../utils/usernameUtils';
+import {
+  validateUsername,
+  isUsernameAvailable,
+  reserveUsername,
+  releaseUsername,
+} from '../utils/usernameUtils';
 import FeedbackModal from '../components/feedback/FeedbackModal';
 import ProPaywallModal from '../components/common/ProPaywallModal';
 import ReportReasonSheet from '../components/social/ReportReasonSheet';
@@ -88,7 +110,7 @@ export default function ProfileScreen() {
     trackScreen('Profile', { screen_class: 'ProfileScreen' });
     trackEvent('profile_screen_viewed', {
       user_id: user?.id,
-      has_profile_image: !!profileImage
+      has_profile_image: !!profileImage,
     });
   }, [user?.id, profileImage]);
 
@@ -151,34 +173,31 @@ export default function ProfileScreen() {
   };
 
   const showImagePicker = () => {
-    Alert.alert(
-      'Update Profile Photo',
-      'Choose an option',
-      [
-        { text: 'Camera', onPress: () => pickImage('camera') },
-        { text: 'Photo Library', onPress: () => pickImage('library') },
-        { text: 'Cancel', style: 'cancel' }
-      ]
-    );
+    Alert.alert('Update Profile Photo', 'Choose an option', [
+      { text: 'Camera', onPress: () => pickImage('camera') },
+      { text: 'Photo Library', onPress: () => pickImage('library') },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
   };
 
   const pickImage = async (source: 'camera' | 'library') => {
     try {
       setIsUploading(true);
 
-      const result = source === 'camera'
-        ? await ImagePicker.launchCameraAsync({
-          mediaTypes: ['images'],
-          allowsEditing: true,
-          aspect: [1, 1],
-          quality: 0.8,
-        })
-        : await ImagePicker.launchImageLibraryAsync({
-          mediaTypes: ['images'],
-          allowsEditing: true,
-          aspect: [1, 1],
-          quality: 0.8,
-        });
+      const result =
+        source === 'camera'
+          ? await ImagePicker.launchCameraAsync({
+              mediaTypes: ['images'],
+              allowsEditing: true,
+              aspect: [1, 1],
+              quality: 0.8,
+            })
+          : await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ['images'],
+              allowsEditing: true,
+              aspect: [1, 1],
+              quality: 0.8,
+            });
 
       if (!result.canceled && result.assets[0]) {
         const imageUri = result.assets[0].uri;
@@ -191,12 +210,12 @@ export default function ProfileScreen() {
       }
     } catch (error: any) {
       console.error('Error picking image:', error);
-      
+
       // Don't show error for user cancellation
       if (error?.message?.includes('cancelled') || error?.code === 'UserCancel') {
         return;
       }
-      
+
       const errorMessage = error?.message?.includes('permission')
         ? 'Camera or photo library permission is required. Please check your settings.'
         : 'Failed to update profile photo. Please try again.';
@@ -206,7 +225,7 @@ export default function ProfileScreen() {
       trackEvent('profile_photo_error', {
         error_message: error?.message || 'Unknown error',
         error_code: error?.code || 'unknown',
-        user_id: user?.id
+        user_id: user?.id,
       });
     } finally {
       setIsUploading(false);
@@ -245,7 +264,7 @@ export default function ProfileScreen() {
   const handleSaveProfile = async () => {
     try {
       const updates: Partial<{ displayName: string; username: string }> = {};
-      
+
       const trimmedName = editedName.trim();
       const trimmedUsername = editedUsername.trim();
 
@@ -297,33 +316,29 @@ export default function ProfileScreen() {
   };
 
   const handleLogout = async () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Sign Out',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              // Track logout
-              trackEvent('user_logout', {
-                user_id: user?.id
-              });
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign Out',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            // Track logout
+            trackEvent('user_logout', {
+              user_id: user?.id,
+            });
 
-              await logout();
-            } catch (error: any) {
-              trackEvent('logout_error', {
-                error_message: error.message,
-                user_id: user?.id
-              });
-              Alert.alert('Error', error.message);
-            }
+            await logout();
+          } catch (error: any) {
+            trackEvent('logout_error', {
+              error_message: error.message,
+              user_id: user?.id,
+            });
+            Alert.alert('Error', error.message);
           }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleLearnPress = () => {
@@ -405,34 +420,30 @@ export default function ProfileScreen() {
   // block-set subscription, so a failed write never desyncs the UI.
   const handleBlockUser = () => {
     if (!targetUserId) return;
-    Alert.alert(
-      `Block ${targetName}?`,
-      "You'll stop seeing each other.",
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Block',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              trackEvent('user_blocked', { blocked_user_id: targetUserId, source: 'profile' });
-              await blockUser(targetUserId);
-              Alert.alert('Blocked', `You blocked ${targetName}`);
-              // Dismiss the blocked user's profile after a successful block.
-              if (navigation.canGoBack?.()) {
-                navigation.goBack();
-              }
-            } catch (error: any) {
-              trackEvent('user_block_failed', {
-                blocked_user_id: targetUserId,
-                error_message: error?.message,
-              });
-              Alert.alert('Error', "Couldn't block user. Please try again.");
+    Alert.alert(`Block ${targetName}?`, "You'll stop seeing each other.", [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Block',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            trackEvent('user_blocked', { blocked_user_id: targetUserId, source: 'profile' });
+            await blockUser(targetUserId);
+            Alert.alert('Blocked', `You blocked ${targetName}`);
+            // Dismiss the blocked user's profile after a successful block.
+            if (navigation.canGoBack?.()) {
+              navigation.goBack();
             }
-          },
+          } catch (error: any) {
+            trackEvent('user_block_failed', {
+              blocked_user_id: targetUserId,
+              error_message: error?.message,
+            });
+            Alert.alert('Error', "Couldn't block user. Please try again.");
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   // The report write happens here; ReportReasonSheet drives its own
@@ -464,7 +475,7 @@ export default function ProfileScreen() {
     try {
       navigation.navigate('BlockedUsers');
     } catch {
-      Alert.alert('Blocked Users', 'Manage the users you\'ve blocked — coming soon.');
+      Alert.alert('Blocked Users', "Manage the users you've blocked — coming soon.");
     }
   };
 
@@ -497,7 +508,10 @@ export default function ProfileScreen() {
               try {
                 trackEvent('sso_provider_unlink_requested', { provider, user_id: user?.id });
                 await unlinkProvider(provider);
-                Alert.alert(`${label} disconnected`, `${label} is no longer connected to your account.`);
+                Alert.alert(
+                  `${label} disconnected`,
+                  `${label} is no longer connected to your account.`
+                );
               } catch (error: any) {
                 // Includes the last-provider-guard rejection (R8.7).
                 Alert.alert('Could Not Disconnect', error?.message || 'Please try again.');
@@ -530,7 +544,7 @@ export default function ProfileScreen() {
     provider: SsoProviderId,
     label: string,
     iconName: keyof typeof Ionicons.glyphMap,
-    isLast: boolean,
+    isLast: boolean
   ) => {
     const connected = isProviderConnected(provider);
     const busy = linkingProvider === provider;
@@ -568,10 +582,7 @@ export default function ProfileScreen() {
               color={connected ? Colors.success : Colors.accent1}
             />
             <Text
-              style={[
-                styles.ssoStatusText,
-                { color: connected ? Colors.success : Colors.accent1 },
-              ]}
+              style={[styles.ssoStatusText, { color: connected ? Colors.success : Colors.accent1 }]}
             >
               {connected ? 'Connected' : 'Not connected'}
             </Text>
@@ -580,8 +591,6 @@ export default function ProfileScreen() {
       </TouchableOpacity>
     );
   };
-
-
 
   // An account can reset its password only if it has the email/password provider
   // linked; SSO-only accounts (Apple/Google) have no password, so the row hides.
@@ -595,25 +604,21 @@ export default function ProfileScreen() {
       Alert.alert('Reset Password', 'No email is associated with this account.');
       return;
     }
-    Alert.alert(
-      'Reset Password',
-      `We'll email a password reset link to ${email}.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Send Link',
-          onPress: async () => {
-            try {
-              trackEvent('password_reset_requested', { user_id: user?.id, source: 'profile' });
-              await resetPassword(email);
-              Alert.alert('Check Your Email', `A password reset link was sent to ${email}.`);
-            } catch (error: any) {
-              Alert.alert('Could Not Send', error?.message || 'Please try again.');
-            }
-          },
+    Alert.alert('Reset Password', `We'll email a password reset link to ${email}.`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Send Link',
+        onPress: async () => {
+          try {
+            trackEvent('password_reset_requested', { user_id: user?.id, source: 'profile' });
+            await resetPassword(email);
+            Alert.alert('Check Your Email', `A password reset link was sent to ${email}.`);
+          } catch (error: any) {
+            Alert.alert('Could Not Send', error?.message || 'Please try again.');
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   // Generic settings row: icon chip + label + chevron. Used across the Account
@@ -622,7 +627,7 @@ export default function ProfileScreen() {
     icon: keyof typeof Ionicons.glyphMap,
     label: string,
     onPress: () => void,
-    opts?: { isLast?: boolean; danger?: boolean; accessibilityLabel?: string; testID?: string },
+    opts?: { isLast?: boolean; danger?: boolean; accessibilityLabel?: string; testID?: string }
   ) => {
     const danger = !!opts?.danger;
     return (
@@ -677,7 +682,11 @@ export default function ProfileScreen() {
                 accessibilityLabel="Uploading profile photo"
               />
             ) : isOwnProfile && profileImage ? (
-              <Image source={{ uri: profileImage }} style={styles.profileAvatar} resizeMode="cover" />
+              <Image
+                source={{ uri: profileImage }}
+                style={styles.profileAvatar}
+                resizeMode="cover"
+              />
             ) : (
               <View style={styles.profileAvatarPlaceholder}>
                 <Ionicons name="person" size={28} color={Colors.accent2} />
@@ -692,7 +701,7 @@ export default function ProfileScreen() {
 
           <View style={styles.profileInfo}>
             <Text style={styles.profileName} numberOfLines={1}>
-              {isOwnProfile ? (user?.displayName || 'User') : targetName}
+              {isOwnProfile ? user?.displayName || 'User' : targetName}
             </Text>
             {isOwnProfile && !!user?.email && (
               <View style={styles.profileEmailRow}>
@@ -702,7 +711,9 @@ export default function ProfileScreen() {
                   color={Colors.gray.dark}
                   style={styles.profileEmailIcon}
                 />
-                <Text style={styles.profileEmail} numberOfLines={1}>{user.email}</Text>
+                <Text style={styles.profileEmail} numberOfLines={1}>
+                  {user.email}
+                </Text>
               </View>
             )}
             {isOwnProfile && !!user?.username && (
@@ -735,7 +746,9 @@ export default function ProfileScreen() {
             <Text style={styles.sectionHeader}>Account</Text>
             <View style={styles.sectionCard}>
               {renderMenuRow('person-outline', 'Edit Profile', () => setShowEditModal(true))}
-              {renderMenuRow('notifications-outline', 'Notifications', () => setShowNotificationsModal(true))}
+              {renderMenuRow('notifications-outline', 'Notifications', () =>
+                setShowNotificationsModal(true)
+              )}
               {isEmailProvider &&
                 renderMenuRow('key-outline', 'Reset Password', handleResetPassword)}
               {renderMenuRow('ban-outline', 'Blocked Users', handleOpenBlockedUsers, {
@@ -743,10 +756,15 @@ export default function ProfileScreen() {
                 accessibilityLabel: 'Manage blocked users',
               })}
               {__DEV__ &&
-                renderMenuRow('flask-outline', 'Preview Pro Paywall', () => setShowPaywallPreview(true), {
-                  isLast: true,
-                  accessibilityLabel: 'Preview Pro paywall (dev only)',
-                })}
+                renderMenuRow(
+                  'flask-outline',
+                  'Preview Pro Paywall',
+                  () => setShowPaywallPreview(true),
+                  {
+                    isLast: true,
+                    accessibilityLabel: 'Preview Pro paywall (dev only)',
+                  }
+                )}
             </View>
 
             {/* Connected Accounts — Apple / Google linking (iOS-first) */}
@@ -763,11 +781,15 @@ export default function ProfileScreen() {
             {/* Support & Help */}
             <Text style={styles.sectionHeader}>Support & Help</Text>
             <View style={styles.sectionCard}>
-              {renderMenuRow('chatbubble-ellipses-outline', 'Send Feedback', () => setShowFeedbackModal(true))}
+              {renderMenuRow('chatbubble-ellipses-outline', 'Send Feedback', () =>
+                setShowFeedbackModal(true)
+              )}
               {renderMenuRow('book-outline', 'Learn & Insights', handleLearnPress)}
               {renderMenuRow('lock-closed-outline', 'Privacy Policy', openPrivacyPolicy)}
               {renderMenuRow('document-text-outline', 'Terms of Service', openTermsOfService)}
-              {renderMenuRow('help-circle-outline', 'Help & Support', openSupport, { isLast: true })}
+              {renderMenuRow('help-circle-outline', 'Help & Support', openSupport, {
+                isLast: true,
+              })}
             </View>
 
             {/* Account actions */}
@@ -828,15 +850,20 @@ export default function ProfileScreen() {
                   maxLength={20}
                 />
                 {isCheckingUsername && (
-                  <ActivityIndicator size="small" color={Colors.accent1} style={styles.usernameSpinner} />
+                  <ActivityIndicator
+                    size="small"
+                    color={Colors.accent1}
+                    style={styles.usernameSpinner}
+                  />
                 )}
               </View>
-              {usernameError && (
-                <Text style={styles.usernameErrorText}>{usernameError}</Text>
-              )}
-              {editedUsername && !usernameError && !isCheckingUsername && editedUsername !== user?.username && (
-                <Text style={styles.usernameAvailableText}>✓ Username available</Text>
-              )}
+              {usernameError && <Text style={styles.usernameErrorText}>{usernameError}</Text>}
+              {editedUsername &&
+                !usernameError &&
+                !isCheckingUsername &&
+                editedUsername !== user?.username && (
+                  <Text style={styles.usernameAvailableText}>✓ Username available</Text>
+                )}
             </View>
 
             <View style={styles.inputGroup}>
@@ -871,19 +898,23 @@ export default function ProfileScreen() {
             {/* Master Toggle */}
             <View style={styles.notifMasterCard}>
               <View style={styles.notifMasterLeft}>
-                <View style={[styles.notifIconCircle, { backgroundColor: Colors.primary + '15' }]}>  
+                <View style={[styles.notifIconCircle, { backgroundColor: Colors.primary + '15' }]}>
                   <Ionicons name="notifications" size={24} color={Colors.primary} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.notifMasterLabel}>Allow Notifications</Text>
                   <Text style={styles.notifMasterDesc}>
-                    {notificationSettings.enabled ? 'Notifications are on' : 'All notifications are paused'}
+                    {notificationSettings.enabled
+                      ? 'Notifications are on'
+                      : 'All notifications are paused'}
                   </Text>
                 </View>
               </View>
               <Switch
                 value={notificationSettings.enabled}
-                onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, enabled: value })}
+                onValueChange={(value) =>
+                  saveNotificationSettings({ ...notificationSettings, enabled: value })
+                }
                 trackColor={{ false: Colors.gray.light, true: Colors.primary }}
                 thumbColor={Colors.white}
               />
@@ -891,9 +922,16 @@ export default function ProfileScreen() {
 
             {/* General Section */}
             <Text style={styles.notifSectionLabel}>GENERAL</Text>
-            <View style={[styles.notifSection, !notificationSettings.enabled && styles.notifSectionDisabled]}>
+            <View
+              style={[
+                styles.notifSection,
+                !notificationSettings.enabled && styles.notifSectionDisabled,
+              ]}
+            >
               <View style={styles.notifRow}>
-                <View style={[styles.notifIconCircle, { backgroundColor: Colors.otherPink + '15' }]}>  
+                <View
+                  style={[styles.notifIconCircle, { backgroundColor: Colors.otherPink + '15' }]}
+                >
                   <Ionicons name="volume-high" size={20} color={Colors.otherPink} />
                 </View>
                 <View style={styles.notifRowContent}>
@@ -901,7 +939,9 @@ export default function ProfileScreen() {
                 </View>
                 <Switch
                   value={notificationSettings.sound}
-                  onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, sound: value })}
+                  onValueChange={(value) =>
+                    saveNotificationSettings({ ...notificationSettings, sound: value })
+                  }
                   trackColor={{ false: Colors.gray.light, true: Colors.primary }}
                   thumbColor={Colors.white}
                   disabled={!notificationSettings.enabled}
@@ -909,7 +949,7 @@ export default function ProfileScreen() {
               </View>
               <View style={styles.notifDivider} />
               <View style={styles.notifRow}>
-                <View style={[styles.notifIconCircle, { backgroundColor: Colors.error + '15' }]}>  
+                <View style={[styles.notifIconCircle, { backgroundColor: Colors.error + '15' }]}>
                   <Ionicons name="ellipse" size={20} color={Colors.error} />
                 </View>
                 <View style={styles.notifRowContent}>
@@ -917,7 +957,9 @@ export default function ProfileScreen() {
                 </View>
                 <Switch
                   value={notificationSettings.badge}
-                  onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, badge: value })}
+                  onValueChange={(value) =>
+                    saveNotificationSettings({ ...notificationSettings, badge: value })
+                  }
                   trackColor={{ false: Colors.gray.light, true: Colors.primary }}
                   thumbColor={Colors.white}
                   disabled={!notificationSettings.enabled}
@@ -927,9 +969,14 @@ export default function ProfileScreen() {
 
             {/* Habits & Motivation Section */}
             <Text style={styles.notifSectionLabel}>HABITS & MOTIVATION</Text>
-            <View style={[styles.notifSection, !notificationSettings.enabled && styles.notifSectionDisabled]}>
+            <View
+              style={[
+                styles.notifSection,
+                !notificationSettings.enabled && styles.notifSectionDisabled,
+              ]}
+            >
               <View style={styles.notifRow}>
-                <View style={[styles.notifIconCircle, { backgroundColor: Colors.accent1 + '15' }]}>  
+                <View style={[styles.notifIconCircle, { backgroundColor: Colors.accent1 + '15' }]}>
                   <Ionicons name="sunny" size={20} color={Colors.accent1} />
                 </View>
                 <View style={styles.notifRowContent}>
@@ -938,7 +985,9 @@ export default function ProfileScreen() {
                 </View>
                 <Switch
                   value={notificationSettings.dailyMotivation}
-                  onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, dailyMotivation: value })}
+                  onValueChange={(value) =>
+                    saveNotificationSettings({ ...notificationSettings, dailyMotivation: value })
+                  }
                   trackColor={{ false: Colors.gray.light, true: Colors.primary }}
                   thumbColor={Colors.white}
                   disabled={!notificationSettings.enabled}
@@ -946,7 +995,9 @@ export default function ProfileScreen() {
               </View>
               <View style={styles.notifDivider} />
               <View style={styles.notifRow}>
-                <View style={[styles.notifIconCircle, { backgroundColor: Colors.wellnessTeal + '15' }]}>  
+                <View
+                  style={[styles.notifIconCircle, { backgroundColor: Colors.wellnessTeal + '15' }]}
+                >
                   <Ionicons name="alarm" size={20} color={Colors.wellnessTeal} />
                 </View>
                 <View style={styles.notifRowContent}>
@@ -955,7 +1006,9 @@ export default function ProfileScreen() {
                 </View>
                 <Switch
                   value={notificationSettings.dailyReminder}
-                  onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, dailyReminder: value })}
+                  onValueChange={(value) =>
+                    saveNotificationSettings({ ...notificationSettings, dailyReminder: value })
+                  }
                   trackColor={{ false: Colors.gray.light, true: Colors.primary }}
                   thumbColor={Colors.white}
                   disabled={!notificationSettings.enabled}
@@ -963,16 +1016,20 @@ export default function ProfileScreen() {
               </View>
               <View style={styles.notifDivider} />
               <View style={styles.notifRow}>
-                <View style={[styles.notifIconCircle, { backgroundColor: Colors.accent3 + '15' }]}>  
+                <View style={[styles.notifIconCircle, { backgroundColor: Colors.accent3 + '15' }]}>
                   <Ionicons name="flame" size={20} color={Colors.accent3} />
                 </View>
                 <View style={styles.notifRowContent}>
                   <Text style={styles.notifRowLabel}>Streak Alerts</Text>
-                  <Text style={styles.notifRowDesc}>Warn you before a streak is about to break</Text>
+                  <Text style={styles.notifRowDesc}>
+                    Warn you before a streak is about to break
+                  </Text>
                 </View>
                 <Switch
                   value={notificationSettings.streakAlerts}
-                  onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, streakAlerts: value })}
+                  onValueChange={(value) =>
+                    saveNotificationSettings({ ...notificationSettings, streakAlerts: value })
+                  }
                   trackColor={{ false: Colors.gray.light, true: Colors.primary }}
                   thumbColor={Colors.white}
                   disabled={!notificationSettings.enabled}
@@ -980,16 +1037,22 @@ export default function ProfileScreen() {
               </View>
               <View style={styles.notifDivider} />
               <View style={styles.notifRow}>
-                <View style={[styles.notifIconCircle, { backgroundColor: Colors.socialPurple + '15' }]}>  
+                <View
+                  style={[styles.notifIconCircle, { backgroundColor: Colors.socialPurple + '15' }]}
+                >
                   <Ionicons name="moon" size={20} color={Colors.socialPurple} />
                 </View>
                 <View style={styles.notifRowContent}>
                   <Text style={styles.notifRowLabel}>Inactivity Nudges</Text>
-                  <Text style={styles.notifRowDesc}>Playful reminders after 3+ days of inactivity</Text>
+                  <Text style={styles.notifRowDesc}>
+                    Playful reminders after 3+ days of inactivity
+                  </Text>
                 </View>
                 <Switch
                   value={notificationSettings.inactivityNudges}
-                  onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, inactivityNudges: value })}
+                  onValueChange={(value) =>
+                    saveNotificationSettings({ ...notificationSettings, inactivityNudges: value })
+                  }
                   trackColor={{ false: Colors.gray.light, true: Colors.primary }}
                   thumbColor={Colors.white}
                   disabled={!notificationSettings.enabled}
@@ -999,9 +1062,14 @@ export default function ProfileScreen() {
 
             {/* Social Section */}
             <Text style={styles.notifSectionLabel}>SOCIAL</Text>
-            <View style={[styles.notifSection, !notificationSettings.enabled && styles.notifSectionDisabled]}>
+            <View
+              style={[
+                styles.notifSection,
+                !notificationSettings.enabled && styles.notifSectionDisabled,
+              ]}
+            >
               <View style={styles.notifRow}>
-                <View style={[styles.notifIconCircle, { backgroundColor: Colors.accent1 + '15' }]}>  
+                <View style={[styles.notifIconCircle, { backgroundColor: Colors.accent1 + '15' }]}>
                   <Ionicons name="person-add" size={20} color={Colors.accent1} />
                 </View>
                 <View style={styles.notifRowContent}>
@@ -1010,7 +1078,9 @@ export default function ProfileScreen() {
                 </View>
                 <Switch
                   value={notificationSettings.friendRequests}
-                  onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, friendRequests: value })}
+                  onValueChange={(value) =>
+                    saveNotificationSettings({ ...notificationSettings, friendRequests: value })
+                  }
                   trackColor={{ false: Colors.gray.light, true: Colors.primary }}
                   thumbColor={Colors.white}
                   disabled={!notificationSettings.enabled}
@@ -1018,7 +1088,12 @@ export default function ProfileScreen() {
               </View>
               <View style={styles.notifDivider} />
               <View style={styles.notifRow}>
-                <View style={[styles.notifIconCircle, { backgroundColor: Colors.productivityNavy + '15' }]}>  
+                <View
+                  style={[
+                    styles.notifIconCircle,
+                    { backgroundColor: Colors.productivityNavy + '15' },
+                  ]}
+                >
                   <Ionicons name="chatbubble" size={20} color={Colors.productivityNavy} />
                 </View>
                 <View style={styles.notifRowContent}>
@@ -1027,7 +1102,9 @@ export default function ProfileScreen() {
                 </View>
                 <Switch
                   value={notificationSettings.comments}
-                  onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, comments: value })}
+                  onValueChange={(value) =>
+                    saveNotificationSettings({ ...notificationSettings, comments: value })
+                  }
                   trackColor={{ false: Colors.gray.light, true: Colors.primary }}
                   thumbColor={Colors.white}
                   disabled={!notificationSettings.enabled}
@@ -1035,7 +1112,12 @@ export default function ProfileScreen() {
               </View>
               <View style={styles.notifDivider} />
               <View style={styles.notifRow}>
-                <View style={[styles.notifIconCircle, { backgroundColor: Colors.nutritionGreen + '30' }]}>  
+                <View
+                  style={[
+                    styles.notifIconCircle,
+                    { backgroundColor: Colors.nutritionGreen + '30' },
+                  ]}
+                >
                   <Ionicons name="heart" size={20} color={Colors.nutritionGreen} />
                 </View>
                 <View style={styles.notifRowContent}>
@@ -1044,7 +1126,9 @@ export default function ProfileScreen() {
                 </View>
                 <Switch
                   value={notificationSettings.reactions}
-                  onValueChange={(value) => saveNotificationSettings({ ...notificationSettings, reactions: value })}
+                  onValueChange={(value) =>
+                    saveNotificationSettings({ ...notificationSettings, reactions: value })
+                  }
                   trackColor={{ false: Colors.gray.light, true: Colors.primary }}
                   thumbColor={Colors.white}
                   disabled={!notificationSettings.enabled}
@@ -1082,10 +1166,7 @@ export default function ProfileScreen() {
           onClose={() => setShowPaywallPreview(false)}
           onSuccess={() => {
             setShowPaywallPreview(false);
-            Alert.alert(
-              'Preview',
-              'Paywall reported success. (No real purchase was made.)'
-            );
+            Alert.alert('Preview', 'Paywall reported success. (No real purchase was made.)');
           }}
         />
       )}
@@ -1115,9 +1196,13 @@ export default function ProfileScreen() {
               </Text>
               <View style={styles.deleteWarningList}>
                 <Text style={styles.deleteWarningListItem}>• Your profile and account info</Text>
-                <Text style={styles.deleteWarningListItem}>• All habits, streaks, and progress data</Text>
+                <Text style={styles.deleteWarningListItem}>
+                  • All habits, streaks, and progress data
+                </Text>
                 <Text style={styles.deleteWarningListItem}>• Friends and social activity</Text>
-                <Text style={styles.deleteWarningListItem}>• Group memberships and shared content</Text>
+                <Text style={styles.deleteWarningListItem}>
+                  • Group memberships and shared content
+                </Text>
                 <Text style={styles.deleteWarningListItem}>• Profile photos and cached data</Text>
               </View>
               <Text style={styles.deleteWarningBody}>
@@ -1142,7 +1227,10 @@ export default function ProfileScreen() {
             </View>
 
             <TouchableOpacity
-              style={[styles.deleteConfirmButton, isDeletingAccount && styles.deleteConfirmButtonDisabled]}
+              style={[
+                styles.deleteConfirmButton,
+                isDeletingAccount && styles.deleteConfirmButtonDisabled,
+              ]}
               onPress={handleConfirmDeleteAccount}
               disabled={isDeletingAccount || !deleteAccountPassword.trim()}
               accessibilityRole="button"
@@ -1173,46 +1261,46 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    paddingBottom: 32,                  // 8 * 4 (loose)
+    paddingBottom: 32, // 8 * 4 (loose)
   },
   // ── Moderation overflow header (another user's profile) ──
   moderationHeader: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    paddingHorizontal: 16,              // 8 × 2 (base)
-    paddingTop: 8,                      // 8 × 1 (tight)
+    paddingHorizontal: 16, // 8 × 2 (base)
+    paddingTop: 8, // 8 × 1 (tight)
   },
   overflowButton: {
-    width: 48,                          // 8 × 6 (touch target)
-    height: 48,                         // 8 × 6 (touch target)
+    width: 48, // 8 × 6 (touch target)
+    height: 48, // 8 × 6 (touch target)
     alignItems: 'center',
     justifyContent: 'center',
   },
   profileHeader: {
     alignItems: 'center',
-    paddingVertical: 32,                // 8 * 4 (loose)
-    paddingHorizontal: 24,              // 8 * 3 (comfortable)
+    paddingVertical: 32, // 8 * 4 (loose)
+    paddingHorizontal: 24, // 8 * 3 (comfortable)
   },
   avatarContainer: {
     position: 'relative',
-    marginBottom: 24,                   // 8 * 3 (comfortable)
+    marginBottom: 24, // 8 * 3 (comfortable)
   },
   avatar: {
-    width: 120,                         // 8 * 15
-    height: 120,                        // 8 * 15
+    width: 120, // 8 * 15
+    height: 120, // 8 * 15
     borderRadius: 60,
-    borderWidth: 4,                     // 8 * 0.5
+    borderWidth: 4, // 8 * 0.5
     borderColor: Colors.white,
   },
   avatarPlaceholder: {
-    width: 120,                         // 8 * 15
-    height: 120,                        // 8 * 15
+    width: 120, // 8 * 15
+    height: 120, // 8 * 15
     borderRadius: 60,
     backgroundColor: Colors.accent3,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 4,                     // 8 * 0.5
+    borderWidth: 4, // 8 * 0.5
     borderColor: Colors.white,
   },
   cameraIcon: {
@@ -1221,31 +1309,31 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: Colors.primary,
     borderRadius: 20,
-    width: 40,                          // 8 * 5
-    height: 40,                         // 8 * 5
+    width: 40, // 8 * 5
+    height: 40, // 8 * 5
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
     borderColor: Colors.white,
   },
   userName: {
-    fontSize: 24,                       // heading
-    fontWeight: '700',                  // bold
+    fontSize: 24, // heading
+    fontWeight: '700', // bold
     color: Colors.primaryText,
     marginBottom: 4,
   },
   userUsername: {
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     color: Colors.accent1,
-    fontWeight: '500',                  // medium
+    fontWeight: '500', // medium
     marginBottom: 4,
   },
   userEmail: {
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     color: Colors.accent2,
   },
   memberSince: {
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     fontFamily: Typography.fontFamily.regular,
     color: Colors.secondaryText,
     marginTop: 4,
@@ -1256,12 +1344,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginHorizontal: 16,              // 8 × 2 (base)
-    marginBottom: 16,                  // 8 × 2 (base)
+    marginHorizontal: 16, // 8 × 2 (base)
+    marginBottom: 16, // 8 × 2 (base)
     backgroundColor: Colors.white,
     borderRadius: 16,
-    paddingVertical: 20,               // 8 × 2.5
-    paddingHorizontal: 16,             // 8 × 2 (base)
+    paddingVertical: 20, // 8 × 2.5
+    paddingHorizontal: 16, // 8 × 2 (base)
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
@@ -1273,33 +1361,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statNumber: {
-    fontSize: 24,                      // heading
-    fontWeight: '700',                 // bold
+    fontSize: 24, // heading
+    fontWeight: '700', // bold
     color: Colors.primaryText,
     marginBottom: 4,
   },
   statLabel: {
-    fontSize: 12,                      // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
-    fontWeight: '500',                 // medium
+    fontWeight: '500', // medium
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   statDivider: {
     width: 1,
-    height: 32,                        // 8 × 4
+    height: 32, // 8 × 4
     backgroundColor: Colors.gray.light,
   },
   // ── Redesigned settings layout ──
   profileCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 16,               // 8 × 2 (base)
-    marginTop: 8,                       // 8 × 1 (tight)
-    marginBottom: 24,                   // 8 × 3 (comfortable)
-    padding: 16,                        // 8 × 2 (base)
+    marginHorizontal: 16, // 8 × 2 (base)
+    marginTop: 8, // 8 × 1 (tight)
+    marginBottom: 24, // 8 × 3 (comfortable)
+    padding: 16, // 8 × 2 (base)
     backgroundColor: Colors.white,
-    borderRadius: 16,                   // 8 × 2
+    borderRadius: 16, // 8 × 2
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
@@ -1307,20 +1395,20 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   profileAvatarWrap: {
-    width: 56,                          // 8 × 7
-    height: 56,                         // 8 × 7
-    marginRight: 16,                    // 8 × 2 (base)
+    width: 56, // 8 × 7
+    height: 56, // 8 × 7
+    marginRight: 16, // 8 × 2 (base)
     alignItems: 'center',
     justifyContent: 'center',
   },
   profileAvatar: {
-    width: 56,                          // 8 × 7
-    height: 56,                         // 8 × 7
+    width: 56, // 8 × 7
+    height: 56, // 8 × 7
     borderRadius: 28,
   },
   profileAvatarPlaceholder: {
-    width: 56,                          // 8 × 7
-    height: 56,                         // 8 × 7
+    width: 56, // 8 × 7
+    height: 56, // 8 × 7
     borderRadius: 28,
     backgroundColor: Colors.gray.light,
     alignItems: 'center',
@@ -1343,8 +1431,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   profileName: {
-    fontSize: 20,                       // subheading
-    fontWeight: '700',                  // bold
+    fontSize: 20, // subheading
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
   },
@@ -1358,38 +1446,38 @@ const styles = StyleSheet.create({
   },
   profileEmail: {
     flexShrink: 1,
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     fontFamily: Typography.fontFamily.regular,
     color: Colors.gray.dark,
   },
   profileUsername: {
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     color: Colors.accent1,
-    fontWeight: '500',                  // medium
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
     marginTop: 2,
   },
   profileEditButton: {
-    width: 40,                          // 8 × 5
-    height: 40,                         // 8 × 5
+    width: 40, // 8 × 5
+    height: 40, // 8 × 5
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 8,                      // 8 × 1 (tight)
+    marginLeft: 8, // 8 × 1 (tight)
   },
   sectionHeader: {
-    fontSize: 20,                       // subheading
-    fontWeight: '700',                  // bold
+    fontSize: 20, // subheading
+    fontWeight: '700', // bold
     fontFamily: Typography.fontFamily.bold,
     color: Colors.primaryText,
-    marginLeft: 24,                     // 8 × 3 (comfortable)
-    marginTop: 8,                       // 8 × 1 (tight)
-    marginBottom: 12,                   // 8 × 1.5
+    marginLeft: 24, // 8 × 3 (comfortable)
+    marginTop: 8, // 8 × 1 (tight)
+    marginBottom: 12, // 8 × 1.5
   },
   sectionCard: {
-    marginHorizontal: 16,               // 8 × 2 (base)
-    marginBottom: 24,                   // 8 × 3 (comfortable)
+    marginHorizontal: 16, // 8 × 2 (base)
+    marginBottom: 24, // 8 × 3 (comfortable)
     backgroundColor: Colors.white,
-    borderRadius: 16,                   // 8 × 2
+    borderRadius: 16, // 8 × 2
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -1400,9 +1488,9 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,                // comfortable within a 64px row
-    paddingHorizontal: 16,              // 8 × 2 (base)
-    minHeight: 64,                      // 8 × 8 (touch target)
+    paddingVertical: 12, // comfortable within a 64px row
+    paddingHorizontal: 16, // 8 × 2 (base)
+    minHeight: 64, // 8 × 8 (touch target)
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
   },
@@ -1410,65 +1498,65 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
   },
   iconChip: {
-    width: 40,                          // 8 × 5
-    height: 40,                         // 8 × 5
+    width: 40, // 8 × 5
+    height: 40, // 8 × 5
     borderRadius: 20,
     backgroundColor: Colors.gray.light,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,                    // 8 × 2 (base)
+    marginRight: 16, // 8 × 2 (base)
   },
   iconChipDanger: {
     backgroundColor: Colors.error + '15', // 15% red tint
   },
   rowLabel: {
     flex: 1,
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     color: Colors.primaryText,
-    fontWeight: '500',                  // medium
+    fontWeight: '500', // medium
     fontFamily: Typography.fontFamily.medium,
   },
   rowLabelDanger: {
     color: Colors.error,
   },
   menuSection: {
-    marginHorizontal: 16,               // 8 * 2 (base)
-    marginBottom: 16,                   // 8 * 2 (base)
+    marginHorizontal: 16, // 8 * 2 (base)
+    marginBottom: 16, // 8 * 2 (base)
     backgroundColor: Colors.white,
-    borderRadius: 16,                   // 8 * 2
+    borderRadius: 16, // 8 * 2
     overflow: 'hidden',
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,                // 8 * 2 (base)
-    paddingHorizontal: 16,              // 8 * 2 (base)
-    minHeight: 64,                      // 8 * 8 (touch target)
+    paddingVertical: 16, // 8 * 2 (base)
+    paddingHorizontal: 16, // 8 * 2 (base)
+    minHeight: 64, // 8 * 8 (touch target)
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
   },
   menuText: {
     flex: 1,
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     color: Colors.primaryText,
-    marginLeft: 16,                     // 8 * 2 (base)
+    marginLeft: 16, // 8 * 2 (base)
   },
   sectionLabel: {
-    fontSize: 12,                       // small
-    fontWeight: '600',                  // semibold
+    fontSize: 12, // small
+    fontWeight: '600', // semibold
     color: Colors.secondaryText,
     letterSpacing: 0.5,
-    marginHorizontal: 24,               // 8 * 3 (comfortable)
-    marginBottom: 8,                    // 8 * 1 (tight)
+    marginHorizontal: 24, // 8 * 3 (comfortable)
+    marginBottom: 8, // 8 * 1 (tight)
   },
   ssoStatusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,                             // 8 * 1 (tight) icon + label pair
+    gap: 8, // 8 * 1 (tight) icon + label pair
   },
   ssoStatusText: {
-    fontSize: 14,                       // caption
-    fontWeight: '600',                  // semibold
+    fontSize: 14, // caption
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
   modalContainer: {
@@ -1479,64 +1567,64 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 24,              // 8 * 3 (comfortable)
-    paddingVertical: 16,                // 8 * 2 (base)
+    paddingHorizontal: 24, // 8 * 3 (comfortable)
+    paddingVertical: 16, // 8 * 2 (base)
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
   },
   modalTitle: {
-    fontSize: 20,                       // subheading
-    fontWeight: '600',                  // semibold
+    fontSize: 20, // subheading
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
   },
   cancelButton: {
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     color: Colors.accent2,
-    minWidth: 60,                       // Touch target
-    minHeight: 44,                      // Touch target
+    minWidth: 60, // Touch target
+    minHeight: 44, // Touch target
     textAlign: 'center',
     textAlignVertical: 'center',
   },
   saveButton: {
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     color: Colors.primary,
-    fontWeight: '500',                  // medium
-    minWidth: 60,                       // Touch target
-    minHeight: 44,                      // Touch target
+    fontWeight: '500', // medium
+    minWidth: 60, // Touch target
+    minHeight: 44, // Touch target
     textAlign: 'center',
     textAlignVertical: 'center',
   },
   modalContent: {
     flex: 1,
-    paddingHorizontal: 24,              // 8 * 3 (comfortable)
-    paddingTop: 24,                     // 8 * 3 (comfortable)
+    paddingHorizontal: 24, // 8 * 3 (comfortable)
+    paddingTop: 24, // 8 * 3 (comfortable)
   },
   inputGroup: {
-    marginBottom: 24,                   // 8 * 3 (comfortable)
+    marginBottom: 24, // 8 * 3 (comfortable)
   },
   inputLabel: {
-    fontSize: 16,                       // body
-    fontWeight: '500',                  // medium
+    fontSize: 16, // body
+    fontWeight: '500', // medium
     color: Colors.primaryText,
-    marginBottom: 8,                    // 8 * 1 (tight)
+    marginBottom: 8, // 8 * 1 (tight)
   },
   textInput: {
     borderWidth: 1,
     borderColor: Colors.gray.medium,
-    borderRadius: 12,                   // 8 * 1.5
-    paddingHorizontal: 16,              // 8 * 2 (base)
-    paddingVertical: 16,                // 8 * 2 (base)
-    fontSize: 16,                       // body
+    borderRadius: 12, // 8 * 1.5
+    paddingHorizontal: 16, // 8 * 2 (base)
+    paddingVertical: 16, // 8 * 2 (base)
+    fontSize: 16, // body
     color: Colors.primaryText,
     backgroundColor: Colors.white,
-    minHeight: 56,                      // 8 * 7 (touch target)
+    minHeight: 56, // 8 * 7 (touch target)
   },
   textInputDisabled: {
     backgroundColor: Colors.gray.light,
     color: Colors.secondaryText,
   },
   inputHint: {
-    fontSize: 12,                       // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
     marginTop: 4,
   },
@@ -1545,8 +1633,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   usernamePrefix: {
-    fontSize: 16,                       // body
-    fontWeight: '600',                  // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     color: Colors.accent1,
     marginRight: 4,
     minWidth: 20,
@@ -1556,15 +1644,15 @@ const styles = StyleSheet.create({
   },
   usernameSpinner: {
     position: 'absolute',
-    right: 16,                          // 8 × 2 (base)
+    right: 16, // 8 × 2 (base)
   },
   usernameErrorText: {
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     color: Colors.error,
     marginTop: 4,
   },
   usernameAvailableText: {
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     color: Colors.accent3,
     marginTop: 4,
   },
@@ -1572,25 +1660,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 16,                // 8 * 2 (base)
-    minHeight: 64,                      // 8 * 8 (touch target)
+    paddingVertical: 16, // 8 * 2 (base)
+    minHeight: 64, // 8 * 8 (touch target)
     borderBottomWidth: 1,
     borderBottomColor: Colors.gray.light,
   },
   settingLabel: {
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     color: Colors.primaryText,
   },
   settingDescription: {
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     color: Colors.gray.dark,
-    marginTop: 4,                       // 8 * 0.5
+    marginTop: 4, // 8 * 0.5
   },
   // ── Notification Modal Styles ──
   notifContent: {
     flex: 1,
-    paddingHorizontal: 16,             // 8 × 2 (base)
-    paddingTop: 16,                    // 8 × 2 (base)
+    paddingHorizontal: 16, // 8 × 2 (base)
+    paddingTop: 16, // 8 × 2 (base)
   },
   notifMasterCard: {
     flexDirection: 'row',
@@ -1598,8 +1686,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: Colors.white,
     borderRadius: 16,
-    padding: 16,                       // 8 × 2 (base)
-    marginBottom: 24,                  // 8 × 3 (comfortable)
+    padding: 16, // 8 × 2 (base)
+    marginBottom: 24, // 8 × 3 (comfortable)
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -1610,31 +1698,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    gap: 12,                           // 8 × 1.5
-    marginRight: 16,                   // 8 × 2 (base)
+    gap: 12, // 8 × 1.5
+    marginRight: 16, // 8 × 2 (base)
   },
   notifMasterLabel: {
-    fontSize: 16,                      // body
-    fontWeight: '600',                 // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
   },
   notifMasterDesc: {
-    fontSize: 14,                      // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
     marginTop: 2,
   },
   notifSectionLabel: {
-    fontSize: 12,                      // small
-    fontWeight: '600',                 // semibold
+    fontSize: 12, // small
+    fontWeight: '600', // semibold
     color: Colors.secondaryText,
     letterSpacing: 0.5,
-    marginBottom: 8,                   // 8 × 1 (tight)
+    marginBottom: 8, // 8 × 1 (tight)
     marginLeft: 4,
   },
   notifSection: {
     backgroundColor: Colors.white,
     borderRadius: 16,
-    marginBottom: 24,                  // 8 × 3 (comfortable)
+    marginBottom: 24, // 8 × 3 (comfortable)
     overflow: 'hidden',
   },
   notifSectionDisabled: {
@@ -1643,127 +1731,127 @@ const styles = StyleSheet.create({
   notifRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 14,               // comfortable vertical
-    paddingHorizontal: 16,             // 8 × 2 (base)
-    minHeight: 56,                     // 8 × 7 (touch target)
+    paddingVertical: 14, // comfortable vertical
+    paddingHorizontal: 16, // 8 × 2 (base)
+    minHeight: 56, // 8 × 7 (touch target)
   },
   notifRowContent: {
     flex: 1,
-    marginRight: 8,                    // 8 × 1 (tight)
+    marginRight: 8, // 8 × 1 (tight)
   },
   notifRowLabel: {
-    fontSize: 16,                      // body
+    fontSize: 16, // body
     color: Colors.primaryText,
   },
   notifRowDesc: {
-    fontSize: 14,                      // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
     marginTop: 2,
     lineHeight: 18,
   },
   notifIconCircle: {
-    width: 36,                         // 8 × 4.5
-    height: 36,                        // 8 × 4.5
+    width: 36, // 8 × 4.5
+    height: 36, // 8 × 4.5
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,                   // 8 × 1.5
+    marginRight: 12, // 8 × 1.5
   },
   notifDivider: {
     height: 1,
     backgroundColor: Colors.gray.light,
-    marginLeft: 64,                    // icon width + margins
+    marginLeft: 64, // icon width + margins
   },
   footer: {
     alignItems: 'center',
-    paddingVertical: 32,                // 8 * 4 (loose)
-    paddingHorizontal: 24,              // 8 * 3 (comfortable)
+    paddingVertical: 32, // 8 * 4 (loose)
+    paddingHorizontal: 24, // 8 * 3 (comfortable)
   },
   footerLinks: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     flexWrap: 'wrap',
-    marginBottom: 12,                   // 8 * 1.5
+    marginBottom: 12, // 8 * 1.5
   },
   footerLink: {
-    paddingVertical: 8,                 // 8 * 1 (tight)
-    paddingHorizontal: 4,               // 8 * 0.5
+    paddingVertical: 8, // 8 * 1 (tight)
+    paddingHorizontal: 4, // 8 * 0.5
   },
   footerLinkText: {
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
     textDecorationLine: 'underline',
   },
   footerDivider: {
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
-    marginHorizontal: 8,                // 8 * 1 (tight)
+    marginHorizontal: 8, // 8 * 1 (tight)
   },
   footerCopyright: {
-    fontSize: 12,                       // caption
+    fontSize: 12, // caption
     fontFamily: Typography.fontFamily.regular,
     color: Colors.gray.medium,
     textAlign: 'center',
     marginTop: 4,
-    marginBottom: 24,                   // 8 × 3 (breathing room at the bottom)
+    marginBottom: 24, // 8 × 3 (breathing room at the bottom)
   },
   // ── Delete Account Modal Styles ──
   menuItemLast: {
     borderBottomWidth: 0,
   },
   deleteWarningCard: {
-    backgroundColor: Colors.error + '10',  // 10% opacity tint
-    borderRadius: 16,                       // 8 * 2
-    padding: 24,                            // 8 * 3 (comfortable)
-    marginTop: 16,                          // 8 * 2 (base)
-    marginBottom: 24,                       // 8 * 3 (comfortable)
+    backgroundColor: Colors.error + '10', // 10% opacity tint
+    borderRadius: 16, // 8 * 2
+    padding: 24, // 8 * 3 (comfortable)
+    marginTop: 16, // 8 * 2 (base)
+    marginBottom: 24, // 8 * 3 (comfortable)
     alignItems: 'center',
   },
   deleteWarningTitle: {
-    fontSize: 20,                           // subheading
-    fontWeight: '700',                      // bold
+    fontSize: 20, // subheading
+    fontWeight: '700', // bold
     color: Colors.error,
-    marginTop: 8,                           // 8 * 1 (tight)
-    marginBottom: 16,                       // 8 * 2 (base)
+    marginTop: 8, // 8 * 1 (tight)
+    marginBottom: 16, // 8 * 2 (base)
     textAlign: 'center',
   },
   deleteWarningBody: {
-    fontSize: 16,                           // body
+    fontSize: 16, // body
     color: Colors.primaryText,
     textAlign: 'center',
-    marginBottom: 16,                       // 8 * 2 (base)
-    lineHeight: 24,                         // 16 * 1.5
+    marginBottom: 16, // 8 * 2 (base)
+    lineHeight: 24, // 16 * 1.5
   },
   deleteWarningList: {
     alignSelf: 'stretch',
-    marginBottom: 8,                        // 8 * 1 (tight)
+    marginBottom: 8, // 8 * 1 (tight)
   },
   deleteWarningListItem: {
-    fontSize: 14,                           // caption
+    fontSize: 14, // caption
     color: Colors.primaryText,
-    marginBottom: 8,                        // 8 * 1 (tight)
-    lineHeight: 20,                         // 14 * 1.43
+    marginBottom: 8, // 8 * 1 (tight)
+    lineHeight: 20, // 14 * 1.43
   },
   deleteConfirmButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: Colors.error,
-    borderRadius: 12,                       // 8 * 1.5
-    paddingVertical: 16,                    // 8 * 2 (base)
-    paddingHorizontal: 24,                  // 8 * 3 (comfortable)
-    minHeight: 56,                          // 8 * 7 (touch target)
-    gap: 8,                                 // 8 * 1 (tight)
-    marginTop: 8,                           // 8 * 1 (tight)
-    marginBottom: 32,                       // 8 * 4 (loose)
+    borderRadius: 12, // 8 * 1.5
+    paddingVertical: 16, // 8 * 2 (base)
+    paddingHorizontal: 24, // 8 * 3 (comfortable)
+    minHeight: 56, // 8 * 7 (touch target)
+    gap: 8, // 8 * 1 (tight)
+    marginTop: 8, // 8 * 1 (tight)
+    marginBottom: 32, // 8 * 4 (loose)
   },
   deleteConfirmButtonDisabled: {
     opacity: 0.6,
   },
   deleteConfirmButtonText: {
-    fontSize: 16,                           // body
-    fontWeight: '600',                      // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     color: Colors.white,
   },
 });

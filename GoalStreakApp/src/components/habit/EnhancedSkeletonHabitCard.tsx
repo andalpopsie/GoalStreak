@@ -1,47 +1,35 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withRepeat, 
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
   withTiming,
   interpolate,
 } from 'react-native-reanimated';
 import { Colors, Spacing, Shadows } from '../../constants/theme';
 
 const { width: screenWidth } = Dimensions.get('window');
-const cardSize = (screenWidth - (Spacing.md * 3)) / 2; // 2 columns with spacing
+const cardSize = (screenWidth - Spacing.md * 3) / 2; // 2 columns with spacing
 
 export default function EnhancedSkeletonHabitCard() {
   const shimmerAnimation = useSharedValue(0);
 
   useEffect(() => {
-    shimmerAnimation.value = withRepeat(
-      withTiming(1, { duration: 1500 }),
-      -1,
-      false
-    );
+    shimmerAnimation.value = withRepeat(withTiming(1, { duration: 1500 }), -1, false);
   }, []);
 
   const animatedShimmerStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      shimmerAnimation.value,
-      [0, 0.5, 1],
-      [0.3, 0.7, 0.3]
-    );
-    
+    const opacity = interpolate(shimmerAnimation.value, [0, 0.5, 1], [0.3, 0.7, 0.3]);
+
     return {
       opacity,
     };
   });
 
   const animatedProgressStyle = useAnimatedStyle(() => {
-    const rotation = interpolate(
-      shimmerAnimation.value,
-      [0, 1],
-      [0, 360]
-    );
-    
+    const rotation = interpolate(shimmerAnimation.value, [0, 1], [0, 360]);
+
     return {
       transform: [{ rotate: `${rotation}deg` }],
     };
@@ -53,32 +41,26 @@ export default function EnhancedSkeletonHabitCard() {
         {/* Progress Ring Skeleton */}
         <View style={styles.progressContainer}>
           <View style={styles.progressRing}>
-            <Animated.View 
-              style={[styles.progressFill, animatedProgressStyle]} 
-            />
+            <Animated.View style={[styles.progressFill, animatedProgressStyle]} />
             <View style={styles.innerCircle}>
-              <Animated.View 
-                style={[styles.iconSkeleton, animatedShimmerStyle]} 
-              />
+              <Animated.View style={[styles.iconSkeleton, animatedShimmerStyle]} />
             </View>
           </View>
         </View>
 
         {/* Text Skeleton */}
         <View style={styles.textContainer}>
-          <Animated.View 
-            style={[styles.textSkeleton, styles.titleSkeleton, animatedShimmerStyle]} 
+          <Animated.View
+            style={[styles.textSkeleton, styles.titleSkeleton, animatedShimmerStyle]}
           />
-          <Animated.View 
-            style={[styles.textSkeleton, styles.subtitleSkeleton, animatedShimmerStyle]} 
+          <Animated.View
+            style={[styles.textSkeleton, styles.subtitleSkeleton, animatedShimmerStyle]}
           />
         </View>
 
         {/* Streak Skeleton */}
         <View style={styles.streakContainer}>
-          <Animated.View 
-            style={[styles.streakSkeleton, animatedShimmerStyle]} 
-          />
+          <Animated.View style={[styles.streakSkeleton, animatedShimmerStyle]} />
         </View>
       </View>
     </View>

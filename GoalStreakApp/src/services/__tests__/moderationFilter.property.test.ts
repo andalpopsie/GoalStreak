@@ -206,15 +206,13 @@ describe('ModerationFilter — Property 1: filter-everywhere bidirectional exclu
           );
 
           // No blocked author ever survives on any surface.
-          expect(
-            filterActivities(state, acts).some((a) => blockedUserIds.has(a.userId))
-          ).toBe(false);
-          expect(
-            filterMessages(state, msgs).some((m) => blockedUserIds.has(m.userId))
-          ).toBe(false);
-          expect(
-            filterSearchResults(state, results).some((r) => blockedUserIds.has(r.id))
-          ).toBe(false);
+          expect(filterActivities(state, acts).some((a) => blockedUserIds.has(a.userId))).toBe(
+            false
+          );
+          expect(filterMessages(state, msgs).some((m) => blockedUserIds.has(m.userId))).toBe(false);
+          expect(filterSearchResults(state, results).some((r) => blockedUserIds.has(r.id))).toBe(
+            false
+          );
         }
       ),
       { numRuns: 100 }
@@ -231,37 +229,42 @@ describe('ModerationFilter — Property 1: filter-everywhere bidirectional exclu
 describe('ModerationFilter — Property 2: reactions exclude blocked authors', () => {
   it('drops blocked-user keys and preserves non-blocked reaction counts', () => {
     fc.assert(
-      fc.property(blockRelationshipsArb, userIdArb, reactionsArb, (rels, currentUser, reactions) => {
-        const blockedUserIds = buildBidirectionalBlockSet(rels, currentUser);
-        const state: ModerationState = {
-          blockedUserIds,
-          reportedContentIds: new Set<string>(),
-        };
+      fc.property(
+        blockRelationshipsArb,
+        userIdArb,
+        reactionsArb,
+        (rels, currentUser, reactions) => {
+          const blockedUserIds = buildBidirectionalBlockSet(rels, currentUser);
+          const state: ModerationState = {
+            blockedUserIds,
+            reportedContentIds: new Set<string>(),
+          };
 
-        const filtered = filterReactions(state, reactions);
+          const filtered = filterReactions(state, reactions);
 
-        // No blocked user appears as a key.
-        Object.keys(filtered).forEach((uid) => {
-          expect(blockedUserIds.has(uid)).toBe(false);
-        });
+          // No blocked user appears as a key.
+          Object.keys(filtered).forEach((uid) => {
+            expect(blockedUserIds.has(uid)).toBe(false);
+          });
 
-        // Result equals the reactions of only the non-blocked users.
-        const expected: Reactions = {};
-        Object.keys(reactions).forEach((uid) => {
-          if (!blockedUserIds.has(uid)) {
-            expected[uid] = reactions[uid];
-          }
-        });
-        expect(filtered).toEqual(expected);
+          // Result equals the reactions of only the non-blocked users.
+          const expected: Reactions = {};
+          Object.keys(reactions).forEach((uid) => {
+            if (!blockedUserIds.has(uid)) {
+              expected[uid] = reactions[uid];
+            }
+          });
+          expect(filtered).toEqual(expected);
 
-        // Counts over the filtered map equal counts over non-blocked reactions only.
-        expect(countReactions(filtered)).toEqual(countReactions(expected));
+          // Counts over the filtered map equal counts over non-blocked reactions only.
+          expect(countReactions(filtered)).toEqual(countReactions(expected));
 
-        // Input is never mutated.
-        expect(Object.keys(reactions).length).toBeGreaterThanOrEqual(
-          Object.keys(filtered).length
-        );
-      }),
+          // Input is never mutated.
+          expect(Object.keys(reactions).length).toBeGreaterThanOrEqual(
+            Object.keys(filtered).length
+          );
+        }
+      ),
       { numRuns: 100 }
     );
   });
@@ -372,8 +375,7 @@ describe('ModerationFilter — Property 5: no false exclusions', () => {
           const survivors = new Set(result);
 
           items.forEach((it) => {
-            const shouldSurvive =
-              !blockedUserIds.has(it.userId) && !reportedContentIds.has(it.id);
+            const shouldSurvive = !blockedUserIds.has(it.userId) && !reportedContentIds.has(it.id);
             if (shouldSurvive) {
               expect(survivors.has(it)).toBe(true);
             }

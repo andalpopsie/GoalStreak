@@ -19,7 +19,11 @@ import { useNetworkStatus } from '../hooks/useNetworkStatus';
 import { useSubscription } from '../hooks/useSubscription';
 import { OfflineBanner } from '../components/common';
 import ProPaywallModal from '../components/common/ProPaywallModal';
-import { SkeletonHabitCard, AnimatedCircularHabitCard, EmptyHabitsState } from '../components/habit';
+import {
+  SkeletonHabitCard,
+  AnimatedCircularHabitCard,
+  EmptyHabitsState,
+} from '../components/habit';
 import CompletionShareModal from '../components/habit/CompletionShareModal';
 import friendService from '../services/friendService';
 import { photoService } from '../services/photoService';
@@ -31,7 +35,7 @@ function trackHabitToggle(
   habit: { name?: string; category?: string } | undefined,
   wasCompleted: boolean,
   streakCount: number,
-  userId?: string,
+  userId?: string
 ) {
   if (wasCompleted) {
     trackEvent('habit_uncompleted', {
@@ -107,19 +111,19 @@ export default function CleanHomeScreen({ navigation }: any) {
     if (habits.length > 0) {
       trackEvent('home_screen_viewed', {
         total_habits: habits.length,
-        daily_habits: habits.filter(h => h.frequency === 'daily').length,
+        daily_habits: habits.filter((h) => h.frequency === 'daily').length,
         user_id: user?.id,
       });
     }
   }, [habits.length, user?.id]);
 
-  const completedToday = uniqueDailyHabits.filter(habit => isHabitCompletedToday(habit.id));
+  const completedToday = uniqueDailyHabits.filter((habit) => isHabitCompletedToday(habit.id));
 
   const handleToggleHabit = async (habitId: string) => {
     try {
-      const habit = habits.find(h => h.id === habitId);
+      const habit = habits.find((h) => h.id === habitId);
       const wasCompleted = isHabitCompletedToday(habitId);
-      
+
       if (wasCompleted) {
         await uncompleteHabit(habitId);
       } else {
@@ -138,7 +142,9 @@ export default function CleanHomeScreen({ navigation }: any) {
       // Track after state change
       const currentStreak = getHabitStreak(habitId);
       const streakCount = currentStreak
-        ? (typeof currentStreak === 'object' ? currentStreak.currentStreak : currentStreak)
+        ? typeof currentStreak === 'object'
+          ? currentStreak.currentStreak
+          : currentStreak
         : 0;
       trackHabitToggle(habitId, habit, wasCompleted, streakCount, user?.id);
     } catch (error: any) {
@@ -146,7 +152,7 @@ export default function CleanHomeScreen({ navigation }: any) {
       trackEvent('habit_toggle_error', {
         habit_id: habitId,
         error_message: error.message,
-        user_id: user?.id
+        user_id: user?.id,
       });
     }
   };
@@ -165,7 +171,7 @@ export default function CleanHomeScreen({ navigation }: any) {
     // Track navigation attempt
     trackEvent('create_habit_button_clicked', {
       current_habit_count: uniqueDailyHabits.length,
-      user_id: user?.id
+      user_id: user?.id,
     });
 
     // The legacy pre-navigation alert was removed. Free users always reach
@@ -178,7 +184,7 @@ export default function CleanHomeScreen({ navigation }: any) {
       // Track successful navigation
       trackEvent('navigate_to_create_habit', {
         current_habit_count: uniqueDailyHabits.length,
-        user_id: user?.id
+        user_id: user?.id,
       });
       navigation.navigate('CreateHabit');
     } catch (error) {
@@ -186,51 +192,52 @@ export default function CleanHomeScreen({ navigation }: any) {
       trackEvent('navigation_error', {
         target_screen: 'CreateHabit',
         error_message: error instanceof Error ? error.message : 'Unknown error',
-        user_id: user?.id
+        user_id: user?.id,
       });
     }
   };
 
-  const handleShareCompletion = useCallback(async (photoUri?: string, caption?: string) => {
-    if (!user?.id) return;
-    try {
-      let savedPhotoUri: string | undefined;
-      if (photoUri) {
-        savedPhotoUri = await photoService.saveProfilePhoto(
-          `${user.id}_post_${Date.now()}`,
-          photoUri
-        );
-      }
-
-      await friendService.createActivity(
-        user.id,
-        'habit_completed',
-        completedHabitId,
-        completedHabitName,
-        completedHabitCategory,
-        completedHabitIsPublic ? 'friends' : 'private',
-        {
-          photoUrl: savedPhotoUri,
-          caption,
+  const handleShareCompletion = useCallback(
+    async (photoUri?: string, caption?: string) => {
+      if (!user?.id) return;
+      try {
+        let savedPhotoUri: string | undefined;
+        if (photoUri) {
+          savedPhotoUri = await photoService.saveProfilePhoto(
+            `${user.id}_post_${Date.now()}`,
+            photoUri
+          );
         }
-      );
-    } catch (error) {
-      console.error('Error sharing completion:', error);
-    }
-    setShowShareModal(false);
-  }, [user?.id, completedHabitId, completedHabitName, completedHabitCategory, completedHabitIsPublic]);
+
+        await friendService.createActivity(
+          user.id,
+          'habit_completed',
+          completedHabitId,
+          completedHabitName,
+          completedHabitCategory,
+          completedHabitIsPublic ? 'friends' : 'private',
+          {
+            photoUrl: savedPhotoUri,
+            caption,
+          }
+        );
+      } catch (error) {
+        console.error('Error sharing completion:', error);
+      }
+      setShowShareModal(false);
+    },
+    [user?.id, completedHabitId, completedHabitName, completedHabitCategory, completedHabitIsPublic]
+  );
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       {/* Offline Banner - integrated into layout */}
       {!networkStatus.isConnected && <OfflineBanner isVisible={true} />}
-      
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.content}
-        refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={refreshHabits} />
-        }
+        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refreshHabits} />}
         showsVerticalScrollIndicator={false}
         testID="scroll-view"
       >
@@ -260,7 +267,7 @@ export default function CleanHomeScreen({ navigation }: any) {
           <Animated.View style={styles.habitsGrid} entering={FadeIn.duration(600)}>
             {/* Show all habits once, regardless of completion status */}
             {uniqueDailyHabits.map((habit, index) => (
-              <Animated.View 
+              <Animated.View
                 key={habit.id}
                 entering={FadeInUp.delay(index * 100).duration(500)}
                 style={styles.habitCardContainer}
@@ -275,10 +282,10 @@ export default function CleanHomeScreen({ navigation }: any) {
                 />
               </Animated.View>
             ))}
-            
+
             {/* Add Habit Button — only show if under the user's tier limit */}
             {uniqueDailyHabits.length < limit && (
-              <Animated.View 
+              <Animated.View
                 entering={FadeInUp.delay(uniqueDailyHabits.length * 100).duration(500)}
                 style={styles.habitCardContainer}
               >
@@ -290,7 +297,7 @@ export default function CleanHomeScreen({ navigation }: any) {
                 </TouchableOpacity>
               </Animated.View>
             )}
-            
+
             {/* Habit Limit Reached — copy + affordance reflect the user's tier.
                 Free users see an upgrade card that opens the Pro paywall.
                 Pro users see the original "All Set!" card (they're already
@@ -435,11 +442,11 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.sm,
   },
   addHabitCircle: {
-    width: 140,                      // Match progressRing size
-    height: 140,                     // Match progressRing size
+    width: 140, // Match progressRing size
+    height: 140, // Match progressRing size
     borderRadius: 70,
     backgroundColor: Colors.white,
-    borderWidth: 12,                 // Match progressRing borderWidth
+    borderWidth: 12, // Match progressRing borderWidth
     borderColor: Colors.accent1,
     alignItems: 'center',
     justifyContent: 'center',
@@ -456,7 +463,7 @@ const styles = StyleSheet.create({
     fontFamily: Typography.fontFamily.semibold,
     color: Colors.primaryText,
     textAlign: 'center',
-    lineHeight: Typography.fontSize.sm * 1.2,  // Match habitText lineHeight
+    lineHeight: Typography.fontSize.sm * 1.2, // Match habitText lineHeight
   },
   limitReachedCard: {
     aspectRatio: 1,
@@ -505,12 +512,12 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.sm,
   },
   upgradeCircle: {
-    width: 140,                          // matches limitReachedCircle
+    width: 140, // matches limitReachedCircle
     height: 140,
     borderRadius: 70,
     backgroundColor: Colors.white,
     borderWidth: 12,
-    borderColor: Colors.accent1,         // #B771E5 — Pro accent
+    borderColor: Colors.accent1, // #B771E5 — Pro accent
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.md,
@@ -529,7 +536,7 @@ const styles = StyleSheet.create({
   },
   upgradeSubtext: {
     fontSize: Typography.fontSize.xs,
-    color: Colors.accent1,               // purple to reinforce the Pro framing
+    color: Colors.accent1, // purple to reinforce the Pro framing
     fontWeight: Typography.fontWeight.semibold,
     fontFamily: Typography.fontFamily.semibold,
     textAlign: 'center',

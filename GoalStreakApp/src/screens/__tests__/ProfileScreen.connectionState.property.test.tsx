@@ -97,7 +97,11 @@ jest.mock('../../components/social/ReportReasonSheet', () => () => null);
 // SafeAreaView passthrough so no provider context is required.
 jest.mock('react-native-safe-area-context', () => {
   const { View } = require('react-native');
-  return { SafeAreaView: View, SafeAreaProvider: View, useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }) };
+  return {
+    SafeAreaView: View,
+    SafeAreaProvider: View,
+    useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
+  };
 });
 
 // expo-notifications needs getPermissionsAsync if the guarded effect ever runs.
@@ -131,9 +135,7 @@ describe('ProfileScreen Connected Accounts — Property 9: connection state refl
         // too (it must never make an SSO row appear connected).
         fc.boolean(),
         (linkedSso, hasPassword) => {
-          mockConnectedProviders = hasPassword
-            ? [...linkedSso, 'password']
-            : [...linkedSso];
+          mockConnectedProviders = hasPassword ? [...linkedSso, 'password'] : [...linkedSso];
 
           const { getByTestId, unmount } = render(<ProfileScreen />);
 

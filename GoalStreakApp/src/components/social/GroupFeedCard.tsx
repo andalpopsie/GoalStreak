@@ -95,8 +95,7 @@ export default function GroupFeedCard({
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.activityText}>
-            <Text style={styles.userName}>{activity.userName}</Text>
-            {' '}{getActivityMessage()}
+            <Text style={styles.userName}>{activity.userName}</Text> {getActivityMessage()}
           </Text>
           <Text style={styles.timestamp}>{formatRelativeTime(activity.timestamp)}</Text>
         </View>
@@ -151,9 +150,9 @@ export default function GroupFeedCard({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: Colors.white,
-    borderRadius: 16,                   // Standard card recipe
-    padding: 16,                        // 8 × 2 (base)
-    marginBottom: 8,                    // 8 × 1 (tight)
+    borderRadius: 16, // Standard card recipe
+    padding: 16, // 8 × 2 (base)
+    marginBottom: 8, // 8 × 1 (tight)
     ...Shadows.sm,
   },
   systemEventContainer: {
@@ -166,65 +165,65 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   iconContainer: {
-    width: 36,                          // Compact icon
+    width: 36, // Compact icon
     height: 36,
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,                    // 8 × 2 (base)
+    marginRight: 16, // 8 × 2 (base)
   },
   textContainer: {
     flex: 1,
   },
   moreButton: {
-    width: 48,                          // 8 × 6 (touch target)
-    height: 48,                         // 8 × 6 (touch target)
+    width: 48, // 8 × 6 (touch target)
+    height: 48, // 8 × 6 (touch target)
     alignItems: 'center',
     justifyContent: 'center',
     // Pull up/right so the 48px target aligns with the row without inflating
     // the card's compact padding.
-    marginTop: -8,                      // 8 × 1 (tight)
-    marginRight: -8,                    // 8 × 1 (tight)
-    marginLeft: 8,                      // 8 × 1 (tight) — gap from text
+    marginTop: -8, // 8 × 1 (tight)
+    marginRight: -8, // 8 × 1 (tight)
+    marginLeft: 8, // 8 × 1 (tight) — gap from text
   },
   activityText: {
-    fontSize: 16,                       // body
+    fontSize: 16, // body
     color: Colors.primaryText,
-    lineHeight: 24,                     // 1.5 line height
+    lineHeight: 24, // 1.5 line height
     fontFamily: Typography.fontFamily.regular,
   },
   userName: {
-    fontWeight: '600',                  // semibold
+    fontWeight: '600', // semibold
     fontFamily: Typography.fontFamily.semibold,
   },
   timestamp: {
-    fontSize: 12,                       // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
     marginTop: 4,
     fontFamily: Typography.fontFamily.regular,
   },
   reactionsRow: {
     flexDirection: 'row',
-    marginTop: 16,                      // 8 × 2 (base)
-    gap: 8,                             // 8 × 1 (tight)
+    marginTop: 16, // 8 × 2 (base)
+    gap: 8, // 8 × 1 (tight)
   },
   reactionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
     paddingHorizontal: 12,
-    paddingVertical: 8,                // 8 × 1 (tight)
+    paddingVertical: 8, // 8 × 1 (tight)
     borderRadius: 16,
     backgroundColor: Colors.background,
     minHeight: 36,
-    minWidth: 48,                       // 8 × 6 (touch target)
+    minWidth: 48, // 8 × 6 (touch target)
   },
   reactionButtonActive: {
-    backgroundColor: '#F5F0FD',        // Light purple background
+    backgroundColor: '#F5F0FD', // Light purple background
   },
   reactionCount: {
-    fontSize: 12,                       // small
-    fontWeight: '600',                  // semibold
+    fontSize: 12, // small
+    fontWeight: '600', // semibold
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.semibold,
   },

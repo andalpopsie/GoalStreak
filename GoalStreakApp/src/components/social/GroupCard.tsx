@@ -59,26 +59,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.white,
-    borderRadius: 16,                   // Standard card recipe
-    padding: 16,                        // 8 × 2 (base)
-    marginBottom: 8,                    // 8 × 1 (tight)
+    borderRadius: 16, // Standard card recipe
+    padding: 16, // 8 × 2 (base)
+    marginBottom: 8, // 8 × 1 (tight)
     ...Shadows.sm,
   },
   iconContainer: {
-    width: 48,                          // 8 × 6
-    height: 48,                         // 8 × 6
+    width: 48, // 8 × 6
+    height: 48, // 8 × 6
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 16,                    // 8 × 2 (base)
+    marginRight: 16, // 8 × 2 (base)
   },
   infoContainer: {
     flex: 1,
-    marginRight: 16,                    // 8 × 2 (base)
+    marginRight: 16, // 8 × 2 (base)
   },
   groupName: {
-    fontSize: 16,                       // body
-    fontWeight: '600',                  // semibold
+    fontSize: 16, // body
+    fontWeight: '600', // semibold
     color: Colors.primaryText,
     marginBottom: 4,
     fontFamily: Typography.fontFamily.semibold,
@@ -89,22 +89,22 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   memberCount: {
-    fontSize: 14,                       // caption
+    fontSize: 14, // caption
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.regular,
   },
   completionContainer: {
     alignItems: 'center',
-    marginRight: 8,                     // 8 × 1 (tight)
+    marginRight: 8, // 8 × 1 (tight)
   },
   completionText: {
-    fontSize: 20,                       // subheading
-    fontWeight: '700',                  // bold
-    color: Colors.accent3,             // teal (#4A90A4)
+    fontSize: 20, // subheading
+    fontWeight: '700', // bold
+    color: Colors.accent3, // teal (#4A90A4)
     fontFamily: Typography.fontFamily.bold,
   },
   completionLabel: {
-    fontSize: 12,                       // small
+    fontSize: 12, // small
     color: Colors.secondaryText,
     fontFamily: Typography.fontFamily.regular,
   },

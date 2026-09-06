@@ -57,7 +57,9 @@ jest.mock('../friendService', () => ({
 const mockedGetDoc = getDoc as jest.MockedFunction<typeof getDoc>;
 const mockedSetDoc = setDoc as jest.MockedFunction<typeof setDoc>;
 const mockedGenerateUsername = generateUsername as jest.MockedFunction<typeof generateUsername>;
-const mockedIsUsernameAvailable = isUsernameAvailable as jest.MockedFunction<typeof isUsernameAvailable>;
+const mockedIsUsernameAvailable = isUsernameAvailable as jest.MockedFunction<
+  typeof isUsernameAvailable
+>;
 const mockedReserveUsername = reserveUsername as jest.MockedFunction<typeof reserveUsername>;
 const mockedCreateUserProfile = friendService.createUserProfile as jest.MockedFunction<
   typeof friendService.createUserProfile
@@ -136,7 +138,7 @@ describe('userProvisioningService.provisionNewUser — Property 4: bounded, corr
           expect(mockedReserveUsername).toHaveBeenCalledTimes(1);
           expect(mockedReserveUsername).toHaveBeenCalledWith(
             `cand${firstAvailable}`,
-            fakeFirebaseUser.uid,
+            fakeFirebaseUser.uid
           );
 
           // Availability checked no more than 5 times, stopping at first hit.
@@ -149,7 +151,7 @@ describe('userProvisioningService.provisionNewUser — Property 4: bounded, corr
           expect(mockedIsUsernameAvailable).toHaveBeenCalledTimes(MAX_ATTEMPTS);
         }
       }),
-      { numRuns: 100 },
+      { numRuns: 100 }
     );
   });
 });

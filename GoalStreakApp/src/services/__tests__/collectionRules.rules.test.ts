@@ -105,7 +105,9 @@ describe('userProfiles rules', () => {
 
   it('allows the owner to write their own profile', async () => {
     const db = testEnv.authenticatedContext(ALICE).firestore();
-    await assertSucceeds(setDoc(doc(db, `userProfiles/${ALICE}`), { userId: ALICE, name: 'Alice' }));
+    await assertSucceeds(
+      setDoc(doc(db, `userProfiles/${ALICE}`), { userId: ALICE, name: 'Alice' })
+    );
   });
 
   it('denies writing another user profile', async () => {
@@ -141,7 +143,9 @@ describe('usernames rules', () => {
 
   it('allows reserving a username tied to your own uid', async () => {
     const db = testEnv.authenticatedContext(ALICE).firestore();
-    await assertSucceeds(setDoc(doc(db, 'usernames/alice'), { userId: ALICE, createdAt: new Date() }));
+    await assertSucceeds(
+      setDoc(doc(db, 'usernames/alice'), { userId: ALICE, createdAt: new Date() })
+    );
   });
 
   it('denies reserving a username under someone else uid', async () => {
@@ -221,9 +225,7 @@ describe('feedback rules', () => {
 
   it('denies feedback submission when unauthenticated', async () => {
     const db = testEnv.unauthenticatedContext().firestore();
-    await assertFails(
-      addDoc(collection(db, 'feedback'), { userId: 'anonymous', rating: 5 })
-    );
+    await assertFails(addDoc(collection(db, 'feedback'), { userId: 'anonymous', rating: 5 }));
   });
 
   it('denies clients from reading feedback back', async () => {
@@ -267,9 +269,7 @@ describe('activities rules (feed reactions)', () => {
   it('lets the author fully update their own activity', async () => {
     await seed('activities/act1', activity);
     const db = testEnv.authenticatedContext(BOB).firestore();
-    await assertSucceeds(
-      updateDoc(doc(db, 'activities/act1'), { userName: 'Bob edited' })
-    );
+    await assertSucceeds(updateDoc(doc(db, 'activities/act1'), { userName: 'Bob edited' }));
   });
 
   it('denies a non-author from tampering with non-reaction fields', async () => {
