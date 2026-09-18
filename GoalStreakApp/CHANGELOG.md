@@ -1,5 +1,198 @@
 # GoalStreak Changelog
 
+## [Founding Members — Foundation Layer] - September 2026
+
+### New files
+- `GoalStreakApp/functions/` — Cloud Functions project bootstrapped (Node 20, TypeScript, `firebase-functions ^4.9.0`, `firebase-admin ^12.0.0`)
+  - `src/index.ts` — barrel exporting `onUserCreated` and `reconcilePendingGrants` (stubs pending full implementation)
+  - `src/founding/types.ts` — server-side founding types using Firestore `Timestamp` variants
+  - `src/config.ts` — constants: `FOUNDING_CAP=100`, collection paths, `PRO_ENTITLEMENT_ID`
+  - `src/founding/onCreate.ts` — stub Auth `onCreate` trigger (implementation: Task 12)
+  - `src/founding/reconcile.ts` — stub scheduled reconciler every 6 h (implementation: Task 13)
+- `GoalStreakApp/src/hooks/useFoundingMember.ts` — Firestore `onSnapshot` hook exposing `{ isFoundingMember, foundingNumber, loading }`. Independent of `isPro`/RevenueCat.
+- `goalfer-landing/lib/firebase.ts` — read-only Firebase Web SDK client for the landing page (Firestore only, no auth, no secrets)
+- `goalfer-landing/.env.local.example` — documents required `NEXT_PUBLIC_FIREBASE_*` env vars
+
+### Modified files
+- `GoalStreakApp/src/types/index.ts` — added `ProGrantStatus`, `FoundingRecord`, `FoundingProfileFields`; extended `User` with optional `foundingMember?`, `foundingNumber?`, `foundingRecord?`
+- `GoalStreakApp/firebase/firestore.rules` — (a) `userProfiles` write rule now rejects client changes to founding fields via `affectedKeys` guard; (b) new `counters/{docId}` rule (public read / Admin-SDK-only write); (c) new `config/{docId}` rule (authenticated read / Admin-SDK-only write)
+- `GoalStreakApp/firebase/firebase.json` — added top-level `"functions"` block (`source: ../functions`, `runtime: nodejs20`); `emulators.functions` port 5001 was already present
+
+
+### Task 9 complete
+- `GoalStreakApp/functions/src/founding/eligibility.ts` — pure, I/O-free eligibility helpers. Exports:
+  - `parseLaunchTimestamp(raw)` — validates ISO 8601 UTC strings, returns UTC ms or null
+  - `evaluateEligibility(input)` — pure decision function: config-invalid → sold-out → before-launch → eligible (T0 inclusive, R1.4, R2.5)
+  - `assignNumberFrom(claimed)` — returns `claimed + 1` for founding numbers 1..100 (R3.2)
+  - `tsc --noEmit` passes; no external imports
+
+### Task 9.1 complete — unit tests for `eligibility.ts`
+- **Jest configured** in `functions/` — `jest ^30.5`, `ts-jest ^29.4`, `@types/jest ^30` added to `devDependencies`; `"test": "jest"` script + `ts-jest` preset block added to `package.json`
+- **`GoalStreakApp/functions/src/founding/__tests__/eligibility.test.ts`** — 29 tests, all passing (`npm test` in ~0.9 s):
+  - `parseLaunchTimestamp`: 4 valid cases (Z suffix, +00:00, correct ms value, equivalence) + 9 invalid cases (null, undefined, empty, whitespace, garbage, bare date, no-UTC-indicator, number, object)
+  - `evaluateEligibility` standard: all 5 outcome kinds covered
+  - **T0 boundary property (R1.4, R2.5)**: exact-at-T0 = eligible, 1 ms before = before-launch, 1 ms after = eligible; parameterized sweep over `{-1000, -1, 0, 1, 1000}` ms offsets confirms inclusive lower bound
+  - Evaluation-order: config-invalid beats sold-out; sold-out beats before-launch
+  - `assignNumberFrom`: spot-checks + full 0..99 loop (R3.2)
+- Validates requirements: R1.3, R1.4, R2.2, R2.5, R3.2, R3.5
+
+### Task 10 complete — `revenuecat.ts` RevenueCat REST client
+- **`GoalStreakApp/functions/src/founding/revenuecat.ts`** — new file; zero npm dependencies (uses Node 20 built-in `fetch` + `AbortController`)
+- Exports `grantProEntitlement(uid, secretKey, entitlementId): Promise<ProGrantResult>` and types `GrantResult`, `PendingResult`, `ProGrantResult`
+- Calls `POST /v1/subscribers/{uid}/entitlements/{entitlementId}/promotional` with `duration: 'custom'` and `end_time_ms` (one year from call time, R4.3)
+- `proExpiresAt` computed once before the first attempt — stable across retries (R4.3)
+- 10 s per-attempt timeout via `AbortController` (R5.1)
+- 5 total attempts; backoff schedule 0 ms → 1 s → 2 s → 4 s → 8 s (capped at 30 s per R5.2)
+- Retries on HTTP 5xx and 429; immediate `{ status: 'pending' }` on other 4xx permanent errors
+- Returns `{ status: 'pending' }` after exhausted retries — never throws for grant failure (R5.3)
+- `secretKey` isolated to the `Authorization` header — absent from error messages and logs (R4.2)
+- `tsc --noEmit` passes; 29 existing eligibility tests unaffected
+
+### Tasks 11–14 complete — full server pipeline live
+
+#### Task 11 — `claim.ts` atomic Firestore transaction
+- **`GoalStreakApp/functions/src/founding/claim.ts`** — atomic transaction over `counters/foundingMembers` + `userProfiles/{uid}`
+- Idempotent: returns the existing `foundingNumber` if the uid already has a `foundingRecord` (R3.3)
+- Sold-out guard: returns `{ soldOut: true }` if `claimed >= cap` inside the transaction (R3.5)
+- Counter increments by exactly +1 per claim; never decremented (R3.6, R13.1)
+- Up to 5 retry attempts with 50ms/100ms/200ms/400ms backoff on contention (R3.7)
+- Returns typed union: `{ number }` | `{ soldOut: true }` | `{ failed: true }`
+
+#### Task 12 — `onUserCreated` full implementation
+- **`GoalStreakApp/functions/src/founding/onCreate.ts`** — Auth `onCreate` trigger, full production implementation
+- Flow: read T0 config → parse creation time → evaluate eligibility → claim slot → grant RevenueCat Pro
+- Never throws: entire body wrapped in try/catch; function always resolves (R1.1)
+- Idempotent: `claimFoundingSlot()` guards against double-claim on re-invocation (R3.3)
+- Missing `REVENUECAT_SECRET_KEY` at runtime: defers to reconciler, does not crash (R5.3)
+- `writeNonFoundingMarker` writes `{ foundingMember: false, foundingNumber: 0 }` on all ineligible paths (R1.5, R3.5)
+
+#### Task 13 — `reconcilePendingGrants` scheduled function
+- **`GoalStreakApp/functions/src/founding/reconcile.ts`** — `pubsub.schedule('every 6 hours')` (≤ 24h, R5.4)
+- Queries `userProfiles` where `foundingRecord.proGrantStatus == 'pending'`
+- Processes each doc with `Promise.allSettled` — one failure does not block others (R5.5)
+- On grant success: writes `proGrantStatus: 'granted'`, `proExpiresAt`, `lastAttemptAt` (R5.4)
+- On failure: writes `lastAttemptAt` only, leaves `pending` for next run (R5.5)
+- Never touches `foundingMember`, `foundingNumber`, or the counter (R5.6)
+- Logs summary: `granted=N, still-pending=N, errored=N`
+
+#### Task 14 — Deploy to development + smoke test ✅
+- **Build**: TypeScript compiled cleanly in `GoalStreakApp/functions/`
+- **Deploy structure fix**: Created `GoalStreakApp/firebase.json` (root-level) with corrected relative paths (`functions` source, `firebase/firestore.rules`, etc.); `GoalStreakApp/.firebaserc` pinning default alias to `goalstreak-app2`. Updated `firebase/firebase.json` to remove the functions block (rules-only deploys from `firebase/` still work).
+- **Secret provisioned**: `REVENUECAT_SECRET_KEY` set in Firebase Secret Manager; IAM access granted to the service account
+- **Deployed**: `onUserCreated` (Auth onCreate trigger) + `reconcilePendingGrants` (scheduled 6h) live on `goalstreak-app2 / us-central1`
+- **Firestore seeded**: `config/foundingMembers.launchTimestamp = "2025-01-01T00:00:00Z"` (past); `counters/foundingMembers.claimed = 0`
+- **Smoke test (R1.1)**: test account `founding-smoke-*@test.dev` created → `userProfiles` gained `foundingMember: true`, `foundingNumber: 1`, `foundingRecord.number: 1` within **5 seconds** (SLA: 60s). Counter incremented to `claimed: 1`. Test user deleted after verification.
+- **Pro grant status**: `proGrantStatus: 'pending'` — expected; provisioned key was an Apple shared secret, not the RevenueCat REST key (`sk_...`). Fix: `firebase functions:secrets:set REVENUECAT_SECRET_KEY` with the `sk_...` key from RevenueCat dashboard → Project Settings → API Keys → Secret keys, then `firebase deploy --only functions`.
+
+### Task 15 complete — `useFoundingMember` hook
+- **`GoalStreakApp/src/hooks/useFoundingMember.ts`** — Firestore `onSnapshot` hook; exposes `{ isFoundingMember, foundingNumber, loading }`
+- `isFoundingMember` derived purely from `foundingMember === true` flag — no `isPro` coupling (R7.4, R8.4, R14.1)
+- `foundingNumber` from `foundingRecord.number`; returns `null` when absent (badge-without-number case, R8.5)
+- Error path falls back to non-founding state; listener cleaned up on unmount
+
+### Task 16 complete — `FoundingBadge` component
+
+- **`GoalStreakApp/src/components/common/FoundingBadge.tsx`** — new reusable badge component
+- `variant='profile'`: full "★ Founding Member #42" label; `fontSize: 20` (subheading), `fontWeight: '700'`, purple accent `#B771E5`, `minHeight: 48` (touch target), 8pt-grid padding throughout (R7.1, R7.2, R8.1)
+- `variant='feed'`: compact `#42` pill; `fontSize: 14` (caption), pill `borderRadius: 9999`, same purple accent (R8.2, R8.3)
+- `foundingNumber = null`: badge renders in both variants without a number string (R7.6, R8.5, R14.3)
+- Badge visibility is caller-driven from `foundingMember` flag — no `isPro` coupling in the component (R7.4, R8.4)
+- All values imported from `theme.ts` — no hardcoded hex or spacing values
+- Exported from `src/components/common/index.ts`
+
+### Task 16.1 complete — unit tests for `FoundingBadge`
+
+- **`GoalStreakApp/src/components/common/__tests__/FoundingBadge.test.tsx`** — 16 tests, all passing
+- `foundingNumber` present: `#N` appears in both profile and feed variants; star + "Founding Member" label in profile; boundary values 1 and 100 covered
+- `foundingNumber = null` (R8.5): badge renders, no `#\d+` text; feed shows `★` fallback; profile star still visible
+- `variant='profile'`: defaults correctly when `variant` is omitted; accessibility labels correct with and without a number
+- `variant='feed'`: no "Founding Member" label rendered; accessibility labels correct
+- No `isPro` prop: `FoundingBadgeProps` type enforces independence at the type level — badge renders purely from `foundingNumber`/`variant`
+- **Property 6 (fast-check)**: asserts over `foundingNumber ∈ {1..100, null}` × `isPro ∈ {true, false}` (unused caller context) × `variant ∈ {'profile', 'feed'}` — badge always renders; number text present iff `foundingNumber != null`. Validates R7.3, R7.4, R8.4, R8.5, R12.5, R14.3
+
+### Task 17 complete — `FoundingCelebrationScreen`
+
+- **`GoalStreakApp/src/screens/FoundingCelebrationScreen.tsx`** — new screen; never pushed for non-founding accounts (R9.1, R9.3)
+- Accepts `foundingNumber: number` as a navigation param (R9.2)
+- Subscribes to `userProfiles/{uid}` via `useFoundingMember` with a 15 s bounded wait; shows once the `foundingMember` flag resolves (R9.4)
+- Auto-dismisses after 8 s or on user tap; both paths route to the normal post-signup screen (R9.5)
+- `didDismissRef` + `AsyncStorage` flag ensure the screen shows at most once per account
+- Styling: `Colors.accent1` hero, Montserrat font, 8pt-grid spacing throughout
+
+### Task 18 complete — `FoundingBadge` wired into `ProfileScreen`
+
+- **`GoalStreakApp/src/screens/ProfileScreen.tsx`** — modified
+- `useFoundingMember(foundingUid)` called near the top of the component; `foundingUid` resolves to the auth user's own id on the Profile tab and to `targetUserId` when viewing another user's profile (covers R7.2, R7.3 — badge shows on both own and other-user profiles)
+- `<FoundingBadge variant="profile" foundingNumber={foundingNumber} />` rendered immediately after the `profileCard` View closes (below avatar/name/username), before the `isOwnProfile` settings block
+- Visibility driven solely by `isFoundingMember` — no `isPro` check (R7.4 compliant)
+- `foundingBadgeRow` style: `marginHorizontal: 16` (aligns with `profileCard`), `marginBottom: 16` — all values on the 8pt grid
+- Imports for `FoundingBadge` and `useFoundingMember` already present from the `[~]` partial-done state; no duplicate imports introduced
+- `tsc --noEmit` reports zero new diagnostics
+
+### Tasks 19–20 complete — feed badge + celebration flow
+
+- **`ActivityCard.tsx`** and **`ActivityFeedTab.tsx`**: `foundingMember`/`foundingNumber` fields threaded from `SocialActivity` type; `<FoundingBadge variant="feed" />` renders alongside author name when flag is true (R8.1–R8.4)
+- **`AppNavigator.tsx`** + **`useOnboarding.tsx`**: `FoundingCelebrationScreen` added to nav stack; `useFoundingCelebrationGate` subscribes via `onSnapshot`, times out after 15 s; AsyncStorage flag ensures screen shows at most once (R9.1–R9.5)
+
+### Task 22 complete — `FoundingCounter` landing page component
+
+- **`goalfer-landing/components/founding-counter.tsx`** — new component; subscribes to `counters/foundingMembers` via `onSnapshot` (live, R10.3)
+- `computeCounterView(claimed, cap)` pure helper: `available` → `sold-out` (claimed ≥ cap or cap = 0) → `hidden` (read failure, R10.4) → `loading`
+- Urgency styling (pulsing orange dot) activates at ≤ 10 remaining spots
+- Sold-out state: "0 of 100 · Founding spots are gone" (R10.6, R11.1); download CTA + waitlist remain in all states (R11.3)
+- No RevenueCat references; reads only the public counter document (R10.5)
+
+### Task 22.1 complete — unit tests for `computeCounterView`
+
+- **`goalfer-landing/__tests__/foundingCounter.test.ts`** — 11 tests, all passing
+- **Vitest 2.1.9** added as devDependency; `"test": "vitest run"` script added to `goalfer-landing/package.json`
+- **`goalfer-landing/vitest.config.ts`** — node environment + `@/*` path alias (no DOM, pure function test)
+- Nominal cases: `claimed = 0/50/99` → `available` with correct remaining; `claimed = 100` → `sold-out` remaining 0 (R10.6, R11.1); `null` → `hidden` (R10.4); `cap = 0` → `sold-out` (R11.4)
+- **Property 8**: loop over all 100 in-range values asserts `remaining = cap − claimed`; sold-out exactly at cap; remaining clamped ≥ 0 when `claimed > cap`
+- Edge cases: `cap = 1` boundary
+- Validates: R10.2, R10.4, R10.6, R11.1, R11.4, R15.4
+
+### Task 26 complete — reconciler emulator test (R5.4, R5.5)
+
+- **Modified `GoalStreakApp/functions/src/founding/reconcile.ts`** — internal `reconcile()` renamed to `export async function reconcileHandler()` so the core logic is directly callable from tests without the scheduled function wrapper. `onRun` callback delegates to `reconcileHandler()`. No behaviour change.
+- **New `GoalStreakApp/functions/src/founding/__tests__/reconcile.emulator.test.ts`** — 5 integration tests against the Firestore emulator:
+  - **Test 1**: Pending doc → `proGrantStatus: 'granted'`, `proExpiresAt` set as Firestore Timestamp, `foundingMember`/`foundingNumber` untouched (R5.4, R5.6)
+  - **Test 2**: Grant keeps failing → status stays `'pending'`, `lastAttemptAt` updated, badge/number untouched (R5.5, R5.6)
+  - **Test 3**: No pending docs → resolves without error, `grantProEntitlement` never called (R5.4)
+  - **Test 4**: 3 docs, 2 succeed/1 fails → each processed independently via `Promise.allSettled` (R5.5)
+  - **Property 7**: After any reconciler run, every `foundingRecord.proGrantStatus` is strictly in `{'pending', 'granted'}` — never undefined or null (R5.3, R5.4, R5.5)
+- RevenueCat (`grantProEntitlement`) mocked via `jest.mock` — no real HTTP calls; emulator needs Firestore only.
+- `tsc --noEmit` passes with no new errors.
+
+### Tasks 23 + 28–29 complete — feature branch closed ✅
+
+#### Task 23 — `FoundingCounter` wired into landing page hero
+- **`goalfer-landing/app/page.tsx`** — `<FoundingCounter />` inserted in the hero section, below the App Store badge CTA and above the email waitlist form (R10.1–R10.6, R11.1–R11.4)
+- Zero new layout jank on desktop or mobile; component self-sizes and collapses on read failure (R10.4)
+
+#### Task 28 — Type-check, lint, format pass
+- `npx tsc --noEmit` — zero diagnostics across `GoalStreakApp/` and `GoalStreakApp/functions/`
+- `npm run lint` — zero ESLint errors/warnings
+- `npm run format:check` — Prettier: no files need formatting
+- All 29 functions unit tests (`eligibility.test.ts`) + 16 component tests (`FoundingBadge.test.tsx`) + 11 landing unit tests (`foundingCounter.test.ts`) still green
+
+#### Task 29 — PR opened ✅
+- **PR #68** opened against `main`: `feat(founding): founding member program — Cloud Function, app badge, landing counter`
+- PR body includes: summary of 3 deployable units, file-level changes list, verification (type-check ✅ lint ✅ unit tests ✅ emulator tests ✅), screenshot descriptions for CelebrationScreen / FoundingBadge (profile + feed) / FoundingCounter (remaining + sold-out), risk + rollback notes, follow-ups (RevenueCat secret re-provisioning, launchTimestamp write, ADR #0005)
+- Branch: `feature/founding-members` → `main`
+
+### CI fix — Firestore rules `userProfiles` create/update split (Sep 13, 2026)
+- **`GoalStreakApp/firebase/firestore.rules`** — split `allow write` on `userProfiles` into `allow create` (owner-only, no diff guard) and `allow update, delete` (owner-only + `affectedKeys` founding-fields guard). Root cause: `resource.data.diff()` throws `Null value error` when the document doesn't exist yet (create path), causing all profile creates to fail the CI rules test.
+- **`GoalStreakApp/src/services/__tests__/collectionRules.rules.test.ts`** — added 3 new test cases for the `userProfiles` update guard: owner can update non-founding fields ✅; owner cannot update `foundingMember` ✅; owner cannot update `foundingNumber` ✅.
+
+
+## [Groups — Hide Already-Invited Friends] - September 2026 (PR #40)
+
+### Modified files
+- **`GoalStreakApp/src/services/groupService.ts`** — `getGroupInvitableFriends` now queries `groupInvitations` for pending invites from the current user to this group and excludes those `toUserId`s from the invitable list. Previously, a friend you'd already invited kept appearing with an active Invite button.
+- **`GoalStreakApp/src/components/social/InviteMembersModal.tsx`** — passes the authenticated user id from `useAuth()` explicitly to `getGroupInvitableFriends`, replacing the previous `getAuth().currentUser` call in the service which could return null during auth rehydration. The `useEffect` now waits for `user?.id` before loading.
+
+
 ## [App Store Submission Prep — Permissions, Versions, Contacts, Jurisdiction] - July 2026
 
 ### iOS config (app code / build config)

@@ -1624,6 +1624,35 @@ listItem: {
 }
 ```
 
+### FoundingBadge
+
+A permanent badge for founding members. Visibility is always driven by the `foundingMember`
+flag on the user profile — **never** by `isPro`. Two variants: `'profile'` (full-size, shown
+on `ProfileScreen`) and `'feed'` (compact inline pill, shown in activity cards).
+
+```typescript
+// src/components/common/FoundingBadge.tsx
+import { FoundingBadge } from '../components/common';
+
+// Profile variant — full-size: "★ Founding Member #42"
+<FoundingBadge variant="profile" foundingNumber={42} />
+
+// Feed variant — compact pill: "#42"
+<FoundingBadge variant="feed" foundingNumber={42} />
+
+// Both variants gracefully handle a missing number (R8.5, R14.3)
+<FoundingBadge variant="profile" foundingNumber={null} /> // → "★ Founding Member"
+<FoundingBadge variant="feed"    foundingNumber={null} /> // → "★"
+```
+
+Style tokens used:
+- Background: `Colors.accent1` (`#B771E5`)
+- Profile font: `Typography.fontSize.subheading` (20), `fontWeight: '700'`
+- Feed font: `Typography.fontSize.caption` (14), `fontWeight: '600'`
+- Profile min-height: `Layout.minTouchTarget` (48px)
+- Radius: `BorderRadius.lg` (12) for profile; `BorderRadius.full` (9999) for feed pill
+
+
 ## 📐 Layout
 
 ### Screen Structure

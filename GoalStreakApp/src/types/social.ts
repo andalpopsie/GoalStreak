@@ -48,6 +48,9 @@ export interface SocialActivity {
   reactions?: Reactions;
   photoUrl?: string;
   caption?: string;
+  // Founding member fields — passed through from the author's profile data (R8.1–R8.4)
+  foundingMember?: boolean; // true if the activity author is a founding member
+  foundingNumber?: number | null; // the author's founding number (1–100), null if unavailable
 }
 
 export type ActivityType =

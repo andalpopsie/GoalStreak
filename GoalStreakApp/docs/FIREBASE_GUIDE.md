@@ -133,6 +133,50 @@ All required indexes have been deployed to production. The following composite i
 
 ## 🔧 Index Management
 
+### Project Structure & `.firebaserc`
+
+The repo has **two** Firebase config files with different responsibilities:
+
+| File | Purpose |
+|---|---|
+| `GoalStreakApp/firebase.json` | **Root-level** — used for `firebase deploy` (functions + rules + indexes + emulators). Source of truth for full deploys. |
+| `GoalStreakApp/firebase/firebase.json` | **Rules/indexes only** — used when deploying just Firestore rules or indexes from the `firebase/` subdirectory. Does NOT contain a functions block. |
+
+`GoalStreakApp/.firebaserc` pins the default alias:
+```json
+{
+  "projects": {
+    "default": "goalstreak-app2"
+  }
+}
+```
+
+Use `firebase use <alias>` before deploying if you need to switch projects.
+
+### Deploying Rules
+```bash
+# From GoalStreakApp/ (root) — deploys rules to the default project
+firebase deploy --only firestore:rules
+
+# Or explicitly target development
+firebase deploy --only firestore:rules --project goalstreak-app
+```
+
+### Deploying Functions
+```bash
+# From GoalStreakApp/ (root — must have firebase.json with functions source)
+cd GoalStreakApp
+npm run build --prefix functions   # compile TypeScript
+firebase deploy --only functions
+
+# Provision the RevenueCat secret before first deploy (one-time)
+firebase functions:secrets:set REVENUECAT_SECRET_KEY
+# Paste the sk_... key from RevenueCat → Project Settings → API Keys → Secret keys
+
+# After provisioning or rotating the secret, redeploy to pick up the new version
+firebase deploy --only functions
+```
+
 ### Deploying Indexes
 ```bash
 # Install Firebase CLI locally
@@ -217,6 +261,33 @@ service cloud.firestore {
 }
 ```
 
+> **Note**: The rules above are a simplified overview. The authoritative rules live in . Always read that file for the full picture — the doc snapshot can drift.
+
+### Founding Member Collections (added Jan 2025)
+Two server-authoritative collections were added as part of the Founding Member program. Clients cannot write to either; only the Admin SDK (Cloud Functions) can.
+
+| Collection | Read | Write | Purpose |
+|---|---|---|---|
+| `counters/foundingMembers` | Public (unauthenticated) | Admin SDK only | Scarcity counter for landing page |
+| `config/foundingMembers` | Authenticated users | Admin SDK only | Operator config (T0 launch timestamp, cap) |
+
+The `userProfiles/{uid}` write rule was also updated to block client writes to `foundingMember`, `foundingNumber`, and `foundingRecord` — these fields are set exclusively by the Cloud Function via the Admin SDK.
+
+### Cloud Functions (added Jan 2025)
+
+The Founding Member program introduced the repository's first Cloud Functions project at `GoalStreakApp/functions/`. Two functions are exported:
+
+| Function | Trigger | Purpose |
+|---|---|---|
+| `onUserCreated` | `auth.user().onCreate` | Evaluates eligibility, atomically claims a founding slot, grants RevenueCat Pro |
+| `reconcilePendingGrants` | `pubsub.schedule(every 6 hours)` | Retries any Pro grants that failed during `onUserCreated` |
+
+**Atomic claim logic** (`functions/src/founding/claim.ts`): A single Firestore transaction reads `counters/foundingMembers.claimed`, assigns `number = claimed + 1`, increments the counter, and writes the `foundingRecord` to `userProfiles/{uid}` — all in one transaction so concurrent last-slot races are handled by Firestore's optimistic locking. The counter is monotonically non-decreasing; it is never decremented (not on deletion, not on grant failure).
+
+**Secrets**: `REVENUECAT_SECRET_KEY` is stored in Firebase Secret Manager and bound only to the two functions above. It is never in the app bundle or landing page.
+
+**Required index** (Task 27): `userProfiles` collection, field `foundingRecord.proGrantStatus ASC` — needed by the reconciler query.
+
 ## 🚨 Common Issues & Solutions
 
 ### Issue 1: Environment Configuration Loading
@@ -276,5 +347,5 @@ service cloud.firestore {
 ---
 
 **Status**: ✅ All Firebase services optimized and production-ready
-**Last Updated**: January 2025
+**Last Updated**: January 2026 (Cloud Functions live — Tasks 11–14 complete; root-level firebase.json + .firebaserc added; deploy structure documented)
 **Next Review**: Monitor performance metrics post-launch

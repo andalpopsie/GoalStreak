@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { trackEvent } from '../services/enhancedAnalyticsService';
 import { useAuth } from './useAuth';
@@ -35,6 +35,13 @@ const defaultOnboardingState: OnboardingState = {
 const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
 
 const ONBOARDING_STORAGE_KEY = 'onboarding_state';
+
+/**
+ * AsyncStorage key that records whether the FoundingCelebrationScreen has
+ * been shown for a given account. Keyed per-uid so the flag resets correctly
+ * if the user signs out and a different account signs in on the same device.
+ */
+export const foundingCelebrationShownKey = (uid: string) => `founding_celebration_shown_${uid}`;
 /**
  * OnboardingProvider - Manages user onboarding state and flow
  *
@@ -330,4 +337,169 @@ export function useOnboarding() {
     throw new Error('useOnboarding must be used within an OnboardingProvider');
   }
   return context;
+}
+
+// ---------------------------------------------------------------------------
+// Founding Celebration Gate
+// ---------------------------------------------------------------------------
+
+/**
+ * Outcome returned once the gate resolves. The caller (AppNavigator) should
+ * navigate based on this value then never re-render this hook for the same
+ * session (the `done` flag prevents repeated checks).
+ */
+export type FoundingCelebrationOutcome = { show: true; foundingNumber: number } | { show: false };
+
+/**
+ * useFoundingCelebrationGate
+ *
+ * Determines whether the FoundingCelebrationScreen should be shown for the
+ * current authenticated user after onboarding completes. Encapsulates:
+ *
+ * - Per-account AsyncStorage flag so the screen shows at most once (R9.1).
+ * - A Firestore `onSnapshot` subscription to `userProfiles/{uid}` with a
+ *   bounded 15-second wait (R9.4). If `foundingMember === true` resolves
+ *   within that window the outcome is `{ show: true, foundingNumber }`.
+ * - If the record resolves `foundingMember === false` or the 15-second
+ *   window elapses with no founding record, the outcome is `{ show: false }`
+ *   and the normal post-signup flow proceeds (R9.3).
+ *
+ * The hook is a no-op until `enabled` is `true`; callers should pass
+ * `enabled={isAuthenticated && isOnboardingComplete}` so it only activates
+ * at the right moment.
+ *
+ * @param uid     Firebase Auth UID of the current user.
+ * @param enabled Start the check only when true.
+ */
+export function useFoundingCelebrationGate(
+  uid: string,
+  enabled: boolean
+): {
+  /** True while the gate is still evaluating (waiting for snapshot / storage). */
+  checking: boolean;
+  /**
+   * Set once the check completes. `null` while still `checking`.
+   * Once set it never changes for the lifetime of this hook instance.
+   */
+  outcome: FoundingCelebrationOutcome | null;
+} {
+  const [checking, setChecking] = useState(true);
+  const [outcome, setOutcome] = useState<FoundingCelebrationOutcome | null>(null);
+
+  // Guard against setState after unmount or after outcome is already resolved.
+  const isMountedRef = useRef(true);
+  const resolvedRef = useRef(false);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!enabled || !uid) return;
+
+    let unsubscribe: (() => void) | null = null;
+    let timeoutHandle: ReturnType<typeof setTimeout> | null = null;
+
+    const resolve = (result: FoundingCelebrationOutcome) => {
+      if (resolvedRef.current || !isMountedRef.current) return;
+      resolvedRef.current = true;
+
+      // Clean up listener and timer before updating state.
+      if (timeoutHandle !== null) {
+        clearTimeout(timeoutHandle);
+        timeoutHandle = null;
+      }
+      if (unsubscribe !== null) {
+        unsubscribe();
+        unsubscribe = null;
+      }
+
+      setOutcome(result);
+      setChecking(false);
+    };
+
+    const run = async () => {
+      // 1. Check the per-account AsyncStorage flag. If the celebration has
+      //    already been shown for this uid, skip to Main immediately.
+      try {
+        const storageKey = foundingCelebrationShownKey(uid);
+        const alreadyShown = await AsyncStorage.getItem(storageKey);
+        if (alreadyShown === 'true') {
+          resolve({ show: false });
+          return;
+        }
+      } catch (err) {
+        // AsyncStorage read failure is non-fatal — treat as "not yet shown"
+        // and proceed with the founding check.
+        console.warn('[useFoundingCelebrationGate] AsyncStorage read failed:', err);
+      }
+
+      // 2. Subscribe to userProfiles/{uid} via onSnapshot.
+      //    The Cloud Function may not have written the founding record yet, so
+      //    we listen for up to 15 seconds (R9.4).
+      const profileRef = doc(db, 'userProfiles', uid);
+
+      unsubscribe = onSnapshot(
+        profileRef,
+        async (snapshot) => {
+          if (resolvedRef.current) return;
+
+          const data = snapshot.data();
+          const isFoundingMember: boolean = data?.foundingMember === true;
+          const record = data?.foundingRecord;
+          const foundingNumber: number | null =
+            isFoundingMember && typeof record?.number === 'number' && record.number > 0
+              ? record.number
+              : null;
+
+          if (isFoundingMember && foundingNumber !== null) {
+            // Founding record is confirmed — mark as shown in storage so it
+            // never fires again for this account, then resolve.
+            try {
+              const storageKey = foundingCelebrationShownKey(uid);
+              await AsyncStorage.setItem(storageKey, 'true');
+            } catch (err) {
+              // Storage write failure is non-fatal; the screen will still show
+              // this session. The next session may show it again but that is a
+              // minor edge case; R9 correctness takes priority over the
+              // "at-most-once" storage guarantee.
+              console.warn('[useFoundingCelebrationGate] AsyncStorage write failed:', err);
+            }
+
+            resolve({ show: true, foundingNumber });
+          } else if (snapshot.exists() && !isFoundingMember) {
+            // Profile doc exists and explicitly says non-founding — skip (R9.3).
+            resolve({ show: false });
+          }
+          // If the doc doesn't exist yet or foundingMember is not set, keep
+          // waiting until the 15s timeout.
+        },
+        (err) => {
+          // Firestore read error — fail safe, skip celebration.
+          console.error('[useFoundingCelebrationGate] onSnapshot error:', err);
+          resolve({ show: false });
+        }
+      );
+
+      // 3. 15-second bounded wait (R9.4 / R9.3). After this, proceed normally.
+      timeoutHandle = setTimeout(() => {
+        if (!resolvedRef.current) {
+          resolve({ show: false });
+        }
+      }, 15_000);
+    };
+
+    run();
+
+    return () => {
+      // Cleanup on unmount / uid change.
+      if (timeoutHandle !== null) clearTimeout(timeoutHandle);
+      if (unsubscribe !== null) unsubscribe();
+    };
+  }, [uid, enabled]);
+
+  return { checking, outcome };
 }

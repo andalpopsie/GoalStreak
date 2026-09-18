@@ -32,6 +32,8 @@ import {
   AppNotificationPreferences,
 } from '../services/motivationalNotificationService';
 import BadgeShowcase from '../components/profile/BadgeShowcase';
+import FoundingBadge from '../components/common/FoundingBadge';
+import { useFoundingMember } from '../hooks/useFoundingMember';
 import {
   validateUsername,
   isUsernameAvailable,
@@ -87,6 +89,12 @@ export default function ProfileScreen() {
   // Tracks which SSO provider is mid-link/unlink so the row shows a spinner and
   // is non-interactive while the native provider flow runs (R8.1, R8.6).
   const [linkingProvider, setLinkingProvider] = useState<SsoProviderId | null>(null);
+
+  // Resolve which uid to subscribe to: own profile uses the auth user's id;
+  // viewing another user's profile uses the route param uid (R7.4 — badge
+  // visibility is independent of isPro and works for both own + other profiles).
+  const foundingUid = isOwnProfile ? (user?.id ?? '') : (targetUserId ?? '');
+  const { isFoundingMember, foundingNumber } = useFoundingMember(foundingUid);
 
   const memberSince = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
@@ -733,6 +741,13 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           )}
         </View>
+
+        {/* Founding Member Badge — shown for own and other user profiles when foundingMember flag is true (R7.1–R7.4) */}
+        {isFoundingMember && (
+          <View style={styles.foundingBadgeRow}>
+            <FoundingBadge variant="profile" foundingNumber={foundingNumber} />
+          </View>
+        )}
 
         {isOwnProfile && (
           <>
@@ -1463,6 +1478,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 8, // 8 × 1 (tight)
+  },
+  // ── Founding Member Badge row (below profileCard) ──
+  foundingBadgeRow: {
+    marginHorizontal: 16, // 8 × 2 (base) — aligns with profileCard margins
+    marginBottom: 16, // 8 × 2 (base)
   },
   sectionHeader: {
     fontSize: 20, // subheading

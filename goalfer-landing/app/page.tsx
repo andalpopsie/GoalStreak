@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Users, TrendingUp, Star, Zap, Calendar, Award } from "lucide-react"
 import { WaitlistForm } from "@/components/waitlist-form"
 import { AppStoreButton } from "@/components/app-store-button"
+import { FoundingCounter } from "@/components/founding-counter"
 
 export default function GoalferLanding() {
   return (
@@ -41,9 +42,14 @@ export default function GoalferLanding() {
           <div className="mb-4 flex justify-center">
             <AppStoreButton />
           </div>
-          <p className="mb-12 text-sm text-muted-foreground">
+          <p className="mb-6 text-sm text-muted-foreground">
             Free to download · Available now on iOS
           </p>
+
+          {/* Founding member scarcity counter */}
+          <div className="mb-6 flex justify-center">
+            <FoundingCounter />
+          </div>
 
           {/* Secondary — Android waitlist */}
           <div className="mx-auto max-w-md">

@@ -6,6 +6,7 @@ import { Colors, Typography, Spacing } from '../../constants/theme';
 import { SocialActivity } from '../../types/social';
 import { getCategoryIcon } from '../../utils/categoryIcons';
 import { formatRelativeTime } from '../../utils/timeUtils';
+import FoundingBadge from '../common/FoundingBadge';
 
 interface ActivityCardProps {
   activity: SocialActivity;
@@ -156,6 +157,12 @@ export default function ActivityCard({ activity, onReport, onBlock }: ActivityCa
 
       {/* Activity Content */}
       <View style={styles.contentContainer}>
+        {/* Author row — name + founding badge (R8.1–R8.4) */}
+        {activity.foundingMember === true && (
+          <View style={styles.authorRow}>
+            <FoundingBadge variant="feed" foundingNumber={activity.foundingNumber ?? null} />
+          </View>
+        )}
         <View style={styles.activityHeader}>
           <Text style={styles.activityText}>{getActivityText()}</Text>
           <Text style={styles.timeText}>{formatRelativeTime(activity.timestamp)}</Text>
@@ -249,6 +256,11 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
+  },
+  authorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4, // tight gap before activity text (8 × 0.5)
   },
   moreButton: {
     width: 48, // 8 × 6 (touch target ≥ 48px)

@@ -1,0 +1,465 @@
+{
+  "pbtResults": {
+    "22.1 Unit tests for `computeCounterView`": {
+      "status": "passed",
+      "lastRunTimestamp": 1789202067757
+    }
+  },
+  "executionHistory": {
+    "2. Extend the `User` / `UserProfile` type with founding fields": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683554939
+      },
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683584307
+      },
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788684589230
+      }
+    ],
+    "3. Guard founding fields on `userProfiles` against client writes": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555028
+      },
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683584882
+      },
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788684590056
+      }
+    ],
+    "4. Add public read / no-client-write rules for counter and config": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555074
+      },
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683585478
+      },
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788684590730
+      }
+    ],
+    "5. Deploy updated Firestore rules": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555099
+      },
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788684604505
+      },
+      {
+        "executionId": "15c3fd1f-3f9b-4d25-a2d9-610011218c98",
+        "chatSessionId": "sess_ccd67116-fefb-4af5-9c0c-715970ab418a",
+        "timestamp": 1789187074328
+      },
+      {
+        "executionId": "15c3fd1f-3f9b-4d25-a2d9-610011218c98",
+        "chatSessionId": "sess_ccd67116-fefb-4af5-9c0c-715970ab418a",
+        "timestamp": 1789187148896
+      }
+    ],
+    "6. Initialise `GoalStreakApp/functions/` project": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555122
+      },
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683586098
+      },
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788684591598
+      }
+    ],
+    "7. Add `functions` block to `GoalStreakApp/firebase/firebase.json`": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555154
+      },
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788684604930
+      },
+      {
+        "executionId": "f666f8fe-67f3-40dc-bea1-153d118ab3c2",
+        "chatSessionId": "sess_ebb1a81c-741d-4825-ae8d-5546661678dd",
+        "timestamp": 1789187704028
+      },
+      {
+        "executionId": "f666f8fe-67f3-40dc-bea1-153d118ab3c2",
+        "chatSessionId": "sess_ebb1a81c-741d-4825-ae8d-5546661678dd",
+        "timestamp": 1789187709307
+      }
+    ],
+    "8. Add `functions` emulator to `firebase.json`": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555181
+      },
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788684605538
+      },
+      {
+        "executionId": "b5137761-8782-4411-b842-0204c61ce05d",
+        "chatSessionId": "sess_453eecb4-9d53-4664-982e-962d2617384b",
+        "timestamp": 1789187777940
+      },
+      {
+        "executionId": "b5137761-8782-4411-b842-0204c61ce05d",
+        "chatSessionId": "sess_453eecb4-9d53-4664-982e-962d2617384b",
+        "timestamp": 1789187797142
+      }
+    ],
+    "10. Implement `revenuecat.ts` — RevenueCat REST client": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555203
+      },
+      {
+        "executionId": "5ade2a53-fbf5-46c4-b8cf-dfcf7255378d",
+        "chatSessionId": "sess_bfdd0883-2316-4a9c-a199-2941679293a1",
+        "timestamp": 1789189520432
+      },
+      {
+        "executionId": "5ade2a53-fbf5-46c4-b8cf-dfcf7255378d",
+        "chatSessionId": "sess_bfdd0883-2316-4a9c-a199-2941679293a1",
+        "timestamp": 1789189735517
+      }
+    ],
+    "11. Implement `claim.ts` — atomic Firestore transaction": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555223
+      },
+      {
+        "executionId": "800a0122-2bee-4c87-b059-99397d158c43",
+        "chatSessionId": "sess_68089a68-5962-44cf-af94-8b0e5060e53c",
+        "timestamp": 1789190637397
+      },
+      {
+        "executionId": "800a0122-2bee-4c87-b059-99397d158c43",
+        "chatSessionId": "sess_68089a68-5962-44cf-af94-8b0e5060e53c",
+        "timestamp": 1789190741299
+      }
+    ],
+    "12. Implement `onUserCreated` — the Founding_Function": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555247
+      },
+      {
+        "executionId": "c7d735e3-cdfa-497d-a9f9-4b18d52801b1",
+        "chatSessionId": "sess_1710fdf3-1de1-4454-a519-a7dc063aef08",
+        "timestamp": 1789191085624
+      }
+    ],
+    "13. Implement `reconcilePendingGrants` — scheduled function": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555273
+      },
+      {
+        "executionId": "2fe1800e-336c-41f4-9f0e-db20ffc07094",
+        "chatSessionId": "sess_3dfc0e0e-5cf7-4279-8a80-ccad58d378f2",
+        "timestamp": 1789191338241
+      },
+      {
+        "executionId": "2fe1800e-336c-41f4-9f0e-db20ffc07094",
+        "chatSessionId": "sess_3dfc0e0e-5cf7-4279-8a80-ccad58d378f2",
+        "timestamp": 1789191421007
+      }
+    ],
+    "14. Deploy functions to development project and smoke test": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555306
+      },
+      {
+        "executionId": "442ff323-9829-4964-b6f3-6e2f1a334f27",
+        "chatSessionId": "sess_161c074e-7f06-4aea-8f12-cc9ba03f96c0",
+        "timestamp": 1789195022786
+      },
+      {
+        "executionId": "442ff323-9829-4964-b6f3-6e2f1a334f27",
+        "chatSessionId": "sess_161c074e-7f06-4aea-8f12-cc9ba03f96c0",
+        "timestamp": 1789196625162
+      }
+    ],
+    "15. Implement `useFoundingMember` hook": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555328
+      },
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788684606014
+      },
+      {
+        "executionId": "7c0d7770-c5ab-4981-94f7-c99b42710426",
+        "chatSessionId": "sess_aed24ee1-0e1c-41f0-8faa-37a092e8a569",
+        "timestamp": 1789196965105
+      },
+      {
+        "executionId": "7c0d7770-c5ab-4981-94f7-c99b42710426",
+        "chatSessionId": "sess_aed24ee1-0e1c-41f0-8faa-37a092e8a569",
+        "timestamp": 1789197059257
+      }
+    ],
+    "17. Implement `FoundingCelebrationScreen`": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555359
+      },
+      {
+        "executionId": "9b069228-cf92-428e-aaf5-bdff2b72dd5b",
+        "chatSessionId": "sess_160b57b5-b281-4a8c-aae3-3ef09c5a2f82",
+        "timestamp": 1789198062394
+      },
+      {
+        "executionId": "9b069228-cf92-428e-aaf5-bdff2b72dd5b",
+        "chatSessionId": "sess_160b57b5-b281-4a8c-aae3-3ef09c5a2f82",
+        "timestamp": 1789198228085
+      }
+    ],
+    "18. Wire `FoundingBadge` into `ProfileScreen`": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555382
+      },
+      {
+        "executionId": "e35628fb-b83a-47a8-af35-d7294736ad3a",
+        "chatSessionId": "sess_07849798-b24b-4163-bf66-7da9fc482dc0",
+        "timestamp": 1789198640372
+      }
+    ],
+    "19. Wire `FoundingBadge` into social feed activity cards": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555407
+      },
+      {
+        "executionId": "9e69be4e-2dcd-466f-9416-0096c69183f0",
+        "chatSessionId": "sess_a8714094-47e0-4f01-b57b-13e7b2349415",
+        "timestamp": 1789199233194
+      },
+      {
+        "executionId": "9e69be4e-2dcd-466f-9416-0096c69183f0",
+        "chatSessionId": "sess_a8714094-47e0-4f01-b57b-13e7b2349415",
+        "timestamp": 1789199466184
+      }
+    ],
+    "20. Wire `FoundingCelebrationScreen` into the post-signup flow": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555431
+      },
+      {
+        "executionId": "8b54a17b-7fbc-488e-9a50-93f69a84543f",
+        "chatSessionId": "sess_62d0e792-8de0-4861-93ec-f88badd40090",
+        "timestamp": 1789200404535
+      },
+      {
+        "executionId": "8b54a17b-7fbc-488e-9a50-93f69a84543f",
+        "chatSessionId": "sess_62d0e792-8de0-4861-93ec-f88badd40090",
+        "timestamp": 1789200635252
+      }
+    ],
+    "21. Add Firebase Web SDK to `goalfer-landing`": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555456
+      },
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683586590
+      },
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788684591870
+      }
+    ],
+    "23. Integrate `FoundingCounter` into the landing page hero": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555479
+      },
+      {
+        "executionId": "70923f8c-2a61-4b75-b627-ecbdf031e8b3",
+        "chatSessionId": "sess_0e05942f-a1a9-4777-bdc9-893b496819f2",
+        "timestamp": 1789202391240
+      }
+    ],
+    "24. Emulator integration test: `onUserCreated` happy path": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555498
+      },
+      {
+        "executionId": "b6f25d30-3212-4884-bfe5-e374d579aff1",
+        "chatSessionId": "sess_32689d80-68c0-478b-b422-d6477d1c76c4",
+        "timestamp": 1789202761952
+      }
+    ],
+    "25. Emulator concurrency test: last-slot race": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555522
+      },
+      {
+        "executionId": "df704ba1-8c12-484f-91cd-f758dc22f1a4",
+        "chatSessionId": "sess_79cedcc4-c32b-48d8-8024-5ab32efaf356",
+        "timestamp": 1789273291293
+      }
+    ],
+    "26. Emulator test: reconciler flips pending to granted": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555544
+      }
+    ],
+    "27. Add composite Firestore index for reconciler query": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555574
+      },
+      {
+        "executionId": "9d6e0deb-6147-45d4-b885-a95e37484e7c",
+        "chatSessionId": "sess_6f3d17ef-9408-4874-bb74-d740a321badd",
+        "timestamp": 1789273960932
+      },
+      {
+        "executionId": "9d6e0deb-6147-45d4-b885-a95e37484e7c",
+        "chatSessionId": "sess_6f3d17ef-9408-4874-bb74-d740a321badd",
+        "timestamp": 1789274201080
+      }
+    ],
+    "28. Type-check, lint, and format": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555600
+      },
+      {
+        "executionId": "1b12160d-182d-4b4a-ba7b-6a2b405eda0f",
+        "chatSessionId": "sess_4c75d687-1f79-4348-a522-44d0e0266aae",
+        "timestamp": 1789275584709
+      }
+    ],
+    "29. Open PR for `feature/founding-members`": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683555627
+      },
+      {
+        "executionId": "49f2ff4c-556b-46fc-bba5-305950b22200",
+        "chatSessionId": "sess_be12ce81-65bf-46d4-825e-c393f053ffbc",
+        "timestamp": 1789276593274
+      },
+      {
+        "executionId": "49f2ff4c-556b-46fc-bba5-305950b22200",
+        "chatSessionId": "sess_be12ce81-65bf-46d4-825e-c393f053ffbc",
+        "timestamp": 1789276757642
+      }
+    ],
+    "1. Add founding types to `src/types/index.ts`": [
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788683579562
+      },
+      {
+        "executionId": "85b8ce73-8728-4813-aacf-1e2a81252abc",
+        "chatSessionId": "sess_862ac572-560c-49ea-9e74-d53ad7b6d8ea",
+        "timestamp": 1788684588682
+      }
+    ],
+    "9. Implement `eligibility.ts` — pure T0 evaluation": [
+      {
+        "executionId": "6eed45c5-cf75-4fa8-9503-39d2e012f78f",
+        "chatSessionId": "sess_be685052-69c7-4e33-a144-dfd071c79aec",
+        "timestamp": 1789188267908
+      },
+      {
+        "executionId": "6eed45c5-cf75-4fa8-9503-39d2e012f78f",
+        "chatSessionId": "sess_be685052-69c7-4e33-a144-dfd071c79aec",
+        "timestamp": 1789188273493
+      }
+    ],
+    "9.1 Unit tests for `eligibility.ts`": [
+      {
+        "executionId": "6bbf384f-a2f4-4a55-804d-1d8ebfcd4368",
+        "chatSessionId": "sess_bfdd0883-2316-4a9c-a199-2941679293a1",
+        "timestamp": 1789189228403
+      }
+    ],
+    "16. Implement `FoundingBadge` component": [
+      {
+        "executionId": "7ae6f4db-1836-4579-ae4b-b29c5c3ec35d",
+        "chatSessionId": "sess_acb5eea4-2132-4756-912a-45c477cfd191",
+        "timestamp": 1789197379808
+      }
+    ],
+    "22. Implement `FoundingCounter` component": [
+      {
+        "executionId": "8b28853c-0ae5-49de-a6c4-4aa94a13f569",
+        "chatSessionId": "sess_2dc3a620-9934-4799-a1fb-8bd101ddf30f",
+        "timestamp": 1789198898837
+      },
+      {
+        "executionId": "8b28853c-0ae5-49de-a6c4-4aa94a13f569",
+        "chatSessionId": "sess_2dc3a620-9934-4799-a1fb-8bd101ddf30f",
+        "timestamp": 1789199036237
+      }
+    ]
+  }
+}

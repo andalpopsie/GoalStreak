@@ -22,6 +22,7 @@ import { useModeration } from '../../hooks/useModeration';
 import { filterActivities, filterReactions } from '../../services/moderationFilter';
 import ReportReasonSheet from './ReportReasonSheet';
 import { formatRelativeTime } from '../../utils/timeUtils';
+import FoundingBadge from '../common/FoundingBadge';
 import { photoService } from '../../services/photoService';
 import {
   addDoc,
@@ -437,6 +438,13 @@ export default function ActivityFeedTab({
                   <Text style={styles.activityUser}>
                     {String(activity?.userName || 'Unknown User')}
                   </Text>
+                  {/* Founding badge — shown based solely on foundingMember flag, not isPro (R8.4) */}
+                  {activity?.foundingMember === true && (
+                    <FoundingBadge
+                      variant="feed"
+                      foundingNumber={activity?.foundingNumber ?? null}
+                    />
+                  )}
                   {activity?.visibility && (
                     <Ionicons
                       name={activity.visibility === 'private' ? 'lock-closed' : 'people'}

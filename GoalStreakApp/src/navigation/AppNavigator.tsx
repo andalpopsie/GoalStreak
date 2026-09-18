@@ -22,10 +22,11 @@ import CreateHabitScreen from '../screens/CreateHabitScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import GroupDetailScreen from '../screens/GroupDetailScreen';
 import BlockedUsersScreen from '../screens/BlockedUsersScreen';
+import FoundingCelebrationScreen from '../screens/FoundingCelebrationScreen';
 
 // Import hooks
 import { useAuth } from '../hooks/useAuth';
-import { useOnboarding } from '../hooks/useOnboarding';
+import { useOnboarding, useFoundingCelebrationGate } from '../hooks/useOnboarding';
 
 // Import theme
 import { Colors, Typography } from '../constants/theme';
@@ -157,11 +158,30 @@ function MainStackNavigator() {
   );
 }
 
+// Pure recursive helper — outside the component so it is not re-created on
+// every render.
+function getCurrentRouteName(state: any): string | undefined {
+  if (!state?.routes?.length) return undefined;
+  const route = state.routes[state.index];
+  if (route?.state) return getCurrentRouteName(route.state);
+  return route?.name;
+}
+
 // Root Stack Navigator
 export default function AppNavigator() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const { isOnboardingComplete, isLoading: isOnboardingLoading } = useOnboarding();
   const navigationStartTime = React.useRef<number>(0);
+
+  // Only activate the founding gate once the user is authenticated and has
+  // completed onboarding. The gate subscribes to Firestore and resolves
+  // within 15 s (R9.4). While it is checking we hold on the loading screen
+  // so there is no flash of the Main screen before the celebration.
+  const foundingGateEnabled = isAuthenticated && isOnboardingComplete;
+  const { checking: foundingChecking, outcome: foundingOutcome } = useFoundingCelebrationGate(
+    user?.id ?? '',
+    foundingGateEnabled
+  );
 
   // Track navigation performance
   const handleNavigationStateChange = React.useCallback((state: any) => {
@@ -184,29 +204,27 @@ export default function AppNavigator() {
     }
   }, []);
 
-  // Helper function to get current route name
-  const getCurrentRouteName = (state: any): string | undefined => {
-    if (!state?.routes?.length) {
-      return undefined;
-    }
-
-    const route = state.routes[state.index];
-    if (route?.state) {
-      return getCurrentRouteName(route.state);
-    }
-
-    return route?.name;
-  };
-
   // Track navigation start time
   const handleNavigationReady = React.useCallback(() => {
     navigationStartTime.current = Date.now();
   }, []);
 
-  if (isLoading || isOnboardingLoading) {
-    // You can return a loading screen here
+  // Show nothing while auth, onboarding, or the founding gate is loading.
+  // The founding gate check only runs when `foundingGateEnabled` is true, so
+  // it is a no-op for unauthenticated users and during the onboarding flow.
+  if (isLoading || isOnboardingLoading || (foundingGateEnabled && foundingChecking)) {
     return null;
   }
+
+  // Determine which root screen to show after the gate resolves.
+  const showCelebration = foundingGateEnabled && foundingOutcome?.show === true;
+
+  // Extract the founding number before JSX so TypeScript can narrow the type
+  // without an inline cast. `showCelebration` guarantees foundingOutcome.show
+  // is true here, so the cast is safe and isolated to one line.
+  const celebrationFoundingNumber = showCelebration
+    ? (foundingOutcome as { show: true; foundingNumber: number }).foundingNumber
+    : 0;
 
   return (
     <NavigationContainer
@@ -221,7 +239,18 @@ export default function AppNavigator() {
       >
         {isAuthenticated ? (
           isOnboardingComplete ? (
-            <Stack.Screen name="Main" component={MainStackNavigator} />
+            showCelebration ? (
+              // R9.1, R9.4: Founding member — show celebration screen first.
+              // dismiss/auto-timeout inside the screen does navigation.replace('Main') (R9.5).
+              <Stack.Screen
+                name="FoundingCelebration"
+                component={FoundingCelebrationScreen}
+                initialParams={{ foundingNumber: celebrationFoundingNumber }}
+              />
+            ) : (
+              // R9.3: Non-founding or already-seen celebration — go straight to Main.
+              <Stack.Screen name="Main" component={MainStackNavigator} />
+            )
           ) : (
             <Stack.Screen name="Onboarding" component={OnboardingScreen} />
           )

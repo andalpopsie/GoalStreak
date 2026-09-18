@@ -103,10 +103,34 @@ describe('userProfiles rules', () => {
     );
   });
 
-  it('allows the owner to write their own profile', async () => {
+  it('allows the owner to create their own profile', async () => {
     const db = testEnv.authenticatedContext(ALICE).firestore();
     await assertSucceeds(
       setDoc(doc(db, `userProfiles/${ALICE}`), { userId: ALICE, name: 'Alice' })
+    );
+  });
+
+  it('allows the owner to update non-founding fields', async () => {
+    await seed(`userProfiles/${ALICE}`, { userId: ALICE, name: 'Alice' });
+    const db = testEnv.authenticatedContext(ALICE).firestore();
+    await assertSucceeds(
+      updateDoc(doc(db, `userProfiles/${ALICE}`), { name: 'Alice Updated' })
+    );
+  });
+
+  it('denies the owner from updating foundingMember (server-authoritative)', async () => {
+    await seed(`userProfiles/${ALICE}`, { userId: ALICE, name: 'Alice', foundingMember: false });
+    const db = testEnv.authenticatedContext(ALICE).firestore();
+    await assertFails(
+      updateDoc(doc(db, `userProfiles/${ALICE}`), { foundingMember: true })
+    );
+  });
+
+  it('denies the owner from updating foundingNumber (server-authoritative)', async () => {
+    await seed(`userProfiles/${ALICE}`, { userId: ALICE, name: 'Alice', foundingNumber: 0 });
+    const db = testEnv.authenticatedContext(ALICE).firestore();
+    await assertFails(
+      updateDoc(doc(db, `userProfiles/${ALICE}`), { foundingNumber: 1 })
     );
   });
 

@@ -86,9 +86,21 @@ service cloud.firestore {
     // ── User Profiles (social profile mirror; doc id = userId) ──
     // Authenticated users can read (friend search by email, names/avatars in
     // requests and feed). Only the owner can write/delete their own profile.
+    // Founding fields (foundingMember, foundingNumber, foundingRecord) are
+    // server-authoritative and must never be written by a client — the Cloud
+    // Function uses the Admin SDK which bypasses these rules.
     match /userProfiles/{userId} {
       allow read: if isAuthenticated();
-      allow write: if isOwner(userId);
+      // create: owner-only. No diff guard needed — the doc doesn't exist yet
+      // so resource.data is null; the Cloud Function will write founding fields
+      // via the Admin SDK (bypasses rules) regardless.
+      allow create: if isOwner(userId);
+      // update/delete: owner-only, AND must not touch the server-authoritative
+      // founding fields (foundingMember, foundingNumber, foundingRecord).
+      // resource.data is always non-null for update/delete. (R6.6, R6.7)
+      allow update, delete: if isOwner(userId)
+        && !request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['foundingMember', 'foundingNumber', 'foundingRecord']);
     }
 
     // ── Social Settings (doc id = userId) ──
@@ -285,6 +297,21 @@ service cloud.firestore {
     match /feedback/{feedbackId} {
       allow create: if isAuthenticated();
       allow read, update, delete: if false;
+    }
+
+    // ── Founding Member: public counter (R10.1, R10.5) ──
+    // Landing page reads this unauthenticated to show the scarcity indicator.
+    // Only the Admin SDK (Cloud Functions) may write — clients never can.
+    match /counters/{docId} {
+      allow read: if true;        // public — landing page reads this unauthenticated
+      allow write: if false;      // Admin SDK only
+    }
+
+    // ── Founding Member: operator config (R4.2) ──
+    // Authenticated app clients may read (e.g. T0 display). Admin SDK only writes.
+    match /config/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if false;      // Admin SDK only
     }
   }
 }

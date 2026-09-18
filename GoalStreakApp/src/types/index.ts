@@ -15,6 +15,10 @@ export interface User {
   profilePicture?: string;
   createdAt: Date;
   updatedAt: Date;
+  // Founding Member fields (R6.1, R6.2) — optional so existing code compiles unchanged
+  foundingMember?: boolean; // true for founding members
+  foundingNumber?: number; // 0 = non-member sentinel, 1–100 = founding member
+  foundingRecord?: FoundingRecord; // present only for founding members
 }
 
 // Habit Types
@@ -121,6 +125,7 @@ export type RootStackParamList = {
   Auth: undefined;
   Main: undefined;
   Onboarding: undefined;
+  FoundingCelebration: { foundingNumber: number };
   CreateHabit: undefined;
   MainTabs: undefined;
   GroupDetail: { groupId: string };
@@ -232,3 +237,20 @@ export interface FriendsState {
 // Utility Types
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type RequiredFields<T, K extends keyof T> = T & Required<Pick<T, K>>;
+
+// Founding Member Types (R6, R7.5)
+export type ProGrantStatus = 'pending' | 'granted';
+
+export interface FoundingRecord {
+  number: number; // 1..100
+  grantedAt: Date;
+  proExpiresAt: Date | null;
+  proGrantStatus: ProGrantStatus;
+  lastAttemptAt?: Date | null;
+}
+
+export interface FoundingProfileFields {
+  foundingMember: boolean; // false for non-members
+  foundingNumber: number; // 0 = non-member sentinel, 1..100 = member
+  foundingRecord?: FoundingRecord; // present only for members
+}

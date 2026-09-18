@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Legal Document Validator",
+      "description": "Monitors changes to privacy policy, terms of service, and other legal documents. When changes are detected, validates legal compliance, consistency, and completeness to ensure documents meet App Store and regulatory requirements.",
+      "trigger": "PostFileSave",
+      "matcher": "(GoalStreakApp/app-store-assets/metadata/privacy-policy\\.md$|GoalStreakApp/app-store-assets/metadata/terms-of-service\\.md$|GoalStreakApp/app-store-assets/metadata/ios-legal-compliance-checklist\\.md$)",
+      "action": {
+        "type": "agent",
+        "prompt": "Legal documents have been modified. Please perform a comprehensive validation focusing on:\n\n1. **Privacy Policy Validation**:\n   - Verify all data collection practices are disclosed\n   - Check that user rights (access, delete, export) are clearly stated\n   - Ensure third-party services (Firebase, analytics) are properly disclosed\n   - Validate contact information for privacy inquiries\n   - Check compliance with GDPR, CCPA, and COPPA requirements\n\n2. **Terms of Service Validation**:\n   - Verify all app features and limitations are covered\n   - Check that user responsibilities and prohibited uses are clear\n   - Ensure liability limitations and dispute resolution are proper\n   - Validate intellectual property rights are protected\n   - Check that termination procedures are fair and legal\n\n3. **Cross-Document Consistency**:\n   - Ensure privacy policy and terms reference each other correctly\n   - Verify all URLs use consistent goalfer.app domain\n   - Check that contact information matches across documents\n   - Validate effective dates and version numbers are consistent\n\n4. **Regulatory Compliance**:\n   - COPPA: Verify 13+ age requirement and parental consent\n   - GDPR: Check EU user rights and data protection measures\n   - CCPA: Validate California privacy rights and transparency\n   - App Store: Ensure compliance with Apple's legal requirements\n\n5. **Technical Integration**:\n   - Verify legal documents are accessible via app links\n   - Check that linkingUtils.ts references correct URLs\n   - Ensure error handling for failed document access\n   - Validate in-app legal document presentation\n\n**CRITICAL - Documentation Rules**:\n- ❌ DO NOT create new validation report files\n- ✅ DO update existing legal compliance checklist\n- ✅ DO use CHANGELOG.md for tracking legal document updates\n\nProvide a validation report with:\n- ✅ Compliant sections\n- ⚠️ Areas needing improvement\n- ❌ Critical legal issues\n- 📋 Recommendations for legal review\n- 🔗 URL and link validation results\n- 📝 Which existing files should be updated (never create new ones)"
+      },
+      "enabled": true
+    }
+  ]
+}

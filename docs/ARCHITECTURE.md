@@ -148,6 +148,8 @@ interface SocialActivity {
   habitName: string;             // Cached habit name
   habitCategory: string;         // Cached category
   timestamp: Timestamp;
+  foundingMember?: boolean;      // true if author is a founding member (R8.4)
+  foundingNumber?: number | null; // author founding number 1-100, null if unavailable
   reactions?: {                  // Reaction counts
     heart: number;
     flame: number;

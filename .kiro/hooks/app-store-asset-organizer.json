@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "App Store Asset Organizer",
+      "description": "Monitors the app-store-assets directory for changes and ensures all assets are properly organized, named, and optimized for App Store submission. Helps maintain clean asset structure and identifies missing requirements.",
+      "trigger": "PostFileSave",
+      "matcher": "(GoalStreakApp/app-store-assets/.*[^/]*$|GoalStreakApp/assets/.*[^/]*$)",
+      "action": {
+        "type": "agent",
+        "prompt": "App Store assets have been modified. Please analyze the asset organization and ensure submission readiness:\n\n1. **Asset Structure Validation**:\n   - Verify all required directories exist (metadata, marketing, feature-graphics, real-screenshots)\n   - Check that assets are in correct locations\n   - Ensure file naming follows App Store conventions\n   - Validate directory structure matches .kiro/steering/directory-structure.md\n\n2. **Screenshot Requirements**:\n   - Check for required iOS screenshot sizes (6.7\", 5.5\", 12.9\")\n   - Verify Android screenshot requirements if applicable\n   - Ensure screenshots showcase key app features\n   - Validate image quality and resolution standards\n\n3. **Icon and Graphics**:\n   - Verify app icon exists in all required sizes\n   - Check adaptive icon for Android\n   - Ensure graphics meet App Store guidelines\n   - Validate feature graphics and promotional materials\n\n4. **Metadata Files**:\n   - Check all JSON configuration files are valid\n   - Verify markdown files are properly formatted\n   - Ensure all required metadata fields are complete\n   - Validate consistency across metadata files\n\n5. **Asset Optimization**:\n   - Check file sizes are optimized for submission\n   - Verify image formats meet requirements\n   - Ensure no unnecessary or duplicate files\n   - Validate asset accessibility and loading\n\n6. **Submission Readiness**:\n   - Cross-reference with ios-submission-checklist.md\n   - Identify any missing assets or requirements\n   - Check compliance with ios-legal-compliance-checklist.md\n   - Validate all external references and URLs\n\n**CRITICAL - Documentation Rules**:\n- ❌ DO NOT create new asset organization report files\n- ✅ DO update existing SUBMISSION_CHECKLIST.md or VALIDATION_REPORT.md\n- ✅ DO use CHANGELOG.md for tracking asset updates\n\nProvide an organization report with:\n- 📁 Directory structure status\n- 🖼️ Asset completeness checklist\n- ⚡ Optimization recommendations\n- ❌ Missing or problematic assets\n- ✅ Submission readiness score\n- 📋 Next steps for completion\n- 📝 Which existing files should be updated (never create new ones)"
+      },
+      "enabled": true
+    }
+  ]
+}
