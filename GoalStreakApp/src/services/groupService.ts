@@ -527,8 +527,24 @@ class GroupService {
 
       const friendsData = await friendService.getFriends(userId);
 
-      // Filter out users already in the group
-      return friendsData.friends.filter((friend) => !existingMemberIds.has(friend.friendId));
+// Also exclude friends who already have a pending invitation to this
+      // group from this user, so the invite state reflects "already invited".
+      const pendingSnapshot = await getDocs(query(
+        this.groupInvitationsCollection,
+        where('groupId', '==', groupId),
+        where('fromUserId', '==', userId),
+        where('status', '==', 'pending'),
+      ));
+      const pendingInvitedIds = new Set(
+        pendingSnapshot.docs.map(d => d.data().toUserId)
+      );
+
+      // Filter out users already in the group or already invited.
+      return friendsData.friends.filter(
+        friend =>
+          !existingMemberIds.has(friend.friendId) &&
+          !pendingInvitedIds.has(friend.friendId)
+      );
     } catch (error) {
       console.error('Error getting invitable friends:', error);
       throw error;

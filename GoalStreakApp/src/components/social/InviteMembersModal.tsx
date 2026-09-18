@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, Shadows, Typography } from '../../constants/theme';
 import { Friend } from '../../types/social';
 import groupService from '../../services/groupService';
+import { useAuth } from '../../hooks/useAuth';
 
 interface InviteMembersModalProps {
   visible: boolean;
@@ -32,6 +33,7 @@ export default function InviteMembersModal({
   onInvite,
   memberCount,
 }: InviteMembersModalProps) {
+  const { user } = useAuth();
   const [invitableFriends, setInvitableFriends] = useState<Friend[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [sendingTo, setSendingTo] = useState<string | null>(null);
@@ -39,17 +41,18 @@ export default function InviteMembersModal({
   const isFull = memberCount >= MAX_MEMBERS;
 
   useEffect(() => {
-    if (visible && groupId) {
+    // Wait for the authenticated user before loading — passing the known user
+    // id is more reliable than the service reading getAuth().currentUser, which
+    // can be null while auth rehydrates from storage.
+    if (visible && groupId && user?.id) {
       loadInvitableFriends();
     }
-  }, [visible, groupId]);
+  }, [visible, groupId, user?.id]);
 
   const loadInvitableFriends = async () => {
     setIsLoading(true);
     try {
-      // getGroupInvitableFriends needs adminId, but the service gets it from the group
-      // We pass groupId and the service handles the rest
-      const friends = await groupService.getGroupInvitableFriends(groupId, '');
+      const friends = await groupService.getGroupInvitableFriends(groupId, user?.id || '');
       setInvitableFriends(friends);
     } catch (error) {
       console.error('Error loading invitable friends:', error);
