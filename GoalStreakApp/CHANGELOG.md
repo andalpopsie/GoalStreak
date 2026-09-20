@@ -193,6 +193,12 @@
 - **`GoalStreakApp/src/components/social/InviteMembersModal.tsx`** — passes the authenticated user id from `useAuth()` explicitly to `getGroupInvitableFriends`, replacing the previous `getAuth().currentUser` call in the service which could return null during auth rehydration. The `useEffect` now waits for `user?.id` before loading.
 
 
+## [Landing Page — CSP fix for Firebase counter] - September 2026 (PR #71)
+
+### Modified files
+- **`goalfer-landing/next.config.mjs`** — added custom `Content-Security-Policy` header via Next.js `headers()`. Vercel's default CSP blocked Firebase's internal `eval()` use (Firestore query parsing), preventing the `FoundingCounter` from connecting to Firestore. Added `unsafe-eval` to `script-src` and explicit `connect-src` entries for Firebase/Google APIs. `frame-src` and `object-src` remain `none`.
+
+
 ## [App Store Submission Prep — Permissions, Versions, Contacts, Jurisdiction] - July 2026
 
 ### iOS config (app code / build config)
