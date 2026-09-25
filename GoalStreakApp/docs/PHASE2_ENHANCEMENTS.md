@@ -8,7 +8,7 @@
 
 ## 🔴 Critical (Fix Before Scaling)
 
-### 1. Friend System — Deterministic Document IDs
+### 1. Friend System — Deterministic Document IDs ✅ Fixed — PR #74
 **Area**: `friendService.ts` → `acceptFriendRequest()`  
 **Problem**: Friend docs use auto-generated IDs. Two concurrent accepts can both pass the existence check and create duplicates (this already happened in production).  
 **Best Practice**: Use compound IDs like `{userId}_{friendId}` so Firestore enforces uniqueness at the database level. A `setDoc()` with a deterministic ID is idempotent — duplicates become impossible.  
