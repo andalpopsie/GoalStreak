@@ -9,6 +9,7 @@ interface NotificationSettings {
   enabled: boolean;
   time: { hour: number; minute: number }; // 24-hour format
   lastScheduledDate: string;
+  notificationId?: string; // stored so cancelDailyNotification cancels only this one
 }
 
 // Motivational messages for notifications - Rotates daily for variety
@@ -309,11 +310,12 @@ export const motivationalNotificationService = {
         },
       });
 
-      // Save settings
+      // Save settings — persist the notification ID so cancel targets only this notification
       const settings: NotificationSettings = {
         enabled: true,
         time: { hour, minute },
         lastScheduledDate: new Date().toISOString(),
+        notificationId,
       };
       await AsyncStorage.setItem(NOTIFICATION_SETTINGS_KEY, JSON.stringify(settings));
 
@@ -332,18 +334,19 @@ export const motivationalNotificationService = {
    */
   async cancelDailyNotification(): Promise<void> {
     try {
-      // Cancel all scheduled notifications
-      await Notifications.cancelAllScheduledNotificationsAsync();
-
-      // Update settings
       const settingsStr = await AsyncStorage.getItem(NOTIFICATION_SETTINGS_KEY);
       if (settingsStr) {
         const settings: NotificationSettings = JSON.parse(settingsStr);
+        if (settings.notificationId) {
+          // Cancel only the motivational notification — leave habit reminders untouched
+          await Notifications.cancelScheduledNotificationAsync(settings.notificationId);
+        }
         settings.enabled = false;
+        settings.notificationId = undefined;
         await AsyncStorage.setItem(NOTIFICATION_SETTINGS_KEY, JSON.stringify(settings));
       }
 
-      console.log('✅ Daily motivational notifications cancelled');
+      console.log('✅ Daily motivational notification cancelled');
     } catch (error) {
       console.error('Error cancelling daily notification:', error);
       throw error;
