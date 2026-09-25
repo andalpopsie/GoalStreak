@@ -14,76 +14,82 @@ interface NudgeSettings {
   nudgeLevel: number; // 0-4 (escalation level)
 }
 
-// Playful nudge messages - Escalating intensity like Duolingo
+// Inactivity nudge messages — escalating accountability tiers
+// Themes: Atomic Habits, Huberman neuroscience, direct accountability
 const NUDGE_MESSAGES = {
+  // Tier 1 — gentle science-backed check-in
   day3: [
     {
-      title: '🥺 We Miss You!',
-      body: 'Your habits are wondering where you went. Come back and keep your streak alive!',
+      title: '📈 Streak Pause Detected',
+      body: 'Three days since your last check-in. Rule #1: never miss twice. You missed once — today is your recovery rep.',
     },
     {
-      title: '👋 Hey There, Stranger!',
-      body: "It's been 3 days! Your future self is waiting for you to show up.",
+      title: '🧠 Your Neural Pathways Are Waiting',
+      body: 'Neural pathways weaken without reps. Three days of absence starts the fade. One habit today stops the drift.',
     },
     {
-      title: '🌱 Your Habits Need Water!',
-      body: "Don't let your progress wilt. Come back and tend to your goals!",
+      title: '⏱️ Two Minutes Is All It Takes',
+      body: "Three days away. Scale your habit to its two-minute version. Don't rebuild from scratch — just restart the chain.",
     },
   ],
+  // Tier 2 — direct, momentum-focused
   day5: [
     {
-      title: '😢 Your Habits Are Lonely',
-      body: "They've been sitting here for 5 days... wondering if you still care.",
+      title: '⚠️ Momentum Is Slipping',
+      body: "Five days. This is the plateau where most people quietly quit. You chose this habit for a reason. That reason hasn't changed.",
     },
     {
-      title: '🎭 The Drama Begins',
-      body: 'Your streak is having an existential crisis. Only you can save it!',
+      title: '🔗 The Chain Is Broken. Reforge It.',
+      body: 'Five days without a rep. Every completion from here is a vote for who you\'re becoming. Cast one today.',
     },
     {
-      title: '📉 Houston, We Have a Problem',
-      body: '5 days without progress. Your goals are starting to worry...',
+      title: '🎯 Systems Need Reps to Survive',
+      body: 'Systems only work when you run them. Five days of absence is five missed reps. The system doesn\'t judge — it just needs you back.',
     },
   ],
+  // Tier 3 — honest, Huberman angle, no softening
   day7: [
     {
-      title: "🦉 Don't Make Us Send the Owl",
-      body: 'You know what happens when you ignore us for a week. The owl is watching... 👀',
+      title: '⏳ One Week. Time for a Real Reset.',
+      body: 'A full week away. Your neural pathways have started reorganizing around the absence of this habit. Reorganize them back. Today.',
     },
     {
-      title: '⚠️ This Is Your Final Warning',
-      body: 'A whole week?! Your habits are plotting their revenge. Come back NOW!',
+      title: '🔥 Seven Days Is Its Own Habit Now',
+      body: "Seven days of skipping is becoming a pattern — and patterns become identity. You're building a habit you don't want. Change it now.",
     },
     {
-      title: '🚨 Red Alert! Red Alert!',
-      body: '7 days of silence. Your goals are filing a missing person report.',
+      title: '📣 Accountability Check: Day 7',
+      body: 'No performance reviews, no judgment — just a fact: one week without your habit. One rep right now changes the trajectory.',
     },
   ],
+  // Tier 4 — stark, direct, future-self framing
   day10: [
     {
-      title: '😭 Your Streak Is Crying',
-      body: "It's been 10 days. Your habits are in the corner, sobbing uncontrollably.",
+      title: '🧱 Ten Days. Time for Honesty.',
+      body: 'Something got in the way — that\'s real. But ten days means the absence is becoming the default. Change the default. Today.',
     },
     {
-      title: '💔 Heartbreak Hotel',
-      body: "Your goals checked in 10 days ago and haven't checked out. They miss you!",
+      title: '⚡ Your Future Self Sent This',
+      body: 'The version of you six months from now is watching this decision. Ten days of absence. One rep away from a comeback. Write it.',
     },
     {
-      title: '🎪 The Circus Left Town',
-      body: 'Your motivation packed up and left. Time to bring it back with one small habit!',
+      title: '📊 The Data Is Clear',
+      body: 'Ten days. Streaks gone. But your system is still here — waiting. One rep restarts everything. That rep costs two minutes.',
     },
   ],
+  // Tier 5 — honest final push, comeback framing
   day14: [
     {
-      title: '👻 Your Habits Are Ghosts Now',
-      body: "2 weeks of haunting silence. They're officially haunting your phone.",
+      title: '🗓️ Two Weeks. Let\'s Be Real.',
+      body: 'Fourteen days. This habit has moved from "paused" to "abandoned" territory. The reason you built it hasn\'t changed. Come back.',
     },
     {
-      title: '🏚️ Abandoned Dreams',
-      body: 'Your goal house is collecting cobwebs. Time for a comeback story!',
+      title: '🔁 The Reset Is Always Available',
+      body: 'You don\'t have to be a victim of lost momentum. You can choose to restart right now. One rep. That\'s the whole barrier.',
     },
     {
-      title: '⏰ Wake Up Call',
-      body: "14 days! This is your sign to restart. One habit. Right now. Let's go!",
+      title: '🌱 It\'s Not Too Late. It\'s Just Hard.',
+      body: 'Two weeks away means restarting is uncomfortable. That discomfort is the price of the gap — and it\'s worth paying. Open the app. Go.',
     },
   ],
 };

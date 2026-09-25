@@ -12,206 +12,216 @@ interface NotificationSettings {
 }
 
 // Motivational messages for notifications - Rotates daily for variety
+// Themes: Atomic Habits (James Clear), Andrew Huberman neuroscience protocols, accountability
 const MOTIVATIONAL_MESSAGES = [
+  // — Huberman neuroscience —
   {
-    title: '🌅 Rise and Shine!',
-    body: 'Your future self will thank you for the habits you build today. Start now!',
+    title: '🌅 Start Your Morning Protocol',
+    body: '10 minutes of sunlight within an hour of waking anchors your circadian clock and boosts alertness. Light first, then your habit.',
   },
   {
-    title: "💪 You're Unstoppable!",
-    body: 'Every small action compounds into extraordinary results. Take the first step!',
+    title: '🧠 Your Focus Window Is Open',
+    body: 'The 90-minute block after waking is peak neurological focus. No phone — just you and your most important habit.',
   },
   {
-    title: '🔥 Ignite Your Day!',
-    body: 'Champions are built one habit at a time. Show up and make it happen!',
+    title: '⚡ Dopamine Is Earned, Not Given',
+    body: 'The dopamine from real effort feels different than the dopamine from shortcuts. Complete your habit and earn the real thing.',
   },
   {
-    title: '⚡ Power Up Your Morning!',
-    body: 'The best time to start was yesterday. The next best time is right now!',
+    title: '🧬 Exercise Grows Your Brain',
+    body: 'Even a 10-minute walk triggers BDNF — your brain\'s growth factor. Move first. Everything else gets easier after.',
   },
   {
-    title: '🎯 Hit Your Targets!',
-    body: "Success is the sum of small efforts repeated daily. You've got this!",
+    title: '🧊 Voluntary Discomfort Is Training',
+    body: 'Doing hard things on purpose trains your stress-response system. If your habit feels uncomfortable — good. That\'s the point.',
   },
   {
-    title: '🚀 Launch Into Action!',
-    body: "Don't wait for motivation—create momentum with one habit at a time!",
+    title: '😴 Tonight\'s Habits = Tomorrow\'s Edge',
+    body: 'Poor sleep tanks willpower, mood, and focus. The evening habit you do now directly funds your performance tomorrow.',
   },
   {
-    title: '💎 Build Your Best Self!',
-    body: "Your habits are sculpting your future. Make today's choices count!",
+    title: '🔬 Neuroplasticity Requires Reps',
+    body: 'Your brain rewires through repetition, not intention. One habit rep today is a literal change in neural circuitry.',
   },
   {
-    title: '🌟 Shine Bright Today!',
-    body: 'Greatness is built in the daily grind. Check off your habits and level up!',
+    title: '⏰ You\'re in a 90-Minute Focus Block',
+    body: 'Your brain cycles through ultradian focus rhythms. You\'re in a peak window right now. Close the apps. Complete your habit.',
   },
   {
-    title: '⭐ Own Your Day!',
-    body: 'Small wins create big victories. Start with one habit and dominate!',
+    title: '🌡️ Resistance Is the Adaptation',
+    body: 'The discomfort of cold exposure fades — the adaptation lasts. Same with habits. The resistance you feel right now is the training.',
   },
   {
-    title: '🎊 Make Magic Happen!',
-    body: 'Your consistency is your superpower. Use it to transform your life today!',
+    title: '🎯 Move First, Feel Ready Second',
+    body: 'You won\'t feel energized before you start — you\'ll feel it after. Adrenaline is triggered by action, not anticipation.',
   },
   {
-    title: '🏆 Chase Excellence!',
-    body: "Winners don't wait—they act. Complete your habits and claim your day!",
+    title: '🧠 Low Dopamine Baseline = More Drive',
+    body: 'Resist the easy dopamine hits early in the day. A lower baseline makes your real habits — the ones that matter — more rewarding.',
   },
   {
-    title: '🌈 Create Your Rainbow!',
-    body: 'Every habit is a color in your masterpiece. Paint your day with purpose!',
+    title: '💤 NSDR Unlocks Skill Consolidation',
+    body: 'A 10-20 minute non-sleep rest after learning accelerates neuroplasticity. Your habit + rest after = compounding faster.',
   },
   {
-    title: '💫 Spark Your Potential!',
-    body: "You're one habit away from a breakthrough. Take action now!",
+    title: '🌊 Stress Inoculation Protocol',
+    body: 'Deliberately facing stress in controlled doses builds resilience. Your hard habit today is your stress inoculation session.',
   },
   {
-    title: '🔆 Radiate Positivity!',
-    body: 'Your habits shape your destiny. Choose wisely and act boldly today!',
+    title: '🔋 Epinephrine Follows Action',
+    body: 'Waiting to feel ready is a trap. Epinephrine — the fuel you need — is released by the act of starting, not before it.',
   },
   {
-    title: '🎪 Perform at Your Peak!',
-    body: "Excellence is a habit, not an act. Show the world what you're made of!",
+    title: '🏋️ BDNF: The Miracle Molecule',
+    body: 'Exercise produces BDNF, which builds new neural connections. Every movement-based habit is a neurological upgrade. Do it.',
   },
   {
-    title: '🌺 Bloom Where You Are!',
-    body: 'Growth happens in the daily routine. Water your habits and watch yourself flourish!',
+    title: '🌞 Circadian Anchor Point',
+    body: 'Your body runs on a 24-hour clock that needs daily anchoring. Morning light + a consistent first habit locks in your rhythm.',
   },
   {
-    title: '⚔️ Conquer Your Goals!',
-    body: 'Warriors win battles one day at a time. Suit up and complete your habits!',
+    title: '🎯 Attention Is a Trainable Skill',
+    body: 'Every time you override distraction to complete your habit, you strengthen your focus circuits. Rep by rep, you\'re becoming sharper.',
+  },
+
+  // — Atomic Habits (James Clear concepts, paraphrased) —
+  {
+    title: '📈 1% Better Today',
+    body: '1% improvement each day compounds to 37× better in a year. Today\'s habit rep is not small — it is the entire strategy.',
   },
   {
-    title: '🎨 Paint Your Success!',
-    body: 'Your life is your canvas. Each habit is a brushstroke toward your masterpiece!',
+    title: '🗳️ Cast Your Vote',
+    body: 'Every habit completion is a vote for the identity you\'re building. Each small action says: this is who I am.',
   },
   {
-    title: '🌊 Ride the Wave!',
-    body: 'Momentum builds with consistency. Catch the wave and keep your streak alive!',
+    title: '⏱️ The Two-Minute Rule',
+    body: 'Scale your habit down to two minutes. Not to stay there — to make starting frictionless. Start. The rest follows.',
   },
   {
-    title: '🎭 Be Your Best Character!',
-    body: "You're the author of your story. Write today's chapter with powerful habits!",
+    title: '🔗 Habit Stack It',
+    body: 'Pair your habit with something you already do. "After I pour my coffee, I will ___." Attach new to existing — it sticks.',
   },
   {
-    title: '🦅 Soar Higher Today!',
-    body: "Eagles don't fly with sparrows. Elevate your game with your habits!",
+    title: '🏔️ The Plateau of Latent Potential',
+    body: 'Results hide beneath the surface until a tipping point. You\'re not failing — you\'re building. The breakthrough is closer than it feels.',
   },
   {
-    title: '🌙 Dream Big, Act Now!',
-    body: 'Your dreams need daily action. Turn aspirations into achievements today!',
+    title: '🌱 Systems Beat Goals',
+    body: 'Goals get you started. Systems keep you going. Your habit IS the system. Run it today — results take care of themselves.',
   },
   {
-    title: '🎯 Lock In and Execute!',
-    body: 'Focus + Action = Results. Complete your habits and win the day!',
+    title: '🔄 Never Miss Twice',
+    body: 'Miss a day? Human. Miss two in a row? That\'s the start of a different identity. Today is always your reset.',
   },
   {
-    title: '🔱 Unleash Your Power!',
-    body: 'You have everything you need to succeed. Start with one habit right now!',
+    title: '👀 Make It Obvious',
+    body: 'Your environment matters more than willpower. Is your habit visible, easy to start, hard to skip? Set the environment. Then act.',
   },
   {
-    title: '🌻 Grow Stronger Daily!',
-    body: 'Like a seed becoming a tree, your habits are growing your future. Keep going!',
+    title: '🎯 Identity First, Results Second',
+    body: 'Stop chasing outcomes. Start asking: who am I becoming? Your habit is the answer — one rep at a time.',
   },
   {
-    title: '⚡ Electrify Your Routine!',
-    body: 'Ordinary days + Extraordinary habits = Exceptional life. Make it happen!',
+    title: '📊 Track It, See It, Feel It',
+    body: 'Measurement is motivation. Mark off today\'s completion and watch the chain grow. Progress is visual — let it pull you forward.',
   },
   {
-    title: '🎪 Step Into Greatness!',
-    body: 'The spotlight is on you. Perform your habits and take center stage!',
+    title: '🔧 Remove One Obstacle',
+    body: 'Friction is the enemy of consistency. Lay out your equipment. Pre-fill the bottle. Remove the first barrier — the rest collapses.',
   },
   {
-    title: '🌠 Reach for the Stars!',
-    body: "Your potential is limitless. Start with today's habits and aim higher!",
+    title: '🏅 The Aggregation of Marginal Gains',
+    body: '1% better in every area compounds into mastery. Your habit today is one of those 1%s. Never underestimate the rep in front of you.',
   },
   {
-    title: '🏅 Earn Your Victory!',
-    body: 'Champions are made in the morning routine. Complete your habits and win!',
+    title: '🌀 Compounding Rewards the Consistent',
+    body: 'Compounding doesn\'t reward the motivated — it rewards the consistent. Show up today even if you\'re not inspired. Especially then.',
   },
   {
-    title: '🎁 Gift Yourself Success!',
-    body: 'The best investment is in yourself. Complete your habits and reap the rewards!',
+    title: '🧱 Build Identity With Reps',
+    body: 'The most powerful question isn\'t "what do I want?" — it\'s "who do I want to become?" Your habit today is one more rep toward that person.',
   },
   {
-    title: '🌋 Erupt With Energy!',
-    body: 'Your potential is volcanic. Let your habits be the force that changes everything!',
+    title: '📍 Process Over Outcome',
+    body: 'You can\'t control results. You can control the process. Your habit IS the process. Focus there. Results are a downstream effect.',
   },
   {
-    title: '🎬 Action! Take One!',
-    body: 'Life is happening now. Direct your day with intention and complete your habits!',
+    title: '🌱 Small Is Never Just Small',
+    body: '10 minutes of your habit today seems trivial. 10 minutes × 365 days = 60+ hours of deliberate practice. Small is never just small.',
   },
   {
-    title: '🔮 Shape Your Future!',
-    body: "Today's habits are tomorrow's reality. Create the future you want right now!",
+    title: '🏁 Every Finish Is a New Start Line',
+    body: 'Completing your habit today makes tomorrow\'s start easier. Each rep is both a finish and a launching pad for the next one.',
   },
   {
-    title: '🎸 Rock Your Routine!',
-    body: 'Legends are made in the practice room. Tune up your habits and perform!',
+    title: '🔐 Commitment Devices Work',
+    body: 'Tell someone you\'ll complete your habit today. External accountability triggers an immediate internal shift. Send the text. Then move.',
+  },
+
+  // — Accountability & discipline —
+  {
+    title: '📋 You Made a Commitment',
+    body: 'You chose this habit for a reason that hasn\'t changed. Your habit today is the daily test of that decision. Show up.',
   },
   {
-    title: '🌪️ Create Your Storm!',
-    body: 'Be the force of nature in your own life. Unleash your habits and dominate!',
+    title: '⏳ Time Passes Either Way',
+    body: 'A year from now, you\'ll either be glad you started today — or wish you had. The clock is running. Which story do you want?',
   },
   {
-    title: '🎓 Master Your Craft!',
-    body: 'Mastery is built through daily practice. Study your habits and graduate to greatness!',
+    title: '🤝 Build Trust With Yourself',
+    body: 'Every time you follow through, you build self-trust. Every skip erodes it. Your inner reputation is the most important one you have.',
   },
   {
-    title: '🏔️ Climb Your Mountain!',
-    body: "Every peak is reached one step at a time. Take today's step with your habits!",
+    title: '🗓️ Show Up on the Hard Days',
+    body: 'Anyone can show up when it\'s easy. The identity-defining moments are the hard days. Today might be one. That makes it matter more.',
   },
   {
-    title: '🎤 Speak Your Success!',
-    body: 'Your actions speak louder than words. Let your habits do the talking today!',
+    title: '💡 Clarity Over Motivation',
+    body: 'Motivation is unreliable. Clarity is durable. You know exactly why this habit exists. That reason is always enough to start.',
   },
   {
-    title: '🌍 Change Your World!',
-    body: 'World-changers start with self-change. Transform yourself through your habits!',
+    title: '🎖️ You Are Your Decisions',
+    body: 'No tool, no reminder, no coach closes the gap. Only you deciding to show up does. This is that moment.',
   },
   {
-    title: '🎮 Level Up Your Life!',
-    body: "You're the player, life is the game. Complete your habits and unlock new levels!",
+    title: '🔥 Earned, Not Granted',
+    body: 'Health, focus, discipline, confidence — none of it is given. All of it is built, rep by rep. Go earn today\'s version.',
   },
   {
-    title: '🔬 Experiment With Excellence!',
-    body: 'Success is a science. Test your limits and prove your potential with habits!',
+    title: '⚖️ The True Cost of Skipping',
+    body: 'Skipping today doesn\'t save energy — it costs it. Broken momentum, guilt, a harder restart. The easy path is always the harder path.',
   },
   {
-    title: '🎺 Sound Your Victory!',
-    body: 'Champions announce themselves through action. Trumpet your habits today!',
+    title: '🛡️ Protect Your Streak',
+    body: 'Your streak is a record of decisions made even when you didn\'t feel like it. It\'s worth more than any one day of rest.',
   },
   {
-    title: '🌿 Cultivate Greatness!',
-    body: "You're the gardener of your life. Plant habits today, harvest success tomorrow!",
+    title: '🌟 Be the Exception',
+    body: 'Most people quit when it gets uncomfortable. You built this habit to be different. The discomfort is where the differentiation happens.',
   },
   {
-    title: '🎯 Bullseye Your Goals!',
-    body: 'Precision comes from practice. Aim true and hit your habit targets today!',
+    title: '📌 Your Future Self Is Watching',
+    body: 'The version of you in 6 months is shaped by what you do in the next 10 minutes. What will you show them today?',
   },
   {
-    title: '🔥 Fuel Your Fire!',
-    body: 'Your passion needs action to burn bright. Feed the flames with your habits!',
+    title: '🧭 Direction Over Perfection',
+    body: 'You don\'t need to do your habit perfectly. You need to do it. An imperfect rep beats a perfect plan that stays in your head.',
   },
   {
-    title: '🎪 Center Stage Awaits!',
-    body: 'The world is watching. Give them a show with your incredible habits today!',
+    title: '🔭 Zoom Out. Then Act.',
+    body: 'Look at the person you\'re becoming, not just the single task. Each habit rep is one pixel in a much larger portrait.',
   },
   {
-    title: '🌌 Explore Your Universe!',
-    body: 'Your potential is infinite. Navigate toward greatness with your daily habits!',
+    title: '🌊 Motion Builds Momentum',
+    body: 'Momentum doesn\'t wait for the right mood. You build it by moving — even slightly, even imperfectly. Add to the wave.',
   },
   {
-    title: '🎵 Compose Your Symphony!',
-    body: 'Life is music, habits are the notes. Create your masterpiece one day at a time!',
+    title: '📍 Right Now Is the Only Moment',
+    body: 'Not tomorrow. Not when conditions are perfect. Not after you feel ready. Right now is the only moment where action is possible.',
   },
   {
-    title: '⚡ Charge Your Battery!',
-    body: 'Energy comes from action, not rest. Power up with your habits and stay charged!',
-  },
-  {
-    title: '🎯 Strike While Hot!',
-    body: 'Opportunity favors the prepared. Forge your future with red-hot habits today!',
+    title: '💪 The Reps Are the Point',
+    body: 'The result is nice. But the person built by 1,000 reps? That\'s the real prize. You\'re not just tracking habits — you\'re building yourself.',
   },
 ];
 

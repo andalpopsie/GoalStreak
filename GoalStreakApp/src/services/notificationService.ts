@@ -9,6 +9,33 @@ interface Habit {
   reminderEnabled?: boolean;
 }
 
+// Habit reminder body templates — rotated by a deterministic daily index so the
+// same user sees a different message each day without randomness on re-schedule.
+// Themes: Atomic Habits, accountability, Huberman neuroscience.
+const HABIT_REMINDER_BODIES = [
+  (name: string) => `Every rep of ${name} is a vote for the person you're becoming. Cast it now.`,
+  (name: string) => `Your ${name} habit: two minutes to start, a lifetime of compounding. Begin.`,
+  (name: string) => `Neural pathways for ${name} strengthen with every rep. Don't skip today's.`,
+  (name: string) => `${name} is on the schedule. Motivation follows action — not the other way around.`,
+  (name: string) => `Systems beat goals. ${name} is your system. Run it.`,
+  (name: string) => `Missing ${name} once is human. Missing it twice starts a different habit. Show up.`,
+  (name: string) => `Your ${name} streak is a record of decisions you made on hard days. Add to it.`,
+  (name: string) => `The best time to do ${name} is before you talk yourself out of it. Right now.`,
+  (name: string) => `Completing ${name} today makes tomorrow's version easier. One rep. That's all.`,
+  (name: string) => `${name} is the rep. The rep is the identity. The identity is the result. Go.`,
+];
+
+function getHabitReminderBody(habitId: string, habitName: string): string {
+  const dayOfYear = Math.floor(
+    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000
+  );
+  // Mix day-of-year with a simple hash of the habitId so different habits
+  // don't always show the same message on the same day.
+  const idHash = habitId.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+  const index = (dayOfYear + idHash) % HABIT_REMINDER_BODIES.length;
+  return HABIT_REMINDER_BODIES[index](habitName);
+}
+
 // Configure notification behavior (iOS/Android best practices)
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -87,8 +114,8 @@ class NotificationService {
       // Use native daily repeating notification (best practice)
       const notificationId = await Notifications.scheduleNotificationAsync({
         content: {
-          title: `Time for ${habit.name}! 🎯`,
-          body: `Keep your streak alive - complete your ${habit.name} habit now!`,
+          title: `${habit.name} 🎯`,
+          body: getHabitReminderBody(habit.id, habit.name),
           badge: 1,
           categoryIdentifier: 'habit-reminder',
           data: {
