@@ -427,13 +427,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // via Edit Profile is invisible in the social feed until the user's next
       // activity write. Note the field name difference: AppUser.displayName maps
       // to UserProfile.name in the social collection.
+      // Best-effort: a userProfiles write failure must not block the primary
+      // update or leave local state stale — users/{uid} is the authoritative
+      // source of truth for the app layer.
       const socialUpdates: Record<string, unknown> = { updatedAt: new Date() };
       if (updates.displayName !== undefined) socialUpdates.name = updates.displayName;
       if (updates.username !== undefined) socialUpdates.username = updates.username;
 
       if (Object.keys(socialUpdates).length > 1) {
-        const userProfileRef = doc(db, 'userProfiles', uid);
-        await setDoc(userProfileRef, socialUpdates, { merge: true });
+        try {
+          const userProfileRef = doc(db, 'userProfiles', uid);
+          await setDoc(userProfileRef, socialUpdates, { merge: true });
+        } catch (syncError) {
+          // Non-fatal — log for observability but do not rethrow.
+          // The primary users/{uid} write already succeeded.
+          console.warn('updateUserProfile: userProfiles sync failed (non-fatal):', syncError);
+        }
       }
 
       // Update local state
