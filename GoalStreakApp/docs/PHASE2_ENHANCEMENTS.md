@@ -170,7 +170,7 @@ Items added as they're found during development sessions:
 | Apr 23, 2026 | No automated tests in CI | Codebase health review | #8 Important |
 | Apr 23, 2026 | Removed performanceMonitoringService | Cleanup session | #10 Nice to Have |
 | Apr 23, 2026 | FriendsTab suggestion cards use fixed width (152px) — won't adapt on iPad/larger screens | FriendsTab.tsx UI redesign | Nice to Have |
-| Apr 23, 2026 | ProfileScreen Edit Profile modal doesn't actually save — `handleSaveProfile` closes modal without calling `updateUserProfile` | ProfileScreen.tsx | Important |
+| Apr 23, 2026 | ProfileScreen Edit Profile modal doesn't actually save — `handleSaveProfile` closes modal without calling `updateUserProfile` | ProfileScreen.tsx | ~~Important~~ **FIXED** — PR #76 |
 | Apr 23, 2026 | Notification settings stored only in AsyncStorage (local) — lost on device change, not synced to Firestore | ProfileScreen.tsx | Important |
 | Apr 23, 2026 | Copyright year hardcoded as "© 2024" — should be dynamic | ProfileScreen.tsx footer | Nice to Have |
 | Apr 23, 2026 | Email change in Edit Profile not implemented — requires Firebase re-auth + email verification flow | ProfileScreen.tsx | Important |

@@ -1,5 +1,15 @@
 # GoalStreak Changelog
 
+## [ProfileScreen Edit Profile Modal Save Fix] - September 2026
+
+### Modified files
+- `GoalStreakApp/src/screens/ProfileScreen.tsx` — added a `useEffect` that re-seeds `editedName`, `editedUsername`, `editedEmail`, `usernameError`, and `isCheckingUsername` from the current `user` object every time `showEditModal` becomes `true`. Previously these were only initialized at mount; if `user.displayName` changed after mount (from a previous save updating `authState`), the stale comparison `trimmedName !== user?.displayName` silently evaluated to `false` and `handleSaveProfile` exited without writing.
+
+### PR
+- [#76 fix(profile): re-seed edit modal fields on open to fix stale-state save bug](https://github.com/goalfer-app/GoalStreak/pull/76)
+
+---
+
 ## [Founding Members — Foundation Layer] - September 2026
 
 ### New files

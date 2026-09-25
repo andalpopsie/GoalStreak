@@ -130,6 +130,21 @@ export default function ProfileScreen() {
     }
   }, [user?.id, isAuthenticated]);
 
+  // Re-seed the edit modal fields from the current user object every time the
+  // modal opens. Without this, editedName/editedUsername hold the value from
+  // mount; if user.displayName changes after mount (e.g. from a previous save
+  // updating authState) the stale comparison "trimmedName !== user?.displayName"
+  // silently evaluates to false and handleSaveProfile exits early without writing.
+  useEffect(() => {
+    if (showEditModal) {
+      setEditedName(user?.displayName || '');
+      setEditedUsername(user?.username || '');
+      setEditedEmail(user?.email || '');
+      setUsernameError(null);
+      setIsCheckingUsername(false);
+    }
+  }, [showEditModal]); // intentionally omit user fields — run only on open/close
+
   const setupNotifications = async () => {
     try {
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
