@@ -1,5 +1,15 @@
 # GoalStreak Changelog
 
+## [Display Name Sync to Social Profile] - September 2026
+
+### Modified files
+- `GoalStreakApp/src/hooks/useAuth.tsx` — `updateUserProfile()`: after writing to `users/{uid}`, now also writes `name` (mapped from `displayName`) and `username` to `userProfiles/{uid}` via `setDoc(..., { merge: true })`. The sync only runs when at least one of those two fields is present in `updates`. Fixes stale display names in the activity feed, friend lists, and friend requests after a profile edit.
+
+### PR
+- [#77 fix(auth): sync displayName and username to userProfiles on profile update](https://github.com/goalfer-app/GoalStreak/pull/77)
+
+---
+
 ## [Founding Members — Foundation Layer] - September 2026
 
 ### New files

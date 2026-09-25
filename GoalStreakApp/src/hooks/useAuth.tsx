@@ -408,7 +408,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      const userRef = doc(db, 'users', authState.user.id);
+      const uid = authState.user.id;
+
+      // Write to users/{uid} — the auth/app layer source of truth
+      const userRef = doc(db, 'users', uid);
       await setDoc(
         userRef,
         {
@@ -417,6 +420,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
         { merge: true }
       );
+
+      // Mirror name-related fields to userProfiles/{uid} — the social layer reads
+      // names and usernames from this collection for the activity feed, friend
+      // lists, and friend requests. Without this sync, a display name change made
+      // via Edit Profile is invisible in the social feed until the user's next
+      // activity write. Note the field name difference: AppUser.displayName maps
+      // to UserProfile.name in the social collection.
+      const socialUpdates: Record<string, unknown> = { updatedAt: new Date() };
+      if (updates.displayName !== undefined) socialUpdates.name = updates.displayName;
+      if (updates.username !== undefined) socialUpdates.username = updates.username;
+
+      if (Object.keys(socialUpdates).length > 1) {
+        const userProfileRef = doc(db, 'userProfiles', uid);
+        await setDoc(userProfileRef, socialUpdates, { merge: true });
+      }
 
       // Update local state
       setAuthState((prev) => ({
