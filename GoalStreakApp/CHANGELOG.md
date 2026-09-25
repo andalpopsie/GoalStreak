@@ -1,5 +1,16 @@
 # GoalStreak Changelog
 
+## [Friend Duplicate Docs Race Condition Fix] - September 2026
+
+### Modified files
+- `GoalStreakApp/src/services/friendService.ts` — `acceptFriendRequest()`: replaced auto-generated `doc(collection)` refs with deterministic compound IDs (`${fromUserId}_${toUserId}` / `${toUserId}_${fromUserId}`). `batch.set()` on a fixed ID is idempotent — concurrent accepts write the same document, not two. Also replaced the pre-check `getDocs(query(...where...))` with a direct `getDoc()` on the deterministic ID.
+- `GoalStreakApp/docs/PHASE2_ENHANCEMENTS.md` — issue #1 marked fixed; production cleanup follow-up added to Discovery Log.
+
+### PR
+- [#74 fix(friends): deterministic compound IDs prevent duplicate friend docs](https://github.com/goalfer-app/GoalStreak/pull/74)
+
+---
+
 ## [Founding Members — Foundation Layer] - September 2026
 
 ### New files
