@@ -20,6 +20,7 @@ This directory contains all documentation for the GoalStreak mobile app. The doc
 - **[APP_STORE_OPTIMIZATION.md](APP_STORE_OPTIMIZATION.md)** - App Store optimization strategy
 - **[ONBOARDING-ENHANCEMENT-PLAN.md](ONBOARDING-ENHANCEMENT-PLAN.md)** - Complete onboarding system (consolidated)
 - **[PRE-LAUNCH-FOCUS-AREAS.md](PRE-LAUNCH-FOCUS-AREAS.md)** - Project planning, focus areas, and Apple Developer tasks
+- **[PHASE2_ENHANCEMENTS.md](PHASE2_ENHANCEMENTS.md)** - Post-launch technical debt tracker, architecture improvements, and Phase 2 feature backlog (living document — updated during development sessions)
 
 ### **Reports & Validation**
 - **[reports/](reports/)** - Generated reports and validation results

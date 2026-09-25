@@ -1,5 +1,20 @@
 # GoalStreak Changelog
 
+## [Notification Message Refresh + cancelDailyNotification Fix] - September 2026
+
+### Bug fix
+- `GoalStreakApp/src/services/motivationalNotificationService.ts` — `cancelDailyNotification()` previously called `Notifications.cancelAllScheduledNotificationsAsync()`, silently wiping every scheduled notification (including per-habit reminders) whenever the user toggled off Daily Motivation in Profile settings. Fixed by storing `notificationId` in `NotificationSettings` on schedule and cancelling only that ID via `cancelScheduledNotificationAsync(id)`.
+
+### Modified files
+- `GoalStreakApp/src/services/motivationalNotificationService.ts` — replaced all 50 `MOTIVATIONAL_MESSAGES` entries with science- and accountability-themed content across three groups: Huberman neuroscience protocols (17), Atomic Habits concepts (17), accountability/discipline (16). Previous set was hype-focused ("You're Unstoppable!", "Ride the Wave!"). Also added `notificationId?: string` to `NotificationSettings` interface.
+- `GoalStreakApp/src/services/inactivityNudgeService.ts` — rewrote all 15 `NUDGE_MESSAGES` (5 tiers × 3 each). Replaced Duolingo-playful tone with direct accountability framing. Escalation arc: gentle science check-in (day3) → honest final push (day14).
+- `GoalStreakApp/src/services/notificationService.ts` — added `HABIT_REMINDER_BODIES` pool (10 body templates) and `getHabitReminderBody(habitId, habitName)` helper. Rotates by `(dayOfYear + habitId hash) % 10` so different habits show different messages on the same day. Replaces single hardcoded `"Keep your streak alive..."` template.
+
+### PR
+- [#73 chore(notifications): refresh message sets + fix cancelDailyNotification](https://github.com/goalfer-app/GoalStreak/pull/73)
+
+---
+
 ## [Founding Members — Foundation Layer] - September 2026
 
 ### New files

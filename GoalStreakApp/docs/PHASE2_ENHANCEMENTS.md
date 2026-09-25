@@ -173,6 +173,8 @@ Items added as they're found during development sessions:
 | Apr 23, 2026 | ProfileScreen Edit Profile modal doesn't actually save — `handleSaveProfile` closes modal without calling `updateUserProfile` | ProfileScreen.tsx | Important |
 | Apr 23, 2026 | Notification settings stored only in AsyncStorage (local) — lost on device change, not synced to Firestore | ProfileScreen.tsx | Important |
 | Apr 23, 2026 | Copyright year hardcoded as "© 2024" — should be dynamic | ProfileScreen.tsx footer | Nice to Have |
+| Sep 25, 2026 | `cancelDailyNotification()` calls `cancelAllScheduledNotificationsAsync()` — wipes ALL scheduled notifications including per-habit reminders when user toggles off daily motivation | `motivationalNotificationService.ts` | ~~Important~~ **FIXED** — PR #73 |
+| Sep 25, 2026 | `dayOfYear` calculation duplicated in `motivationalNotificationService.ts` (`getMessageForToday`) and `notificationService.ts` (`getHabitReminderBody`) — should be extracted to a shared util in `src/utils/` | `notificationService.ts`, `motivationalNotificationService.ts` | Nice to Have |
 | Apr 23, 2026 | Email change in Edit Profile not implemented — requires Firebase re-auth + email verification flow | ProfileScreen.tsx | Important |
 | Apr 23, 2026 | Profile name update doesn't fan out to friend docs (friendName stays stale) — ties into #2 denormalized names | ProfileScreen.tsx handleSaveProfile | Critical |
 | Apr 23, 2026 | dailyReminder and streakAlerts toggles are UI-only — no service wired to schedule/cancel these notifications | ProfileScreen.tsx notifications modal | Important |
