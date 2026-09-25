@@ -27,7 +27,7 @@
 **Impact**: Data consistency, user experience  
 **Effort**: Medium (4-6 hours)
 
-### 3. Firestore Security Rules — Friend Collection
+### 3. Firestore Security Rules — Friend Collection ✅ Fixed — PR #75
 **Area**: `firebase/firestore.rules`  
 **Problem**: Current rules may not enforce that `userId` field matches `request.auth.uid` on friend document writes. A malicious client could write arbitrary friend records.  
 **Best Practice**: Validate `request.resource.data.userId == request.auth.uid` on create.  

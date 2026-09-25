@@ -142,11 +142,23 @@ service cloud.firestore {
     }
 
     // ── Friends ──
+    // Read: only the two parties in the friendship can read a friend doc.
+    // Create: caller must be one of the two parties — allows acceptFriendRequest()
+    //   to batch-write both directional docs in a single transaction (the
+    //   accepting user is always either userId or friendId in each doc) while
+    //   preventing any user from fabricating friend records between two other users.
+    // Update/Delete: only a participant can modify or remove a friendship record.
+    //   Covers removeFriend() and blockUser().
     match /friends/{friendId} {
       allow read: if isAuthenticated()
         && (request.auth.uid == resource.data.userId
             || request.auth.uid == resource.data.friendId);
-      allow write: if isAuthenticated();
+      allow create: if isAuthenticated()
+        && (request.auth.uid == request.resource.data.userId
+            || request.auth.uid == request.resource.data.friendId);
+      allow update, delete: if isAuthenticated()
+        && (request.auth.uid == resource.data.userId
+            || request.auth.uid == resource.data.friendId);
     }
 
     // ── Friend Requests ──

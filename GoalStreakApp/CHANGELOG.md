@@ -1,5 +1,16 @@
 # GoalStreak Changelog
 
+## [Friends Firestore Write Rule — Security Fix] - September 2026
+
+### Modified files
+- `GoalStreakApp/firebase/firestore.rules` — `friends` collection: replaced `allow write: if isAuthenticated()` (any authenticated user could write any friend doc) with explicit `allow create` / `allow update, delete` rules requiring the caller to be one of the two parties in the friendship (`userId` or `friendId`). Prevents fabricating friend records between two other users while keeping `acceptFriendRequest()` fully functional — the accepting user is always either `userId` or `friendId` in both directional docs.
+- `GoalStreakApp/docs/PHASE2_ENHANCEMENTS.md` — issue #3 marked fixed.
+
+### PR
+- [#75 fix(firestore): tighten friends collection write rule](https://github.com/goalfer-app/GoalStreak/pull/75)
+
+---
+
 ## [Founding Members — Foundation Layer] - September 2026
 
 ### New files
