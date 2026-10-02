@@ -424,7 +424,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       //   AppUser.profilePicture → UserProfile.avatar
       // Best-effort: a failure here must not block the primary update or leave
       // local state stale — users/{uid} remains the authoritative source of truth.
-      type UserProfileUpdate = { name?: string; username?: string; avatar?: string; updatedAt: Date };
+      type UserProfileUpdate = {
+        name?: string;
+        username?: string;
+        avatar?: string;
+        updatedAt: Date;
+      };
       const socialUpdates: UserProfileUpdate = { updatedAt: now };
       if (updates.displayName !== undefined) socialUpdates.name = updates.displayName;
       if (updates.username !== undefined) socialUpdates.username = updates.username;
