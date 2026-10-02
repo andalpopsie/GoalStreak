@@ -1,5 +1,20 @@
 # GoalStreak Changelog
 
+## [Profile Picture + Identity Sync Hardening] - October 2026
+
+### Modified files
+- `GoalStreakApp/src/hooks/useAuth.tsx` — `updateUserProfile()` improvements:
+  - Added `profilePicture → avatar` sync to `userProfiles/{uid}` so avatar changes via Edit Profile are reflected immediately in the activity feed, friend lists, and friend requests (was previously missing)
+  - Extracted `const now = new Date()` so both the `users/{uid}` and `userProfiles/{uid}` writes use the same timestamp (previously two separate `new Date()` calls)
+  - Replaced `Record<string, unknown>` with typed `UserProfileUpdate` (`{ name?, username?, avatar?, updatedAt }`) for compile-time field-name safety
+  - Changed outer `catch (error: any)` to `catch (error: unknown)` with `error instanceof Error` narrowing
+  - Named the guard boolean `hasSocialUpdates` to replace the magic `Object.keys().length > 1` check
+
+### PR
+- fix(auth): sync profilePicture to userProfiles avatar on profile update
+
+---
+
 ## [Display Name Sync to Social Profile] - September 2026
 
 ### Modified files

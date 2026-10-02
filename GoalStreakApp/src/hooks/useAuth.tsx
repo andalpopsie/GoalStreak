@@ -409,32 +409,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const uid = authState.user.id;
+      const now = new Date(); // single timestamp — both writes get the same updatedAt
 
       // Write to users/{uid} — the auth/app layer source of truth
       const userRef = doc(db, 'users', uid);
-      await setDoc(
-        userRef,
-        {
-          ...updates,
-          updatedAt: new Date(),
-        },
-        { merge: true }
-      );
+      await setDoc(userRef, { ...updates, updatedAt: now }, { merge: true });
 
-      // Mirror name-related fields to userProfiles/{uid} — the social layer reads
-      // names and usernames from this collection for the activity feed, friend
-      // lists, and friend requests. Without this sync, a display name change made
-      // via Edit Profile is invisible in the social feed until the user's next
-      // activity write. Note the field name difference: AppUser.displayName maps
-      // to UserProfile.name in the social collection.
-      // Best-effort: a userProfiles write failure must not block the primary
-      // update or leave local state stale — users/{uid} is the authoritative
-      // source of truth for the app layer.
-      const socialUpdates: Record<string, unknown> = { updatedAt: new Date() };
+      // Mirror identity fields to userProfiles/{uid} — the social layer (activity
+      // feed, friend lists, friend requests) reads these from userProfiles, not
+      // users. Without this sync, changes made via Edit Profile are invisible to
+      // other users until their next activity write.
+      //   AppUser.displayName    → UserProfile.name
+      //   AppUser.username       → UserProfile.username
+      //   AppUser.profilePicture → UserProfile.avatar
+      // Best-effort: a failure here must not block the primary update or leave
+      // local state stale — users/{uid} remains the authoritative source of truth.
+      type UserProfileUpdate = {
+        name?: string;
+        username?: string;
+        avatar?: string;
+        updatedAt: Date;
+      };
+      const socialUpdates: UserProfileUpdate = { updatedAt: now };
       if (updates.displayName !== undefined) socialUpdates.name = updates.displayName;
       if (updates.username !== undefined) socialUpdates.username = updates.username;
+      if (updates.profilePicture !== undefined) socialUpdates.avatar = updates.profilePicture;
 
-      if (Object.keys(socialUpdates).length > 1) {
+      const hasSocialUpdates = Object.keys(socialUpdates).length > 1; // updatedAt is always present
+      if (hasSocialUpdates) {
         try {
           const userProfileRef = doc(db, 'userProfiles', uid);
           await setDoc(userProfileRef, socialUpdates, { merge: true });
@@ -450,8 +452,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ...prev,
         user: prev.user ? { ...prev.user, ...updates } : null,
       }));
-    } catch (error: any) {
-      throw new Error(error.message || 'Failed to update profile');
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to update profile';
+      throw new Error(message);
     }
   };
 
