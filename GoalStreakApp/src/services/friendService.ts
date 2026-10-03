@@ -151,10 +151,7 @@ class FriendService {
       // Check if friendship already exists using the deterministic compound ID
       // (faster than a query and race-condition-safe — concurrent accepts read
       // the same document path rather than running independent queries).
-      const existingRef = doc(
-        this.friendsCollection,
-        `${request.fromUserId}_${request.toUserId}`
-      );
+      const existingRef = doc(this.friendsCollection, `${request.fromUserId}_${request.toUserId}`);
       const existingDoc = await getDoc(existingRef);
 
       if (existingDoc.exists()) {
@@ -200,14 +197,8 @@ class FriendService {
       // Use deterministic compound IDs: "{userId}_{friendId}"
       // setDoc with a known ID is idempotent — concurrent accepts overwrite
       // the same document rather than creating duplicate entries.
-      const friend1Ref = doc(
-        this.friendsCollection,
-        `${request.fromUserId}_${request.toUserId}`
-      );
-      const friend2Ref = doc(
-        this.friendsCollection,
-        `${request.toUserId}_${request.fromUserId}`
-      );
+      const friend1Ref = doc(this.friendsCollection, `${request.fromUserId}_${request.toUserId}`);
+      const friend2Ref = doc(this.friendsCollection, `${request.toUserId}_${request.fromUserId}`);
 
       batch.set(friend1Ref, {
         ...friend1,
@@ -289,6 +280,40 @@ class FriendService {
     } catch (error) {
       console.error('Error removing friend:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Fan out a display name change to all friend documents that reference this
+   * user as `friendId`. Called best-effort from `updateUserProfile` after the
+   * primary users/{uid} write succeeds — a failure here must never block the
+   * profile update from the user's perspective.
+   *
+   * Security: our Firestore rules allow updating a /friends doc when
+   * `request.auth.uid == resource.data.friendId`, so this write is permitted
+   * by the currently authenticated user for all docs where they are the friend.
+   *
+   * Chunked in groups of 450 to stay well under Firestore's 500-op batch limit.
+   */
+  async syncFriendNameAfterRename(uid: string, newName: string): Promise<void> {
+    const affectedQuery = query(this.friendsCollection, where('friendId', '==', uid));
+    const snapshot = await getDocs(affectedQuery);
+    if (snapshot.empty) return;
+
+    // Chunk into batches of 450 (safe margin below the 500-op Firestore limit)
+    const BATCH_SIZE = 450;
+    const docs = snapshot.docs;
+
+    for (let i = 0; i < docs.length; i += BATCH_SIZE) {
+      const chunk = docs.slice(i, i + BATCH_SIZE);
+      const batch = writeBatch(db);
+      chunk.forEach((docSnap) => {
+        batch.update(docSnap.ref, {
+          friendName: newName,
+          updatedAt: serverTimestamp(),
+        });
+      });
+      await batch.commit();
     }
   }
 

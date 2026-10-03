@@ -1,5 +1,20 @@
 # GoalStreak Changelog
 
+## [Friend System — Fan-Out Display Name to Friend Docs] - October 2026
+
+### Modified files
+- `GoalStreakApp/src/services/friendService.ts` — new `syncFriendNameAfterRename(uid, newName)` method: queries all `friends` docs where `friendId == uid` (docs where other users list this user as their friend) and batch-updates `friendName` to the new display name. Chunked in groups of 450 to stay safely under Firestore's 500-operation batch limit. Permitted by the `allow update` rule added in PR #79 (`request.auth.uid == resource.data.friendId`).
+- `GoalStreakApp/src/hooks/useAuth.tsx` — `updateUserProfile()`: imports `friendService` and calls `syncFriendNameAfterRename` after the `userProfiles` sync when `updates.displayName` is present. Best-effort — failure is logged but never surfaces as a profile update error.
+
+### What this fixes
+Before: changing your display name via Edit Profile left the old name visible in all your friends' friend lists (their `friends` docs stored a stale `friendName`).  
+After: the rename fans out immediately to all friend docs in the same `updateUserProfile` call.
+
+### PR
+- fix(friends): fan out display name changes to friend docs
+
+---
+
 ## [Friend System — Security Rules + Deterministic IDs] - October 2026
 
 ### Modified files

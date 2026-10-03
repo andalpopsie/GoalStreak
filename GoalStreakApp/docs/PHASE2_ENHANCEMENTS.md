@@ -15,10 +15,8 @@
 
 ### 2. Friend System — Denormalized Names Go Stale
 **Area**: `friends` collection in Firestore  
-**Problem**: Friend docs store `friendName` and `friendEmail` directly. If a user changes their display name, all their friends see the old name.  
-**Best Practice**: Store only `userId` and `friendId`. Resolve names at read time, or use a Cloud Function to fan out name updates to all friend docs when a profile changes.  
-**Impact**: Data consistency, user experience  
-**Effort**: Medium (4-6 hours)
+**Problem**: ~~Friend docs store `friendName` and `friendEmail` directly. If a user changes their display name, all their friends see the old name.~~  
+**Status**: ✅ **FIXED — Oct 2026 (PR #80)**. `syncFriendNameAfterRename(uid, newName)` added to `friendService.ts` — batch-updates `friendName` on all `friends` docs where `friendId == uid`. Called best-effort from `updateUserProfile` in `useAuth.tsx` after the primary write succeeds. Permitted by the `allow update` rule (caller == friendId) added in PR #79. `friendEmail` is not synced (not displayed in any UI — low priority to address).
 
 ### 3. Firestore Security Rules — Friend Collection
 **Area**: `firebase/firestore.rules`  

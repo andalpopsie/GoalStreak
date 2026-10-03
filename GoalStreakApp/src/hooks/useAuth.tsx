@@ -34,6 +34,7 @@ import { config } from '../config/environment';
 import { accountDeletionService } from '../services/accountDeletionService';
 import subscriptionService from '../services/subscriptionService';
 import { trackEvent } from '../services/enhancedAnalyticsService';
+import { friendService } from '../services/friendService';
 
 // The current Terms of Service version persisted at acceptance time (EULA_Version).
 const EULA_VERSION = '1.0';
@@ -444,6 +445,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Non-fatal — log for observability but do not rethrow.
           // The primary users/{uid} write already succeeded.
           console.warn('updateUserProfile: userProfiles sync failed (non-fatal):', syncError);
+        }
+      }
+
+      // Fan out display name change to all friend docs that store friendName
+      // for this user. friend docs hold a denormalised friendName field so
+      // friends see the current name without an extra read. Best-effort: a
+      // failure must not surface as a profile update error to the user.
+      if (updates.displayName !== undefined) {
+        try {
+          await friendService.syncFriendNameAfterRename(uid, updates.displayName);
+        } catch (fanOutError) {
+          console.warn('updateUserProfile: friend name fan-out failed (non-fatal):', fanOutError);
         }
       }
 
