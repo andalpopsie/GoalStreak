@@ -1,5 +1,26 @@
 # GoalStreak Changelog
 
+## [Friend System — Security Rules + Deterministic IDs] - October 2026
+
+### Modified files
+- `GoalStreakApp/firebase/firestore.rules` — `/friends` collection: replaced broad `allow write: if isAuthenticated()` with explicit `create`, `update`, and `delete` rules. `create` requires the authenticated user to be either the `userId` or `friendId` party (prevents any third user injecting fake friendships between others). `update` and `delete` require the caller to be one of the two parties.
+- `GoalStreakApp/src/services/friendService.ts` — `acceptFriendRequest()`:
+  - Switched from auto-generated doc IDs (`doc(this.friendsCollection)`) to deterministic compound IDs (`{fromUserId}_{toUserId}` and `{toUserId}_{fromUserId}`). `setDoc` with a deterministic ID is idempotent — concurrent accepts overwrite the same document rather than creating duplicate entries.
+  - Replaced the query-based idempotency check (`getDocs` + `where`) with a direct `getDoc` on the deterministic ref. Faster (point-read vs. collection scan) and race-condition-safe.
+
+### Security impact
+- Before: any authenticated user could write arbitrary friend documents between other accounts
+- After: a user can only create/modify/delete friendship docs they are a named party to
+
+### Backwards compatibility
+- `removeFriend` uses field-based queries (`where('userId', ==)` + `where('friendId', ==)`) — not affected by the ID format change. Existing auto-generated-ID docs in production are still deletable.
+- New friendship docs use deterministic IDs going forward.
+
+### PR
+- fix(friends): tighten security rules and use deterministic doc IDs
+
+---
+
 ## [Profile Picture + Identity Sync Hardening] - October 2026
 
 ### Modified files

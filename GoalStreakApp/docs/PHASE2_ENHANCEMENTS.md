@@ -10,15 +10,8 @@
 
 ### 1. Friend System — Deterministic Document IDs
 **Area**: `friendService.ts` → `acceptFriendRequest()`  
-**Problem**: Friend docs use auto-generated IDs. Two concurrent accepts can both pass the existence check and create duplicates (this already happened in production).  
-**Best Practice**: Use compound IDs like `{userId}_{friendId}` so Firestore enforces uniqueness at the database level. A `setDoc()` with a deterministic ID is idempotent — duplicates become impossible.  
-**Fix**:
-```typescript
-// Instead of: doc(this.friendsCollection)
-// Use: doc(this.friendsCollection, `${request.fromUserId}_${request.toUserId}`)
-```
-**Impact**: Data integrity, prevents duplicate friend entries  
-**Effort**: Low (1-2 hours)
+**Problem**: ~~Friend docs use auto-generated IDs. Two concurrent accepts can both pass the existence check and create duplicates (this already happened in production).~~  
+**Status**: ✅ **FIXED — Oct 2026 (PR #79)**. `acceptFriendRequest` now uses compound IDs `{fromUserId}_{toUserId}` and `{toUserId}_{fromUserId}`. Idempotency check replaced with a direct `getDoc` on the deterministic ref — faster and race-condition-safe. `removeFriend` unchanged (field-based queries remain backwards compatible with legacy auto-ID docs).
 
 ### 2. Friend System — Denormalized Names Go Stale
 **Area**: `friends` collection in Firestore  
@@ -29,17 +22,13 @@
 
 ### 3. Firestore Security Rules — Friend Collection
 **Area**: `firebase/firestore.rules`  
-**Problem**: Current rules may not enforce that `userId` field matches `request.auth.uid` on friend document writes. A malicious client could write arbitrary friend records.  
-**Best Practice**: Validate `request.resource.data.userId == request.auth.uid` on create.  
-**Impact**: Security  
-**Effort**: Low (1 hour)
+**Problem**: ~~Current rules may not enforce that `userId` field matches `request.auth.uid` on friend document writes. A malicious client could write arbitrary friend records.~~  
+**Status**: ✅ **FIXED — Oct 2026 (PR #79)**. `allow write` replaced with explicit `allow create` (caller must be userId or friendId party), `allow update` and `allow delete` (caller must be one of the two parties). Rules deployed to development project and compiled successfully.
 
 ### 4. User Blocking & Reporting
 **Area**: Social features  
-**Problem**: No ability to block or report users. Apple reviewers check for this in social apps and may reject without it.  
-**Best Practice**: Add `blockedUsers` subcollection per user. Filter blocked users from friend suggestions, activity feed, and search results. Add a report flow that sends to a moderation queue.  
-**Impact**: App Store compliance, user safety  
-**Effort**: Medium (6-8 hours)
+**Problem**: ~~No ability to block or report users. Apple reviewers check for this in social apps and may reject without it.~~  
+**Status**: ✅ **ALREADY IMPLEMENTED**. `friendService.ts` contains `blockUser`, `unblockUser`, `getBlockedUsers`, `isBlocked`, `subscribeBlockSet`, `reportContent`, `reportUser`, `getReportedContentIds`, and `subscribeReportedContent`. Firestore `blocks` and `reports` collections have proper security rules. This item is closed — no work needed.
 
 ---
 
@@ -228,4 +217,5 @@ Items added as they're found during development sessions:
 | Sep 25, 2026 | `updateUserProfile` calls `new Date()` twice — once for the `users/{uid}` write, once for `socialUpdates`. The two Firestore docs get slightly different `updatedAt` timestamps. Extract `const now = new Date()` before the first write and reuse for both. Minor consistency issue but could confuse timeline queries. | `src/hooks/useAuth.tsx` `updateUserProfile` | ~~Low~~ **FIXED** — Oct 2026 |
 | Sep 25, 2026 | `socialUpdates` is typed as `Record<string, unknown>`. It should be typed as `Partial<Pick<UserProfile, 'name' \| 'username' \| 'avatar' \| 'updatedAt'>>` to get compile-time field-name checking aligned with the `UserProfile` interface in `social.ts`. Prevents accidental field-name typos in future additions to this sync. | `src/hooks/useAuth.tsx` `updateUserProfile` | ~~Low~~ **FIXED** — Oct 2026 |
 | Sep 25, 2026 | Outer `catch (error: any)` in `updateUserProfile` uses `any` — TypeScript strict mode should be `catch (error: unknown)` with `error instanceof Error ? error.message : 'Failed to update profile'` narrowing. Avoids suppressing type errors in the error path. | `src/hooks/useAuth.tsx` `updateUserProfile` | ~~Low~~ **FIXED** — Oct 2026 |
+| Oct 2, 2026 | `UserProfileUpdate` type in `updateUserProfile` is defined inline inside the function and includes `username?: string`, but `UserProfile` in `social.ts` does not declare a `username` field. The `username` field is being written to `userProfiles` Firestore docs without TypeScript coverage. Fix: add `username?: string` to `UserProfile` in `social.ts`, then rewrite `UserProfileUpdate` as `Pick<UserProfile, 'name' \| 'username' \| 'avatar'> & { updatedAt: Date }` so the sync type stays anchored to the canonical interface and drift is caught at compile time. | `src/types/social.ts` `UserProfile`, `src/hooks/useAuth.tsx` `UserProfileUpdate` | Low |
 *This document is updated continuously. Check the Discovery Log for the latest additions.*

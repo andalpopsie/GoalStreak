@@ -148,16 +148,16 @@ class FriendService {
 
       const request = requestDoc.data() as FriendRequest;
 
-      // Check if friendship already exists (prevent duplicates)
-      const existingFriendship = await getDocs(
-        query(
-          this.friendsCollection,
-          where('userId', '==', request.fromUserId),
-          where('friendId', '==', request.toUserId)
-        )
+      // Check if friendship already exists using the deterministic compound ID
+      // (faster than a query and race-condition-safe — concurrent accepts read
+      // the same document path rather than running independent queries).
+      const existingRef = doc(
+        this.friendsCollection,
+        `${request.fromUserId}_${request.toUserId}`
       );
+      const existingDoc = await getDoc(existingRef);
 
-      if (!existingFriendship.empty) {
+      if (existingDoc.exists()) {
         // Friendship already exists — just mark the request as accepted
         batch.update(doc(this.friendRequestsCollection, requestId), {
           status: 'accepted',
@@ -197,9 +197,17 @@ class FriendService {
         updatedAt: new Date(),
       };
 
-      // Add both friendship records
-      const friend1Ref = doc(this.friendsCollection);
-      const friend2Ref = doc(this.friendsCollection);
+      // Use deterministic compound IDs: "{userId}_{friendId}"
+      // setDoc with a known ID is idempotent — concurrent accepts overwrite
+      // the same document rather than creating duplicate entries.
+      const friend1Ref = doc(
+        this.friendsCollection,
+        `${request.fromUserId}_${request.toUserId}`
+      );
+      const friend2Ref = doc(
+        this.friendsCollection,
+        `${request.toUserId}_${request.fromUserId}`
+      );
 
       batch.set(friend1Ref, {
         ...friend1,
